@@ -1,0 +1,85 @@
+.app-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 38px;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid $color-primary;
+  background-color: $color-primary;
+  font-size: 14px;
+  color: $color-white;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    cursor: pointer;
+    background-color: $color-secondary;
+    color: $color-white !important;
+    box-shadow: 0px 4px 4px 0px rgba(169, 174, 184, 0.24);
+  }
+
+  &-filled {
+    background-color: $color-primary;
+    color: $color-white !important;
+  }
+}
+.app-button-regular {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 24px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid $color-gray;
+  background-color: $color-white;
+  font-size: 12px;
+  font-weight: 700;
+  font-style: normal;
+  color: $color-gray-600;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    background-color: $color-secondary;
+    color: $color-white !important;
+    box-shadow: 0px 4px 4px 0px rgba(169, 174, 184, 0.24);
+  }
+
+  &-filled {
+    background-color: $color-primary;
+    color: $color-white !important;
+  }
+}
+.app-button-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 36px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid $color-danger;
+  background-color: $color-white;
+  font-size: 12px;
+  font-weight: 700;
+  font-style: normal;
+  color: $color-danger;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    background-color: $color-secondary;
+    color: $color-white !important;
+    box-shadow: 0px 4px 4px 0px rgba(169, 174, 184, 0.24);
+  }
+
+  &-filled {
+    background-color: $color-primary;
+    color: $color-white !important;
+  }
+  p {
+    margin: 0px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,160 @@
+.leftSide {
+  display: flex;
+  min-width: 96px;
+  max-width: 96px;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 18px;
+  background-color: $color-primary;
+  justify-content: space-between;
+  .top,
+  .bottom {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    position: relative;
+    gap: 60px;
+    align-items: center;
+    ul {
+      position: absolute;
+      top: 50px;
+      left: 0px;
+      width: 78px;
+      padding: 0px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      a {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        align-self: stretch;
+        .content-profile {
+          width: 60px;
+          height: 60px;
+          padding: 10px;
+          .icon-profile {
+            display: inline-block;
+            background-size: cover;
+            background-image: url("/images/sidebar/famale.jpeg");
+            border-radius: 50%;
+          }
+          &:hover {
+            border-radius: 50%;
+            background-color: white;
+            cursor: pointer;
+          }
+        }
+        .content {
+          width: 60px;
+          height: 60px;
+          padding: 20px 20px;
+          .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-size: cover;
+          }
+          &:hover {
+            border-radius: 50%;
+            background-color: white;
+            cursor: pointer;
+            .icon-b {
+              background-image: url("/images/onlyBGreen.svg");
+            }
+            .icon-setting {
+              background-image: url("/images/settingsGreen.svg");
+            }
+            .icon-mail {
+              background-image: url("/images/mailGreen.svg");
+            }
+            .icon-messenger {
+              background-image: url("/images/messengerGreen.svg");
+            }
+            .icon-teams {
+              background-image: url("/images/teamsGreen.svg");
+            }
+            .icon-bell {
+              background-image: url("/images/bellGreen.svg");
+            }
+          }
+          .icon-b {
+            background-image: url("/images/onlyB.svg");
+            &.active {
+              background-image: url("/images/onlyBGreen.svg");
+            }
+          }
+          .icon-setting {
+            background-image: url("/images/settingsWhite.svg");
+            &.active {
+              background-image: url("/images/settingsGreen.svg");
+            }
+          }
+          .icon-mail {
+            background-image: url("/images/mailWhite.svg");
+            &.active {
+              background-image: url("/images/mailGreen.svg");
+            }
+          }
+          .icon-messenger {
+            background-image: url("/images/messengerWhite.svg");
+            &.active {
+              background-image: url("/images/messengerGreen.svg");
+            }
+          }
+          .icon-teams {
+            background-image: url("/images/teamsWhite.svg");
+            &.active {
+              background-image: url("/images/teamsGreen.svg");
+            }
+          }
+          .icon-bell {
+            background-image: url("/images/bellWhite.svg");
+            border-radius: 50%;
+            &.active {
+              background-image: url("/images/bellGreen.svg");
+            }
+          }
+        }
+      }
+      a.active {
+        border-radius: 100px 0px 0px 100px;
+        background: var(--gray-white, #fff);
+        &::before,
+        &::after {
+          content: "";
+          height: 20px;
+          width: 18px;
+          position: absolute;
+          bottom: 0;
+          background: radial-gradient(
+            circle at top left,
+            #fff0 73.5%,
+            #fff 75%
+          );
+        }
+        &::after {
+          right: 0px;
+          top: 100%;
+          background: radial-gradient(
+            circle at bottom left,
+            #fff0 73.5%,
+            #fff 75%
+          );
+        }
+        &::before {
+          bottom: 100%;
+          right: 0px;
+        }
+      }
+    }
+  }
+  .bottom {
+    ul {
+      top: -272px !important;
+    }
+  }
+}

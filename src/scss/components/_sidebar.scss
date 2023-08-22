@@ -1,0 +1,103 @@
+.app-sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 270px;
+  width: 270px;
+  height: 100vh;
+  background-color: $color-primary;
+  .app-sidebar-logo {
+    display: flex;
+    flex-direction: row;
+    padding: 28px 12px;
+    width: 166px;
+    align-self: center;
+  }
+  .app-sidebar-menu {
+    height: 100%;
+    ul {
+      > li {
+        padding: 12px !important;
+        > div {
+          padding: 12px !important;
+        }
+        .ant-menu-item-icon {
+          color: white;
+        }
+        span {
+          font-weight: 500;
+          font-size: 14px;
+          line-height: 16px;
+          color: white;
+        }
+        i {
+          color: white;
+        }
+      }
+
+      > .ant-menu-submenu-inline {
+        padding: 0px !important;
+        > ul {
+          padding-left: 20px !important;
+          > li {
+            border-left: 2px solid white !important;
+            border-radius: 0px !important;
+          }
+          &:hover {
+            background-color: red !important;
+          }
+        }
+      }
+      > .ant-menu-submenu-selected {
+        > div {
+          span {
+            color: white;
+          }
+        }
+        span {
+          color: black;
+        }
+      }
+      > .ant-menu-item-selected {
+        background-color: rgba(248, 249, 250, 0.3);
+        span {
+          color: white;
+        }
+      }
+    }
+  }
+  .app-sidebar-bottom {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 88px;
+    .app-bottom-menu {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      .app-settings,
+      .app-logout {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        padding: 12px 24px;
+        a {
+          text-decoration: none;
+          font-style: normal;
+          font-weight: 500;
+          font-size: 14px;
+          line-height: 16px;
+          color: white;
+        }
+      }
+      .app-logout {
+        background-color: white;
+        border-radius: 12px 12px 0px 0px;
+        a {
+          color: #dc3545;
+        }
+      }
+    }
+  }
+}

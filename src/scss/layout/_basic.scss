@@ -1,0 +1,139 @@
+.basis-layout {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 65px;
+  padding: 27px 36px;
+  a {
+    font-size: 14px;
+    line-height: 17px;
+    font-weight: 400;
+    color: $color-primary;
+  }
+  p.hellomsg {
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 44px;
+    text-align: center;
+    color: $color-primary;
+  }
+  .body {
+    // width: 520px;
+    // display: block;
+    // margin: auto;
+  }
+  .login-page {
+    // width: 100%;
+    width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+    text-align: center;
+    margin: auto;
+    .top {
+      display: block;
+      width: 100%;
+      gap: 16px;
+      p.title {
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 36px;
+      }
+      .login-control {
+        display: grid;
+        width: 100%;
+        gap: 16px;
+        label {
+          text-align: start;
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 19px;
+        }
+        input[type="text"] {
+          min-height: 48px;
+          border-radius: 12px;
+          border: 1px solid rgba(229, 231, 235, 1);
+          &:hover {
+            border: 1px solid $color-primary;
+          }
+        }
+        span.ant-input-affix-wrapper {
+          min-height: 48px;
+          border-radius: 12px;
+          border: 1px solid rgba(229, 231, 235, 1);
+          > input[type="text"] {
+            border: 0px;
+            min-height: 38px !important;
+          }
+          &:hover {
+            border: 1px solid $color-primary;
+          }
+        }
+        span.ant-checkbox-checked {
+          span.ant-checkbox-inner {
+            background-color: $color-primary;
+          }
+        }
+        span.ant-checkbox-inner {
+          background-color: white;
+          border: 1px solid rgba(229, 231, 235, 1);
+          &::after {
+            background-color: $color-primary;
+          }
+          &:hover {
+            border: 1px solid $color-primary;
+          }
+        }
+        .add-ons {
+          display: flex;
+          justify-content: space-between;
+        }
+        button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 48px;
+          border-radius: 12px;
+          background-color: $color-primary;
+          color: white;
+          width: 100%;
+          font-size: 16px;
+          font-weight: 500;
+          line-height: 19px;
+          &:hover {
+            border: 1px solid $color-primary;
+          }
+        }
+        .linkRegister {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          .group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            p {
+              font-size: 14px;
+              line-height: 17px;
+              font-weight: 400;
+              margin-bottom: 0px;
+            }
+          }
+        }
+      }
+    }
+    .bottom {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 36px;
+      .box {
+        width: 72px;
+        height: 68px;
+        padding: 16px 18px;
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+.profile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  > .header {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 261px;
+    flex-direction: column;
+    align-items: center;
+    gap: -56px;
+    flex-shrink: 0;
+    > .top {
+      width: 100%;
+      height: 146px;
+      display: flex;
+      align-self: stretch;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      align-self: stretch;
+      background: url("/images/profile/back.jpeg");
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      opacity: 0.6;
+    }
+    > .bottom {
+      display: flex;
+      width: 100%;
+      position: absolute;
+      top: 76px;
+      padding: 0px 72px;
+      align-items: flex-end;
+      gap: 40px;
+      align-self: stretch;
+      img {
+        border-radius: 50%;
+      }
+      > .info {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding-bottom: 0px;
+        align-items: flex-start;
+        > .name,
+        .position {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          > p {
+            color: #4e5969;
+            font-size: 24px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+          }
+        }
+        > .position {
+          p {
+            font-size: 16px;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+  }
+  > .body {
+    width: 100%;
+    padding: 72px 77px;
+    display: flex;
+    flex-direction: row;
+    gap: 43px;
+    > .menu {
+      width: 100%;
+      width: 217px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    > .content {
+      width: 100%;
+    }
+  }
+}
