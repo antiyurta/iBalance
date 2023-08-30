@@ -23,7 +23,7 @@ const Login = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isRememberMe, setIsRememberMe] = useState(false);
   const onFinish = async (values: ILoginData) => {
-    // blockContext.block();
+    blockContext.block();
     await authService
       .authLogin(values)
       .then((response) => {
@@ -47,7 +47,7 @@ const Login = () => {
             layout="vertical"
             onFinish={onFinish}
             initialValues={{
-              email: "ulziikhutag.gurensoft@gmail.com",
+              email: "gantuya467@gmail.com",
               password: "WETITr",
             }}
           >

@@ -6,7 +6,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     <div className="basis-layout">
       <div className="navbar">
         <Image
-          src={"/images/iBalance.png"}
+          src={"/images/iBALANCE.png"}
           loading="eager"
           priority={true}
           alt="textLogo"

@@ -24,6 +24,17 @@
     color: $color-white !important;
   }
 }
+
+.app-button:disabled {
+  background-color: $color-gray-100;
+  color: $color-gray-700;
+  border: 1px solid $color-gray-700;
+  &:hover {
+    cursor: not-allowed;
+    color: $color-gray-700 !important;
+  }
+}
+
 .app-button-regular {
   display: flex;
   align-items: center;

@@ -1,6 +1,7 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface IGeneralMenu {
@@ -10,6 +11,7 @@ interface IGeneralMenu {
 }
 
 const LeftSide = () => {
+  const pathname = usePathname();
   const router = useRouter();
   const [selectedMenu, setSelectedMenu] = useState<Number>(7);
   const menu: IGeneralMenu[] = [
@@ -20,33 +22,49 @@ const LeftSide = () => {
     },
     {
       id: 1,
-      to: "/dashboard",
+      to: "/dashboard1",
       iconUrl: "icon-setting",
     },
     {
       id: 2,
-      to: "/dashboard",
+      to: "/dashboard2",
       iconUrl: "icon-mail",
     },
   ];
   const buttonMenu: IGeneralMenu[] = [
     {
       id: 3,
-      to: "/dashboard",
+      to: "/dashboard3",
       iconUrl: "icon-messenger",
     },
     {
       id: 4,
-      to: "/dashboard",
+      to: "/dashboard4",
       iconUrl: "icon-teams",
     },
     {
       id: 5,
-      to: "/profile/general",
+      to: "/dashboard5",
       iconUrl: "icon-bell",
     },
   ];
-
+  useEffect(() => {
+    if (pathname) {
+      buttonMenu?.map((menu) => {
+        if (pathname.includes(menu.to)) {
+          setSelectedMenu(menu.id);
+        }
+      });
+      menu?.map((item) => {
+        if (pathname.includes(item.to)) {
+          setSelectedMenu(item.id);
+        }
+      });
+      if (pathname === "/profile/general") {
+        setSelectedMenu(7);
+      }
+    }
+  }, [pathname]);
   return (
     <div className="leftSide">
       <div className="top">

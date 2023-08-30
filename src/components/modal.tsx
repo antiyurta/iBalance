@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 interface IProps {
   title?: string;
   open: boolean;
+  width?: number;
   onCancel?: () => void;
   onOk?: () => void;
   footer?: ReactNode;
@@ -11,7 +12,7 @@ interface IProps {
 }
 
 const NewModal = (props: IProps) => {
-  const { title, open, onCancel, onOk, footer, children } = props;
+  const { title, open, width, onCancel, onOk, footer, children } = props;
   return (
     <Modal
       title={
@@ -29,6 +30,7 @@ const NewModal = (props: IProps) => {
       onOk={onOk}
       cancelText="Болих"
       okText="Хадгалах"
+      width={width}
       footer={footer}
     >
       {children}

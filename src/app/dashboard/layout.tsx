@@ -30,11 +30,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     {
       key: "/dashboard",
       label: "Хянах самбар",
-      children: children,
       closable: false,
     },
   ]);
   const remove = (targetKey: TargetKey) => {
+    blockContext.block();
     let newActiveKey = activeKey;
     let lastIndex = -1;
     tabsItems?.forEach((item, i) => {
@@ -64,6 +64,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
     setTabsItems(newPanes);
     setActiveKey(newActiveKey);
+    blockContext.unblock();
   };
   const onEdit = (targetKey: TargetKey, action: "add" | "remove") => {
     if (action === "remove") {
@@ -71,7 +72,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   };
   const onChange = (key: string) => {
-    console.log("key", key);
     const selectedMenuKeys: string[] = key.split(",");
     if (selectedMenuKeys.length === 0) {
       dispatch(
@@ -91,10 +91,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
   useEffect(() => {
     blockContext.block();
-    // setTimeout(() => {
-    //   console.log("===>");
-    // }, 10000);
-
     if (!tabsItems?.find((item) => item.key === path.toString())) {
       setTabsItems((tabsItems: TabsProps["items"]) => {
         if (tabsItems != undefined) {
@@ -103,26 +99,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {
               key: path.toString(),
               label: label,
-              children: children,
             },
           ];
         }
       });
     }
-    setActiveKey(path.toString());
     if (path.length > 1) {
       router.push("/dashboard" + path.join(""));
     } else {
       router.push(path.join(""));
     }
+    setTimeout(() => {
+      setActiveKey(path.toString());
+    }, 100);
     blockContext.unblock();
   }, [path]);
-  useEffect(() => {
-    blockContext.block();
-    setTimeout(() => {
-      blockContext.unblock();
-    }, 1000);
-  });
 
   return (
     <div
@@ -134,7 +125,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <RigthSide />
       <div
         style={{
-          width: "100%",
+          width: "calc(100% - 236px)",
           padding: "0px 24px",
           display: "flex",
           flexDirection: "column",
@@ -188,8 +179,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             type="editable-card"
             onEdit={onEdit}
             items={tabsItems}
-            destroyInactiveTabPane={true}
           />
+          <div>{children}</div>
         </main>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { ConfigProvider, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import type { TableColumnProps, TableProps } from "antd";
@@ -9,17 +9,14 @@ import { SummaryCellProps } from "rc-table/lib/Footer/Cell";
 import DragListView from "react-drag-listview";
 import { ColumnType } from "antd/es/table";
 //
+import { Meta } from "@/service/entities";
+import { FilterDropdownProps, RefTable } from "antd/es/table/interface";
 
 const { Column, ColumnGroup } = Table;
 
 interface ITable {
-  columns: ColumnType<IColumnData>[];
-  prop: TableProps<any>;
-  meta: {
-    page: number;
-    itemCount: number;
-    limit: number;
-  };
+  prop: RefTable;
+  meta: Meta;
   isLoading: boolean;
   isPagination: boolean;
   onChange?: (page: number, pageSize: number) => void;
@@ -27,7 +24,14 @@ interface ITable {
 
 export interface IColumnData {
   title: string;
-  dataIndex: string;
+  dataIndex?: string;
+  width?: number | string;
+  filters?: object[] | any;
+  filterMode?: "menu" | "tree";
+  filterDropdown?:
+    | React.ReactNode
+    | ((props: FilterDropdownProps) => React.ReactNode);
+  render?: (value?: any, record?: IColumnData, index?: number) => ReactNode;
 }
 
 interface IColumnGroup {
@@ -51,15 +55,16 @@ function NewSummaryCell(props: SummaryCellProps) {
 }
 
 function NewTable(props: ITable) {
-  const { columns, prop, meta, isLoading, isPagination, onChange } = props;
-  const [currentColumns, setCurrentColumns] =
-    useState<ColumnType<IColumnData>[]>(columns);
+  const { prop, meta, isLoading, isPagination, onChange } = props;
+  // const [currentColumns, setCurrentColumns] =
+  //   useState<ColumnType<IColumnData>[]>);
   const dragProps = {
     onDragEnd(fromIndex: number, toIndex: number) {
-      const columns = [...currentColumns];
-      const item = columns.splice(fromIndex - 1, 1)[0];
-      columns.splice(toIndex - 1, 0, item);
-      setCurrentColumns(columns);
+      console.log(fromIndex, toIndex);
+      // const columns = [...currentColumns];
+      // const item = columns.splice(fromIndex - 1, 1)[0];
+      // columns.splice(toIndex - 1, 0, item);
+      // setCurrentColumns(columns);
     },
     nodeSelector: "th",
   };
@@ -98,15 +103,20 @@ function NewTable(props: ITable) {
               return meta.page * meta.limit - (meta.limit - index - 1);
             }}
           />
-          {currentColumns?.map((column, index) => {
+          {/* {currentColumns?.map((column, index) => {
             return (
               <NewColumn
                 key={index}
                 title={column.title}
                 dataIndex={column.dataIndex}
+                width={column.width}
+                filters={column.filters}
+                filterMode={column.filterMode}
+                filterDropdown={column.filterDropdown}
+                render={column.render}
               />
             );
-          })}
+          })} */}
         </Table>
       </DragListView.DragColumn>
     </ConfigProvider>

@@ -1,8 +1,8 @@
 "use client";
 import "antd/dist/reset.css";
 import "../app/globals.scss";
-import { Metadata } from "next";
 import React from "react";
+import { Metadata } from "next";
 import { Ubuntu } from "next/font/google";
 import { AppBlock } from "@/feature/context/BlockContext";
 import { Provider } from "react-redux";
@@ -21,10 +21,10 @@ const ubuntu = Ubuntu({
 
 Interceptor(api, store);
 
-export const metadata: Metadata = {
-  title: "iBalance",
-  description: "iBalance",
-};
+// export const metadata: Metadata = {
+//   title: "iBalance",
+//   description: "iBalance",
+// };
 
 export default function RootLayout({
   children,

@@ -2,12 +2,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  .header {
+  > .header {
     display: flex;
     padding: 12px 0px;
     justify-content: space-between;
     align-items: center;
     align-self: stretch;
+    gap: 12px;
     .left {
       display: flex;
       align-items: center;
@@ -23,6 +24,7 @@
     .right {
       display: flex;
       .ant-input-affix-wrapper {
+        height: 40px;
         border-radius: 6px;
       }
       .ant-input-group-addon {
@@ -48,7 +50,7 @@
       }
     }
   }
-  .body {
+  > .body {
     display: flex;
     padding: 12px 0px;
     justify-content: space-between;
@@ -57,94 +59,37 @@
     flex: 1 0 0;
     align-self: stretch;
     flex-direction: row;
-    .left {
-      border-radius: 8px 8px 0px 0px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-      align-self: stretch;
-      background-color: $color-white;
-      .header {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        width: 100%;
-        height: 60px;
-        padding: 0px 12px;
-        align-items: center;
-        gap: 12px;
-        background: #f2f3f5;
-        border-radius: 8px 8px 0px 0px;
-        p {
-          color: #86909c;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: normal;
-          margin: 0px;
-        }
-      }
-      .content {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .body {
-        padding: 0px;
-        width: 100%;
-        justify-content: flex-start;
-        .ant-tree {
-          width: 100%;
-        }
-      }
-    }
     .middle {
-      width: 100%;
+      width: calc(100% - 324px);
     }
-    .right {
-      width: 100%;
+  }
+}
+.information-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .switches {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    .ant-form-item .ant-form-item-row {
       display: flex;
-      padding: 6px 20px 6px 12px;
-      flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
+      flex-direction: row-reverse;
       gap: 12px;
-      align-self: stretch;
-      border-radius: 4px;
-      background: var(--gray-white, #fff);
-      box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.25);
-      > .header,
-      .footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        align-self: stretch;
-        img:hover {
-          cursor: pointer;
-        }
+      width: 100%;
+      .ant-form-item-label {
+        padding: 0px;
       }
-      > .title {
-        display: flex;
-        padding: 8px 0px;
-        align-items: flex-start;
-        gap: 10px;
-        align-self: stretch;
-        > p {
-          color: $color-primary;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: normal;
-          margin: 0px;
-        }
-      }
-      > .body {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+      .ant-form-item-control {
+        width: auto;
       }
     }
+  }
+  .inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    width: 100%;
   }
 }
