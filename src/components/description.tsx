@@ -1,5 +1,9 @@
 "use client";
-import { FilteredColumns } from "@/service/consumer/entities";
+import {
+  DataIndex,
+  DataIndexType,
+  FilteredColumns,
+} from "@/service/consumer/entities";
 import { Modal } from "antd";
 import Image from "next/image";
 
@@ -24,38 +28,46 @@ const Description = (props: IDescription) => {
       onOk: () => onDelete(selectedRow?.["id"]),
     });
   };
-  const configRender = (key: string, relationIndex?: string[]) => {
-    if (typeof selectedRow?.[key] === "boolean") {
-      if (selectedRow?.[key]) {
-        return (
-          <Image
-            src={"/icons/switchTrue.svg"}
-            width={44}
-            height={22}
-            alt="switchfalse"
-          />
-        );
-      } else {
-        return (
-          <Image
-            src={"/icons/switchFalse.svg"}
-            width={44}
-            height={22}
-            alt="switchtrue"
-          />
-        );
+  const configRender = (
+    key: string,
+    type?: DataIndexType,
+    dataIndex?: DataIndex | DataIndex[]
+  ) => {
+    if (
+      type === DataIndexType.BOOLEAN ||
+      type === DataIndexType.BOOLEAN_STRING
+    ) {
+      return selectedRow?.[key] ? (
+        <Image
+          src={"/icons/switchTrue.svg"}
+          width={44}
+          height={22}
+          alt="switchfalse"
+        />
+      ) : (
+        <Image
+          src={"/icons/switchFalse.svg"}
+          width={44}
+          height={22}
+          alt="switchfalse"
+        />
+      );
+    } else if (type === DataIndexType.STRING) {
+      return (
+        <p className="value">{selectedRow?.[key as keyof typeof columns]}</p>
+      );
+    } else if (
+      type === DataIndexType.STRING_BANK ||
+      type === DataIndexType.STRING_TREE
+    ) {
+      if (typeof dataIndex === "object") {
+        var clonedSelectedRow = selectedRow;
+        dataIndex?.map((index: DataIndex) => {
+          clonedSelectedRow = clonedSelectedRow[`${index}`];
+        });
+        return <p>{clonedSelectedRow}</p>;
       }
     }
-    if (relationIndex) {
-      var clonedSelectedRow = selectedRow;
-      relationIndex?.map((index) => {
-        clonedSelectedRow = clonedSelectedRow[`${index}`];
-      });
-      return <p>{clonedSelectedRow}</p>;
-    }
-    return (
-      <p className="value">{selectedRow?.[key as keyof typeof columns]}</p>
-    );
   };
   if (open) {
     return (
@@ -78,12 +90,12 @@ const Description = (props: IDescription) => {
         <div className="title">
           <p>{title}</p>
         </div>
-        <div className="body">
+        <div className="extra-description-body">
           {Object.entries(columns)?.map(([key, value], index) => {
             return (
               <div key={index} className="content">
                 <p className="label">{value.label}</p>
-                {configRender(key, value?.relationIndex)}
+                {configRender(key, value.type, value?.dataIndex)}
               </div>
             );
           })}

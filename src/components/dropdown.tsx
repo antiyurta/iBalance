@@ -26,7 +26,7 @@ interface IProps {
   type: DataIndexType;
   filters: ColumnFilterItem[];
   isFiltered: boolean;
-  handleSearch: (params: Params) => void;
+  handleSearch: (params: Params, state: boolean) => void;
 }
 type CheckedList = (number | string | boolean)[];
 enum SearchType {
@@ -211,49 +211,63 @@ const DropDown = (props: IProps) => {
   const configureSearch = (type: SearchType, order?: RadioType) => {
     switch (type) {
       case SearchType.RADIO:
-        handleSearch({
-          page: 1,
-          limit: 10,
-          orderParam: dataIndex,
-          order: order,
-        });
+        handleSearch(
+          {
+            page: 1,
+            limit: 10,
+            orderParam: dataIndex,
+            order: order,
+          },
+          true
+        );
         break;
       case SearchType.INPUT:
-        handleSearch({
-          page: 1,
-          limit: 10,
-          queries: [
-            {
-              param: dataIndex,
-              operator: tool,
-              value: searchValue,
-            },
-          ],
-        });
+        handleSearch(
+          {
+            page: 1,
+            limit: 10,
+            queries: [
+              {
+                param: dataIndex,
+                operator: tool,
+                value: searchValue,
+              },
+            ],
+          },
+          true
+        );
         break;
       case SearchType.CHECKBOX:
-        handleSearch({
-          page: 1,
-          limit: 10,
-          [dataIndex]: checkedList,
-        });
+        handleSearch(
+          {
+            page: 1,
+            limit: 10,
+            [dataIndex]: checkedList,
+          },
+          true
+        );
         break;
       case SearchType.DEFUALT:
-        // filter(dataIndex, false);
+        handleSearch(
+          {
+            page: 1,
+            limit: 10,
+          },
+          false
+        );
         break;
       default:
         break;
     }
   };
   useEffect(() => {
-    console.log("=======>end orw", isFiltered);
     if (!isFiltered) {
       setSearchValue("");
       setCheckedList([]);
       setRadioValue(undefined);
       indeterminate = false;
     }
-  }, [isFiltered]);
+  }, [props]);
   return (
     <div
       style={{
@@ -293,9 +307,8 @@ const DropDown = (props: IProps) => {
           }}
           value={radioValue}
           onChange={(e: any) => {
-            // setRadioValue(e.target.value);
-            // configureSearch(SearchType.RADIO, e.target.value);
-            // confirm();
+            setRadioValue(e.target.value);
+            configureSearch(SearchType.RADIO, e.target.value);
           }}
           optionType="button"
           buttonStyle="solid"
@@ -372,8 +385,8 @@ const DropDown = (props: IProps) => {
               }}
               disabled={checkedList.length > 0 ? true : false}
               value={searchValue}
-              // onChange={(e: number) => setSearchValue(e)}
-              // onPressEnter={() => configureSearch(SearchType.INPUT)}
+              onChange={(e: number) => setSearchValue(e)}
+              onPressEnter={() => configureSearch(SearchType.INPUT)}
               addonBefore={
                 <Popover
                   placement="bottom"
@@ -398,7 +411,7 @@ const DropDown = (props: IProps) => {
               disabled={checkedList.length > 0 ? true : false}
               value={searchValue}
               onChange={(e: any) => setSearchValue(e.target.value)}
-              // onPressEnter={() => configureSearch(SearchType.INPUT)}
+              onPressEnter={() => configureSearch(SearchType.INPUT)}
               addonBefore={
                 <Popover
                   placement="bottom"
@@ -471,7 +484,7 @@ const DropDown = (props: IProps) => {
           onClick={() => {
             setCheckedList([]);
             setSearchValue("");
-            // configureSearch(SearchType.DEFUALT);
+            configureSearch(SearchType.DEFUALT);
           }}
           className="app-button-regular"
           style={{

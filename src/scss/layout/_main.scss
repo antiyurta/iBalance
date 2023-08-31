@@ -236,18 +236,34 @@ body {
   }
 }
 .extra-description {
+  max-width: 250px;
   width: 100%;
   display: flex;
   padding: 6px 12px 6px 12px;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
+  gap: 12px;
   align-self: stretch;
   border-radius: 4px;
   background: var(--gray-white, #fff);
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.25);
   > .header,
   > .footer {
+    > .title {
+      display: flex;
+      padding: 8px 0px;
+      align-items: flex-start;
+      gap: 10px;
+      align-self: stretch;
+      > p {
+        color: $color-primary;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin: 0px;
+      }
+    }
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -275,7 +291,7 @@ body {
       margin: 0px;
     }
   }
-  > .body {
+  > .extra-description-body {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -299,7 +315,7 @@ body {
 
 .directory-tree {
   border-radius: 8px 8px 0px 0px;
-  min-width: 300px;
+  min-width: 250px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -371,6 +387,11 @@ body {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+body {
+  justify-content: center;
+  background-color: #f9fbfd;
 }
 
 html {

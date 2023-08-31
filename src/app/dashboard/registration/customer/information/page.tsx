@@ -3,7 +3,6 @@ import { MoreOutlined, FilterOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
-import getColumnSearchProps from "@/components/filterDropDown2";
 import {
   NewInput,
   NewInputNumber,
@@ -20,6 +19,7 @@ import { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 // components
 import Popup from "@/components/popup";
+import FilterMore from "./filterMore";
 // interface
 import { Meta } from "@/service/entities";
 import {
@@ -29,6 +29,7 @@ import {
   Quearies,
   FilteredColumns,
   DataIndex,
+  ColumnType,
 } from "@/service/consumer/entities";
 //service iid
 import { ConsumerService } from "@/service/consumer/service";
@@ -37,19 +38,24 @@ import { ConsumerSectionService } from "@/service/consumer/section/service";
 // types
 import { IType, IDataReference } from "@/service/reference/entity";
 import { isChecked } from "@/feature/common";
-import type { ColumnsType } from "antd/es/table";
 import Filtered from "@/components/filtered";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { IDataConsumerSection } from "@/service/consumer/section/entities";
 import DropDown from "@/components/dropdown";
 import { ColumnFilterItem } from "antd/es/table/interface";
 
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
+
+enum Open {
+  DUAL = "DUAL",
+  TREE = "TREE",
+  DESC = "DESC",
+  FILTER = "FILTER",
+}
 
 const Information = () => {
   const [form] = Form.useForm(); // add hiih Form
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const defualtColumnIndexes: number[] = [0, 1, 2, 3]; // default mor nuud
   const [testColumns, setTestColumns] = useState<FilteredColumns>({
     code: {
       label: "Харилцагчийн код",
@@ -65,12 +71,82 @@ const Information = () => {
       dataIndex: "isIndividual",
       type: DataIndexType.BOOLEAN,
     },
+    isEmployee: {
+      label: "Ажилтан эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isEmployee",
+      type: DataIndexType.BOOLEAN,
+    },
     lastName: {
       label: "Харилцагчийн овог",
-      isView: false,
+      isView: true,
       isFiltered: false,
       dataIndex: "lastName",
       type: DataIndexType.STRING,
+    },
+    name: {
+      label: "Харилцагчийн нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "name",
+      type: DataIndexType.STRING,
+    },
+    sectionId: {
+      label: "Харилцагчийн бүлэг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["section", "name"],
+      type: DataIndexType.STRING_TREE,
+    },
+    regno: {
+      label: "Регистр №",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "regno",
+      type: DataIndexType.STRING,
+    },
+    phone: {
+      label: "Утасны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "phone",
+      type: DataIndexType.STRING,
+    },
+    address: {
+      label: "Хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "address",
+      type: DataIndexType.STRING,
+    },
+    bankId: {
+      label: "Банкны нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["bank", "name"],
+      type: DataIndexType.STRING_BANK,
+    },
+    bankAccountNo: {
+      label: "Дансны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "bankAccountNo",
+      type: DataIndexType.STRING,
+    },
+    email: {
+      label: "И-мэйл хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "email",
+      type: DataIndexType.STRING,
+    },
+    isActive: {
+      label: "Төлөв",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isActive",
+      type: DataIndexType.BOOLEAN_STRING,
     },
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
@@ -81,69 +157,29 @@ const Information = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [isDualMirror, setIsDualMirror] = useState<boolean>(false);
+  const [isFilterIcon, setIsFilterIcon] = useState<boolean>(false);
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
   const [sections, setSections] = useState<IDataConsumerSection[]>([]);
-  const [selectedColumns, setSelectedColumns] = useState<FilteredColumns>({
-    // code: {
-    //   label: "Харилцагчийн код",
-    //   isActive: false,
-    // },
-    // isIndividual: {
-    //   label: "Хувь хүн эсэх",
-    //   isActive: false,
-    // },
-    // isEmployee: {
-    //   label: "Ажилтан эсэх",
-    //   isActive: false,
-    // },
-    // lastName: {
-    //   label: "Харилцагчийн овог",
-    //   isActive: false,
-    // },
-    // name: {
-    //   label: "Харилцагчийн нэр",
-    //   isActive: false,
-    // },
-    // sectionId: {
-    //   label: "Харилцагчийн бүлэг",
-    //   isActive: false,
-    //   relationIndex: ["section", "name"],
-    // },
-    // regno: {
-    //   label: "Регистр №",
-    //   isActive: false,
-    // },
-    // phone: {
-    //   label: "Утасны дугаар",
-    //   isActive: false,
-    // },
-    // address: {
-    //   label: "Хаяг",
-    //   isActive: false,
-    // },
-    // bankId: {
-    //   label: "Банкны нэр",
-    //   isActive: false,
-    //   relationIndex: ["bank", "name"],
-    // },
-    // bankAccountNo: {
-    //   label: "Дансны дугаар",
-    //   isActive: false,
-    // },
-    // email: {
-    //   label: "И-мэйл хаяг",
-    //   isActive: false,
-    // },
-    // isActive: {
-    //   label: "Төлөв",
-    //   isActive: false,
-    // },
-  });
-  const [filteredColumns, setFilteredColumns] = useState<
-    ColumnsType<IDataConsumer>
-  >([]);
-
+  const [tableWidth, setTableWidth] = useState<string>("calc(100% - 262px)");
+  // isOpen udig shiideh
+  const configureOpens = (type: Open) => {
+    switch (type) {
+      case Open.DUAL:
+        if (isDualMirror) {
+          setIsOpenTree(true);
+          setIsDualMirror(false);
+          setTableWidth("calc(100% - 274px)");
+        } else {
+          setIsOpenTree(false);
+          setIsDualMirror(true);
+          setTableWidth("100%");
+        }
+      case Open.DESC:
+        setIsDescription(true);
+        setTableWidth("calc(100% - 274px)");
+    }
+  };
   // filter iih data g dawhtsal arigalh
   const removeDuplicates = (set: any[]) => {
     const uniqueIds = new Set(set.map((item) => item.value));
@@ -152,163 +188,6 @@ const Information = () => {
       .map((id) => set.find((item) => item.value === id))
       .filter(Boolean);
   };
-  // tabliin mor nuud
-  // const columns: ColumnsType<IDataConsumer> = [
-  //   {
-  //     title: "Харилцагчийн код",
-  //     dataIndex: "code",
-  //     width: 140,
-  //     ...getColumnSearchProps({
-  //       label: "Харилцагчийн код",
-  //       dataIndex: "code",
-  //       type: DataIndexType.NUMBER,
-  //       isActive: selectedColumns.code?.isActive,
-  //       filter: (key, state) => onCloseFilterTag(key, state),
-  //       handleSearch: (params) => getData(params),
-  //     }),
-  //     filters: removeDuplicates(
-  //       data?.map((item) => ({
-  //         text: item.code,
-  //         value: item.code,
-  //       }))
-  //     ),
-  //     filterIcon: () => {
-  //       return (
-  //         <FilterOutlined
-  //           style={{
-  //             fontSize: 12,
-  //             color: selectedColumns.code?.isActive ? "#198754" : "black",
-  //           }}
-  //         />
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "Хувь хүн эсэх",
-  //     dataIndex: "isIndividual",
-  //     render: (text) => {
-  //       return isChecked(text);
-  //     },
-  //   },
-  //   {
-  //     title: "Ажилтан эсэх",
-  //     dataIndex: "isEmployee",
-  //     render: (text) => {
-  //       return isChecked(text);
-  //     },
-  //   },
-  //   {
-  //     title: "Харилцагчийн овог",
-  //     dataIndex: "lastName",
-  //     ...getColumnSearchProps({
-  //       label: "Харилцагчийн овог",
-  //       dataIndex: "lastName",
-  //       type: DataIndexType.STRING,
-  //       isActive: selectedColumns.lastName?.isActive,
-  //       filter: (key, state) => onCloseFilterTag(key, state),
-  //       handleSearch: (params) => getData(params),
-  //     }),
-  //     filters: removeDuplicates(
-  //       data?.map((item) => ({
-  //         text: item.lastName,
-  //         value: item.lastName,
-  //       }))
-  //     ),
-  //     filterIcon: () => {
-  //       return (
-  //         <FilterOutlined
-  //           style={{
-  //             fontSize: 12,
-  //             color: selectedColumns.lastName?.isActive ? "#198754" : "black",
-  //           }}
-  //         />
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "Харилцагчийн нэр",
-  //     dataIndex: "name",
-  //   },
-  //   {
-  //     title: "Харилцагчийн бүлэг",
-  //     dataIndex: ["section", "name"],
-  //   },
-  //   {
-  //     title: "Регистр",
-  //     dataIndex: "regno",
-  //   },
-  //   {
-  //     title: "Утасны дугаар",
-  //     dataIndex: "phone",
-  //   },
-  //   {
-  //     title: "Хаяг",
-  //     dataIndex: "address",
-  //   },
-  //   {
-  //     title: "Банкны нэр",
-  //     dataIndex: ["bank", "name"],
-  //   },
-  //   {
-  //     title: "Дансны дугаар",
-  //     dataIndex: "bankAccountNo",
-  //   },
-  //   {
-  //     title: "И-мэйл хаяг",
-  //     dataIndex: "email",
-  //   },
-  //   {
-  //     title: "Төлөв",
-  //     dataIndex: "isActive",
-  //     render: (text) => {
-  //       if (text) {
-  //         return (
-  //           <span
-  //             style={{
-  //               color: "green",
-  //             }}
-  //           >
-  //             Идэвхтэй
-  //           </span>
-  //         );
-  //       }
-  //       return "Идэвхгүй";
-  //     },
-  //   },
-  //   {
-  //     title: "Өөрчлөлт хийсэн огноо",
-  //     dataIndex: "updatedAt",
-  //     render: (text) => {
-  //       return dayjs(text).format("YYYY/MM/DD HH:mm");
-  //     },
-  //   },
-  //   {
-  //     title: " ",
-  //     fixed: "right",
-  //     dataIndex: "id",
-  //     width: 40,
-  //     render: (value, row) => {
-  //       return (
-  //         <Popover
-  //           content={
-  //             <Popup
-  //               onEdit={() => openModal(true, row)}
-  //               onDelete={() => onDelete(value)}
-  //             />
-  //           }
-  //           trigger="click"
-  //           placement="bottomRight"
-  //         >
-  //           <MoreOutlined
-  //             style={{
-  //               fontSize: 22,
-  //             }}
-  //           />
-  //         </Popover>
-  //       );
-  //     },
-  //   },
-  // ];
   //functions
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataConsumer) => {
@@ -323,7 +202,7 @@ const Information = () => {
   };
   // mor filter
   const onCloseFilterTag = (key: string, state: boolean) => {
-    const clone = { ...testColumns };
+    const clone = testColumns;
     clone![key as keyof FilteredColumns]!.isFiltered = state;
     setTestColumns(clone);
     if (!state) {
@@ -361,20 +240,65 @@ const Information = () => {
     var prm: Params = {
       page: params.page || newParams.page,
       limit: params.limit || newParams.limit,
-      sectionId: params.sectionId || newParams.sectionId,
       orderParam: params.orderParam || newParams.orderParam,
       order: params.order || newParams.order,
       code: params.code || newParams.code,
+      isIndividual: params.isIndividual || newParams.isIndividual,
+      isEmployee: params.isEmployee || newParams.isEmployee,
       lastName: params.lastName || newParams.lastName,
+      name: params.name || newParams.name,
+      sectionId: params.sectionId || newParams.sectionId,
+      regno: params.regno || newParams.regno,
+      phone: params.phone || newParams.phone,
+      address: params.address || newParams.address,
+      bankId: params.bankId || newParams.bankId,
+      bankAccountNo: params.bankAccountNo || newParams.bankAccountNo,
+      email: params.email || newParams.email,
+      isActive: params.isActive || newParams.isActive,
       queries: newParams.queries,
     };
     if (params.queries?.length) {
       const incomeParam = params.queries[0].param;
       prm.queries = [...unDuplicate(incomeParam), ...params.queries];
-    } else if (params.code) {
+    }
+    if (params.code) {
       prm.queries = [...unDuplicate("code")];
-    } else if (params.lastName) {
+    }
+    if (params.isIndividual) {
+      prm.queries = [...unDuplicate("isIndividual")];
+    }
+    if (params.isEmployee) {
+      prm.queries = [...unDuplicate("isEmployee")];
+    }
+    if (params.lastName) {
       prm.queries = [...unDuplicate("lastName")];
+    }
+    if (params.name) {
+      prm.queries = [...unDuplicate("name")];
+    }
+    if (params.sectionId) {
+      prm.queries = [...unDuplicate("sectionId")];
+    }
+    if (params.regno) {
+      prm.queries = [...unDuplicate("regno")];
+    }
+    if (params.phone) {
+      prm.queries = [...unDuplicate("phone")];
+    }
+    if (params.address) {
+      prm.queries = [...unDuplicate("address")];
+    }
+    if (params.bankId) {
+      prm.queries = [...unDuplicate("bankId")];
+    }
+    if (params.bankAccountNo) {
+      prm.queries = [...unDuplicate("bankAccountNo")];
+    }
+    if (params.email) {
+      prm.queries = [...unDuplicate("email")];
+    }
+    if (params.isActive) {
+      prm.queries = [...unDuplicate("isActive")];
     }
     setNewParams(prm);
     await ConsumerService.get(prm).then((response) => {
@@ -442,7 +366,6 @@ const Information = () => {
     newRowIndexes: string[],
     unSelectedRow: string[]
   ) => {
-    console.log(newRowIndexes, unSelectedRow);
     unSelectedRow?.map((row) => {
       onCloseFilterTag(row, false);
     });
@@ -468,6 +391,21 @@ const Information = () => {
           value: false,
         },
       ];
+    } else if (type === DataIndexType.STRING_TREE) {
+      return removeDuplicates(
+        data?.map((item) => ({
+          text: sections.find((section) => section.id === item[dataIndex])
+            ?.name,
+          value: item[dataIndex],
+        }))
+      );
+    } else if (type === DataIndexType.STRING_BANK) {
+      return removeDuplicates(
+        data?.map((item) => ({
+          text: banks.find((bank) => bank.id === item[dataIndex])?.name,
+          value: item[dataIndex],
+        }))
+      );
     } else if (type === DataIndexType.STRING) {
       return removeDuplicates(
         data?.map((item) => ({
@@ -475,8 +413,31 @@ const Information = () => {
           value: item[dataIndex],
         }))
       );
+    } else if (type === DataIndexType.BOOLEAN_STRING) {
+      return [
+        {
+          text: "Идэвхтэй",
+          value: true,
+        },
+        {
+          text: "Идэвхгүй",
+          value: false,
+        },
+      ];
     }
   };
+  useEffect(() => {
+    if (isFilterIcon) {
+      setIsOpenTree(false);
+      if (isDescription) {
+        setIsDescription(false);
+      }
+    } else {
+      if (!isDescription) {
+        setIsOpenTree(true);
+      }
+    }
+  }, [isFilterIcon]);
   useEffect(() => {
     getData({ page: 1, limit: 10 });
     getConsumerSection();
@@ -546,7 +507,7 @@ const Information = () => {
               height={24}
               alt="downloadIcon"
             />
-            <Image
+            {/* <Image
               src={
                 isDualMirror
                   ? "/images/DualMirrorBlack.svg"
@@ -554,8 +515,20 @@ const Information = () => {
               }
               onClick={() => {
                 setIsDualMirror(!isDualMirror);
-                setIsDescription(false);
-                setIsOpenTree(!isOpenTree);
+                setIsOpenTree(!isDualMirror);
+              }}
+              width={24}
+              height={24}
+              alt="dualMirror"
+            /> */}
+            <Image
+              src={
+                isFilterIcon
+                  ? "/images/filterTrue.svg"
+                  : "/images/filterFalse.svg"
+              }
+              onClick={() => {
+                setIsFilterIcon(!isFilterIcon);
               }}
               width={24}
               height={24}
@@ -564,86 +537,34 @@ const Information = () => {
           </div>
         </div>
         <div className="body">
-          {!isDualMirror ? (
-            <NewDirectoryTree
-              open={isOpenTree}
-              onClick={(key) => {
-                getData({ page: 1, limit: 10, sectionId: [`${key}`] });
-              }}
-            />
-          ) : null}
+          <NewDirectoryTree
+            open={isOpenTree}
+            onClick={(key) => {
+              getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+            }}
+          />
           <div
             style={{
-              width: !isDualMirror
-                ? "calc(100% - 324px)"
-                : isDescription
-                ? "calc(100% - 380px)"
-                : "100%",
+              width: tableWidth,
             }}
           >
-            <Table rowKey={"id"} dataSource={data}>
-              {Object.entries(testColumns)?.map(([key, value]) => {
-                if (value.isView) {
-                  return (
-                    <Column
-                      key={key}
-                      dataIndex={value.dataIndex}
-                      title={value.label}
-                      filterDropdown={({ confirm, filters }) => (
-                        <DropDown
-                          label={value.label}
-                          dataIndex={value.dataIndex}
-                          type={DataIndexType.STRING}
-                          filters={filters || []}
-                          isFiltered={value.isFiltered}
-                          handleSearch={(params) => {
-                            onCloseFilterTag(value.dataIndex, true);
-                            getData(params);
-                          }}
-                        />
-                      )}
-                      filters={typeOfFilters(value.type, value.dataIndex)}
-                      filterIcon={() => {
-                        return (
-                          <FilterOutlined
-                            style={{
-                              fontSize: 12,
-                              color: value.isFiltered ? "#198754" : "black",
-                            }}
-                          />
-                        );
-                      }}
-                      render={(text) => {
-                        if (value.type === "BOOLEAN") {
-                          return isChecked(text);
-                        } else {
-                          return text;
-                        }
-                      }}
-                    />
-                  );
-                }
-              })}
-            </Table>
-            {/* <Table
+            <Table
+              scroll={{ x: 1700 }}
               rowKey={"id"}
-              // columns={columns}
-              columns={filteredColumns}
-              dataSource={data}
-              scroll={{
-                x: filteredColumns?.length > 5 ? 1500 : 500,
-              }}
-              loading={blockContext.isBlock()}
               onRow={(record) => {
                 return {
                   onDoubleClick: () => {
-                    if (isDualMirror) {
-                      setIsDescription(true);
-                      setSelectedRow(record);
+                    setIsOpenTree(false);
+                    setIsFilterIcon(false);
+                    if (isOpenTree) {
+                      setIsOpenTree(false);
                     }
+                    setSelectedRow(record);
+                    setIsDescription(true);
                   },
                 };
               }}
+              dataSource={data}
               pagination={{
                 position: ["bottomCenter"],
                 size: "small",
@@ -658,16 +579,115 @@ const Information = () => {
                 onChange: (page, pageSize) =>
                   getData?.({ page: page, limit: pageSize }),
               }}
-            /> */}
+            >
+              {Object.entries(testColumns)?.map(
+                ([key, value]: [any, ColumnType]) => {
+                  if (value.isView) {
+                    return (
+                      <Column
+                        key={key}
+                        dataIndex={value.dataIndex}
+                        title={value.label}
+                        filterDropdown={({ confirm, filters }) => (
+                          <DropDown
+                            label={value.label}
+                            dataIndex={key}
+                            type={DataIndexType.STRING}
+                            filters={filters || []}
+                            isFiltered={value.isFiltered}
+                            handleSearch={(params, state) => {
+                              confirm();
+                              onCloseFilterTag(key, state);
+                              getData(params);
+                            }}
+                          />
+                        )}
+                        filters={typeOfFilters(value.type, key)}
+                        filterIcon={() => {
+                          return (
+                            <FilterOutlined
+                              style={{
+                                fontSize: 7,
+                                color: value.isFiltered ? "#198754" : "black",
+                              }}
+                            />
+                          );
+                        }}
+                        render={(text) => {
+                          if (value.type === "BOOLEAN") {
+                            return isChecked(text);
+                          } else if (value.type === "BOOLEAN_STRING") {
+                            if (text) {
+                              return (
+                                <span
+                                  style={{
+                                    color: "green",
+                                  }}
+                                >
+                                  Идэвхтэй
+                                </span>
+                              );
+                            }
+                            return "Идэвхгүй";
+                          } else {
+                            return text;
+                          }
+                        }}
+                      />
+                    );
+                  }
+                }
+              )}
+              <Column
+                title=" "
+                fixed="right"
+                width={40}
+                render={(text, row: IDataConsumer) => {
+                  return (
+                    <Popover
+                      content={
+                        <Popup
+                          onEdit={() => openModal(true, row)}
+                          onDelete={() => onDelete(text)}
+                        />
+                      }
+                      trigger="click"
+                      placement="bottomRight"
+                    >
+                      <MoreOutlined
+                        style={{
+                          fontSize: 22,
+                        }}
+                      />
+                    </Popover>
+                  );
+                }}
+              />
+            </Table>
           </div>
           <Description
             title="Харилцагчийн мэдээлэл"
             open={isDescription}
-            columns={selectedColumns}
+            columns={testColumns}
             selectedRow={selectedRow}
             onEdit={() => openModal(true, selectedRow)}
             onDelete={(id) => onDelete(id)}
-            onCancel={(state) => setIsDescription(state)}
+            onCancel={(state) => {
+              setIsDescription(state);
+              setIsOpenTree(!state);
+            }}
+          />
+          <FilterMore
+            title="Шүүлтүүр"
+            open={isFilterIcon}
+            onOk={(value) => {
+              onCloseFilterTag("lastName", true);
+              getData({ page: 1, limit: 10, lastName: ["Андгай"] });
+            }}
+            onCancel={(state) => {
+              setIsOpenTree(true);
+              setIsFilterIcon(state);
+            }}
           />
         </div>
       </div>

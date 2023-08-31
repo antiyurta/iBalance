@@ -42,7 +42,7 @@
     .extra {
       display: flex;
       align-items: flex-start;
-      gap: 24px;
+      gap: 12px;
       img {
         &:hover {
           cursor: pointer;
@@ -50,12 +50,12 @@
       }
     }
   }
-  > .body {
+  .body {
     display: flex;
     padding: 12px 0px;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 24px;
+    gap: 12px;
     flex: 1 0 0;
     align-self: stretch;
     flex-direction: row;

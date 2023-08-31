@@ -1,9 +1,14 @@
 import { GenericResponse, Meta } from "../entities";
-type DataIndex = keyof IDataConsumer;
+import { IDataReference } from "../reference/entity";
+import { IDataConsumerSection } from "./section/entities";
+export type DataIndex = keyof IDataConsumer;
 export enum DataIndexType {
   NUMBER = "NUMBER",
   STRING = "STRING",
+  STRING_TREE = "STRING_TREE",
+  STRING_BANK = "STRING_BANK",
   BOOLEAN = "BOOLEAN",
+  BOOLEAN_STRING = "BOOLEAN_STRING",
 }
 export type Index =
   | "code"
@@ -22,15 +27,15 @@ export type Index =
   | "isActive";
 export type DynamicKey = `${Index}`;
 
-export type FilteredColumns = {
-  [K in DynamicKey]?: {
-    label: string; // ner mongol
-    isView: boolean; // mor haragdah eseh
-    isFiltered?: boolean; // filterlegdsn eseh
-    dataIndex: DataIndex; // dataIndex
-    type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
-  };
+export type ColumnType = {
+  label: string; // ner mongol
+  isView: boolean; // mor haragdah eseh
+  isFiltered: boolean; // filterlegdsn eseh
+  dataIndex: DataIndex | DataIndex[]; // dataIndex
+  type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
 };
+
+export type FilteredColumns = { [T in DynamicKey]?: ColumnType };
 
 export enum ToolsIcons {
   EQUALS = "/icons/tools/Equals.png",
@@ -55,11 +60,21 @@ export interface Quearies {
 }
 
 export interface Params {
-  page: number | undefined;
-  limit: number | undefined;
-  sectionId?: string[] | number[];
+  page?: number | undefined;
+  limit?: number | undefined;
   code?: number[] | undefined;
+  isIndividual?: boolean[];
+  isEmployee?: boolean[];
   lastName?: string[] | undefined;
+  name?: string[];
+  sectionId?: string[] | number[];
+  regno?: string[];
+  phone?: string[];
+  address?: string[];
+  bankId?: string[] | number[];
+  bankAccountNo?: string[];
+  email?: string[];
+  isActive?: boolean[];
   queries?: Quearies[];
   orderParam?: string | null | undefined;
   order?: RadioType | null | undefined;
@@ -78,9 +93,11 @@ export interface IDataConsumer {
   phone: string;
   regno: string;
   sectionId: number;
+  section: IDataConsumerSection;
   address: string;
   bankAccountNo: string;
   bankId: number;
+  bank: IDataReference;
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
