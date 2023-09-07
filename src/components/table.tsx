@@ -1,69 +1,66 @@
-import React, { ReactNode, useState } from "react";
-import { ConfigProvider, Table } from "antd";
+import React from "react";
+import { ConfigProvider, Popover, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
-import type { TableColumnProps, TableProps } from "antd";
-import { ColumnGroupProps } from "antd/es/table/ColumnGroup";
-import { FooterRowProps } from "rc-table/lib/Footer/Row";
-import { SummaryCellProps } from "rc-table/lib/Footer/Cell";
-//
+import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
-import { ColumnType } from "antd/es/table";
-//
-import { Meta } from "@/service/entities";
-import { FilterDropdownProps, RefTable } from "antd/es/table/interface";
+import { Meta, ColumnType, ComponentsType } from "@/service/entities";
+import DropDown from "./dropdown";
+import { onCloseFilterTag, renderCheck } from "@/feature/common";
+import Popup from "./popup";
 
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
+
+type columns = {
+  [T in keyof any]: ColumnType;
+};
 
 interface ITable {
-  prop: RefTable;
+  componentsType?: ComponentsType;
+  scroll: {
+    x?: number;
+    y?: number;
+  };
+  rowKey: string;
+  rowSelection?: any;
+  doubleClick?: boolean;
+  onDClick?: (value: any) => void;
+  data: any;
+  columns: columns;
   meta: Meta;
-  isLoading: boolean;
-  isPagination: boolean;
-  onChange?: (page: number, pageSize: number) => void;
-}
-
-export interface IColumnData {
-  title: string;
-  dataIndex?: string;
-  width?: number | string;
-  filters?: object[] | any;
-  filterMode?: "menu" | "tree";
-  filterDropdown?:
-    | React.ReactNode
-    | ((props: FilterDropdownProps) => React.ReactNode);
-  render?: (value?: any, record?: IColumnData, index?: number) => ReactNode;
-}
-
-interface IColumnGroup {
-  title: string;
-}
-
-function NewColumn(props: TableColumnProps<IColumnData>) {
-  return <Column {...props} />;
-}
-
-function NewColumnGroup(props: ColumnGroupProps<IColumnGroup>) {
-  return <ColumnGroup {...props} />;
-}
-
-function NewSummaryRow(props: FooterRowProps) {
-  return <Table.Summary.Row {...props}>{props.children}</Table.Summary.Row>;
-}
-
-function NewSummaryCell(props: SummaryCellProps) {
-  return <Table.Summary.Cell {...props}>{props.children}</Table.Summary.Cell>;
+  onChange?: (params: any) => void;
+  onColumns: (columns: any) => void;
+  newParams: any;
+  onParams: (params: any) => void;
+  incomeFilters: any;
+  onEdit: (row: any) => void;
+  onDelete: (id: number) => void;
 }
 
 function NewTable(props: ITable) {
-  const { prop, meta, isLoading, isPagination, onChange } = props;
-  // const [currentColumns, setCurrentColumns] =
-  //   useState<ColumnType<IColumnData>[]>);
+  const {
+    componentsType,
+    scroll,
+    rowKey,
+    rowSelection,
+    doubleClick,
+    onDClick,
+    data,
+    meta,
+    columns,
+    onChange,
+    onColumns,
+    newParams,
+    onParams,
+    incomeFilters,
+    onEdit,
+    onDelete,
+  } = props;
   const dragProps = {
     onDragEnd(fromIndex: number, toIndex: number) {
-      console.log(fromIndex, toIndex);
-      // const columns = [...currentColumns];
-      // const item = columns.splice(fromIndex - 1, 1)[0];
-      // columns.splice(toIndex - 1, 0, item);
+      // console.log(fromIndex, toIndex);
+      // const clone = [...columns];
+      // const item = clone.splice(fromIndex - 1, 1)[0];
+      // clone.splice(toIndex - 1, 0, item);
       // setCurrentColumns(columns);
     },
     nodeSelector: "th",
@@ -72,55 +69,106 @@ function NewTable(props: ITable) {
     <ConfigProvider locale={mnMn}>
       <DragListView.DragColumn {...dragProps}>
         <Table
-          // rowClassName={!prop.rowClassName && "hover: cursor-pointer"}
-          {...prop}
-          loading={{
-            spinning: isLoading,
-            tip: "Уншиж байна....",
-          }}
-          pagination={
-            isPagination
-              ? {
-                  position: ["bottomCenter"],
-                  size: "small",
-                  current: meta.page,
-                  total: meta.itemCount,
-                  showTotal: (total, range) =>
-                    `${range[0]}-ээс ${range[1]}, Нийт ${total}`,
-                  pageSize: meta.limit,
-                  showSizeChanger: true,
-                  pageSizeOptions: ["5", "10", "20", "50"],
-                  showQuickJumper: true,
-                  onChange: (page, pageSize) => onChange?.(page, pageSize),
+          scroll={scroll}
+          rowKey={rowKey}
+          rowSelection={rowSelection}
+          dataSource={data}
+          onRow={(record, rowIndex) => {
+            return {
+              onDoubleClick: (event) => {
+                if (doubleClick) {
+                  onDClick?.(record);
                 }
-              : false
-          }
+              },
+            };
+          }}
+          pagination={{
+            position: ["bottomCenter"],
+            size: "small",
+            current: meta.page,
+            total: meta.itemCount,
+            showTotal: (total, range) =>
+              `${range[0]}-ээс ${range[1]}, Нийт ${total}`,
+            pageSize: meta.limit,
+            showSizeChanger: true,
+            pageSizeOptions: ["5", "10", "20", "50"],
+            showQuickJumper: true,
+            onChange: (page, pageSize) =>
+              onChange?.({ page: page, limit: pageSize }),
+          }}
         >
-          <NewColumn
-            title="№"
-            width={10}
-            render={(_text, _row, index) => {
-              return meta.page * meta.limit - (meta.limit - index - 1);
+          {Object.entries(columns)?.map(([key, value]: [any, ColumnType]) => {
+            if (value.isView) {
+              return (
+                <Column
+                  key={key}
+                  dataIndex={value.dataIndex}
+                  title={value.label}
+                  filterDropdown={({ confirm }) => (
+                    <DropDown
+                      label={value.label}
+                      dataIndex={key}
+                      type={value.type}
+                      filters={incomeFilters?.[key]}
+                      isFiltered={value.isFiltered}
+                      handleSearch={(params, state) => {
+                        confirm();
+                        onCloseFilterTag({
+                          key: key,
+                          state: state,
+                          column: columns,
+                          onColumn: (columns) => onColumns(columns),
+                          params: newParams,
+                          onParams: (params) => onParams(params),
+                        });
+                        onChange?.(params);
+                      }}
+                    />
+                  )}
+                  filterIcon={() => {
+                    return (
+                      <FilterOutlined
+                        style={{
+                          fontSize: 7,
+                          color: value.isFiltered ? "#198754" : "black",
+                        }}
+                      />
+                    );
+                  }}
+                  render={(text) => renderCheck(text, value.type)}
+                />
+              );
+            }
+          })}
+          <Column
+            title=" "
+            fixed="right"
+            width={40}
+            render={(text, row) => {
+              return (
+                <Popover
+                  content={
+                    <Popup
+                      onEdit={() => onEdit(row)}
+                      onDelete={() => onDelete(text)}
+                    />
+                  }
+                  trigger="click"
+                  placement="bottomRight"
+                >
+                  <MoreOutlined
+                    style={{
+                      fontSize: 22,
+                    }}
+                  />
+                </Popover>
+              );
             }}
           />
-          {/* {currentColumns?.map((column, index) => {
-            return (
-              <NewColumn
-                key={index}
-                title={column.title}
-                dataIndex={column.dataIndex}
-                width={column.width}
-                filters={column.filters}
-                filterMode={column.filterMode}
-                filterDropdown={column.filterDropdown}
-                render={column.render}
-              />
-            );
-          })} */}
         </Table>
       </DragListView.DragColumn>
     </ConfigProvider>
   );
 }
 
-export { NewTable, NewColumn, NewSummaryRow, NewSummaryCell, NewColumnGroup };
+export { NewTable };

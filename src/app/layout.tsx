@@ -10,7 +10,9 @@ import { store, persistor } from "@/feature/store/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Sidebar from "./layout/sidebar";
 import { Interceptor, api } from "@/feature/interceptor/interceptor";
-import { Spin } from "antd";
+import { ConfigProvider, Spin } from "antd";
+
+import mn_MN from "antd/locale/mn_MN";
 
 const ubuntu = Ubuntu({
   weight: ["400", "500", "700"],
@@ -43,9 +45,20 @@ export default function RootLayout({
             }
             persistor={persistor}
           >
-            <AppBlock />
-            <Sidebar />
-            <main className="app-main">{children}</main>
+            <ConfigProvider
+              locale={mn_MN}
+              theme={{
+                token: {
+                  colorPrimary: "#198754",
+                  colorBgContainer: "white",
+                  colorPrimaryBg: "#f8f9fa",
+                },
+              }}
+            >
+              <AppBlock />
+              <Sidebar />
+              <main className="app-main">{children}</main>
+            </ConfigProvider>
           </PersistGate>
         </Provider>
       </body>

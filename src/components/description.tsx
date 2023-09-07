@@ -1,9 +1,6 @@
 "use client";
-import {
-  DataIndex,
-  DataIndexType,
-  FilteredColumns,
-} from "@/service/consumer/entities";
+import { DataIndex, FilteredColumns } from "@/service/consumer/entities";
+import { DataIndexType } from "@/service/entities";
 import { Modal } from "antd";
 import Image from "next/image";
 

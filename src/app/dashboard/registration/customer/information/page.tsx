@@ -1,8 +1,16 @@
 "use client";
-import { MoreOutlined, FilterOutlined } from "@ant-design/icons";
+
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
+import { Form, Popover, Space } from "antd";
+import { SignalFilled } from "@ant-design/icons";
+
+// components
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
+import Filtered from "@/components/filtered";
 import {
   NewInput,
   NewInputNumber,
@@ -13,23 +21,13 @@ import {
   NewTextArea,
 } from "@/components/input";
 import NewModal from "@/components/modal";
-import { Form, Popover, Space, Table } from "antd";
-import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
-import dayjs from "dayjs";
-// components
-import Popup from "@/components/popup";
-import FilterMore from "./filterMore";
 // interface
-import { Meta } from "@/service/entities";
+import { ComponentsType, DataIndexType, Meta } from "@/service/entities";
 import {
   Params,
-  DataIndexType,
   IDataConsumer,
-  Quearies,
   FilteredColumns,
-  DataIndex,
-  ColumnType,
+  IFilters,
 } from "@/service/consumer/entities";
 //service iid
 import { ConsumerService } from "@/service/consumer/service";
@@ -37,43 +35,47 @@ import { ReferenceService } from "@/service/reference/reference";
 import { ConsumerSectionService } from "@/service/consumer/section/service";
 // types
 import { IType, IDataReference } from "@/service/reference/entity";
-import { isChecked } from "@/feature/common";
-import Filtered from "@/components/filtered";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { IDataConsumerSection } from "@/service/consumer/section/entities";
-import DropDown from "@/components/dropdown";
-import { ColumnFilterItem } from "antd/es/table/interface";
+import {
+  IDataConsumerSection,
+  TreeSectionType,
+} from "@/service/consumer/section/entities";
 
-const { Column } = Table;
+//commans
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  unDuplicate,
+} from "@/feature/common";
+import { NewTable } from "@/components/table";
 
-enum Open {
-  DUAL = "DUAL",
-  TREE = "TREE",
-  DESC = "DESC",
-  FILTER = "FILTER",
+interface IProps {
+  ComponentsType: ComponentsType;
+  onClickModal?: (row: IDataConsumer | IDataConsumer[]) => void;
 }
 
-const Information = () => {
+const Information = (props: IProps) => {
+  const { ComponentsType = "FULL", onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [testColumns, setTestColumns] = useState<FilteredColumns>({
+  const [filters, setFilters] = useState<IFilters>();
+  const [columns, setColumns] = useState<FilteredColumns>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
       dataIndex: "code",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     isIndividual: {
       label: "Хувь хүн эсэх",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "isIndividual",
       type: DataIndexType.BOOLEAN,
     },
     isEmployee: {
       label: "Ажилтан эсэх",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "isEmployee",
       type: DataIndexType.BOOLEAN,
@@ -83,63 +85,63 @@ const Information = () => {
       isView: true,
       isFiltered: false,
       dataIndex: "lastName",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     name: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
       dataIndex: "name",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     sectionId: {
       label: "Харилцагчийн бүлэг",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: ["section", "name"],
-      type: DataIndexType.STRING_TREE,
+      type: DataIndexType.STRING_SECTION,
     },
     regno: {
       label: "Регистр №",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "regno",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     phone: {
       label: "Утасны дугаар",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "phone",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     address: {
       label: "Хаяг",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "address",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     bankId: {
       label: "Банкны нэр",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: ["bank", "name"],
       type: DataIndexType.STRING_BANK,
     },
     bankAccountNo: {
       label: "Дансны дугаар",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "bankAccountNo",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     email: {
       label: "И-мэйл хаяг",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "email",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
@@ -156,38 +158,12 @@ const Information = () => {
   const [editMode, setIsMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
-  const [isDualMirror, setIsDualMirror] = useState<boolean>(false);
   const [isFilterIcon, setIsFilterIcon] = useState<boolean>(false);
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
   const [sections, setSections] = useState<IDataConsumerSection[]>([]);
-  const [tableWidth, setTableWidth] = useState<string>("calc(100% - 262px)");
-  // isOpen udig shiideh
-  const configureOpens = (type: Open) => {
-    switch (type) {
-      case Open.DUAL:
-        if (isDualMirror) {
-          setIsOpenTree(true);
-          setIsDualMirror(false);
-          setTableWidth("calc(100% - 274px)");
-        } else {
-          setIsOpenTree(false);
-          setIsDualMirror(true);
-          setTableWidth("100%");
-        }
-      case Open.DESC:
-        setIsDescription(true);
-        setTableWidth("calc(100% - 274px)");
-    }
-  };
-  // filter iih data g dawhtsal arigalh
-  const removeDuplicates = (set: any[]) => {
-    const uniqueIds = new Set(set.map((item) => item.value));
-    const clone: ColumnFilterItem[] = [...uniqueIds];
-    return clone
-      .map((id) => set.find((item) => item.value === id))
-      .filter(Boolean);
-  };
+  const tableWidth = "calc(100% - 262px)";
+  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   //functions
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataConsumer) => {
@@ -199,40 +175,6 @@ const Information = () => {
     }
     setIsOpenModal(true);
     setSelectedRow(row);
-  };
-  // mor filter
-  const onCloseFilterTag = (key: string, state: boolean) => {
-    const clone = testColumns;
-    clone![key as keyof FilteredColumns]!.isFiltered = state;
-    setTestColumns(clone);
-    if (!state) {
-      var newClonedParams = newParams;
-      newClonedParams[key as keyof Params] = undefined;
-      if (newParams.orderParam === key) {
-        newClonedParams.orderParam = undefined;
-        newClonedParams.order = undefined;
-      }
-      if (newParams.queries) {
-        var newQueries: Quearies[] = [];
-        newParams.queries.map((query) => {
-          if (query.param != key) {
-            newQueries.push(query);
-          }
-        });
-        newClonedParams.queries = newQueries.filter(Boolean) || undefined;
-      }
-      setNewParams(newClonedParams);
-    }
-  };
-  // paramsiin dawhtsal arigal confi hiih
-  const unDuplicate = (text: string) => {
-    var newQueries: Quearies[] = [];
-    newParams.queries?.map((query) => {
-      if (query.param != text) {
-        newQueries.push(query);
-      }
-    });
-    return newQueries;
   };
   //data awcirah
   const getData = async (params: Params) => {
@@ -259,52 +201,53 @@ const Information = () => {
     };
     if (params.queries?.length) {
       const incomeParam = params.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam), ...params.queries];
+      prm.queries = [...unDuplicate(incomeParam, newParams), ...params.queries];
     }
     if (params.code) {
-      prm.queries = [...unDuplicate("code")];
+      prm.queries = [...unDuplicate("code", newParams)];
     }
     if (params.isIndividual) {
-      prm.queries = [...unDuplicate("isIndividual")];
+      prm.queries = [...unDuplicate("isIndividual", newParams)];
     }
     if (params.isEmployee) {
-      prm.queries = [...unDuplicate("isEmployee")];
+      prm.queries = [...unDuplicate("isEmployee", newParams)];
     }
     if (params.lastName) {
-      prm.queries = [...unDuplicate("lastName")];
+      prm.queries = [...unDuplicate("lastName", newParams)];
     }
     if (params.name) {
-      prm.queries = [...unDuplicate("name")];
+      prm.queries = [...unDuplicate("name", newParams)];
     }
     if (params.sectionId) {
-      prm.queries = [...unDuplicate("sectionId")];
+      prm.queries = [...unDuplicate("sectionId", newParams)];
     }
     if (params.regno) {
-      prm.queries = [...unDuplicate("regno")];
+      prm.queries = [...unDuplicate("regno", newParams)];
     }
     if (params.phone) {
-      prm.queries = [...unDuplicate("phone")];
+      prm.queries = [...unDuplicate("phone", newParams)];
     }
     if (params.address) {
-      prm.queries = [...unDuplicate("address")];
+      prm.queries = [...unDuplicate("address", newParams)];
     }
     if (params.bankId) {
-      prm.queries = [...unDuplicate("bankId")];
+      prm.queries = [...unDuplicate("bankId", newParams)];
     }
     if (params.bankAccountNo) {
-      prm.queries = [...unDuplicate("bankAccountNo")];
+      prm.queries = [...unDuplicate("bankAccountNo", newParams)];
     }
     if (params.email) {
-      prm.queries = [...unDuplicate("email")];
+      prm.queries = [...unDuplicate("email", newParams)];
     }
     if (params.isActive) {
-      prm.queries = [...unDuplicate("isActive")];
+      prm.queries = [...unDuplicate("isActive", newParams)];
     }
     setNewParams(prm);
     await ConsumerService.get(prm).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
+        setFilters(response.response.filter);
       }
     });
     blockContext.unblock();
@@ -316,8 +259,8 @@ const Information = () => {
     });
   };
   // section awchirah
-  const getConsumerSection = async () => {
-    await ConsumerSectionService.get().then((response) => {
+  const getConsumerSection = async (type: TreeSectionType) => {
+    await ConsumerSectionService.get(type).then((response) => {
       setSections(response.response);
     });
   };
@@ -361,71 +304,13 @@ const Information = () => {
       });
     }
   };
-  // bagana tohirhoo hiih ued
-  const findIndexInColumnSettings = (
-    newRowIndexes: string[],
-    unSelectedRow: string[]
-  ) => {
-    unSelectedRow?.map((row) => {
-      onCloseFilterTag(row, false);
-    });
-    const clone = { ...testColumns };
-    Object.entries(clone).map(([key, _value]) => {
-      clone![key as keyof FilteredColumns]!.isView = false;
-    });
-    newRowIndexes?.map((index) => {
-      clone![index as unknown as keyof FilteredColumns]!.isView = true;
-    });
-    setTestColumns(clone);
-    getData(newParams);
+  // row selection GROUP UED
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: IDataConsumer[]) => {
+      onClickModal?.(selectedRows);
+    },
   };
-  const typeOfFilters = (type: DataIndexType, dataIndex: DataIndex) => {
-    if (type === DataIndexType.BOOLEAN) {
-      return [
-        {
-          text: "Тийм",
-          value: true,
-        },
-        {
-          text: "Үгүй",
-          value: false,
-        },
-      ];
-    } else if (type === DataIndexType.STRING_TREE) {
-      return removeDuplicates(
-        data?.map((item) => ({
-          text: sections.find((section) => section.id === item[dataIndex])
-            ?.name,
-          value: item[dataIndex],
-        }))
-      );
-    } else if (type === DataIndexType.STRING_BANK) {
-      return removeDuplicates(
-        data?.map((item) => ({
-          text: banks.find((bank) => bank.id === item[dataIndex])?.name,
-          value: item[dataIndex],
-        }))
-      );
-    } else if (type === DataIndexType.STRING) {
-      return removeDuplicates(
-        data?.map((item) => ({
-          text: item[dataIndex],
-          value: item[dataIndex],
-        }))
-      );
-    } else if (type === DataIndexType.BOOLEAN_STRING) {
-      return [
-        {
-          text: "Идэвхтэй",
-          value: true,
-        },
-        {
-          text: "Идэвхгүй",
-          value: false,
-        },
-      ];
-    }
-  };
+  //row selection
   useEffect(() => {
     if (isFilterIcon) {
       setIsOpenTree(false);
@@ -440,7 +325,7 @@ const Information = () => {
   }, [isFilterIcon]);
   useEffect(() => {
     getData({ page: 1, limit: 10 });
-    getConsumerSection();
+    getConsumerSection(TreeSectionType.Consumer);
     getBanks(IType.BANK);
   }, []);
   return (
@@ -448,99 +333,104 @@ const Information = () => {
       <div className="information">
         <div className="header">
           <div className="left">
-            <p>Үндсэн бүртгэл / Харилцагч / Бүртгэл</p>
-            <button className="app-button" onClick={() => openModal(false)}>
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Шинээр бүртгэх
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
+            {ComponentsType === "FULL" ? (
+              <p>Үндсэн бүртгэл / Харилцагч / Бүртгэл</p>
+            ) : null}
+            {ComponentsType === "MIDDLE" ? <p>Харилцагчын бүлэгт</p> : null}
+            {ComponentsType === "LITTLE" ? null : (
+              <button className="app-button" onClick={() => openModal(false)}>
                 <Image
-                  src={"/images/SearchIcon.svg"}
+                  src={"/images/AddIcon.svg"}
                   width={12}
                   height={12}
-                  alt="searchIcon"
+                  alt="addicon"
                 />
-              }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
+                Шинээр бүртгэх
+              </button>
+            )}
+          </div>
+          <div className="right">
+            {ComponentsType === "LITTLE" ? null : (
+              <NewSearch
+                prefix={
+                  <Image
+                    src={"/images/SearchIcon.svg"}
+                    width={12}
+                    height={12}
+                    alt="searchIcon"
+                  />
+                }
+                allowClear={true}
+                onSearch={(values: string) => console.log(values)}
+              />
+            )}
           </div>
         </div>
         <div className="second-header">
           <Filtered
-            columns={testColumns}
+            columns={columns}
             isActive={(key, state) => {
-              onCloseFilterTag(key, state);
+              onCloseFilterTag({
+                key: key,
+                state: state,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: newParams,
+                onParams: (params) => setNewParams(params),
+              });
               getData(newParams);
             }}
           />
-          <div className="extra">
-            <ColumnSettings
-              columns={testColumns}
-              columnIndexes={(arg1, arg2) =>
-                findIndexInColumnSettings(arg1, arg2)
-              }
-            />
-            <Image
-              src={"/images/PrintIcon.svg"}
-              width={24}
-              height={24}
-              alt="printIcon"
-            />
-            <Image
-              src={"/images/UploadIcon.svg"}
-              width={24}
-              height={24}
-              alt="uploadIcon"
-            />
-            <Image
-              src={"/images/DownloadIcon.svg"}
-              width={24}
-              height={24}
-              alt="downloadIcon"
-            />
-            {/* <Image
-              src={
-                isDualMirror
-                  ? "/images/DualMirrorBlack.svg"
-                  : "/images/DualMirror.svg"
-              }
-              onClick={() => {
-                setIsDualMirror(!isDualMirror);
-                setIsOpenTree(!isDualMirror);
-              }}
-              width={24}
-              height={24}
-              alt="dualMirror"
-            /> */}
-            <Image
-              src={
-                isFilterIcon
-                  ? "/images/filterTrue.svg"
-                  : "/images/filterFalse.svg"
-              }
-              onClick={() => {
-                setIsFilterIcon(!isFilterIcon);
-              }}
-              width={24}
-              height={24}
-              alt="dualMirror"
-            />
-          </div>
+          {ComponentsType === "FULL" ? (
+            <div className="extra">
+              <ColumnSettings
+                columns={columns}
+                columnIndexes={(arg1, arg2) =>
+                  findIndexInColumnSettings({
+                    newRowIndexes: arg1,
+                    unSelectedRow: arg2,
+                    columns: columns,
+                    onColumns: (columns) => setColumns(columns),
+                    params: newParams,
+                    onParams: (params) => setNewParams(params),
+                    getData: (params) => getData(params),
+                  })
+                }
+              />
+              <Image
+                src={"/images/PrintIcon.svg"}
+                width={24}
+                height={24}
+                alt="printIcon"
+              />
+              <Image
+                src={"/images/UploadIcon.svg"}
+                width={24}
+                height={24}
+                alt="uploadIcon"
+              />
+              <Image
+                src={"/images/DownloadIcon.svg"}
+                width={24}
+                height={24}
+                alt="downloadIcon"
+              />
+            </div>
+          ) : null}
         </div>
         <div className="body">
           <NewDirectoryTree
+            isLeaf={true}
+            type={TreeSectionType.Consumer}
             open={isOpenTree}
-            onClick={(key) => {
-              getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+            onClick={(key, isLeaf) => {
+              if (isLeaf) {
+                getData({
+                  page: 1,
+                  limit: 10,
+                  sectionId: [`${key}`],
+                });
+              }
             }}
           />
           <div
@@ -548,145 +438,43 @@ const Information = () => {
               width: tableWidth,
             }}
           >
-            <Table
-              scroll={{ x: 1700 }}
-              rowKey={"id"}
-              onRow={(record) => {
-                return {
-                  onDoubleClick: () => {
-                    setIsOpenTree(false);
-                    setIsFilterIcon(false);
-                    if (isOpenTree) {
-                      setIsOpenTree(false);
-                    }
-                    setSelectedRow(record);
-                    setIsDescription(true);
-                  },
-                };
-              }}
-              dataSource={data}
-              pagination={{
-                position: ["bottomCenter"],
-                size: "small",
-                current: meta.page,
-                total: meta.itemCount,
-                showTotal: (total, range) =>
-                  `${range[0]}-ээс ${range[1]}, Нийт ${total}`,
-                pageSize: meta.limit,
-                showSizeChanger: true,
-                pageSizeOptions: ["5", "10", "20", "50"],
-                showQuickJumper: true,
-                onChange: (page, pageSize) =>
-                  getData?.({ page: page, limit: pageSize }),
-              }}
-            >
-              {Object.entries(testColumns)?.map(
-                ([key, value]: [any, ColumnType]) => {
-                  if (value.isView) {
-                    return (
-                      <Column
-                        key={key}
-                        dataIndex={value.dataIndex}
-                        title={value.label}
-                        filterDropdown={({ confirm, filters }) => (
-                          <DropDown
-                            label={value.label}
-                            dataIndex={key}
-                            type={DataIndexType.STRING}
-                            filters={filters || []}
-                            isFiltered={value.isFiltered}
-                            handleSearch={(params, state) => {
-                              confirm();
-                              onCloseFilterTag(key, state);
-                              getData(params);
-                            }}
-                          />
-                        )}
-                        filters={typeOfFilters(value.type, key)}
-                        filterIcon={() => {
-                          return (
-                            <FilterOutlined
-                              style={{
-                                fontSize: 7,
-                                color: value.isFiltered ? "#198754" : "black",
-                              }}
-                            />
-                          );
-                        }}
-                        render={(text) => {
-                          if (value.type === "BOOLEAN") {
-                            return isChecked(text);
-                          } else if (value.type === "BOOLEAN_STRING") {
-                            if (text) {
-                              return (
-                                <span
-                                  style={{
-                                    color: "green",
-                                  }}
-                                >
-                                  Идэвхтэй
-                                </span>
-                              );
-                            }
-                            return "Идэвхгүй";
-                          } else {
-                            return text;
-                          }
-                        }}
-                      />
-                    );
-                  }
+            <NewTable
+              componentsType={ComponentsType}
+              scroll={{ x: ComponentsType === "FULL" ? 1700 : 400 }}
+              rowKey="id"
+              rowSelection={ComponentsType === "LITTLE" ? rowSelection : null}
+              doubleClick={true}
+              onDClick={(value) => {
+                if (ComponentsType === "FULL") {
+                  setSelectedRow(value);
+                  setIsDescription(true);
+                  setIsOpenTree(false);
+                } else if (ComponentsType === "MIDDLE") {
+                  onClickModal?.(value);
                 }
-              )}
-              <Column
-                title=" "
-                fixed="right"
-                width={40}
-                render={(text, row: IDataConsumer) => {
-                  return (
-                    <Popover
-                      content={
-                        <Popup
-                          onEdit={() => openModal(true, row)}
-                          onDelete={() => onDelete(text)}
-                        />
-                      }
-                      trigger="click"
-                      placement="bottomRight"
-                    >
-                      <MoreOutlined
-                        style={{
-                          fontSize: 22,
-                        }}
-                      />
-                    </Popover>
-                  );
-                }}
-              />
-            </Table>
+              }}
+              data={data}
+              meta={meta}
+              columns={columns}
+              onChange={(params) => getData(params)}
+              onColumns={(columns) => setColumns(columns)}
+              newParams={newParams}
+              onParams={(params) => setNewParams(params)}
+              incomeFilters={filters}
+              onEdit={(row) => openModal(true, row)}
+              onDelete={(id) => onDelete(id)}
+            />
           </div>
           <Description
             title="Харилцагчийн мэдээлэл"
             open={isDescription}
-            columns={testColumns}
+            columns={columns}
             selectedRow={selectedRow}
             onEdit={() => openModal(true, selectedRow)}
             onDelete={(id) => onDelete(id)}
             onCancel={(state) => {
               setIsDescription(state);
               setIsOpenTree(!state);
-            }}
-          />
-          <FilterMore
-            title="Шүүлтүүр"
-            open={isFilterIcon}
-            onOk={(value) => {
-              onCloseFilterTag("lastName", true);
-              getData({ page: 1, limit: 10, lastName: ["Андгай"] });
-            }}
-            onCancel={(state) => {
-              setIsOpenTree(true);
-              setIsFilterIcon(state);
             }}
           />
         </div>
@@ -782,6 +570,7 @@ const Information = () => {
               <Form.Item
                 style={{
                   minWidth: 130,
+                  maxWidth: 130,
                 }}
                 label="Регистр №"
                 name="regno"
@@ -812,7 +601,8 @@ const Information = () => {
               </Form.Item>
               <Form.Item
                 style={{
-                  minWidth: 120,
+                  maxWidth: 130,
+                  minWidth: 130,
                 }}
                 label="И-Баримт дугаар"
                 name="ebarimtNo"
@@ -827,39 +617,50 @@ const Information = () => {
               </Form.Item>
               <Form.Item
                 style={{
-                  minWidth: 116,
+                  maxWidth: 105,
+                  minWidth: 105,
                 }}
                 label="Утасны дугаар"
                 name="phone"
               >
                 <NewInput />
               </Form.Item>
-              <Form.Item label="Харилцагчийн бүлэг">
+              <Form.Item
+                label="Харилцагчийн бүлэг"
+                style={{
+                  width: "100%",
+                }}
+              >
                 <Space.Compact>
                   <div className="extraButton">
                     <Popover
                       placement="bottom"
+                      open={isOpenPopOver}
+                      onOpenChange={(state) => setIsOpenPopOver(state)}
                       content={
                         <NewDirectoryTree
+                          isLeaf={true}
+                          type={TreeSectionType.Consumer}
                           open={true}
-                          onClick={(key) => {
-                            form.setFieldsValue({
-                              sectionId: key,
-                            });
+                          onClick={(key, isLeaf) => {
+                            if (isLeaf) {
+                              setIsOpenPopOver(false);
+                              form.setFieldsValue({
+                                sectionId: key,
+                              });
+                            }
                           }}
                         />
                       }
                       trigger={"click"}
                     >
-                      <Image
-                        src="/icons/clipboardBlack.svg"
-                        width={16}
-                        height={16}
-                        alt="clipboard"
-                      />
+                      <SignalFilled rotate={-90} />
                     </Popover>
                   </div>
                   <Form.Item
+                    style={{
+                      width: "100%",
+                    }}
                     name="sectionId"
                     rules={[
                       {

@@ -5,7 +5,9 @@ import {
   IDataConsumer,
   Params,
 } from "./entities";
-
+function getAll(): Promise<IConsumerResponse> {
+  return api.get("consumer");
+}
 function get(params: Params): Promise<IConsumerResponse> {
   return api.get("consumer", { params: params });
 }
@@ -23,6 +25,7 @@ function remove(id: number): Promise<IConsumerResponse> {
 }
 export const ConsumerService = {
   get,
+  getAll,
   post,
   patch,
   remove,

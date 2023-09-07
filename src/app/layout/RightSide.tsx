@@ -5,7 +5,7 @@ import type { MenuProps } from "antd/es/menu";
 import {
   AppstoreOutlined,
   MailOutlined,
-  SettingOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { PathActions } from "@/feature/core/actions/PathAction";
@@ -29,19 +29,16 @@ const DashboardLayout = () => {
   const items = [
     getItem("Хянах самбар", "/dashboard", <MailOutlined />),
     getItem("Үндсэн бүртгэл", "/registration", <AppstoreOutlined />, [
-      getItem("Харилцагч", "/customer", null, [
+      getItem("Харилцагч", "/customer", <UserOutlined />, [
         getItem("Бүртгэл", "/information"),
         getItem("Бүлэг", "/group"),
-        getItem("Зээлийн лимит", "7"),
-        getItem("Эхний үлдэгдэл", "8"),
-        getItem("Авлага дансны бүртгэл", "9"),
+        getItem("Зээлийн лимит", "/limit-of-loans"),
+        getItem("Эхний үлдэгдэл", "/beginning-balance"),
+        getItem("Авлага дансны бүртгэл", "/receivable-account"),
       ]),
-    ]),
-    getItem("Navigation Three", "sub2", <SettingOutlined />, [
-      getItem("Option 7", "10"),
-      getItem("Option 8", "11"),
-      getItem("Option 9", "12"),
-      getItem("Option 10", "13"),
+      getItem("Бараа материал", "/inventory", null, [
+        getItem("Бүртгэл", "/inventories-registration"),
+      ]),
     ]),
   ];
   // fuctions

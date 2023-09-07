@@ -1,8 +1,13 @@
 import { FilteredColumns } from "@/service/consumer/entities";
+import { FilteredColumnsLimitOfLoans } from "@/service/limit-of-loans/entities";
+import { FilteredColumnsLimitOfLoansAccount } from "@/service/limit-of-loans/account/entities";
 import { Space, Tag } from "antd";
 
 interface IProps {
-  columns: FilteredColumns;
+  columns:
+    | FilteredColumns
+    | FilteredColumnsLimitOfLoans
+    | FilteredColumnsLimitOfLoansAccount;
   isActive: (key: any, state: boolean) => void;
 }
 

@@ -1,0 +1,433 @@
+"use client";
+
+import { MoreOutlined, FilterOutlined } from "@ant-design/icons";
+import ColumnSettings from "@/components/columnSettings";
+import DropDown from "@/components/dropdown";
+import Filtered from "@/components/filtered";
+import { NewInput, NewSearch } from "@/components/input";
+import Popup from "@/components/popup";
+import { renderCheck, typeOfFilters, unDuplicate } from "@/feature/common";
+import {
+  DataIndexType,
+  InformationType,
+  Meta,
+  Quearies,
+} from "@/service/entities";
+import {
+  ColumnType,
+  Filter,
+  FilteredColumnsReceivableAccount,
+  IDataReceivableAccount,
+  Params,
+} from "@/service/receivable-account/entities";
+import { ReceivableAccountService } from "@/service/receivable-account/service";
+import { Form, Popover, Table } from "antd";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
+import NewModal from "@/components/modal";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+
+const { Column } = Table;
+
+interface IProps {
+  ComponentsType: InformationType;
+  onClickModal: (row: IDataReceivableAccount) => void;
+}
+
+const ReceivableAccount = (props: IProps) => {
+  const { ComponentsType = "FULL", onClickModal } = props;
+  const [form] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [data, setData] = useState<IDataReceivableAccount[]>([]);
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [filters, setFilters] = useState<Filter>({});
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<IDataReceivableAccount>();
+  const [newParams, setNewParams] = useState<Params>({});
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isOpenActionPopover, setIsOpenActionPopover] =
+    useState<boolean>(false);
+  const [columns, setColumns] = useState<FilteredColumnsReceivableAccount>({
+    code: {
+      label: "Дансны код",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "code",
+      type: DataIndexType.MULTI,
+    },
+    name: {
+      label: "Дансны нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "name",
+      type: DataIndexType.MULTI,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: ComponentsType === "FULL" ? true : false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: ComponentsType === "FULL" ? true : false,
+      isFiltered: false,
+      dataIndex: "updatedBy",
+      type: DataIndexType.MULTI,
+    },
+  });
+
+  // mor filter
+  const onCloseFilterTag = (key: string, state: boolean) => {
+    const clone = columns;
+    clone![key as keyof FilteredColumnsReceivableAccount]!.isFiltered = state;
+    setColumns(clone);
+    var newClonedParams = newParams;
+    newClonedParams[key as keyof Params] = undefined;
+    if (!state) {
+      if (newParams.orderParam === key) {
+        newClonedParams.orderParam = undefined;
+        newClonedParams.order = undefined;
+      }
+      if (newParams.queries) {
+        var newQueries: Quearies[] = [];
+        newParams.queries.map((query) => {
+          if (query.param != key) {
+            newQueries.push(query);
+          }
+        });
+        newClonedParams.queries = newQueries.filter(Boolean) || undefined;
+      }
+      setNewParams(newClonedParams);
+    }
+  };
+  // bagana tohirhoo hiih ued
+  const findIndexInColumnSettings = (
+    newRowIndexes: string[],
+    unSelectedRow: string[]
+  ) => {
+    unSelectedRow?.map((row) => {
+      onCloseFilterTag(row, false);
+    });
+    const clone = { ...columns };
+    Object.entries(clone).map(([key, _value]) => {
+      clone![key as keyof FilteredColumnsReceivableAccount]!.isView = false;
+    });
+    newRowIndexes?.map((index) => {
+      clone![
+        index as unknown as keyof FilteredColumnsReceivableAccount
+      ]!.isView = true;
+    });
+    setColumns(clone);
+    getReceivableAccounts(newParams);
+  };
+  // data awcihrah
+  const getReceivableAccounts = async (params: Params) => {
+    blockContext.block();
+    var prm: Params = {
+      page: params.page || newParams.page,
+      limit: params.limit || newParams.limit,
+      orderParam: params.orderParam || newParams.orderParam,
+      order: params.order || newParams.order,
+      code: params.code || newParams.code,
+      name: params.name || newParams.name,
+      sectionId: params.sectionId || newParams.sectionId,
+      queries: newParams.queries,
+    };
+    if (params.queries?.length) {
+      const incomeParam = params.queries[0].param;
+      prm.queries = [...unDuplicate(incomeParam, newParams), ...params.queries];
+    }
+    if (params.code) {
+      prm.queries = [...unDuplicate("code", newParams)];
+    }
+    if (params.name) {
+      prm.queries = [...unDuplicate("name", newParams)];
+    }
+    setNewParams(prm);
+    await ReceivableAccountService.get(prm).then((response) => {
+      if (response.success) {
+        setData(response.response.data);
+        setMeta(response.response.meta);
+        setFilters(response.response.filter);
+      }
+    });
+    blockContext.unblock();
+  };
+  // data post hiih
+  const onFinish = async (values: IDataReceivableAccount) => {
+    if (editMode) {
+      await ReceivableAccountService.patch(selectedRow?.id, values).then(
+        (response) => {
+          if (response.success) {
+            setSelectedRow(response.response);
+            setIsOpenModal(false);
+            getReceivableAccounts({ page: 1, limit: 10 });
+          }
+        }
+      );
+    } else {
+      await ReceivableAccountService.post(values).then((response) => {
+        if (response.success) {
+          getReceivableAccounts(newParams);
+          setIsOpenModal(false);
+        }
+      });
+    }
+  };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await ReceivableAccountService.remove(id).then((response) => {
+      if (response.success) {
+        setSelectedRow(undefined);
+        getReceivableAccounts({ page: 1, limit: 10 });
+      }
+    });
+    blockContext.unblock();
+  };
+  useEffect(() => {
+    getReceivableAccounts({ page: 1, limit: 10 });
+  }, []);
+  return (
+    <div>
+      <div className="information">
+        <div className="header">
+          <div className="left">
+            {ComponentsType === "FULL" ? (
+              <p>Үндсэн бүртгэл / Харилцагч / Авлагын дансны бүртгэл</p>
+            ) : (
+              <p>Авлагын дансны бүртгэл</p>
+            )}
+            <button
+              className="app-button"
+              onClick={() => {
+                form.resetFields();
+                setEditMode(false);
+                setIsOpenModal(true);
+              }}
+            >
+              <Image
+                src={"/images/AddIcon.svg"}
+                width={12}
+                height={12}
+                alt="addicon"
+              />
+              Данс бүртгэх
+            </button>
+          </div>
+          <div className="right">
+            <NewSearch
+              prefix={
+                <Image
+                  src={"/images/SearchIcon.svg"}
+                  width={12}
+                  height={12}
+                  alt="searchIcon"
+                />
+              }
+              allowClear={true}
+              onSearch={(values: string) => console.log(values)}
+            />
+          </div>
+        </div>
+        <div className="second-header">
+          <Filtered
+            columns={columns}
+            isActive={(key, state) => {
+              onCloseFilterTag(key, state);
+              getReceivableAccounts(newParams);
+            }}
+          />
+          {ComponentsType === "FULL" ? (
+            <div className="extra">
+              <ColumnSettings
+                columns={columns}
+                columnIndexes={(arg1, arg2) =>
+                  findIndexInColumnSettings(arg1, arg2)
+                }
+              />
+              <Image
+                src={"/images/PrintIcon.svg"}
+                width={24}
+                height={24}
+                alt="printIcon"
+              />
+              <Image
+                src={"/images/DownloadIcon.svg"}
+                width={24}
+                height={24}
+                alt="downloadIcon"
+              />
+            </div>
+          ) : null}
+        </div>
+        <div className="body">
+          <div
+            style={{
+              width: "100%",
+            }}
+          >
+            <Table
+              scroll={{ x: ComponentsType === "FULL" ? 500 : 400 }}
+              rowKey={"id"}
+              dataSource={data}
+              onRow={(record) => {
+                return {
+                  onDoubleClick: () => {
+                    if (ComponentsType === "MODAL") {
+                      onClickModal(record);
+                    }
+                  },
+                };
+              }}
+              pagination={{
+                position: ["bottomCenter"],
+                size: "small",
+                current: meta.page,
+                total: meta.itemCount,
+                showTotal: (total, range) =>
+                  `${range[0]}-ээс ${range[1]}, Нийт ${total}`,
+                pageSize: meta.limit,
+                showSizeChanger: true,
+                pageSizeOptions: ["5", "10", "20", "50"],
+                showQuickJumper: true,
+                onChange: (page, pageSize) =>
+                  getReceivableAccounts?.({ page: page, limit: pageSize }),
+              }}
+            >
+              {Object.entries(columns)?.map(
+                ([key, value]: [any, ColumnType]) => {
+                  if (value.isView) {
+                    return (
+                      <Column
+                        key={key}
+                        dataIndex={value.dataIndex}
+                        title={value.label}
+                        filterDropdown={({ confirm, filters }) => (
+                          <DropDown
+                            label={value.label}
+                            dataIndex={key}
+                            type={DataIndexType.STRING}
+                            filters={filters || []}
+                            isFiltered={value.isFiltered}
+                            handleSearch={(params, state) => {
+                              confirm();
+                              onCloseFilterTag(key, state);
+                              getReceivableAccounts(params);
+                            }}
+                          />
+                        )}
+                        filters={typeOfFilters({
+                          type: value.type,
+                          dataIndex: key,
+                          filters: filters,
+                        })}
+                        filterIcon={() => {
+                          return (
+                            <FilterOutlined
+                              style={{
+                                fontSize: 7,
+                                color: value.isFiltered ? "#198754" : "black",
+                              }}
+                            />
+                          );
+                        }}
+                        render={(text) => renderCheck(text, value.type)}
+                      />
+                    );
+                  }
+                }
+              )}
+              <Column
+                title=" "
+                dataIndex={"id"}
+                fixed="right"
+                width={40}
+                render={(text, row: IDataReceivableAccount) => {
+                  return (
+                    <Popover
+                      content={
+                        <Popup
+                          onEdit={() => {
+                            setEditMode(true);
+                            form.setFieldsValue(row);
+                            setSelectedRow(row);
+                            setIsOpenModal(true);
+                          }}
+                          onDelete={() => onDelete(text)}
+                        />
+                      }
+                      trigger="click"
+                      placement="bottomRight"
+                    >
+                      <MoreOutlined
+                        style={{
+                          fontSize: 22,
+                        }}
+                      />
+                    </Popover>
+                  );
+                }}
+              />
+            </Table>
+          </div>
+        </div>
+      </div>
+      <NewModal
+        title={editMode ? "Авлагын данс засах" : "Авлагын данс бүртгэл"}
+        open={isOpenModal}
+        onCancel={() => setIsOpenModal(false)}
+        onOk={() =>
+          form.validateFields().then((values) => {
+            onFinish(values);
+          })
+        }
+      >
+        <Form form={form} layout="vertical">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Form.Item
+              label="Дансны код"
+              name="code"
+              rules={[
+                {
+                  required: true,
+                  message: "Заавал",
+                },
+              ]}
+            >
+              <NewInput
+                style={{
+                  width: 225,
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Дансны нэр"
+              name="name"
+              rules={[
+                {
+                  required: true,
+                  message: "Заавал",
+                },
+              ]}
+            >
+              <NewInput
+                style={{
+                  width: 225,
+                }}
+              />
+            </Form.Item>
+          </div>
+        </Form>
+      </NewModal>
+    </div>
+  );
+};
+export default ReceivableAccount;

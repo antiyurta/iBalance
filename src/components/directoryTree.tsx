@@ -8,32 +8,30 @@ const { DirectoryTree } = Tree;
 
 //service
 import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { TreeSectionType } from "@/service/consumer/section/entities";
 
 interface IProps {
+  width?: string;
+  type: TreeSectionType;
+  isLeaf: boolean;
   open: boolean;
-  onClick: (key: number | string) => void;
+  onClick?: (key: number | string, isLeaf: boolean | undefined) => void;
 }
 
 const NewDirectoryTree = (props: IProps) => {
-  const { open, onClick } = props;
+  const { width, type, isLeaf, open, onClick } = props;
   const [isExpandTree, setIsExpandTree] = useState<boolean>(false);
   const [expand, setExpand] = useState(["9-1"]);
   const [newTreeData, setNewTreeData] = useState<DataNode[]>([]);
   const onSelect: DirectoryTreeProps["onSelect"] = async (keys, info) => {
-    if (info.node.isLeaf) {
-      onClick(info.node.key);
+    if (isLeaf && info.node.isLeaf) {
+      onClick?.(info.node.key, isLeaf);
+    } else {
+      onClick?.(info.node.key, info.node.isLeaf);
     }
   };
-  const dd = () => {
-    const dd = newTreeData.map((item) =>
-      Object.assign({}, item, {
-        expanded: true,
-      })
-    );
-    console.log(dd);
-  };
   const getConsumerSection = async () => {
-    await ConsumerSectionService.get().then((response) => {
+    await ConsumerSectionService.get(type).then((response) => {
       let root: DataNode[] = [];
       const data = response.response;
       const cloneData: DataNode[] = data.map((el, index) => {
@@ -56,6 +54,7 @@ const NewDirectoryTree = (props: IProps) => {
         const parentEl = cloneData[idMapping[el.parentId]];
         parentEl.children = [...(parentEl.children || []), el];
       });
+      console.log("=----", root);
       setNewTreeData(root);
     });
   };
@@ -64,8 +63,20 @@ const NewDirectoryTree = (props: IProps) => {
   }, [open]);
   if (open) {
     return (
-      <div className="directory-tree">
-        <div className="header">
+      <div
+        className="directory-tree"
+        style={{
+          maxWidth: width,
+          width: width,
+        }}
+      >
+        <div
+          className="header"
+          style={{
+            maxWidth: width,
+            width: width,
+          }}
+        >
           <Tooltip title="Бүгдийг хаах">
             <Image
               onClick={() => setExpand([])}
@@ -76,7 +87,6 @@ const NewDirectoryTree = (props: IProps) => {
             />
           </Tooltip>
           <Image
-            onClick={() => dd()}
             src={"/images/openFolder.svg"}
             width={24}
             height={24}

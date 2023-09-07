@@ -1,8 +1,17 @@
 import { api } from "@/feature/interceptor/interceptor";
-import { IConsumerSectionResponse, Params } from "./entities";
+import {
+  IConsumerSectionResponse,
+  IDataConsumerSection,
+  Params,
+  TreeSectionType,
+} from "./entities";
 
-function get(): Promise<IConsumerSectionResponse> {
-  return api.get("tree-section");
+function get(type: TreeSectionType): Promise<IConsumerSectionResponse> {
+  return api.get("tree-section", {
+    params: {
+      type: type,
+    },
+  });
 }
 function getById(id: number): Promise<IConsumerSectionResponse> {
   return api.get("tree-section/" + id);
@@ -12,8 +21,12 @@ function getByFilter(params: Params): Promise<IConsumerSectionResponse> {
     params: params,
   });
 }
+function post(body: IDataConsumerSection): Promise<IConsumerSectionResponse> {
+  return api.post("tree-section", body);
+}
 export const ConsumerSectionService = {
   get,
   getById,
   getByFilter,
+  post,
 };

@@ -1,41 +1,12 @@
-import { GenericResponse, Meta } from "../entities";
+import {
+  ColumnType,
+  GenericResponse,
+  Meta,
+  Quearies,
+  RadioType,
+} from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataConsumerSection } from "./section/entities";
-export type DataIndex = keyof IDataConsumer;
-export enum DataIndexType {
-  NUMBER = "NUMBER",
-  STRING = "STRING",
-  STRING_TREE = "STRING_TREE",
-  STRING_BANK = "STRING_BANK",
-  BOOLEAN = "BOOLEAN",
-  BOOLEAN_STRING = "BOOLEAN_STRING",
-}
-export type Index =
-  | "code"
-  | "isIndividual"
-  | "isEmployee"
-  | "isActive"
-  | "lastName"
-  | "name"
-  | "sectionId"
-  | "regno"
-  | "phone"
-  | "address"
-  | "bankId"
-  | "bankAccountNo"
-  | "email"
-  | "isActive";
-export type DynamicKey = `${Index}`;
-
-export type ColumnType = {
-  label: string; // ner mongol
-  isView: boolean; // mor haragdah eseh
-  isFiltered: boolean; // filterlegdsn eseh
-  dataIndex: DataIndex | DataIndex[]; // dataIndex
-  type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
-};
-
-export type FilteredColumns = { [T in DynamicKey]?: ColumnType };
 
 export enum ToolsIcons {
   EQUALS = "/icons/tools/Equals.png",
@@ -46,17 +17,6 @@ export enum ToolsIcons {
   IS_GREATOR_OR_EQUAL = "/icons/tools/isGreetThanOrEqual.png",
   IS_LESS = "/icons/tools/isLessThan.png",
   IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
-}
-
-export enum RadioType {
-  ASC = "ASC",
-  DESC = "DESC",
-}
-
-export interface Quearies {
-  param: string;
-  operator?: string;
-  value?: number | string;
 }
 
 export interface Params {
@@ -82,10 +42,11 @@ export interface Params {
 
 export interface IDataConsumer {
   id: number;
-  code: number;
+  code: number | string;
   isActive: boolean;
   isEmployee: boolean;
   isIndividual: boolean;
+  isSupplier: boolean;
   ebarimtNo: number;
   email: string;
   lastName: string;
@@ -102,11 +63,29 @@ export interface IDataConsumer {
   updatedAt: string;
   deletedAt: string;
 }
+export interface IFilters {
+  code: number[];
+  isIndividual: boolean[];
+  isEmployee: boolean[];
+  lastName: boolean[];
+  name: string[];
+  sectionId: number[];
+  regno: string[];
+  phone: string[];
+  address: string[];
+  bankId: number[];
+  bankAccountNo: string[];
+  email: string[];
+  isActive: boolean[];
+}
+
+export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
 
 export interface IConsumerResponse extends GenericResponse {
   response: {
     data: IDataConsumer[];
     meta: Meta;
+    filter: IFilters;
   };
 }
 

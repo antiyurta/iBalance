@@ -9,22 +9,17 @@ import {
   NewRadio,
   NewRadioGroup,
 } from "./input";
-import {
-  DataIndex,
-  DataIndexType,
-  Params,
-  RadioType,
-  ToolsIcons,
-} from "@/service/consumer/entities";
+import { Params, ToolsIcons } from "@/service/consumer/entities";
 import { Popover } from "antd";
 import Image from "next/image";
-import { ColumnFilterItem } from "antd/es/table/interface";
+import { DataIndexType, RadioType } from "@/service/entities";
+import { typeOfFilters } from "@/feature/common";
 
 interface IProps {
   label: string;
-  dataIndex: DataIndex;
+  dataIndex: string;
   type: DataIndexType;
-  filters: ColumnFilterItem[];
+  filters: number[] | string | boolean[];
   isFiltered: boolean;
   handleSearch: (params: Params, state: boolean) => void;
 }
@@ -37,23 +32,25 @@ enum SearchType {
 }
 const DropDown = (props: IProps) => {
   const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
+
   const [radioValue, setRadioValue] = useState<keyof typeof RadioType>();
   const [tool, setTool] = useState<keyof typeof ToolsIcons>(
     type === "NUMBER" ? "EQUALS" : "CONTAINS"
   );
+  const [checkboxs, setCheckboxs] = useState<any>([]);
   const [searchValue, setSearchValue] = useState<string | number>("");
   const [checkedList, setCheckedList] = useState<CheckedList>([]);
   let indeterminate =
-    checkedList.length > 0 && checkedList.length < filters.length;
+    checkedList.length > 0 && checkedList.length < checkboxs.length;
   const onCheckAllChange = (e: any) => {
     setCheckedList(
-      e.target.checked ? filters?.map((filter) => filter.value) : []
+      e.target.checked ? checkboxs?.map((checkbox: any) => checkbox.value) : []
     );
   };
   const onChange = (list: CheckedList) => {
     setCheckedList(list);
   };
-  const checkAll = filters?.length === checkedList.length;
+  const checkAll = checkboxs?.length === checkedList.length;
   const Tools = () => {
     return (
       <div
@@ -260,12 +257,23 @@ const DropDown = (props: IProps) => {
         break;
     }
   };
+  const gg = async () => {
+    console.log(type, filters);
+    const dd: any = await typeOfFilters({
+      type: type,
+      filters: filters,
+    });
+    setCheckboxs(dd);
+  };
   useEffect(() => {
     if (!isFiltered) {
       setSearchValue("");
       setCheckedList([]);
       setRadioValue(undefined);
       indeterminate = false;
+    }
+    if (filters && type) {
+      gg();
     }
   }, [props]);
   return (
@@ -460,10 +468,10 @@ const DropDown = (props: IProps) => {
               value={checkedList}
               onChange={onChange}
             >
-              {filters?.map((data, index) => {
+              {checkboxs?.map((checkbox: any, index: number) => {
                 return (
-                  <NewCheckbox key={index} value={data.value}>
-                    {data.text}
+                  <NewCheckbox key={index} value={checkbox.value}>
+                    {checkbox.text}
                   </NewCheckbox>
                 );
               })}

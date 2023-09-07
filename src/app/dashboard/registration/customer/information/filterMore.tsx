@@ -1,6 +1,7 @@
 "use client";
 
 import { NewInputNumber } from "@/components/input";
+import { Form } from "antd";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -11,6 +12,7 @@ interface IProps {
   onCancel: (state: boolean) => void;
 }
 const FilterMore = (props: IProps) => {
+  const [form] = Form.useForm();
   const { title, open, onOk, onCancel } = props;
   const [value, setValue] = useState();
   if (open) {
@@ -35,6 +37,11 @@ const FilterMore = (props: IProps) => {
             backgroundColor: "gray",
           }}
         ></div>
+        <Form form={form}>
+          <Form.Item>
+            
+          </Form.Item>
+        </Form>
         <NewInputNumber value={value} onChange={(e: any) => setValue(e)} />
         <button onClick={() => onOk(value)}>filter</button>
       </div>
