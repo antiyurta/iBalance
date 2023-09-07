@@ -16,23 +16,23 @@ import {
 import { NewTable } from "@/components/table";
 // interface  types
 import { TreeSectionType } from "@/service/consumer/section/entities";
-import { DataIndexType, Meta } from "@/service/entities";
+import { DataIndexType, IFilters, Meta } from "@/service/entities";
 import {
   FilteredColumnsLimitOfLoans,
   IDataLimitOfLoans,
-  IFilters,
   Params,
 } from "@/service/limit-of-loans/entities";
 //service
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 
 interface IProps {
+  onReload: boolean;
   onEdit: (row: IDataLimitOfLoans) => void;
   onDelete: (id: number) => void;
 }
 
 const CustomerList = (props: IProps) => {
-  const { onEdit, onDelete } = props;
+  const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [newParams, setNewParams] = useState<Params>({});
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
@@ -168,6 +168,11 @@ const CustomerList = (props: IProps) => {
   useEffect(() => {
     getData({ page: 1, limit: 10 });
   }, []);
+  useEffect(() => {
+    if (onReload) {
+      getData({ page: 1, limit: 10 });
+    }
+  }, [onReload]);
   return (
     <div>
       <div className="second-header">

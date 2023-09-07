@@ -2,6 +2,7 @@ import { IDataConsumer } from "../consumer/entities";
 import {
   ColumnType,
   GenericResponse,
+  IFilters,
   Meta,
   Quearies,
   RadioType,
@@ -24,6 +25,25 @@ export interface Params {
   orderParam?: string | null | undefined;
   order?: RadioType | null | undefined;
 }
+export interface IDataAccountsPost {
+  accountId: number;
+  amount: number;
+}
+
+export interface IDataLimitOfLoansPost {
+  consumerId: number | undefined;
+  isAccount: boolean;
+  isClose: boolean;
+  limitAmount: number;
+  accounts?: IDataAccountsPost[];
+}
+
+export interface IDataLendLimitAccounts {
+  account: IDataAccount;
+  accountId: number;
+  amount: number;
+  id: number;
+}
 
 export interface IDataLimitOfLoans {
   consumer: IDataConsumer;
@@ -34,22 +54,10 @@ export interface IDataLimitOfLoans {
   id: number;
   isAccount: boolean;
   isClose: boolean;
-  lendLimitAccounts: IDataAccount[];
+  lendLimitAccounts: IDataLendLimitAccounts[];
   limitAmount: number;
   updatedAt: string;
   updatedBy: string;
-}
-
-export interface IFilters {
-  code: number[];
-  isActive: boolean[];
-  isClose: boolean[];
-  isAccount: boolean[];
-  limitAmount: number[];
-  name: string[];
-  sectionId: number[];
-  updatedAt: string[];
-  updatedBy: string[];
 }
 
 export type FilteredColumnsLimitOfLoans = {

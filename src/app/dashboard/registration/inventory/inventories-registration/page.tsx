@@ -20,7 +20,7 @@ const InventoriesRegistration = () => {
                 height={12}
                 alt="addicon"
               />
-              Шинээр бүртгэх    
+              Шинээр бүртгэх
             </button>
           </div>
           <div className="right">

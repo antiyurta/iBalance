@@ -48,9 +48,9 @@ function EditableTableLimit(props: IProps) {
     console.log(editingIndex);
     form
       .validateFields([
-        ["accounts", editingIndex, "code"],
-        ["accounts", editingIndex, "name"],
-        ["accounts", editingIndex, "amount"],
+        ["lendLimitAccounts", editingIndex, "code"],
+        ["lendLimitAccounts", editingIndex, "name"],
+        ["lendLimitAccounts", editingIndex, "amount"],
       ])
       .then(() => {
         add();
@@ -66,15 +66,15 @@ function EditableTableLimit(props: IProps) {
   const onSave = () => {
     form
       .validateFields([
-        ["accounts", editingIndex, "code"],
-        ["accounts", editingIndex, "name"],
-        ["accounts", editingIndex, "amount"],
+        ["lendLimitAccounts", editingIndex, "code"],
+        ["lendLimitAccounts", editingIndex, "name"],
+        ["lendLimitAccounts", editingIndex, "amount"],
       ])
       .then(() => {
         setNewService(false);
         setEditingIndex(undefined);
         const amounts = form
-          .getFieldValue("accounts")
+          .getFieldValue("lendLimitAccounts")
           ?.reduce((sum: number, account: any) => (sum += account.amount), 0);
         form.setFieldsValue({
           limitAmount: amounts,
@@ -91,9 +91,9 @@ function EditableTableLimit(props: IProps) {
       remove(index);
     } else {
       form.resetFields([
-        ["account", index, "code"],
-        ["account", index, "name"],
-        ["account", index, "amount"],
+        ["lendLimitAccounts", index, "code"],
+        ["lendLimitAccounts", index, "name"],
+        ["lendLimitAccounts", index, "amount"],
       ]);
     }
     setNewService(false);
@@ -208,9 +208,9 @@ function EditableTableLimit(props: IProps) {
                         const data = accounts?.find(
                           (account) => account.code === id
                         );
-                        const value = form.getFieldValue("accounts");
+                        const value = form.getFieldValue("lendLimitAccounts");
                         form.setFieldsValue({
-                          ["accounts"]: {
+                          ["lendLimitAccounts"]: {
                             ...value,
                             [`${editingIndex}`]: {
                               accountId: data?.id,
@@ -357,11 +357,11 @@ function EditableTableLimit(props: IProps) {
         onCancel={() => setIsOpenPopOver(false)}
       >
         <ReceivableAccount
-          ComponentsType="MODAL"
+          ComponentsType="MIDDLE"
           onClickModal={(row) => {
-            const value = form.getFieldValue("accounts");
+            const value = form.getFieldValue("lendLimitAccounts");
             form.setFieldsValue({
-              ["accounts"]: {
+              ["lendLimitAccounts"]: {
                 ...value,
                 [`${editingIndex}`]: {
                   accountId: row.id,

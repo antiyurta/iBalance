@@ -13,9 +13,8 @@ import {
   FilteredColumnsLimitOfLoansAccount,
   IDataLimitOfLoansAccount,
   Params,
-  IFilters,
 } from "@/service/limit-of-loans/account/entities";
-import { DataIndexType, Meta } from "@/service/entities";
+import { DataIndexType, IFilters, Meta } from "@/service/entities";
 //service
 import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
 

@@ -29,17 +29,39 @@ import { ConsumerSectionService } from "@/service/consumer/section/service";
 import { parseNumber } from "@/feature/common";
 import { IDataLimitOfLoansAccount } from "@/service/limit-of-loans/account/entities";
 import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
-import { IDataLimitOfLoans } from "@/service/limit-of-loans/entities";
+import {
+  IDataLimitOfLoans,
+  IDataLimitOfLoansPost,
+} from "@/service/limit-of-loans/entities";
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
+
+type IAccounts = {
+  code: string;
+  name: string;
+  accountId: number;
+  amount: number;
+};
+
+type IForm = {
+  code: number | string;
+  name: string;
+  sectionId: number;
+  isAccount: boolean;
+  isClose: boolean;
+  limitAmount: number;
+  lendLimitAccounts: IAccounts[] | null;
+};
+
 const LimitOfLoans = () => {
   const [form] = Form.useForm();
+  const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [isAccounts, setIsAccounts] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [sections, setSections] = useState<IDataConsumerSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState([]);
+  const [selectedRow, setSelectedRow] = useState<IDataLimitOfLoans>();
   const [selectedConsumer, setSelectedConsumer] = useState<
     IDataConsumer | undefined
   >();
@@ -49,6 +71,7 @@ const LimitOfLoans = () => {
       key: "item-1",
       children: (
         <CustomerList
+          onReload={isReloadList}
           onEdit={(row) => openModal(true, row)}
           onDelete={(id) => {
             console.log(id);
@@ -62,18 +85,39 @@ const LimitOfLoans = () => {
       children: <DescriptionList />,
     },
   ];
-  const openModal = (state: boolean, row?: any) => {
+  const openModal = (state: boolean, row?: IDataLimitOfLoans) => {
+    setIsReloadList(false);
     setEditMode(state);
     if (!state) {
       form.resetFields();
     } else {
-      console.log(row);
-      form.setFieldsValue(row);
+      if (row) {
+        form.resetFields();
+        const data: IForm = {
+          code: row.consumer.code,
+          name: row.consumer.name,
+          sectionId: row.consumer.sectionId,
+          isAccount: row.isAccount,
+          isClose: row.isClose,
+          limitAmount: row.limitAmount,
+          lendLimitAccounts: row.lendLimitAccounts?.map((lendLimit) => {
+            return {
+              code: lendLimit.account.code,
+              name: lendLimit.account.name,
+              accountId: lendLimit.accountId,
+              amount: lendLimit.amount,
+            };
+          }),
+        };
+        getConsumerByCode(data.code);
+        form.setFieldsValue(data);
+        setIsAccounts(row.isAccount);
+        setSelectedRow(row);
+      }
     }
     setIsOpenModal(true);
-    setSelectedRow(row);
   };
-  const getConsumerByCode = async (code: number) => {
+  const getConsumerByCode = async (code: number | string) => {
     if (!code) {
       message.error("Код заавал оруулж хайх");
     } else {
@@ -111,13 +155,30 @@ const LimitOfLoans = () => {
       }
     );
   };
-  const onFinish = async (values: IDataLimitOfLoans) => {
-    if (selectedConsumer) {
-      values.consumerId = selectedConsumer?.id;
+  const onFinish = async (values: IForm) => {
+    const data: IDataLimitOfLoansPost = {
+      consumerId: consumers?.find((consumer) => consumer.code === values.code)
+        ?.id,
+      limitAmount: values.limitAmount,
+      isAccount: values.isAccount,
+      isClose: values.isClose,
+      accounts: values.lendLimitAccounts || [],
+    };
+    if (editMode) {
+      console.log(data);
+      await limitOfLoansService
+        .patch(selectedRow?.id, data)
+        .then((response) => {
+          console.log(response);
+        });
+    } else {
+      await limitOfLoansService.post(data).then((response) => {
+        if (response.success) {
+          setIsOpenModal(false);
+          setIsReloadList(true);
+        }
+      });
     }
-    await limitOfLoansService.post(values).then((response) => {
-      console.log(response);
-    });
   };
   useEffect(() => {
     getConsumerSections();
@@ -171,7 +232,14 @@ const LimitOfLoans = () => {
         }
         width={900}
       >
-        <Form form={form} layout="vertical">
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            isAccount: false,
+            isClose: false,
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -211,6 +279,9 @@ const LimitOfLoans = () => {
                           value: consumer.code,
                         };
                       })}
+                      onChange={(id) => {
+                        console.log(id);
+                      }}
                       onSelect={(id) => {
                         const data = consumers.find(
                           (consumer) => consumer.code === id
@@ -224,6 +295,7 @@ const LimitOfLoans = () => {
                         style={{
                           border: "none",
                         }}
+                        onChange={(e) => console.log(e)}
                         enterButton={false}
                         placeholder="Хайх"
                         onSearch={(e: any) => {
@@ -269,6 +341,12 @@ const LimitOfLoans = () => {
               <Form.Item
                 label="Харилцагчид олгох нийт лимит"
                 name="limitAmount"
+                rules={[
+                  {
+                    required: !isAccounts,
+                    message: "Заавал",
+                  },
+                ]}
               >
                 <NewInputNumber
                   disabled={isAccounts}
@@ -313,7 +391,7 @@ const LimitOfLoans = () => {
               </Form.Item>
             </div>
             {isAccounts ? (
-              <Form.List name="accounts">
+              <Form.List name="lendLimitAccounts">
                 {(accounts, { add, remove }) => (
                   <EditableTableLimit
                     data={accounts}

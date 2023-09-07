@@ -18,6 +18,7 @@ export interface Params {
 import {
   ColumnType,
   GenericResponse,
+  IFilters,
   Meta,
   Quearies,
   RadioType,
@@ -53,18 +54,6 @@ export interface IDataLimitOfLoansAccount {
   isAccount: string;
   isClose: string;
   isActive: boolean;
-}
-
-export interface IFilters {
-  code: number[];
-  name: string[];
-  sectionId: number[];
-  isAccount: boolean[];
-  accountCode: number[];
-  accountName: string[];
-  amount: number[];
-  isClose: boolean[];
-  isActive: boolean[];
 }
 
 export type FilteredColumnsLimitOfLoansAccount = {

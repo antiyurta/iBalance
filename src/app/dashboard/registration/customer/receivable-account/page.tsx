@@ -1,36 +1,30 @@
 "use client";
 
-import { MoreOutlined, FilterOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
-import DropDown from "@/components/dropdown";
 import Filtered from "@/components/filtered";
 import { NewInput, NewSearch } from "@/components/input";
-import Popup from "@/components/popup";
-import { renderCheck, typeOfFilters, unDuplicate } from "@/feature/common";
 import {
-  DataIndexType,
-  InformationType,
-  Meta,
-  Quearies,
-} from "@/service/entities";
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  unDuplicate,
+} from "@/feature/common";
+import { DataIndexType, ComponentsType, Meta } from "@/service/entities";
 import {
-  ColumnType,
   Filter,
   FilteredColumnsReceivableAccount,
   IDataReceivableAccount,
   Params,
 } from "@/service/receivable-account/entities";
 import { ReceivableAccountService } from "@/service/receivable-account/service";
-import { Form, Popover, Table } from "antd";
+import { Form } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import NewModal from "@/components/modal";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-
-const { Column } = Table;
+import { NewTable } from "@/components/table";
 
 interface IProps {
-  ComponentsType: InformationType;
+  ComponentsType: ComponentsType;
   onClickModal: (row: IDataReceivableAccount) => void;
 }
 
@@ -77,51 +71,6 @@ const ReceivableAccount = (props: IProps) => {
       type: DataIndexType.MULTI,
     },
   });
-
-  // mor filter
-  const onCloseFilterTag = (key: string, state: boolean) => {
-    const clone = columns;
-    clone![key as keyof FilteredColumnsReceivableAccount]!.isFiltered = state;
-    setColumns(clone);
-    var newClonedParams = newParams;
-    newClonedParams[key as keyof Params] = undefined;
-    if (!state) {
-      if (newParams.orderParam === key) {
-        newClonedParams.orderParam = undefined;
-        newClonedParams.order = undefined;
-      }
-      if (newParams.queries) {
-        var newQueries: Quearies[] = [];
-        newParams.queries.map((query) => {
-          if (query.param != key) {
-            newQueries.push(query);
-          }
-        });
-        newClonedParams.queries = newQueries.filter(Boolean) || undefined;
-      }
-      setNewParams(newClonedParams);
-    }
-  };
-  // bagana tohirhoo hiih ued
-  const findIndexInColumnSettings = (
-    newRowIndexes: string[],
-    unSelectedRow: string[]
-  ) => {
-    unSelectedRow?.map((row) => {
-      onCloseFilterTag(row, false);
-    });
-    const clone = { ...columns };
-    Object.entries(clone).map(([key, _value]) => {
-      clone![key as keyof FilteredColumnsReceivableAccount]!.isView = false;
-    });
-    newRowIndexes?.map((index) => {
-      clone![
-        index as unknown as keyof FilteredColumnsReceivableAccount
-      ]!.isView = true;
-    });
-    setColumns(clone);
-    getReceivableAccounts(newParams);
-  };
   // data awcihrah
   const getReceivableAccounts = async (params: Params) => {
     blockContext.block();
@@ -235,7 +184,14 @@ const ReceivableAccount = (props: IProps) => {
           <Filtered
             columns={columns}
             isActive={(key, state) => {
-              onCloseFilterTag(key, state);
+              onCloseFilterTag({
+                key: key,
+                state: state,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: newParams,
+                onParams: (params) => setNewParams(params),
+              });
               getReceivableAccounts(newParams);
             }}
           />
@@ -244,7 +200,15 @@ const ReceivableAccount = (props: IProps) => {
               <ColumnSettings
                 columns={columns}
                 columnIndexes={(arg1, arg2) =>
-                  findIndexInColumnSettings(arg1, arg2)
+                  findIndexInColumnSettings({
+                    newRowIndexes: arg1,
+                    unSelectedRow: arg2,
+                    columns: columns,
+                    onColumns: (columns) => setColumns(columns),
+                    params: newParams,
+                    onParams: (params) => setNewParams(params),
+                    getData: (params) => getReceivableAccounts(params),
+                  })
                 }
               />
               <Image
@@ -268,109 +232,33 @@ const ReceivableAccount = (props: IProps) => {
               width: "100%",
             }}
           >
-            <Table
-              scroll={{ x: ComponentsType === "FULL" ? 500 : 400 }}
-              rowKey={"id"}
-              dataSource={data}
-              onRow={(record) => {
-                return {
-                  onDoubleClick: () => {
-                    if (ComponentsType === "MODAL") {
-                      onClickModal(record);
-                    }
-                  },
-                };
+            <NewTable
+              scroll={{
+                x: ComponentsType === "FULL" ? 500 : 400,
               }}
-              pagination={{
-                position: ["bottomCenter"],
-                size: "small",
-                current: meta.page,
-                total: meta.itemCount,
-                showTotal: (total, range) =>
-                  `${range[0]}-ээс ${range[1]}, Нийт ${total}`,
-                pageSize: meta.limit,
-                showSizeChanger: true,
-                pageSizeOptions: ["5", "10", "20", "50"],
-                showQuickJumper: true,
-                onChange: (page, pageSize) =>
-                  getReceivableAccounts?.({ page: page, limit: pageSize }),
-              }}
-            >
-              {Object.entries(columns)?.map(
-                ([key, value]: [any, ColumnType]) => {
-                  if (value.isView) {
-                    return (
-                      <Column
-                        key={key}
-                        dataIndex={value.dataIndex}
-                        title={value.label}
-                        filterDropdown={({ confirm, filters }) => (
-                          <DropDown
-                            label={value.label}
-                            dataIndex={key}
-                            type={DataIndexType.STRING}
-                            filters={filters || []}
-                            isFiltered={value.isFiltered}
-                            handleSearch={(params, state) => {
-                              confirm();
-                              onCloseFilterTag(key, state);
-                              getReceivableAccounts(params);
-                            }}
-                          />
-                        )}
-                        filters={typeOfFilters({
-                          type: value.type,
-                          dataIndex: key,
-                          filters: filters,
-                        })}
-                        filterIcon={() => {
-                          return (
-                            <FilterOutlined
-                              style={{
-                                fontSize: 7,
-                                color: value.isFiltered ? "#198754" : "black",
-                              }}
-                            />
-                          );
-                        }}
-                        render={(text) => renderCheck(text, value.type)}
-                      />
-                    );
-                  }
+              rowKey="id"
+              doubleClick={true}
+              onDClick={(value) => {
+                if (ComponentsType === "MIDDLE") {
+                  onClickModal(value);
                 }
-              )}
-              <Column
-                title=" "
-                dataIndex={"id"}
-                fixed="right"
-                width={40}
-                render={(text, row: IDataReceivableAccount) => {
-                  return (
-                    <Popover
-                      content={
-                        <Popup
-                          onEdit={() => {
-                            setEditMode(true);
-                            form.setFieldsValue(row);
-                            setSelectedRow(row);
-                            setIsOpenModal(true);
-                          }}
-                          onDelete={() => onDelete(text)}
-                        />
-                      }
-                      trigger="click"
-                      placement="bottomRight"
-                    >
-                      <MoreOutlined
-                        style={{
-                          fontSize: 22,
-                        }}
-                      />
-                    </Popover>
-                  );
-                }}
-              />
-            </Table>
+              }}
+              data={data}
+              meta={meta}
+              columns={columns}
+              onChange={(params) => getReceivableAccounts(params)}
+              onColumns={(columns) => setColumns(columns)}
+              newParams={newParams}
+              onParams={(params) => setNewParams(params)}
+              incomeFilters={filters}
+              onEdit={(row) => {
+                setEditMode(true);
+                form.setFieldsValue(row);
+                setSelectedRow(row);
+                setIsOpenModal(true);
+              }}
+              onDelete={(id) => onDelete(id)}
+            />
           </div>
         </div>
       </div>

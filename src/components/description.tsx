@@ -1,5 +1,5 @@
 "use client";
-import { DataIndex, FilteredColumns } from "@/service/consumer/entities";
+import { FilteredColumns } from "@/service/consumer/entities";
 import { DataIndexType } from "@/service/entities";
 import { Modal } from "antd";
 import Image from "next/image";
@@ -28,7 +28,7 @@ const Description = (props: IDescription) => {
   const configRender = (
     key: string,
     type?: DataIndexType,
-    dataIndex?: DataIndex | DataIndex[]
+    dataIndex?: string | string[]
   ) => {
     if (
       type === DataIndexType.BOOLEAN ||
@@ -49,17 +49,18 @@ const Description = (props: IDescription) => {
           alt="switchfalse"
         />
       );
-    } else if (type === DataIndexType.STRING) {
+    } else if (type === DataIndexType.STRING || type === DataIndexType.MULTI) {
       return (
         <p className="value">{selectedRow?.[key as keyof typeof columns]}</p>
       );
     } else if (
       type === DataIndexType.STRING_BANK ||
-      type === DataIndexType.STRING_TREE
+      type === DataIndexType.STRING_TREE ||
+      type === DataIndexType.STRING_SECTION
     ) {
       if (typeof dataIndex === "object") {
         var clonedSelectedRow = selectedRow;
-        dataIndex?.map((index: DataIndex) => {
+        dataIndex?.map((index) => {
           clonedSelectedRow = clonedSelectedRow[`${index}`];
         });
         return <p>{clonedSelectedRow}</p>;
