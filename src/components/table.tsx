@@ -1,12 +1,12 @@
 import React from "react";
-import { ConfigProvider, Popover, Table } from "antd";
+import { ConfigProvider, Dropdown, Modal, Popover, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
-import { Meta, ColumnType, ComponentsType } from "@/service/entities";
+import { Meta, ColumnType } from "@/service/entities";
 import DropDown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
-import Popup from "./popup";
+import Image from "next/image";
 
 const { Column } = Table;
 
@@ -15,7 +15,7 @@ type columns = {
 };
 
 interface ITable {
-  componentsType?: ComponentsType;
+  componentsType?: string;
   scroll: {
     x?: number;
     y?: number;
@@ -65,6 +65,59 @@ function NewTable(props: ITable) {
     },
     nodeSelector: "th",
   };
+  const warning = (key: number) => {
+    Modal.error({
+      title: "Устгах",
+      content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
+      maskClosable: true,
+      onOk: () => onDelete(key),
+    });
+  };
+  const items = [
+    {
+      key: "edit",
+      label: (
+        <div className="popupButton">
+          <Image src="/icons/Edit.png" width={16} height={16} alt="edit" />
+          <p
+            style={{
+              color: "#FD7E14",
+              margin: 0,
+              fontSize: "14px",
+              fontWeight: 400,
+              lineHeight: "16px",
+            }}
+          >
+            Засварлах
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      label: (
+        <div className="popupButton">
+          <Image
+            src="/icons/DeleteOff.png"
+            width={16}
+            height={16}
+            alt="delete"
+          />
+          <p
+            style={{
+              color: "#DC3545",
+              margin: 0,
+              fontSize: "14px",
+              fontWeight: 400,
+              lineHeight: "16px",
+            }}
+          >
+            Устгах
+          </p>
+        </div>
+      ),
+    },
+  ];
   return (
     <ConfigProvider locale={mnMn}>
       <DragListView.DragColumn {...dragProps}>
@@ -142,26 +195,30 @@ function NewTable(props: ITable) {
           })}
           <Column
             title=" "
+            dataIndex={"id"}
             fixed="right"
             width={40}
             render={(text, row) => {
               return (
-                <Popover
-                  content={
-                    <Popup
-                      onEdit={() => onEdit(row)}
-                      onDelete={() => onDelete(text)}
-                    />
-                  }
-                  trigger="click"
-                  placement="bottomRight"
+                <Dropdown
+                  menu={{
+                    items,
+                    onClick: ({ key }) => {
+                      if (key === "delete") {
+                        warning(text);
+                      } else if (key === "edit") {
+                        onEdit(row);
+                      }
+                    },
+                  }}
+                  trigger={["click"]}
                 >
                   <MoreOutlined
                     style={{
                       fontSize: 22,
                     }}
                   />
-                </Popover>
+                </Dropdown>
               );
             }}
           />

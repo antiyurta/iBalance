@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IFilters,
   Meta,
   Quearies,
   RadioType,
@@ -62,21 +63,6 @@ export interface IDataConsumer {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
-}
-export interface IFilters {
-  code: number[];
-  isIndividual: boolean[];
-  isEmployee: boolean[];
-  lastName: boolean[];
-  name: string[];
-  sectionId: number[];
-  regno: string[];
-  phone: string[];
-  address: string[];
-  bankId: number[];
-  bankAccountNo: string[];
-  email: string[];
-  isActive: boolean[];
 }
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };

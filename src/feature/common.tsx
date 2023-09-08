@@ -3,9 +3,12 @@ import {
   TreeSectionType,
 } from "@/service/consumer/section/entities";
 import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Quearies } from "@/service/entities";
+import { ReceivableAccountService } from "@/service/receivable-account/service";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
+import { message } from "antd";
 import type { DefaultOptionType } from "antd/es/cascader";
 import { ColumnFilterItem } from "antd/es/table/interface";
 import dayjs from "dayjs";
@@ -40,6 +43,13 @@ const isChecked = (state: boolean) => {
 
 function renderCheck(text: any, type: DataIndexType) {
   switch (type) {
+    case DataIndexType.MEASUREMENT:
+      if (text === "AREA") return "Талбайн хэмжих нэгж";
+      if (text === "LENGTH") return "Уртын хэмжих нэгж";
+      if (text === "Quantity") return "Тооны хэмжих нэгж";
+      if (text === "TIME") return "Цаг хугацааны хэмжих нэгж";
+      if (text === "VOLUME") return "Шингэний хэмжих нэгж";
+      if (text === "WEIGTH") return "Хүндийн хэмжих нэгж";
     case DataIndexType.BOOLEAN:
       return isChecked(text);
     case DataIndexType.BOOLEAN_STRING:
@@ -339,7 +349,65 @@ const filterCascader = (inputValue: string, path: DefaultOptionType[]) => {
   );
 };
 
+const getConsumerByCode = async (code: number | string) => {
+  if (!code) {
+    message.error("Код заавал оруулж хайх");
+  } else {
+    return await ConsumerService.get({
+      queries: [
+        {
+          param: "code",
+          operator: "CONTAINS",
+          value: code.toString(),
+        },
+      ],
+    }).then((response) => {
+      if (response.success) {
+        if (response.response.data.length === 0) {
+          message.warning("Хайсан утгаар дата алга");
+          return {
+            state: false,
+            data: [],
+          };
+        } else {
+          return {
+            state: true,
+            data: response.response.data,
+          };
+        }
+      }
+    });
+  }
+};
+
+const getReceivableAccountByCode = async (code: string) => {
+  if (!code) {
+    message.error("Код заавал оруулж хайх");
+  } else {
+    return await ReceivableAccountService.get({
+      queries: [
+        {
+          param: "code",
+          operator: "CONTAINS",
+          value: code,
+        },
+      ],
+    }).then((response) => {
+      if (response.success) {
+        if (response.response.data.length === 0) {
+          message.warning("Хайсан утгаар дата алга");
+          return [];
+        } else {
+          return response.response.data;
+        }
+      }
+    });
+  }
+};
+
 export {
+  getConsumerByCode,
+  getReceivableAccountByCode,
   parseNumber,
   isChecked,
   renderCheck,

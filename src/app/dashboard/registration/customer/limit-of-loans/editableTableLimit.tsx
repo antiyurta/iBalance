@@ -23,11 +23,12 @@ import { FormInstance } from "antd/lib";
 import { EditableFormItemLimitNumber } from "./editableFormItemLimitNumber";
 import { IDataAccount } from "@/service/limit-of-loans/account/entities";
 import NewModal from "@/components/modal";
-import ReceivableAccount from "../receivable-account/page";
+import ReceivableAccount from "../receivable-account/receivableAccount";
 import { ReceivableAccountService } from "@/service/receivable-account/service";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
+  editMode: boolean;
   add: () => void;
   remove: (index: number) => void;
 }
@@ -35,17 +36,14 @@ interface IProps {
 const { Column } = Table;
 
 function EditableTableLimit(props: IProps) {
-  const { data, form, add, remove } = props;
-  //
+  const { data, form, editMode, add, remove } = props;
   const [accounts, setAccounts] = useState<IDataAccount[]>([]);
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
-  //
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
   const addService = () => {
-    console.log(editingIndex);
     form
       .validateFields([
         ["lendLimitAccounts", editingIndex, "code"],
@@ -79,6 +77,9 @@ function EditableTableLimit(props: IProps) {
         form.setFieldsValue({
           limitAmount: amounts,
         });
+        if (editMode) {
+          console.log("end acount patch");
+        }
       })
       .catch((error) => {
         error.errorFields?.map((errorMsg: any) => {

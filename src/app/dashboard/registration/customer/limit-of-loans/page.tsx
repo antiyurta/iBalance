@@ -16,7 +16,7 @@ import CustomerList from "./customerList";
 // delgerengu jagsaalt
 import DescriptionList from "./descriptionList";
 import NewModal from "@/components/modal";
-import Information from "../information/page";
+import Information from "../information/information";
 import NewDirectoryTree from "@/components/directoryTree";
 import {
   IDataConsumerSection,
@@ -396,6 +396,7 @@ const LimitOfLoans = () => {
                   <EditableTableLimit
                     data={accounts}
                     form={form}
+                    editMode={editMode}
                     add={add}
                     remove={remove}
                   />

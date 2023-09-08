@@ -219,7 +219,6 @@ body {
   background: transparent;
   padding: 6px 12px;
   &:hover {
-    background-color: $color-gray-100;
     cursor: pointer;
   }
 }
@@ -465,6 +464,32 @@ html {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  flex-direction: row;
+  gap: 12px;
+  .box,
+  .box-1 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    > p.title {
+      color: $color-gray-700;
+      text-align: center;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      margin: 0px;
+    }
+  }
+  .box-1 {
+    padding-right: 12px;
+    border-right: 2px solid $color-gray-100;
+  }
 }
 
 .inputs-gird-4 {

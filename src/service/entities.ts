@@ -13,14 +13,31 @@ export interface Meta {
 export interface IFilters {
   code: number[];
   name: string[];
+  isIndividual: boolean[];
+  isEmployee: boolean[];
+  lastName: string[];
+  regno: string[];
+  phone: string[];
+  address: string[];
+  bankId: number[];
+  bankAccountNo: string[];
+  email: string[];
   sectionId: number[];
   isAccount: boolean[];
   accountCode: number[];
   accountName: string[];
   amount: number[];
+  measurementId: number[];
+  countPackage: number[]; // ene sonin
+  brandId: number[];
+  isCitizenTax: boolean[];
+  isTax: boolean[];
   isClose: boolean[];
   isActive: boolean[];
   limitAmount: number[];
+  type: string[];
+  shortName: string[];
+  barCode: string[];
   updatedAt: string[];
   updatedBy: string[];
 }
@@ -32,16 +49,22 @@ export type ColumnType = {
   dataIndex: string | string[]; // dataIndex
   type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
 };
+
+export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
+
 export interface Quearies {
   param: string;
   operator?: string;
   value?: number | string;
 }
+
 export enum DataIndexType {
   MULTI = "MULTI", // too bolon string
   STRING_SECTION = "STRING_SECTION",
   DATE = "DATE",
-  //
+  // measuer ued
+  MEASUREMENT = "MEASUREMENT",
+  // measuer ued
   NUMBER = "NUMBER",
   VALUE = "VALUE",
   STRING = "STRING",
@@ -62,4 +85,6 @@ export enum RadioType {
   DESC = "DESC",
 }
 
-export type ComponentsType = "FULL" | "MIDDLE" | "LITTLE";
+export type DescMode = "NORMAL" | "PICTURE";
+
+export type TreeMode = "NORMAL" | "UNIT";

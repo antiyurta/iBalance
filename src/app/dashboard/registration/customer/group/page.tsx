@@ -17,7 +17,7 @@ import { ConsumerSectionService } from "@/service/consumer/section/service";
 import { Form, Modal, Popover, Space } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Information from "../information/page";
+import Information from "../information/information";
 
 const Group = () => {
   const [addForm] = Form.useForm();

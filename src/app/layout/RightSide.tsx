@@ -38,6 +38,7 @@ const DashboardLayout = () => {
       ]),
       getItem("Бараа материал", "/inventory", null, [
         getItem("Бүртгэл", "/inventories-registration"),
+        getItem("Хэмжих нэгж", "/unit-of-measure"),
       ]),
     ]),
   ];

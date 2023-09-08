@@ -1,10 +1,11 @@
-"use client";
 import { FilteredColumns } from "@/service/consumer/entities";
-import { DataIndexType } from "@/service/entities";
+import { DataIndexType, DescMode } from "@/service/entities";
 import { Modal } from "antd";
+import AntImage from "antd/es/image/index";
 import Image from "next/image";
 
 interface IDescription {
+  mode?: DescMode;
   title: string;
   open: boolean;
   columns: FilteredColumns;
@@ -15,8 +16,16 @@ interface IDescription {
 }
 
 const Description = (props: IDescription) => {
-  const { title, open, columns, selectedRow, onEdit, onDelete, onCancel } =
-    props;
+  const {
+    mode,
+    title,
+    open,
+    columns,
+    selectedRow,
+    onEdit,
+    onDelete,
+    onCancel,
+  } = props;
   const warning = () => {
     Modal.error({
       title: "Устгах",
@@ -88,6 +97,42 @@ const Description = (props: IDescription) => {
         <div className="title">
           <p>{title}</p>
         </div>
+        {mode === "PICTURE" ? (
+          <div>
+            <AntImage.PreviewGroup>
+              <Image
+                width={200}
+                height={200}
+                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+                alt={"asd"}
+              />
+              <Image
+                width={200}
+                height={200}
+                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+                alt={"asd"}
+              />
+              <Image
+                width={200}
+                height={200}
+                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+                alt={"asd"}
+              />
+              <Image
+                width={200}
+                height={200}
+                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+                alt={"asd"}
+              />
+              <Image
+                width={200}
+                height={200}
+                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+                alt={"asd"}
+              />
+            </AntImage.PreviewGroup>
+          </div>
+        ) : null}
         <div className="extra-description-body">
           {Object.entries(columns)?.map(([key, value], index) => {
             return (

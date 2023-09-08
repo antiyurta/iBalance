@@ -2,7 +2,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import NewModal from "./modal";
 import { Space, Tag } from "antd";
-import { ColumnsType } from "antd/es/table";
 const { CheckableTag } = Tag;
 interface IProps {
   columns: object;
