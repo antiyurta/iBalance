@@ -7,10 +7,12 @@ import {
 import {
   AutoComplete,
   Button,
+  Form,
   FormInstance,
   FormListFieldData,
   Input,
   Popconfirm,
+  Select,
   Switch,
   Table,
   message,
@@ -29,10 +31,15 @@ import {
   NewSelect,
   NewDatePicker,
 } from "@/components/input";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+import moment from "moment";
+import mnMN from "antd/es/calendar/locale/mn_MN";
+import "dayjs/locale/mn";
 
 interface IProps {
   data: FormListFieldData[];
+  branchs: IDataBranch[];
+  memberships: IDataMembership[];
   form: FormInstance;
   editMode: boolean;
   add: () => void;
@@ -40,17 +47,16 @@ interface IProps {
 }
 
 const { Column } = Table;
+const { Option } = Select;
 
 const EditableTableCard: React.FC<IProps> = (props) => {
-  const { data, form, editMode, add, remove } = props;
+  const { data, branchs, memberships, form, editMode, add, remove } = props;
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
   const [isNewService, setNewService] = useState<boolean>(false);
-  const [memberships, setMemberships] = useState<IDataMembership[]>([]);
   const [membershipDictionary, setMembershipDictionary] =
     useState<Map<number, IDataMembership>>();
-  const [branchs, setBranchs] = useState<IDataBranch[]>([]);
 
   const addService = () => {
     form
@@ -75,6 +81,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
   };
 
   const onSave = () => {
+    console.log(form.getFieldsValue());
     form
       .validateFields([
         ["cards", editingIndex, "cardNo"],
@@ -93,6 +100,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         }
       })
       .catch((error) => {
+        console.log(error);
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
@@ -116,48 +124,49 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     setEditingIndex(undefined);
   };
 
-  const getMemberships = async (cardNo: string) => {
-    if (!cardNo) {
-      message.error("Картын дугаар заавал оруулна уу.");
-    } else {
-      const response = await MembershipService.get({
-        queries: [
-          {
-            param: "cardNo",
-            operator: "CONTAINS",
-            value: cardNo,
-          },
-        ],
-      });
-      if (response.success) {
-        setMemberships(response.response.data);
-        setMembershipDictionary(
-          new Map<number, IDataMembership>(
-            memberships.map((membership) => [membership.id, membership])
-          )
-        );
-      }
-    }
-  };
+  // const getMemberships = async (cardNo: string) => {
+  //   if (!cardNo) {
+  //     message.error("Картын дугаар заавал оруулна уу.");
+  //   } else {
+  //     const response = await MembershipService.get({
+  //       queries: [
+  //         {
+  //           param: "cardNo",
+  //           operator: "CONTAINS",
+  //           value: cardNo,
+  //         },
+  //       ],
+  //     });
+  //     if (response.success) {
+  //       setMemberships(response.response.data);
+  //       setMembershipDictionary(
+  //         new Map<number, IDataMembership>(
+  //           memberships.map((membership) => [membership.id, membership])
+  //         )
+  //       );
+  //     }
+  //   }
+  // };
 
   const membershipFormField = async (id: number) => {
     const membership = membershipDictionary?.get(id);
     if (membership) {
       form.setFieldsValue({
-        cardNo: membership.cardNo,
-        name: membership.name,
+        ["cards"]: {
+          [`${editingIndex}`]: {
+            name: membership.name,
+          },
+        },
       });
     }
   };
-
   useEffect(() => {
-    BranchService.get({}).then((response) => {
-      if (response.success) {
-        setBranchs(response.response.data);
-      }
-    });
-  }, []);
-
+    setMembershipDictionary(
+      new Map<number, IDataMembership>(
+        memberships.map((membership) => [membership.id, membership])
+      )
+    );
+  }, [memberships]);
   return (
     <Table
       dataSource={data}
@@ -196,42 +205,43 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         dataIndex="cardNo"
         title="Картын дугаар"
         render={(value, row, index) => (
-          <EditableFormItemLimit
-            rules={[{ required: true, message: "Картын дугаар заавал" }]}
+          <Form.Item
             name={[index, "cardNo"]}
-            editing={index === editingIndex}
+            rules={[{ required: true, message: "Картын дугаар заавал" }]}
           >
-            <AutoComplete
-              options={memberships?.map((membership) => ({
-                label: membership.cardNo,
-                value: membership.cardNo,
-              }))}
+            <Select
+              showSearch
+              allowClear
+              // filterOption={(input: any, option: { children: any }) => {
+              //   return (option?.children.toLowerCase() ?? "").includes(input);
+              // }}
               onSelect={membershipFormField}
-              className="ant-selecto-border-no"
             >
-              <Input.Search
-                style={{
-                  border: "none",
-                }}
-                enterButton={false}
-                placeholder="Хайх"
-                onSearch={getMemberships}
-              />
-            </AutoComplete>
-          </EditableFormItemLimit>
+              {memberships?.map((membership, index) => {
+                return (
+                  <Option key={index} value={membership.id}>
+                    {membership.cardNo}
+                  </Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
         )}
       />
       <Column
         dataIndex="name"
         title="Карт эрхийн бичгийн нэр"
         render={(value, row, index) => (
-          <EditableFormItemLimit
-            name={[index, "name"]}
-            editing={index === editingIndex}
-            className="ant-form-item-no-bottom-margin"
-          >
-            <NewInput disabled min={0} max={150} />
-          </EditableFormItemLimit>
+          <Form.Item name={[index, "name"]}>
+            <NewInput disabled />
+          </Form.Item>
+          // <EditableFormItemLimit
+          //   name={[index, "name"]}
+          //   editing={index === editingIndex}
+          //   className="ant-form-item-no-bottom-margin"
+          // >
+          //   <NewInput disabled min={0} max={150} />
+          // </EditableFormItemLimit>
         )}
       />
       <Column
@@ -263,13 +273,15 @@ const EditableTableCard: React.FC<IProps> = (props) => {
             editing={index === editingIndex}
             className="ant-form-item-no-bottom-margin"
           >
-            <NewSelect>
-              {branchs?.map((branch) => (
-                <NewOption key={branch.id} value={branch.id}>
-                  {branch.name}
-                </NewOption>
-              ))}
-            </NewSelect>
+            <Select>
+              {branchs?.map((branch, index) => {
+                return (
+                  <Option key={index} value={branch.id}>
+                    {branch.name}
+                  </Option>
+                );
+              })}
+            </Select>
           </EditableFormItemLimit>
         )}
       />
@@ -277,27 +289,29 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         dataIndex="endAt"
         title="Дуусах огноо"
         render={(value, row, index) => (
-          <EditableFormItemLimit
-            name={[index, "endAt"]}
-            editing={index === editingIndex}
-            className="ant-form-item-no-bottom-margin"
-            getValueProps={(i: any) => {
-              if (i) {
-                console.log(i);
-                return { value: dayjs(i, "YYYY/MM/DD") };
-              }
-              return {};
-            }}
-            // getValueProps={(i) => {
-            //   if (i) {
-            //     return { value: dayjs(i) };
-            //   } else {
-            //     return;
-            //   }
-            // }}
-          >
-            <NewDatePicker format={"YYYY/MM/DD"} placeholder="YYYY-MM-DD" />
-          </EditableFormItemLimit>
+          <Form.Item name={[index, "endAt"]}>
+            <NewDatePicker
+              disabled={index === editingIndex ? false : true}
+              locale={mnMN}
+            />
+          </Form.Item>
+          // <EditableFormItemLimit
+          //   name={[index, "endAt"]}
+          //   editing={index === editingIndex}
+          //   className="ant-form-item-no-bottom-margin"
+          //   getValueFromEvent={(onChange) =>
+          //     dayjs(onChange).format("YYYY-MM-DD")
+          //   }
+          //   // getValueProps={(i) => {
+          //   //   if (i) {
+          //   //     return { value: dayjs(i) };
+          //   //   } else {
+          //   //     return;
+          //   //   }
+          //   // }}
+          // >
+
+          // </EditableFormItemLimit>
         )}
       />
       <Column

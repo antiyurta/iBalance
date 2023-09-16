@@ -16,6 +16,10 @@ import {
   IInputConsumerMembership,
 } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
+import { BranchService } from "@/service/reference/branch/service";
+import { IDataBranch } from "@/service/reference/branch/entities";
+import { MembershipService } from "@/service/reference/membership/service";
+import { IDataMembership } from "@/service/reference/membership/entities";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -39,12 +43,15 @@ const MembershipCard = () => {
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  const [branchs, setBranchs] = useState<IDataBranch[]>([]);
+  const [memberships, setMemberships] = useState<IDataMembership[]>([]);
   const [consumerDictionary, setConsumerDictionary] =
     useState<Map<number, IDataConsumer>>();
   const openModal = (state: boolean, row?: any) => {
     setIsEditMode(state);
     if (!state) {
       form.resetFields();
+      getMemberships();
     } else {
       form.setFieldsValue(row);
     }
@@ -63,6 +70,19 @@ const MembershipCard = () => {
         );
       }
     });
+  };
+  const getBranchs = async () => {
+    await BranchService.get({}).then((response) => {
+      if (response.success) {
+        setBranchs(response.response.data);
+      }
+    });
+  };
+  const getMemberships = async () => {
+    const response = await MembershipService.get({});
+    if (response.success) {
+      setMemberships(response.response.data);
+    }
   };
   const consumerFormField = (id: number) => {
     const consumer = consumerDictionary?.get(id);
@@ -93,6 +113,7 @@ const MembershipCard = () => {
   };
   useEffect(() => {
     getConsumers({});
+    getBranchs();
   }, []);
   return (
     <div>
@@ -235,6 +256,8 @@ const MembershipCard = () => {
               {(cards, { add, remove }) => (
                 <EditableTableCard
                   data={cards}
+                  memberships={memberships}
+                  branchs={branchs}
                   form={form}
                   add={add}
                   remove={remove}
@@ -253,7 +276,7 @@ const MembershipCard = () => {
           setIsOpenModalCard(false);
         }}
       >
-        <Form.List name="card">
+        {/* <Form.List name="card">
           {(cards, { add, remove }) => (
             <EditableTableCard
               data={cards}
@@ -263,7 +286,7 @@ const MembershipCard = () => {
               editMode={true}
             />
           )}
-        </Form.List>
+        </Form.List> */}
       </NewModal>
     </div>
   );
