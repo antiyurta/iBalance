@@ -1,3 +1,4 @@
+import { IDataConsumer } from "@/service/consumer/entities";
 import {
   IDataConsumerSection,
   TreeSectionType,
@@ -5,16 +6,33 @@ import {
 import { ConsumerSectionService } from "@/service/consumer/section/service";
 import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Quearies } from "@/service/entities";
+import { IDataCountry } from "@/service/material/brand/entities";
 import { ReceivableAccountService } from "@/service/receivable-account/service";
-import { IDataReference, IType } from "@/service/reference/entity";
+import { IDataReference, IDataUser, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
-import { message } from "antd";
+import { message, notification } from "antd";
 import type { DefaultOptionType } from "antd/es/cascader";
 import { ColumnFilterItem } from "antd/es/table/interface";
+import { DataNode } from "antd/es/tree";
 import dayjs from "dayjs";
 import Image from "next/image";
 import React from "react";
 import { NumericFormat } from "react-number-format";
+type NotificationType = "success" | "info" | "warning" | "error";
+export const openNofi = (
+  type: NotificationType,
+  message: string,
+  description: string
+) => {
+  notification.config({
+    top: 80,
+    duration: 4,
+  });
+  return notification[type]({
+    message: message,
+    description: description,
+  });
+};
 
 function parseNumber(event: any) {
   var charCode = event.charCode;
@@ -43,13 +61,6 @@ const isChecked = (state: boolean) => {
 
 function renderCheck(text: any, type: DataIndexType) {
   switch (type) {
-    case DataIndexType.MEASUREMENT:
-      if (text === "AREA") return "Талбайн хэмжих нэгж";
-      if (text === "LENGTH") return "Уртын хэмжих нэгж";
-      if (text === "Quantity") return "Тооны хэмжих нэгж";
-      if (text === "TIME") return "Цаг хугацааны хэмжих нэгж";
-      if (text === "VOLUME") return "Шингэний хэмжих нэгж";
-      if (text === "WEIGTH") return "Хүндийн хэмжих нэгж";
     case DataIndexType.BOOLEAN:
       return isChecked(text);
     case DataIndexType.BOOLEAN_STRING:
@@ -184,35 +195,70 @@ interface ITypeOfFilters {
 async function typeOfFilters(props: ITypeOfFilters) {
   const { type, filters } = props;
   switch (type) {
+    case DataIndexType.MEASUREMENT:
+      return [
+        {
+          text: "Талбайн хэмжих нэгж",
+          value: "AREA",
+        },
+        {
+          text: "Уртын хэмжих нэгж",
+          value: "LENGTH",
+        },
+        {
+          text: "Тооны хэмжих нэгж",
+          value: "Quantity",
+        },
+        {
+          text: "Цаг хугацааны хэмжих нэгж",
+          value: "TIME",
+        },
+        {
+          text: "Цаг хугацааны хэмжих нэгж",
+          value: "TIME",
+        },
+        {
+          text: "Шингэний хэмжих нэгж",
+          value: "VOLUME",
+        },
+        {
+          text: "Хүндийн хэмжих нэгж",
+          value: "WEIGTH",
+        },
+      ];
     case DataIndexType.BOOLEAN:
-      return [
-        {
-          text: "Тийм",
-          value: true,
-        },
-        {
-          text: "Үгүй",
-          value: false,
-        },
-      ];
+      if (filters) {
+        return filters?.map((filter: any) => {
+          return {
+            text: filter === true ? "Тийм" : "Үгүй",
+            value: filter,
+          };
+        });
+      }
     case DataIndexType.BOOLEAN_STRING:
-      return [
-        {
-          text: "Идэвхтэй",
-          value: true,
-        },
-        {
-          text: "Идэвхгүй",
-          value: false,
-        },
-      ];
+      if (filters) {
+        return filters?.map((filter: any) => {
+          return {
+            text: filter === true ? "Идэвхтэй" : "Идэвхгүй",
+            value: filter,
+          };
+        });
+      }
+    case DataIndexType.USER:
+      if (filters) {
+        return await userToFilter(filters);
+      }
+    case DataIndexType.COUNTRY:
+      if (filters) {
+        return await countries(filters);
+      }
     case DataIndexType.STRING_SECTION:
       if (filters) {
-        return await consumersToFilterCode(filters);
+        return await sectionToFilterName(filters);
       }
-    case DataIndexType.STRING_CONSUMER_SECTION:
+    case DataIndexType.STRING_CONSUMER_NAME:
       if (filters) {
-        return await consumersToFilterCode(filters);
+        return await consumerToFilterName(filters);
       }
     case DataIndexType.STRING_BANK:
       if (filters) {
@@ -257,6 +303,23 @@ async function typeOfFilters(props: ITypeOfFilters) {
   }
 }
 
+async function userToFilter(filters: any) {
+  const outFilters: ColumnFilterItem[] = [];
+  const { response } = await ReferenceService.getUsers({ ids: filters });
+  console.log("======>", response);
+  filters?.map((filterSection: any) => {
+    response.map((user: IDataUser) => {
+      if (user.id === filterSection) {
+        outFilters.push({
+          text: user.firstName,
+          value: filterSection,
+        });
+      }
+    });
+  });
+  return outFilters;
+}
+
 async function banksToFilter(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
   const { response } = await ReferenceService.get(IType.BANK);
@@ -273,26 +336,44 @@ async function banksToFilter(filters: any) {
   return outFilters;
 }
 
-function sectionsToFilter(filters: any) {
-  // const { response } = ConsumerSectionService.get(
-  //   TreeSectionType.Consumer
-  // );
-  // const response: any = [];
-  // const data: ColumnFilterItem[] = [];
-  // filters?.map((filterSection: any) => {
-  //   response.find((section) => {
-  //     if (section.id === filterSection) {
-  //       data.push({
-  //         text: section.name,
-  //         value: filterSection,
-  //       });
-  //     }
-  //   });
-  // });
-  // return data;
+async function consumerToFilterName(filters: any) {
+  const outFilters: ColumnFilterItem[] = [];
+  const {
+    response: { data },
+  } = await ConsumerService.getAll();
+  console.log(filters, data);
+  filters?.map((filterSection: any) => {
+    data.map((consumer: IDataConsumer) => {
+      if (consumer.id === filterSection) {
+        outFilters.push({
+          text: consumer.name,
+          value: filterSection,
+        });
+      }
+    });
+  });
+  return outFilters;
 }
 
-async function consumersToFilterCode(filters: any) {
+async function countries(filters: any) {
+  const outFilters: ColumnFilterItem[] = [];
+  const {
+    response: { data },
+  } = await ReferenceService.getCountries();
+  filters?.map((filterSection: any) => {
+    data.map((section: IDataCountry) => {
+      if (section.id === filterSection) {
+        outFilters.push({
+          text: section.name,
+          value: filterSection,
+        });
+      }
+    });
+  });
+  return outFilters;
+}
+
+async function sectionToFilterName(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
   const { response } = await ConsumerSectionService.get(
     TreeSectionType.Consumer
@@ -310,32 +391,27 @@ async function consumersToFilterCode(filters: any) {
   return outFilters;
 }
 
-function listToCascader(data: any) {
-  interface Option {
-    value: string | number;
-    label: string;
-    children: Option[];
-  }
-  let root: Option[] = [];
-  const cloneData: Option[] = data.map((el: any) => {
+function listToTree(data: any) {
+  let root: DataNode[] = [];
+  const cloneData: DataNode[] = data?.map((el: any, index: number) => {
     return {
-      label: el.name,
-      value: el.id,
+      title: el.name,
+      key: el.id,
       parentId: el.sectionId,
       isLeaf: !el.isExpand ? !el.isExpand : undefined,
     };
   });
-  const idMapping = data.reduce((acc: any, el: any, i: number) => {
+  const idMapping = data?.reduce((acc: any, el: any, i: number) => {
     acc[el.id] = i;
     return acc;
   }, {});
-  cloneData.forEach((el: any) => {
+  cloneData?.forEach((el: any) => {
     if (el.parentId === null) {
       root.push(el);
       return;
     }
-    const parentEl = cloneData[idMapping[el.parentId]];
-    parentEl.children = [...(parentEl.children || []), el];
+    const parentEl = cloneData?.[idMapping[el.parentId]];
+    parentEl!.children = [...(parentEl?.children || []), el];
   });
   return root;
 }
@@ -413,8 +489,7 @@ export {
   renderCheck,
   removeDuplicates,
   unDuplicate,
-  listToCascader,
-  sectionsToFilter,
+  listToTree,
   findIndexInColumnSettings,
   typeOfFilters,
   onCloseFilterTag,

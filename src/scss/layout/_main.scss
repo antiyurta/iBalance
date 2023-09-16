@@ -4,10 +4,11 @@ body {
   background-color: #f8f9fa;
 }
 .app-main {
-  width: calc(100% - 96px);
+  width: 100%;
   background-color: #f9fbfd;
   display: flex;
   flex-direction: row;
+  height: 100%;
   .ant-tabs-nav::before {
     border: 0px !important;
   }
@@ -141,26 +142,6 @@ body {
     line-height: 14px;
     font-weight: 500;
   }
-  .ant-space-compact {
-    width: 100%;
-    > .extraButton {
-      display: flex;
-      height: 32px;
-      min-width: 32px;
-      text-align: center;
-      border: 1px solid #dee2e6;
-      border-top-left-radius: 5px;
-      border-bottom-left-radius: 5px;
-      border-right-width: 0px;
-      background-color: #f8f9fa;
-      justify-content: center;
-      align-items: center;
-    }
-    > .ant-form-item {
-      width: 100%;
-    }
-  }
-
   // .extra {
   //   display: flex;
   //   flex-direction: row;
@@ -223,7 +204,6 @@ body {
   }
 }
 .extra-description {
-  max-width: 250px;
   width: 100%;
   display: flex;
   padding: 6px 12px 6px 12px;
@@ -333,7 +313,6 @@ body {
 
 .directory-tree {
   border-radius: 8px 8px 0px 0px;
-  max-width: 250px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -345,7 +324,6 @@ body {
     flex-direction: row;
     justify-content: flex-start !important;
     width: 100%;
-    max-width: 300px;
     padding: 8px 12px !important;
     align-items: center;
     gap: 12px;
@@ -498,6 +476,12 @@ html {
   flex-direction: row;
   gap: 12px;
 }
+.inputs-gird-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  flex-direction: row;
+  gap: 12px;
+}
 .switches-col {
   display: flex;
   flex-direction: row;
@@ -534,5 +518,57 @@ html {
       text-align: end;
       padding-right: 30px;
     }
+  }
+}
+
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-normal,
+.ant-tree-treenode.ant-tree-treenode-switcher-close.ant-tree-treenode-leaf-last,
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-close,
+.ant-tree-treenode.ant-tree-treenode-switcher-open.ant-tree-treenode-selected.ant-tree-treenode-leaf-last,
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-open.ant-tree-node-selected,
+.ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-open {
+  display: flex;
+  flex-direction: row;
+  > .ant-tree-title {
+    width: 100%;
+  }
+}
+
+// end shine layout
+.ant-layout-sider.ant-layout-sider-light {
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+}
+.ant-space-compact {
+  width: 100%;
+  > .extraButton {
+    display: flex;
+    height: 36px;
+    min-width: 36px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-right-width: 0px;
+    background-color: #f8f9fa;
+    justify-content: center;
+    align-items: center;
+  }
+  > .ant-form-item {
+    width: 100%;
+  }
+  > .extraButton-right {
+    display: flex;
+    height: 36px;
+    min-width: 36px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left-width: 0px;
+    background-color: #f8f9fa;
+    justify-content: center;
+    align-items: center;
   }
 }

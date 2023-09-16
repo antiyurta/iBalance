@@ -1,14 +1,17 @@
 "use client";
 
-import { Menu } from "antd";
+import { Button, Menu } from "antd";
 import type { MenuProps } from "antd/es/menu";
 import {
   AppstoreOutlined,
   MailOutlined,
   UserOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { PathActions } from "@/feature/core/actions/PathAction";
+import { useState } from "react";
 
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
@@ -32,12 +35,16 @@ const DashboardLayout = () => {
       getItem("Харилцагч", "/customer", <UserOutlined />, [
         getItem("Бүртгэл", "/information"),
         getItem("Бүлэг", "/group"),
+        getItem("Авлага дансны бүртгэл", "/receivable-account"),
+        getItem("Гишүүнчлэлийн бүртгэл", "/membership-card"),
         getItem("Зээлийн лимит", "/limit-of-loans"),
         getItem("Эхний үлдэгдэл", "/beginning-balance"),
-        getItem("Авлага дансны бүртгэл", "/receivable-account"),
       ]),
-      getItem("Бараа материал", "/inventory", null, [
+      getItem("Бараа материал", "/inventory", <AppstoreOutlined />, [
         getItem("Бүртгэл", "/inventories-registration"),
+        getItem("Данс", "/inventories-type"),
+        getItem("Бүлэг", "/inventories-group"),
+        getItem("Бренд", "/inventories-brand"),
         getItem("Хэмжих нэгж", "/unit-of-measure"),
       ]),
     ]),
@@ -66,12 +73,31 @@ const DashboardLayout = () => {
       }
     });
   };
+  //
+  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
+  //
   return (
-    <div className="rightSide">
+    <div
+      style={{
+        backgroundColor: "white",
+      }}
+    >
+      <Button
+        type="primary"
+        onClick={toggleCollapsed}
+        style={{
+          display: "flex",
+          margin: "auto",
+          marginTop: 10,
+        }}
+      >
+        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+      </Button>
       <Menu
         style={{
-          width: "100%",
-          height: "100%",
           background: "transparent",
           border: "none",
         }}
@@ -79,6 +105,7 @@ const DashboardLayout = () => {
         mode={"inline"}
         theme={"light"}
         items={items}
+        inlineCollapsed={collapsed}
       />
     </div>
   );

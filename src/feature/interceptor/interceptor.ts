@@ -53,18 +53,21 @@ export const Interceptor = (api: AxiosInstance, store: any) => {
                 api.request(error.config).then(resolve).catch(reject);
               }
             })
-            .catch(reject)
+            .catch(() => {
+              store.dispatch(CoreActions.setLoggedIn(false));
+              reject;
+            })
             .finally(() => (isRetry = false));
         });
       }
-
+      console.log(response);
       const message =
         (response?.data?.message instanceof Array
           ? response?.data?.message[0]
           : response?.data?.message) || error.message;
 
       notification.error({
-        message: "Хүсэлт амжилтгүй",
+        message: "Амжилтгүй",
         description: message,
       });
       return Promise.reject(response?.data);

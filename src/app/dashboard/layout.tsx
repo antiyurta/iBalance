@@ -125,12 +125,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <RigthSide />
       <div
         style={{
-          width: "calc(100% - 236px)",
           padding: "0px 24px",
           display: "flex",
           flexDirection: "column",
           gap: 12,
           overflow: "auto",
+          width: "100%",
         }}
       >
         <div className="navbar">

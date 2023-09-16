@@ -1,5 +1,6 @@
 import { api } from "@/feature/interceptor/interceptor";
 import {
+  IConsumerSectionOneResponse,
   IConsumerSectionResponse,
   IDataConsumerSection,
   Params,
@@ -13,7 +14,7 @@ function get(type: TreeSectionType): Promise<IConsumerSectionResponse> {
     },
   });
 }
-function getById(id: number): Promise<IConsumerSectionResponse> {
+function getById(id: number): Promise<IConsumerSectionOneResponse> {
   return api.get("tree-section/" + id);
 }
 function getByFilter(params: Params): Promise<IConsumerSectionResponse> {
@@ -24,9 +25,22 @@ function getByFilter(params: Params): Promise<IConsumerSectionResponse> {
 function post(body: IDataConsumerSection): Promise<IConsumerSectionResponse> {
   return api.post("tree-section", body);
 }
+
+function remove(id: number | undefined): Promise<IConsumerSectionOneResponse> {
+  return api.delete("tree-section/" + id);
+}
+
+function patch(
+  id: number | undefined,
+  body: IDataConsumerSection
+): Promise<IConsumerSectionResponse> {
+  return api.patch("tree-section/" + id, body);
+}
 export const ConsumerSectionService = {
   get,
   getById,
   getByFilter,
   post,
+  patch,
+  remove,
 };

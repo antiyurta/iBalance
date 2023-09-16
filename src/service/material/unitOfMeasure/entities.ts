@@ -13,11 +13,23 @@ export interface IParams {
   page?: number | undefined;
   limit?: number | undefined;
   code?: number[] | undefined;
-  sectionId?: number[] | string[];
+  type?: number[] | string[];
 }
 
 export interface IDataUnitOfMeasure {
+  createdAt: string;
+  createdBy: number;
+  deletedAt: string;
   id: number;
+  name: string;
+  shortName: string;
+  type: MeasurementType;
+  updatedAt: string;
+  updatedBy: number;
+}
+
+export interface IUnitOfMeasurePostResponse extends GenericResponse {
+  response: IDataUnitOfMeasure;
 }
 
 export interface IUnitOfMeasureResponse extends GenericResponse {

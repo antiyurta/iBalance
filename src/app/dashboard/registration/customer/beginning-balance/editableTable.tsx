@@ -45,9 +45,9 @@ function EditableTable(props: IProps) {
   const addService = () => {
     form
       .validateFields([
-        ["lendLimitAccounts", editingIndex, "code"],
-        ["lendLimitAccounts", editingIndex, "name"],
-        ["lendLimitAccounts", editingIndex, "amount"],
+        ["accounts", editingIndex, "code"],
+        ["accounts", editingIndex, "name"],
+        ["accounts", editingIndex, "amount"],
       ])
       .then(() => {
         add();
@@ -139,9 +139,9 @@ function EditableTable(props: IProps) {
                       const data = accounts?.find(
                         (account) => account.code === id
                       );
-                      const value = form.getFieldValue("lendLimitAccounts");
+                      const value = form.getFieldValue("accounts");
                       form.setFieldsValue({
-                        ["lendLimitAccounts"]: {
+                        ["accounts"]: {
                           ...value,
                           [`${editingIndex}`]: {
                             accountId: data?.id,
@@ -193,7 +193,7 @@ function EditableTable(props: IProps) {
         }}
       />
       <Column
-        dataIndex={"createdAt"}
+        dataIndex={"date"}
         title={"Авлага үүссэн огноо"}
         render={(value, row, index) => {
           return (
@@ -204,11 +204,11 @@ function EditableTable(props: IProps) {
                   message: "Авлага үүссэн огноо заавал",
                 },
               ]}
-              name={[index, "createdAt"]}
+              name={[index, "date"]}
               editing={index === editingIndex}
               className={"ant-form-item-no-bottom-margin"}
             >
-              <NewDatePicker />
+              <NewDatePicker format={"YYYY/MM/DD"} />
             </EditableFormItemLimit>
           );
         }}

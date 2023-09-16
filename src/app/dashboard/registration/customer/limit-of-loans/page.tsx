@@ -4,11 +4,21 @@ import {
   NewInput,
   NewInputNumber,
   NewOption,
-  NewSearch,
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import { AutoComplete, Form, Input, Popover, Space, Tabs, message } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Space,
+  Tabs,
+  Typography,
+  message,
+} from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 //hariltsagchin jagsaalt
@@ -17,7 +27,6 @@ import CustomerList from "./customerList";
 import DescriptionList from "./descriptionList";
 import NewModal from "@/components/modal";
 import Information from "../information/information";
-import NewDirectoryTree from "@/components/directoryTree";
 import {
   IDataConsumerSection,
   TreeSectionType,
@@ -26,9 +35,6 @@ import EditableTableLimit from "./editableTableLimit";
 import { IDataConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { ConsumerSectionService } from "@/service/consumer/section/service";
-import { parseNumber } from "@/feature/common";
-import { IDataLimitOfLoansAccount } from "@/service/limit-of-loans/account/entities";
-import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
 import {
   IDataLimitOfLoans,
   IDataLimitOfLoansPost,
@@ -51,6 +57,8 @@ type IForm = {
   limitAmount: number;
   lendLimitAccounts: IAccounts[] | null;
 };
+
+const { Title } = Typography;
 
 const LimitOfLoans = () => {
   const [form] = Form.useForm();
@@ -190,37 +198,37 @@ const LimitOfLoans = () => {
   }, [isAccounts]);
   return (
     <div>
-      <div className="information">
-        <div className="header">
-          <div className="left">
-            <p>Үндсэн бүртгэл / Харилцагч / Зээлийн лимит</p>
-            <button className="app-button" onClick={() => openModal(false)}>
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Зээлийн лимит оруулах
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
+      <Row gutter={[12, 24]}>
+        <Col md={24} lg={16} xl={19}>
+          <Space size={24}>
+            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Зээлийн лимит</Title>
+            <Button
+              type="primary"
+              onClick={() => openModal(false)}
+              icon={
                 <Image
-                  src={"/images/SearchIcon.svg"}
+                  src={"/images/AddIcon.svg"}
                   width={12}
                   height={12}
-                  alt="searchIcon"
+                  alt="addicon"
                 />
               }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
-          </div>
-        </div>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-      </div>
+            >
+              Зээлийн лимит оруулах
+            </Button>
+          </Space>
+        </Col>
+        <Col md={24} lg={8} xl={5}>
+          <Input.Search />
+        </Col>
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
       <NewModal
         title="Харилцагчийн зээлийн лимит"
         open={isOpenModal}

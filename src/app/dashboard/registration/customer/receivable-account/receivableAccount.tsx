@@ -1,20 +1,23 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
-import { NewInput, NewSearch } from "@/components/input";
+import { NewInput } from "@/components/input";
 import {
   findIndexInColumnSettings,
   onCloseFilterTag,
   unDuplicate,
 } from "@/feature/common";
-import { DataIndexType, Meta } from "@/service/entities";
 import {
-  Filter,
-  FilteredColumnsReceivableAccount,
+  DataIndexType,
+  FilteredColumns,
+  IFilters,
+  Meta,
+} from "@/service/entities";
+import {
   IDataReceivableAccount,
   Params,
 } from "@/service/receivable-account/entities";
 import { ReceivableAccountService } from "@/service/receivable-account/service";
-import { Form } from "antd";
+import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import NewModal from "@/components/modal";
@@ -26,20 +29,22 @@ interface IProps {
   onClickModal?: (row: IDataReceivableAccount) => void;
 }
 
+const { Title } = Typography;
+
 const ReceivableAccount = (props: IProps) => {
   const { ComponentsType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [data, setData] = useState<IDataReceivableAccount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<Filter>({});
+  const [filters, setFilters] = useState<IFilters>();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataReceivableAccount>();
   const [newParams, setNewParams] = useState<Params>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenActionPopover, setIsOpenActionPopover] =
     useState<boolean>(false);
-  const [columns, setColumns] = useState<FilteredColumnsReceivableAccount>({
+  const [columns, setColumns] = useState<FilteredColumns>({
     code: {
       label: "Дансны код",
       isView: true,
@@ -65,8 +70,8 @@ const ReceivableAccount = (props: IProps) => {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedBy",
-      type: DataIndexType.MULTI,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
     },
   });
   // data awcihrah
@@ -79,7 +84,8 @@ const ReceivableAccount = (props: IProps) => {
       order: params.order || newParams.order,
       code: params.code || newParams.code,
       name: params.name || newParams.name,
-      sectionId: params.sectionId || newParams.sectionId,
+      updatedAt: params.updatedAt || newParams.updatedAt,
+      updatedBy: params.updatedBy || newParams.updatedBy,
       queries: newParams.queries,
     };
     if (params.queries?.length) {
@@ -92,15 +98,24 @@ const ReceivableAccount = (props: IProps) => {
     if (params.name) {
       prm.queries = [...unDuplicate("name", newParams)];
     }
+    if (params.updatedAt) {
+      prm.queries = [...unDuplicate("updatedAt", newParams)];
+    }
+    if (params.updatedBy) {
+      prm.queries = [...unDuplicate("updatedBy", newParams)];
+    }
     setNewParams(prm);
-    await ReceivableAccountService.get(prm).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
-    blockContext.unblock();
+    await ReceivableAccountService.get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   // data post hiih
   const onFinish = async (values: IDataReceivableAccount) => {
@@ -138,128 +153,135 @@ const ReceivableAccount = (props: IProps) => {
   }, []);
   return (
     <div>
-      <div className="information">
-        <div className="header">
-          <div className="left">
+      <Row gutter={[12, 24]}>
+        <Col md={24} lg={16} xl={19}>
+          <Space size={24}>
             {ComponentsType === "FULL" ? (
-              <p>Үндсэн бүртгэл / Харилцагч / Авлагын дансны бүртгэл</p>
+              <Title level={5}>
+                Үндсэн бүртгэл / Харилцагч / Авлага дансны бүртгэл
+              </Title>
             ) : (
-              <p>Авлагын дансны бүртгэл</p>
+              <Title>Авлагын дансны бүртгэл</Title>
             )}
-            <button
-              className="app-button"
+            <Button
+              type="primary"
               onClick={() => {
                 form.resetFields();
                 setEditMode(false);
                 setIsOpenModal(true);
               }}
-            >
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Данс бүртгэх
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
+              icon={
                 <Image
-                  src={"/images/SearchIcon.svg"}
+                  src={"/images/AddIcon.svg"}
                   width={12}
                   height={12}
-                  alt="searchIcon"
+                  alt="addicon"
                 />
               }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
-          </div>
-        </div>
-        <div className="second-header">
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key: key,
-                state: state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params: newParams,
-                onParams: (params) => setNewParams(params),
-              });
-              getReceivableAccounts(newParams);
-            }}
-          />
-          {ComponentsType === "FULL" ? (
-            <div className="extra">
-              <ColumnSettings
-                columns={columns}
-                columnIndexes={(arg1, arg2) =>
-                  findIndexInColumnSettings({
-                    newRowIndexes: arg1,
-                    unSelectedRow: arg2,
-                    columns: columns,
-                    onColumns: (columns) => setColumns(columns),
-                    params: newParams,
-                    onParams: (params) => setNewParams(params),
-                    getData: (params) => getReceivableAccounts(params),
-                  })
-                }
-              />
-              <Image
-                src={"/images/PrintIcon.svg"}
-                width={24}
-                height={24}
-                alt="printIcon"
-              />
-              <Image
-                src={"/images/DownloadIcon.svg"}
-                width={24}
-                height={24}
-                alt="downloadIcon"
-              />
-            </div>
-          ) : null}
-        </div>
-        <div className="body">
-          <div
+            >
+              Шинээр бүртгэх
+            </Button>
+          </Space>
+        </Col>
+        <Col md={24} lg={8} xl={5}>
+          <Input.Search />
+        </Col>
+        <Col sm={24}>
+          <Space
             style={{
               width: "100%",
+              justifyContent: "flex-end",
             }}
+            size={12}
           >
-            <NewTable
-              scroll={{
-                x: ComponentsType === "FULL" ? 500 : 400,
-              }}
-              rowKey="id"
-              doubleClick={true}
-              onDClick={(value) => {
-                if (ComponentsType === "MIDDLE") {
-                  onClickModal?.(value);
-                }
-              }}
-              data={data}
-              meta={meta}
+            <Filtered
               columns={columns}
-              onChange={(params) => getReceivableAccounts(params)}
-              onColumns={(columns) => setColumns(columns)}
-              newParams={newParams}
-              onParams={(params) => setNewParams(params)}
-              incomeFilters={filters}
-              onEdit={(row) => {
-                setEditMode(true);
-                form.setFieldsValue(row);
-                setSelectedRow(row);
-                setIsOpenModal(true);
+              isActive={(key, state) => {
+                onCloseFilterTag({
+                  key: key,
+                  state: state,
+                  column: columns,
+                  onColumn: (columns) => setColumns(columns),
+                  params: newParams,
+                  onParams: (params) => setNewParams(params),
+                });
+                getReceivableAccounts(newParams);
               }}
-              onDelete={(id) => onDelete(id)}
             />
-          </div>
-        </div>
-      </div>
+            {ComponentsType === "FULL" ? (
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "flex-end",
+                }}
+                size={12}
+              >
+                <ColumnSettings
+                  columns={columns}
+                  columnIndexes={(arg1, arg2) =>
+                    findIndexInColumnSettings({
+                      newRowIndexes: arg1,
+                      unSelectedRow: arg2,
+                      columns: columns,
+                      onColumns: (columns) => setColumns(columns),
+                      params: newParams,
+                      onParams: (params) => setNewParams(params),
+                      getData: (params) => getReceivableAccounts(params),
+                    })
+                  }
+                />
+                <Image
+                  src={"/images/PrintIcon.svg"}
+                  width={24}
+                  height={24}
+                  alt="printIcon"
+                />
+                <Image
+                  src={"/images/UploadIcon.svg"}
+                  width={24}
+                  height={24}
+                  alt="uploadIcon"
+                />
+                <Image
+                  src={"/images/DownloadIcon.svg"}
+                  width={24}
+                  height={24}
+                  alt="downloadIcon"
+                />
+              </Space>
+            ) : null}
+          </Space>
+        </Col>
+        <Col span={24}>
+          <NewTable
+            scroll={{
+              x: ComponentsType === "FULL" ? 500 : 400,
+            }}
+            rowKey="id"
+            doubleClick={true}
+            onDClick={(value) => {
+              if (ComponentsType === "MIDDLE") {
+                onClickModal?.(value);
+              }
+            }}
+            data={data}
+            meta={meta}
+            columns={columns}
+            onChange={(params) => getReceivableAccounts(params)}
+            onColumns={(columns) => setColumns(columns)}
+            newParams={newParams}
+            onParams={(params) => setNewParams(params)}
+            incomeFilters={filters}
+            onEdit={(row) => {
+              setEditMode(true);
+              form.setFieldsValue(row);
+              setSelectedRow(row);
+              setIsOpenModal(true);
+            }}
+            onDelete={(id) => onDelete(id)}
+          />
+        </Col>
+      </Row>
       <NewModal
         title={editMode ? "Авлагын данс засах" : "Авлагын данс бүртгэл"}
         open={isOpenModal}

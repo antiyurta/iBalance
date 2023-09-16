@@ -36,6 +36,19 @@ const Filtered = (props: IProps) => {
           }
         })}
       </Space>
+      <button
+        onClick={() => {
+          {
+            Object.entries(columns)?.map(([key, value]) => {
+              if (value.isFiltered) {
+                isActive(key, false);
+              }
+            });
+          }
+        }}
+      >
+        Цэвэрлэх
+      </button>
     </div>
   );
 };

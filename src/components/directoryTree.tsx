@@ -4,24 +4,31 @@ import type { DataNode, DirectoryTreeProps } from "antd/es/tree";
 import { NewSearch } from "./input";
 import { useEffect, useState } from "react";
 const { DirectoryTree } = Tree;
-
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 //service
-import { ConsumerSectionService } from "@/service/consumer/section/service";
-import { TreeSectionType } from "@/service/consumer/section/entities";
 import { TreeMode } from "@/service/entities";
 import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
+import { listToTree } from "@/feature/common";
+import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { TreeSectionType } from "@/service/consumer/section/entities";
+
+type TreeExtra = "FULL" | "HALF";
 
 interface IProps {
-  mode?: TreeMode;
+  mode: TreeMode;
+  extra: TreeExtra;
+  data: any[];
   width?: string;
-  type?: TreeSectionType;
   isLeaf: boolean;
-  open: boolean;
   onClick?: (key: number | string, isLeaf: boolean | undefined) => void;
+  onEdit?: (row: any) => void;
+  onDelete?: (id: any) => void;
 }
 
 const NewDirectoryTree = (props: IProps) => {
-  const { mode, width, type, isLeaf, open, onClick } = props;
+  const { mode, extra, data, isLeaf, onClick, onEdit, onDelete } = props;
+  const [newData, setNewData] = useState<any[]>(data);
+  const defaultData: DataNode[] = [];
   const [newTreeData, setNewTreeData] = useState<DataNode[]>([]);
   const unitTree: DataNode[] = [
     {
@@ -68,89 +75,89 @@ const NewDirectoryTree = (props: IProps) => {
       onClick?.(info.node.key, info.node.isLeaf);
     }
   };
-  const getConsumerSection = async () => {
-    if (type)
-      await ConsumerSectionService.get(type).then((response) => {
-        let root: DataNode[] = [];
-        const data = response.response;
-        const cloneData: DataNode[] = data.map((el, index) => {
-          return {
-            title: el.name,
-            key: el.id,
-            parentId: el.sectionId,
-            isLeaf: !el.isExpand ? !el.isExpand : undefined,
-          };
-        });
-        const idMapping = data.reduce((acc: any, el: any, i) => {
-          acc[el.id] = i;
-          return acc;
-        }, {});
-        cloneData.forEach((el: any) => {
-          if (el.parentId === null) {
-            root.push(el);
-            return;
-          }
-          const parentEl = cloneData[idMapping[el.parentId]];
-          parentEl.children = [...(parentEl.children || []), el];
-        });
-        setNewTreeData(root);
-      });
+  const getConsumerSection = async (data: any[]) => {
+    setNewTreeData(listToTree(data));
+    console.log(listToTree(data));
   };
+  const setMaterialToTree = async (data: any[]) => {
+    setNewTreeData(listToTree(data));
+  };
+  //
   useEffect(() => {
-    if (mode != "UNIT" && open) {
-      getConsumerSection();
+    setNewData(data);
+  }, [data]);
+  useEffect(() => {
+    console.log(newData);
+    if (mode === "CONSUMER") {
+      getConsumerSection(newData);
+    } else if (mode === "MATERIAL") {
+      setMaterialToTree(newData);
     }
-  }, [open]);
-  if (open) {
-    return (
-      <div
-        className="directory-tree"
-        style={{
-          maxWidth: width,
-          width: width,
-        }}
-      >
-        <div
-          className="header"
-          style={{
-            maxWidth: width,
-            width: width,
-          }}
-        >
-          <Tooltip title="Бүгдийг хаах">
-            <Image
-              src={"/images/folder.svg"}
-              width={24}
-              height={24}
-              alt="folder"
-            />
-          </Tooltip>
+  }, [newData]);
+  return (
+    <div className="directory-tree">
+      <div className="header">
+        <Tooltip title="Бүгдийг хаах">
           <Image
-            src={"/images/openFolder.svg"}
+            src={"/images/folder.svg"}
             width={24}
             height={24}
-            alt="openfolder"
+            alt="folder"
           />
-          <p>Бүлгийн нэр</p>
-        </div>
-        <div className="content">
-          <div
-            style={{
-              padding: "0 12px",
-            }}
-          >
-            <NewSearch />
-          </div>
-          {newTreeData ? (
-            <DirectoryTree onSelect={onSelect} treeData={newTreeData} />
-          ) : null}
-          {mode === "UNIT" ? (
-            <DirectoryTree onSelect={onSelect} treeData={unitTree} />
-          ) : null}
-        </div>
+        </Tooltip>
+        <Image
+          src={"/images/openFolder.svg"}
+          width={24}
+          height={24}
+          alt="openfolder"
+        />
+        <p>Бүлгийн нэр</p>
       </div>
-    );
-  }
-  return;
+      <div className="content">
+        <div
+          style={{
+            padding: "0 12px",
+          }}
+        >
+          <NewSearch placeholder="Бүлэгийн нэрээр хайх" />
+        </div>
+        {newTreeData?.length > 0 ? (
+          <DirectoryTree
+            titleRender={(nodeData) => {
+              if (extra === "FULL") {
+                return (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span>{nodeData.title?.toString()}</span>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: 8,
+                      }}
+                    >
+                      <EditOutlined onClick={() => onEdit?.(nodeData)} />
+                      <DeleteOutlined
+                        onClick={() => onDelete?.(nodeData.key)}
+                      />
+                    </div>
+                  </div>
+                );
+              } else if (extra === "HALF") {
+                return nodeData.title?.toString();
+              }
+            }}
+            onSelect={onSelect}
+            treeData={mode === "UNIT" ? unitTree : newTreeData}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
 };
 export default NewDirectoryTree;

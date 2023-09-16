@@ -150,11 +150,20 @@ function NewTable(props: ITable) {
               onChange?.({ page: page, limit: pageSize }),
           }}
         >
+          <Column
+            title={"№"}
+            rowScope={"row"}
+            width={40}
+            render={(_value, _row, index) => {
+              return meta.page * meta.limit - (meta.limit - index - 1);
+            }}
+          />
           {Object.entries(columns)?.map(([key, value]: [any, ColumnType]) => {
             if (value.isView) {
               return (
                 <Column
                   key={key}
+                  width={value.width}
                   dataIndex={value.dataIndex}
                   title={value.label}
                   filterDropdown={({ confirm }) => (

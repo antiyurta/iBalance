@@ -1,7 +1,16 @@
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { Form, Popover, Space } from "antd";
-import { SignalFilled } from "@ant-design/icons";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Space,
+  Typography,
+} from "antd";
+import { SignalFilled, SwapOutlined } from "@ant-design/icons";
 
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -11,16 +20,19 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import {
   NewInput,
-  NewInputNumber,
   NewOption,
-  NewSearch,
   NewSelect,
   NewSwitch,
   NewTextArea,
 } from "@/components/input";
 import NewModal from "@/components/modal";
 // interface
-import { DataIndexType, IFilters, Meta } from "@/service/entities";
+import {
+  ComponentsType,
+  DataIndexType,
+  IFilters,
+  Meta,
+} from "@/service/entities";
 import {
   Params,
   IDataConsumer,
@@ -41,17 +53,21 @@ import {
 import {
   findIndexInColumnSettings,
   onCloseFilterTag,
+  openNofi,
   unDuplicate,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 
+const { Title } = Typography;
+
 interface IProps {
-  ComponentsType: string;
-  onClickModal?: (row: IDataConsumer | IDataConsumer[]) => void;
+  ComponentsType: ComponentsType;
+  onClickModal?: (row: any) => void;
 }
 
 const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   const [form] = Form.useForm(); // add hiih Form
+  const [switchForm] = Form.useForm(); // buleg solih
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [filters, setFilters] = useState<IFilters>();
   const [columns, setColumns] = useState<FilteredColumns>({
@@ -92,7 +108,7 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
     },
     sectionId: {
       label: "Харилцагчийн бүлэг",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: true,
       isFiltered: false,
       dataIndex: ["section", "name"],
       type: DataIndexType.STRING_SECTION,
@@ -158,8 +174,12 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
   const [sections, setSections] = useState<IDataConsumerSection[]>([]);
-  const tableWidth = "calc(100% - 262px)";
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
+  const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
+    useState<boolean>(false);
+  const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
+    []
+  );
   //functions
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataConsumer) => {
@@ -264,33 +284,43 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   const onFinish = async (values: IDataConsumer) => {
     blockContext.block();
     if (editMode) {
-      await ConsumerService.patch(selectedRow?.id, values).then((response) => {
-        if (response.success) {
-          setSelectedRow(response.response);
-          setIsOpenModal(false);
-          getData({ page: 1, limit: 10 });
-        }
-      });
+      await ConsumerService.patch(selectedRow?.id, values)
+        .then((response) => {
+          if (response.success) {
+            setSelectedRow(response.response);
+            setIsOpenModal(false);
+            getData({ page: 1, limit: 10 });
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     } else {
-      await ConsumerService.post(values).then((response) => {
-        if (response.success) {
-          setIsOpenModal(false);
-          getData({ page: 1, limit: 10 });
-        }
-      });
+      await ConsumerService.post(values)
+        .then((response) => {
+          if (response.success) {
+            setIsOpenModal(false);
+            getData({ page: 1, limit: 10 });
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     }
-    blockContext.unblock();
   };
   // ustgah
   const onDelete = async (id: number) => {
     blockContext.block();
-    await ConsumerService.remove(id).then((response) => {
-      if (response.success) {
-        setSelectedRow(undefined);
-        getData({ page: 1, limit: 10 });
-      }
-    });
-    blockContext.unblock();
+    await ConsumerService.remove(id)
+      .then((response) => {
+        if (response.success) {
+          setSelectedRow(undefined);
+          getData({ page: 1, limit: 10 });
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   // ajiltan bwal bas huwi hun bolnoo
   const isisIndividual = (checked: boolean) => {
@@ -302,9 +332,61 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   };
   // row selection GROUP UED
   const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: IDataConsumer[]) => {
-      onClickModal?.(selectedRows);
+    onSelectAll: (state: boolean, allRow: any, changeRow: any) => {
+      console.log("select all", state, allRow, changeRow);
+      if (state) {
+        const clone = [...tableSelectedRows, ...changeRow];
+        console.log(clone);
+        setTableSelectedRows(clone);
+      } else {
+        const clone = [...tableSelectedRows];
+        changeRow?.map((row: any) => {
+          clone.splice(
+            clone.findIndex((clo) => {
+              return clo.id === row.id;
+            }),
+            1
+          );
+        });
+        setTableSelectedRows(clone);
+      }
     },
+    onSelect: (selectedRow: IDataConsumer, selected: boolean) => {
+      if (selected) {
+        if (!tableSelectedRows.find((e) => e.id === selectedRow.id)) {
+          setTableSelectedRows([...tableSelectedRows, selectedRow]);
+        }
+      } else {
+        var clone = [...tableSelectedRows];
+        clone.splice(
+          tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
+          1
+        );
+        setTableSelectedRows(clone);
+      }
+    },
+    onChange: (
+      selectedRowKeys: React.Key[],
+      selectedRows: IDataConsumer[]
+    ) => {},
+    selectedRowKeys: tableSelectedRows.map((e) => e.id),
+  };
+  // switch group solih
+  const switchGroup = async (values: { sectionId: number }) => {
+    if (tableSelectedRows.length > 0) {
+      console.log(values, tableSelectedRows);
+      await ConsumerService.switchPatch({
+        sectionId: values.sectionId,
+        ids: tableSelectedRows.map((row) => row.id),
+      }).then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжилттай", "Амилттай солигдлоо");
+          onClickModal?.(false);
+        }
+      });
+    } else {
+      openNofi("error", "Алдаа", "Харилцагч сонгоно уу");
+    }
   };
   //row selection
   useEffect(() => {
@@ -326,155 +408,285 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   }, []);
   return (
     <>
-      <div className="information">
-        <div className="header">
-          <div className="left">
-            {ComponentsType === "FULL" ? (
-              <p>Үндсэн бүртгэл / Харилцагч / Бүртгэл</p>
-            ) : null}
-            {ComponentsType === "MIDDLE" ? <p>Харилцагчын бүлэгт</p> : null}
-            {ComponentsType === "LITTLE" ? null : (
-              <button className="app-button" onClick={() => openModal(false)}>
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-                Шинээр бүртгэх
-              </button>
-            )}
-          </div>
-          <div className="right">
-            {ComponentsType === "LITTLE" ? null : (
-              <NewSearch
-                prefix={
-                  <Image
-                    src={"/images/SearchIcon.svg"}
-                    width={12}
-                    height={12}
-                    alt="searchIcon"
-                  />
-                }
-                allowClear={true}
-                onSearch={(values: string) => console.log(values)}
-              />
-            )}
-          </div>
-        </div>
-        <div className="second-header">
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key: key,
-                state: state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params: newParams,
-                onParams: (params) => setNewParams(params),
-              });
-              getData(newParams);
-            }}
-          />
-          {ComponentsType === "FULL" ? (
-            <div className="extra">
-              <ColumnSettings
-                columns={columns}
-                columnIndexes={(arg1, arg2) =>
-                  findIndexInColumnSettings({
-                    newRowIndexes: arg1,
-                    unSelectedRow: arg2,
-                    columns: columns,
-                    onColumns: (columns) => setColumns(columns),
+      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        {ComponentsType === "FULL" ? (
+          <>
+            <Col md={24} lg={16} xl={19}>
+              <Space size={24}>
+                <Title level={5}>Үндсэн бүртгэл / Харилцагч / Бүртгэл</Title>
+                <Button
+                  type="primary"
+                  onClick={() => openModal(false)}
+                  icon={
+                    <Image
+                      src={"/images/AddIcon.svg"}
+                      width={12}
+                      height={12}
+                      alt="addicon"
+                    />
+                  }
+                >
+                  Шинээр бүртгэх
+                </Button>
+              </Space>
+            </Col>
+            <Col md={24} lg={8} xl={5}>
+              <Input.Search />
+            </Col>
+          </>
+        ) : null}
+        {isOpenTree && sections?.length > 0 ? (
+          <Col md={24} lg={10} xl={6}>
+            <NewDirectoryTree
+              mode="CONSUMER"
+              extra="HALF"
+              data={sections}
+              isLeaf={true}
+              onClick={(key, isLeaf) => {
+                if (isLeaf) {
+                  // getData({
+                  //   page: 1,
+                  //   limit: 10,
+                  //   sectionId: [`${key}`],
+                  // });
+                  onCloseFilterTag({
+                    key: "sectionId",
+                    state: true,
+                    column: columns,
+                    onColumn: (columns) => setColumns(columns),
                     params: newParams,
                     onParams: (params) => setNewParams(params),
-                    getData: (params) => getData(params),
-                  })
-                }
-              />
-              <Image
-                src={"/images/PrintIcon.svg"}
-                width={24}
-                height={24}
-                alt="printIcon"
-              />
-              <Image
-                src={"/images/UploadIcon.svg"}
-                width={24}
-                height={24}
-                alt="uploadIcon"
-              />
-              <Image
-                src={"/images/DownloadIcon.svg"}
-                width={24}
-                height={24}
-                alt="downloadIcon"
-              />
-            </div>
-          ) : null}
-        </div>
-        <div className="body">
-          <NewDirectoryTree
-            isLeaf={true}
-            type={TreeSectionType.Consumer}
-            open={isOpenTree}
-            onClick={(key, isLeaf) => {
-              if (isLeaf) {
-                getData({
-                  page: 1,
-                  limit: 10,
-                  sectionId: [`${key}`],
-                });
-              }
-            }}
-          />
-          <div
-            style={{
-              width: tableWidth,
-            }}
-          >
-            <NewTable
-              componentsType={ComponentsType}
-              scroll={{ x: ComponentsType === "FULL" ? 1700 : 400 }}
-              rowKey="id"
-              rowSelection={ComponentsType === "LITTLE" ? rowSelection : null}
-              doubleClick={true}
-              onDClick={(value) => {
-                if (ComponentsType === "FULL") {
-                  setSelectedRow(value);
-                  setIsDescription(true);
-                  setIsOpenTree(false);
-                } else if (ComponentsType === "MIDDLE") {
-                  onClickModal?.(value);
+                  });
+                  getData({
+                    page: 1,
+                    limit: 10,
+                    sectionId: [`${key}`],
+                  });
                 }
               }}
-              data={data}
-              meta={meta}
-              columns={columns}
-              onChange={(params) => getData(params)}
-              onColumns={(columns) => setColumns(columns)}
-              newParams={newParams}
-              onParams={(params) => setNewParams(params)}
-              incomeFilters={filters}
-              onEdit={(row) => openModal(true, row)}
-              onDelete={(id) => onDelete(id)}
             />
-          </div>
-          <Description
-            title="Харилцагчийн мэдээлэл"
-            open={isDescription}
-            columns={columns}
-            selectedRow={selectedRow}
-            onEdit={() => openModal(true, selectedRow)}
-            onDelete={(id) => onDelete(id)}
-            onCancel={(state) => {
-              setIsDescription(state);
-              setIsOpenTree(!state);
-            }}
-          />
-        </div>
-      </div>
+          </Col>
+        ) : null}
+        <Col md={24} lg={14} xl={18}>
+          <Row gutter={[0, 12]}>
+            {ComponentsType === "LITTLE" ? (
+              <Col span={24}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "flex-end",
+                    width: "100%",
+                    gap: 12,
+                  }}
+                >
+                  <Form
+                    form={switchForm}
+                    layout="vertical"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Form.Item
+                      label="Харилцагчийн бүлэг"
+                      style={{
+                        width: "100%",
+                      }}
+                    >
+                      <Space.Compact>
+                        <div
+                          className="extraButton"
+                          style={{
+                            display: "flex",
+                            height: 38,
+                            alignItems: "center",
+                            placeContent: "center",
+                          }}
+                        >
+                          <Popover
+                            placement="bottom"
+                            open={isOpenPopOverLittle}
+                            onOpenChange={(state) =>
+                              setIsOpenPopOverLittle(state)
+                            }
+                            content={
+                              <NewDirectoryTree
+                                mode="CONSUMER"
+                                extra="HALF"
+                                data={sections}
+                                isLeaf={false}
+                                onClick={(key, isLeaf) => {
+                                  if (isLeaf) {
+                                    setIsOpenPopOverLittle(false);
+                                    switchForm.setFieldsValue({
+                                      sectionId: key,
+                                    });
+                                  }
+                                }}
+                              />
+                            }
+                            trigger={"click"}
+                          >
+                            <SignalFilled rotate={-90} />
+                          </Popover>
+                        </div>
+                        <Form.Item
+                          name="sectionId"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Шинээр шилжүүлэх бүлэг заавал",
+                            },
+                          ]}
+                        >
+                          <NewSelect
+                            className="ant-selecto-38px"
+                            disabled={true}
+                            style={{
+                              width: "100%",
+                            }}
+                          >
+                            {sections?.map(
+                              (section: IDataConsumerSection, index) => {
+                                return (
+                                  <NewOption key={index} value={section.id}>
+                                    {section.name}
+                                  </NewOption>
+                                );
+                              }
+                            )}
+                          </NewSelect>
+                        </Form.Item>
+                      </Space.Compact>
+                    </Form.Item>
+                  </Form>
+                  <Button
+                    type="primary"
+                    icon={<SwapOutlined />}
+                    onClick={() => {
+                      switchForm.validateFields().then((value) => {
+                        switchGroup(value);
+                      });
+                    }}
+                  >
+                    Шилжүүлэх
+                  </Button>
+                </div>
+              </Col>
+            ) : null}
+            <Col span={24}>
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "flex-end",
+                }}
+                size={12}
+              >
+                <Filtered
+                  columns={columns}
+                  isActive={(key, state) => {
+                    onCloseFilterTag({
+                      key: key,
+                      state: state,
+                      column: columns,
+                      onColumn: (columns) => setColumns(columns),
+                      params: newParams,
+                      onParams: (params) => setNewParams(params),
+                    });
+                    getData(newParams);
+                  }}
+                />
+                {ComponentsType === "FULL" ? (
+                  <Space
+                    style={{
+                      width: "100%",
+                      justifyContent: "flex-end",
+                    }}
+                    size={12}
+                  >
+                    <ColumnSettings
+                      columns={columns}
+                      columnIndexes={(arg1, arg2) =>
+                        findIndexInColumnSettings({
+                          newRowIndexes: arg1,
+                          unSelectedRow: arg2,
+                          columns: columns,
+                          onColumns: (columns) => setColumns(columns),
+                          params: newParams,
+                          onParams: (params) => setNewParams(params),
+                          getData: (params) => getData(params),
+                        })
+                      }
+                    />
+                    <Image
+                      src={"/images/PrintIcon.svg"}
+                      width={24}
+                      height={24}
+                      alt="printIcon"
+                    />
+                    <Image
+                      src={"/images/UploadIcon.svg"}
+                      width={24}
+                      height={24}
+                      alt="uploadIcon"
+                    />
+                    <Image
+                      src={"/images/DownloadIcon.svg"}
+                      width={24}
+                      height={24}
+                      alt="downloadIcon"
+                    />
+                  </Space>
+                ) : null}
+              </Space>
+            </Col>
+            <Col span={24}>
+              <NewTable
+                componentsType={ComponentsType}
+                scroll={{ x: ComponentsType === "FULL" ? 1700 : 400 }}
+                rowKey="id"
+                rowSelection={ComponentsType === "LITTLE" ? rowSelection : null}
+                doubleClick={true}
+                onDClick={(value) => {
+                  if (ComponentsType === "FULL") {
+                    setSelectedRow(value);
+                    setIsDescription(true);
+                    setIsOpenTree(false);
+                  } else if (ComponentsType === "MIDDLE") {
+                    onClickModal?.(value);
+                  }
+                }}
+                data={data}
+                meta={meta}
+                columns={columns}
+                onChange={(params) => getData(params)}
+                onColumns={(columns) => setColumns(columns)}
+                newParams={newParams}
+                onParams={(params) => setNewParams(params)}
+                incomeFilters={filters}
+                onEdit={(row) => openModal(true, row)}
+                onDelete={(id) => onDelete(id)}
+              />
+            </Col>
+          </Row>
+        </Col>
+        {isDescription ? (
+          <Col md={24} lg={10} xl={6}>
+            <Description
+              title="Харилцагчийн мэдээлэл"
+              open={isDescription}
+              columns={columns}
+              selectedRow={selectedRow}
+              onEdit={() => openModal(true, selectedRow)}
+              onDelete={(id) => onDelete(id)}
+              onCancel={(state) => {
+                setIsDescription(state);
+                setIsOpenTree(!state);
+              }}
+            />
+          </Col>
+        ) : null}
+      </Row>
       <NewModal
         title="Харилцагчийн бүртгэл"
         open={isOpenModal}
@@ -635,9 +847,10 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
                       onOpenChange={(state) => setIsOpenPopOver(state)}
                       content={
                         <NewDirectoryTree
+                          mode={"CONSUMER"}
+                          data={sections}
+                          extra="HALF"
                           isLeaf={true}
-                          type={TreeSectionType.Consumer}
-                          open={true}
                           onClick={(key, isLeaf) => {
                             if (isLeaf) {
                               setIsOpenPopOver(false);

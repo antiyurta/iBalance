@@ -3,11 +3,15 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { DataIndexType, IFilters, Meta } from "@/service/entities";
+import {
+  DataIndexType,
+  FilteredColumns,
+  IFilters,
+  Meta,
+} from "@/service/entities";
 import {
   FilteredColumnsLimitOfLoans,
   IDataLimitOfLoans,
-  Params,
 } from "@/service/limit-of-loans/entities";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
@@ -19,67 +23,63 @@ import {
 
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { TreeSectionType } from "@/service/consumer/section/entities";
+import {
+  IDataConsumerSection,
+  TreeSectionType,
+} from "@/service/consumer/section/entities";
 import { NewTable } from "@/components/table";
+import { Col, Row, Space } from "antd";
+import { initialBalanceService } from "@/service/beginning-balance/service";
+import {
+  IDataInitialBalance,
+  Params,
+} from "@/service/beginning-balance/entities";
+import { ConsumerSectionService } from "@/service/consumer/section/service";
 
-const CustomerList = () => {
+interface IProps {
+  onReload: boolean;
+  onEdit: (row: IDataInitialBalance) => void;
+  onDelete: (id: number) => void;
+}
+
+const CustomerList = (props: IProps) => {
+  const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [newParams, setNewParams] = useState<Params>({});
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
-  const [data, setData] = useState<IDataLimitOfLoans[]>([]);
+  const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
   const [filters, setFilters] = useState<IFilters>();
   const [selectedRow, setSelectedRow] = useState<any>([]);
-  const [tableWidth, setTableWidth] = useState<string>("calc(100% - 262px)");
-  const [columns, setColumns] = useState<FilteredColumnsLimitOfLoans>({
+  const [columns, setColumns] = useState<FilteredColumns>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "code"],
-      type: DataIndexType.STRING_CONSUMER_CODE,
+      type: DataIndexType.MULTI,
     },
     name: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "name"],
-      type: DataIndexType.STRING_CONSUMER_NAME,
+      type: DataIndexType.MULTI,
     },
     sectionId: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "section", "name"],
-      type: DataIndexType.STRING_CONSUMER_SECTION,
+      type: DataIndexType.STRING_SECTION,
     },
-    isAccount: {
-      label: "Дансаар тохируулсан эсэх",
+    amount: {
+      label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "isAccount",
-      type: DataIndexType.BOOLEAN,
-    },
-    limitAmount: {
-      label: "Харилцагчид олгох нийт лимит",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "limitAmount",
+      dataIndex: "amount",
       type: DataIndexType.VALUE,
-    },
-    isClose: {
-      label: "Захиалга хаасан эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isClose",
-      type: DataIndexType.BOOLEAN,
-    },
-    isActive: {
-      label: "Төлөв",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "isActive"],
-      type: DataIndexType.BOOLEAN_STRING,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
@@ -92,8 +92,8 @@ const CustomerList = () => {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedBy",
-      type: DataIndexType.STRING,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
     },
   });
   const openModal = (state: boolean, row?: IDataLimitOfLoans) => {
@@ -106,17 +106,6 @@ const CustomerList = () => {
     // setIsOpenModal(true);
     setSelectedRow(row);
   };
-  // ustgah
-  const onDelete = async (id: number) => {
-    // blockContext.block();
-    // await ConsumerService.remove(id).then((response) => {
-    //   if (response.success) {
-    //     setSelectedRow(undefined);
-    //     getData({ page: 1, limit: 10 });
-    //   }
-    // });
-    // blockContext.unblock();
-  };
   const getData = async (params: Params) => {
     blockContext.block();
     var prm: Params = {
@@ -127,10 +116,7 @@ const CustomerList = () => {
       code: params.code || newParams.code,
       name: params.name || newParams.name,
       sectionId: params.sectionId || newParams.sectionId,
-      isAccount: params.isAccount || newParams.isAccount,
-      limitAmount: params.limitAmount || newParams.limitAmount,
-      isClose: params.isClose || newParams.isClose,
-      isActive: params.isActive || newParams.isActive,
+      amount: params.amount || newParams.amount,
       updatedAt: params.updatedAt || newParams.updatedAt,
       updatedBy: params.updatedBy || newParams.updatedBy,
       queries: newParams.queries,
@@ -148,17 +134,8 @@ const CustomerList = () => {
     if (params.sectionId) {
       prm.queries = [...unDuplicate("sectionId", newParams)];
     }
-    if (params.isAccount) {
-      prm.queries = [...unDuplicate("isAccount", newParams)];
-    }
-    if (params.limitAmount) {
-      prm.queries = [...unDuplicate("limitAmount", newParams)];
-    }
-    if (params.isClose) {
-      prm.queries = [...unDuplicate("isClose", newParams)];
-    }
-    if (params.isActive) {
-      prm.queries = [...unDuplicate("isActive", newParams)];
+    if (params.amount) {
+      prm.queries = [...unDuplicate("amount", newParams)];
     }
     if (params.updatedAt) {
       prm.queries = [...unDuplicate("updatedAt", newParams)];
@@ -167,96 +144,130 @@ const CustomerList = () => {
       prm.queries = [...unDuplicate("updatedBy", newParams)];
     }
     setNewParams(prm);
-    await limitOfLoansService.get(prm).then((response) => {
+    await initialBalanceService
+      .get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const getSections = async (type: TreeSectionType) => {
+    await ConsumerSectionService.get(type).then((response) => {
       if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
+        setSections(response.response);
       }
     });
-    blockContext.unblock();
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
+    getSections(TreeSectionType.Consumer);
   }, []);
+  useEffect(() => {
+    if (onReload) {
+      getData({ page: 1, limit: 10 });
+    }
+  }, [onReload]);
   return (
     <div>
-      <div className="second-header">
-        <Filtered
-          columns={columns}
-          isActive={(key, state) => {
-            onCloseFilterTag({
-              key: key,
-              state: state,
-              column: columns,
-              onColumn: (columns) => setColumns(columns),
-              params: newParams,
-              onParams: (params) => setNewParams(params),
-            });
-            getData(newParams);
-          }}
-        />
-        <div className="extra">
-          <ColumnSettings
-            columns={columns}
-            columnIndexes={(arg1, arg2) =>
-              findIndexInColumnSettings({
-                newRowIndexes: arg1,
-                unSelectedRow: arg2,
-                columns: columns,
-                onColumns: (columns) => setColumns(columns),
-                params: newParams,
-                onParams: (params) => setNewParams(params),
-                getData: (params) => getData(params),
-              })
-            }
-          />
-          <Image
-            src={"/images/PrintIcon.svg"}
-            width={24}
-            height={24}
-            alt="printIcon"
-          />
-          <Image
-            src={"/images/DownloadIcon.svg"}
-            width={24}
-            height={24}
-            alt="downloadIcon"
-          />
-        </div>
-      </div>
-      <div className="body">
-        <NewDirectoryTree
-          isLeaf={true}
-          type={TreeSectionType.Consumer}
-          open={isOpenTree}
-          onClick={(key) => {
-            getData({ page: 1, limit: 10, sectionId: [`${key}`] });
-          }}
-        />
-        <div
-          style={{
-            width: tableWidth,
-          }}
-        >
-          <NewTable
-            scroll={{
-              x: 1700,
+      <Row gutter={[12, 24]}>
+        <Col md={24} lg={10} xl={6}>
+          <NewDirectoryTree
+            mode="CONSUMER"
+            extra="HALF"
+            data={sections}
+            isLeaf={true}
+            onClick={(key) => {
+              getData({ page: 1, limit: 10, sectionId: [`${key}`] });
             }}
-            rowKey="id"
-            data={data}
-            meta={meta}
-            columns={columns}
-            onChange={(params) => getData(params)}
-            onColumns={(columns) => setColumns(columns)}
-            newParams={newParams}
-            onParams={(params) => setNewParams(params)}
-            incomeFilters={filters}
-            onEdit={(row) => openModal(true, row)}
-            onDelete={(id) => onDelete(id)}
           />
-        </div>
-      </div>
+        </Col>
+        <Col md={24} lg={14} xl={18}>
+          <Row gutter={[0, 12]}>
+            <Col sm={24}>
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "flex-end",
+                }}
+                size={12}
+              >
+                <Filtered
+                  columns={columns}
+                  isActive={(key, state) => {
+                    onCloseFilterTag({
+                      key: key,
+                      state: state,
+                      column: columns,
+                      onColumn: (columns) => setColumns(columns),
+                      params: newParams,
+                      onParams: (params) => setNewParams(params),
+                    });
+                    getData(newParams);
+                  }}
+                />
+                <Space
+                  style={{
+                    width: "100%",
+                    justifyContent: "flex-end",
+                  }}
+                  size={12}
+                >
+                  <ColumnSettings
+                    columns={columns}
+                    columnIndexes={(arg1, arg2) =>
+                      findIndexInColumnSettings({
+                        newRowIndexes: arg1,
+                        unSelectedRow: arg2,
+                        columns: columns,
+                        onColumns: (columns) => setColumns(columns),
+                        params: newParams,
+                        onParams: (params) => setNewParams(params),
+                        getData: (params) => getData(params),
+                      })
+                    }
+                  />
+                  <Image
+                    src={"/images/PrintIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="printIcon"
+                  />
+                  <Image
+                    src={"/images/DownloadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="downloadIcon"
+                  />
+                </Space>
+              </Space>
+            </Col>
+            <Col span={24}>
+              <NewTable
+                scroll={{
+                  x: 1000,
+                }}
+                rowKey="id"
+                data={data}
+                meta={meta}
+                columns={columns}
+                onChange={(params) => getData(params)}
+                onColumns={(columns) => setColumns(columns)}
+                newParams={newParams}
+                onParams={(params) => setNewParams(params)}
+                incomeFilters={filters}
+                onEdit={(row) => onEdit(row)}
+                onDelete={(id) => onDelete(id)}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     </div>
   );
 };

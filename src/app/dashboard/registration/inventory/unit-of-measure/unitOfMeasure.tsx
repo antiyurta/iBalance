@@ -1,37 +1,49 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewSearch } from "@/components/input";
+import { NewInput, NewOption, NewSearch, NewSelect } from "@/components/input";
+import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  openNofi,
+} from "@/feature/common";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   DataIndexType,
   FilteredColumns,
   IFilters,
   Meta,
 } from "@/service/entities";
-import { IParams } from "@/service/material/unitOfMeasure/entities";
+import {
+  IDataUnitOfMeasure,
+  IParams,
+  MeasurementType,
+} from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import { Form } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 interface IProps {
   ComponentsType: string;
-  onClickModal?: () => void;
+  onClickModal?: (row: IDataUnitOfMeasure) => void;
 }
 
 const UnitOfMeasure = (props: IProps) => {
   const { ComponentsType, onClickModal } = props;
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const tableWidth = "calc(100% - 262px)";
   const [form] = Form.useForm();
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState<IDataUnitOfMeasure[]>([]);
   const [newParams, setNewParams] = useState<IParams>({});
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
+  const [selectedRow, setSelectedRow] = useState<IDataUnitOfMeasure>();
   const [columns, setColumns] = useState<FilteredColumns>({
     shortName: {
       label: "Богино нэр",
@@ -56,14 +68,14 @@ const UnitOfMeasure = (props: IProps) => {
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedAt",
       type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
-      isView: true,
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedBy",
       type: DataIndexType.MULTI,
@@ -78,14 +90,55 @@ const UnitOfMeasure = (props: IProps) => {
       form.setFieldsValue(row);
     }
     setIsOpenModal(true);
-    // setSelectedRow(row);
+    setSelectedRow(row);
   };
   const getData = async (params: IParams) => {
-    await UnitOfMeasureService.get(params).then((response) => {
+    blockContext.block();
+    await UnitOfMeasureService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const onFinish = async (values: IDataUnitOfMeasure) => {
+    blockContext.block();
+    if (editMode) {
+      await UnitOfMeasureService.patch(selectedRow?.id, values)
+        .then((response) => {
+          if (response.success) {
+            openNofi(
+              "success",
+              "Амжиллтай",
+              "Хэмжих нэгж амжиллттай засагдлаа"
+            );
+            getData({ page: 1, limit: 10 });
+            setIsOpenModal(false);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    } else {
+      await UnitOfMeasureService.post(values).then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжиллтай", "Хэмжих нэгж амжиллттай нэмэгдлээ");
+          getData({ page: 1, limit: 10 });
+          setIsOpenModal(false);
+        }
+      });
+    }
+  };
+  const onDelete = async (id: number) => {
+    await UnitOfMeasureService.remove(id).then((response) => {
       if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
+        openNofi("success", "Амжиллтай", "Хэмжих нэгж амжиллттай устгагдлаа");
+        getData({ page: 1, limit: 10 });
       }
     });
   };
@@ -97,7 +150,10 @@ const UnitOfMeasure = (props: IProps) => {
       <div className="information">
         <div className="header">
           <div className="left">
-            <p>Үндсэн бүртгэл / Бараа материал / Бүртгэл</p>
+            {ComponentsType === "FULL" ? (
+              <p>Үндсэн бүртгэл / Бараа материал / Хэмжих нэгж</p>
+            ) : null}
+            {ComponentsType === "MODAL" ? <p>Хэмжих нэгж</p> : null}
             <button className="app-button" onClick={() => openModal(false)}>
               <Image
                 src={"/images/AddIcon.svg"}
@@ -177,33 +233,34 @@ const UnitOfMeasure = (props: IProps) => {
         </div>
         <div className="body">
           <NewDirectoryTree
+            data={[]}
             mode="UNIT"
+            extra="HALF"
             isLeaf={true}
-            open={isOpenTree}
             onClick={(key, isLeaf) => {
               if (isLeaf) {
                 getData({
                   page: 1,
                   limit: 10,
-                  sectionId: [`${key}`],
+                  type: [`${key}`],
                 });
               }
             }}
           />
           <div
             style={{
-              width: tableWidth,
+              width: ComponentsType === "FULL" ? tableWidth : "100%",
             }}
           >
             <NewTable
-              scroll={{ x: 1000 }}
+              scroll={{ x: ComponentsType === "FULL" ? 1000 : 400 }}
               rowKey="id"
               doubleClick={true}
-              //   onDClick={(value) => {
-              //     setSelectedRow(value);
-              //     setIsDescription(true);
-              //     setIsOpenTree(false);
-              //   }}
+              onDClick={(value) => {
+                if (ComponentsType === "MODAL") {
+                  onClickModal?.(value);
+                }
+              }}
               data={data}
               meta={meta}
               columns={columns}
@@ -213,11 +270,76 @@ const UnitOfMeasure = (props: IProps) => {
               onParams={(params) => setNewParams(params)}
               incomeFilters={filters}
               onEdit={(row) => openModal(true, row)}
-              onDelete={(id) => console.log(id)}
+              onDelete={(id) => onDelete(id)}
             />
           </div>
         </div>
       </div>
+      <NewModal
+        title="Хэмжих нэгж"
+        width={300}
+        open={isOpenModal}
+        onCancel={() => setIsOpenModal(false)}
+        onOk={() => form.validateFields().then((values) => onFinish(values))}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Хэмжих нэгжийн нэр"
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Хэмжих нэгжийн нэр заавал",
+              },
+            ]}
+          >
+            <NewInput placeholder="Хэмжих нэгжийн нэр" />
+          </Form.Item>
+          <Form.Item
+            label="Богино нэр"
+            name="shortName"
+            rules={[
+              {
+                required: true,
+                message: "Богино нэр заавал",
+              },
+            ]}
+          >
+            <NewInput placeholder="Богино нэр" />
+          </Form.Item>
+          <Form.Item
+            label="Бүлэг"
+            name="type"
+            rules={[
+              {
+                required: true,
+                message: "Бүлэг",
+              },
+            ]}
+          >
+            <NewSelect placeholder="Бүлэг">
+              <NewOption value={MeasurementType.Quantity}>
+                Тооны хэмжих нэгж
+              </NewOption>
+              <NewOption value={MeasurementType.Length}>
+                Уртын хэмжих нэгж
+              </NewOption>
+              <NewOption value={MeasurementType.Volume}>
+                Шингэний хэмжих нэгж
+              </NewOption>
+              <NewOption value={MeasurementType.Area}>
+                Талбайн хэмжих нэгж
+              </NewOption>
+              <NewOption value={MeasurementType.Time}>
+                Цаг хугацааны хэмжих нэгж
+              </NewOption>
+              <NewOption value={MeasurementType.Weight}>
+                Хүндийн хэмжих нэгж
+              </NewOption>
+            </NewSelect>
+          </Form.Item>
+        </Form>
+      </NewModal>
     </div>
   );
 };

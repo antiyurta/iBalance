@@ -2,16 +2,20 @@ import { useEffect, useState } from "react";
 import {
   NewCheckbox,
   NewCheckboxGroup,
+  NewDatePicker,
   NewInput,
   NewInputNumber,
   NewRadio,
   NewRadioGroup,
 } from "./input";
 import { Params, ToolsIcons } from "@/service/consumer/entities";
-import { Popover } from "antd";
+import { Popover, Space } from "antd";
 import Image from "next/image";
 import { DataIndexType, RadioType } from "@/service/entities";
 import { typeOfFilters } from "@/feature/common";
+
+import { SearchOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 interface IProps {
   label: string;
@@ -30,11 +34,11 @@ enum SearchType {
 }
 const DropDown = (props: IProps) => {
   const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
-
   const [radioValue, setRadioValue] = useState<keyof typeof RadioType>();
   const [tool, setTool] = useState<keyof typeof ToolsIcons>(
-    type === "NUMBER" ? "EQUALS" : "CONTAINS"
+    (type === "NUMBER" && "EQUALS") || (type === "DATE" && "EQUALS") || "EQUALS"
   );
+  const [datePickerValue, setDatePickerValue] = useState<any>();
   const [checkboxs, setCheckboxs] = useState<any>([]);
   const [searchValue, setSearchValue] = useState<string | number>("");
   const [checkedList, setCheckedList] = useState<CheckedList>([]);
@@ -87,7 +91,7 @@ const DropDown = (props: IProps) => {
           </p>
         </button>
         <button
-          disabled={type === "NUMBER"}
+          disabled={type === "NUMBER" || type === "DATE"}
           onClick={() => setTool("CONTAINS")}
           className="popupButton"
         >
@@ -203,8 +207,8 @@ const DropDown = (props: IProps) => {
       </div>
     );
   };
-  const configureSearch = (type: SearchType, order?: RadioType) => {
-    switch (type) {
+  const configureSearch = (SType: SearchType, order?: RadioType) => {
+    switch (SType) {
       case SearchType.RADIO:
         handleSearch(
           {
@@ -225,12 +229,14 @@ const DropDown = (props: IProps) => {
               {
                 param: dataIndex,
                 operator: tool,
-                value: searchValue,
+                value: dayjs(datePickerValue).format("YYYY-MM-DD"),
+                typeof: type === "DATE" ? "date" : "number",
               },
             ],
           },
           true
         );
+        setSearchValue("");
         break;
       case SearchType.CHECKBOX:
         handleSearch(
@@ -273,7 +279,7 @@ const DropDown = (props: IProps) => {
     if (filters && type) {
       gg();
     }
-  }, [props]);
+  }, [filters, type]);
   return (
     <div
       style={{
@@ -383,6 +389,65 @@ const DropDown = (props: IProps) => {
             width: "100%",
           }}
         >
+          {type === "DATE" ? (
+            <Space.Compact>
+              <div className="extraButton">
+                <Popover
+                  placement="bottom"
+                  content={<Tools />}
+                  trigger={"click"}
+                >
+                  <Image
+                    src={ToolsIcons[`${tool}`]}
+                    width={12}
+                    height={12}
+                    alt="searchIcon"
+                  />
+                </Popover>
+              </div>
+              <NewDatePicker
+                style={{
+                  width: "100%",
+                }}
+                value={dayjs(datePickerValue)}
+                onChange={async (date: any, dateString: string) => {
+                  setDatePickerValue(date);
+                  setSearchValue(dateString);
+                }}
+              />
+              <div className="extraButton-right">
+                <SearchOutlined
+                  onClick={() => configureSearch(SearchType.INPUT)}
+                />
+              </div>
+            </Space.Compact>
+          ) : null}
+          {type === "MULTI" ? (
+            <NewInput
+              style={{
+                gap: 4,
+              }}
+              disabled={checkedList.length > 0 ? true : false}
+              value={searchValue}
+              onChange={(e: any) => setSearchValue(e.target.value)}
+              onPressEnter={() => configureSearch(SearchType.INPUT)}
+              addonBefore={
+                <Popover
+                  placement="bottom"
+                  content={<Tools />}
+                  trigger={"click"}
+                >
+                  <Image
+                    src={ToolsIcons[`${tool}`]}
+                    width={12}
+                    height={12}
+                    alt="searchIcon"
+                  />
+                </Popover>
+              }
+              placeholder={`${label} хайх`}
+            />
+          ) : null}
           {type === "NUMBER" ? (
             <NewInputNumber
               style={{
@@ -409,32 +474,7 @@ const DropDown = (props: IProps) => {
               }
               placeholder={`${label} хайх`}
             />
-          ) : (
-            <NewInput
-              style={{
-                gap: 4,
-              }}
-              disabled={checkedList.length > 0 ? true : false}
-              value={searchValue}
-              onChange={(e: any) => setSearchValue(e.target.value)}
-              onPressEnter={() => configureSearch(SearchType.INPUT)}
-              addonBefore={
-                <Popover
-                  placement="bottom"
-                  content={<Tools />}
-                  trigger={"click"}
-                >
-                  <Image
-                    src={ToolsIcons[`${tool}`]}
-                    width={12}
-                    height={12}
-                    alt="searchIcon"
-                  />
-                </Popover>
-              }
-              placeholder={`${label} хайх`}
-            />
-          )}
+          ) : null}
         </div>
         <div
           style={{

@@ -76,6 +76,7 @@ const Description = (props: IDescription) => {
       }
     }
   };
+  console.log("----->.", selectedRow);
   if (open) {
     return (
       <div className="extra-description">
@@ -98,38 +99,28 @@ const Description = (props: IDescription) => {
           <p>{title}</p>
         </div>
         {mode === "PICTURE" ? (
-          <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 12,
+              padding: 12,
+              width: "100%",
+              overflow: "auto",
+            }}
+          >
             <AntImage.PreviewGroup>
-              <Image
-                width={200}
-                height={200}
-                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-                alt={"asd"}
-              />
-              <Image
-                width={200}
-                height={200}
-                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-                alt={"asd"}
-              />
-              <Image
-                width={200}
-                height={200}
-                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-                alt={"asd"}
-              />
-              <Image
-                width={200}
-                height={200}
-                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-                alt={"asd"}
-              />
-              <Image
-                width={200}
-                height={200}
-                src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-                alt={"asd"}
-              />
+              {selectedRow?.files?.map((file: any, index: number) => {
+                return (
+                  <AntImage
+                    key={index}
+                    width={70}
+                    height={70}
+                    src={`http://192.168.5.102:8000/${file.path}`}
+                    alt={"asd"}
+                  />
+                );
+              })}
             </AntImage.PreviewGroup>
           </div>
         ) : null}

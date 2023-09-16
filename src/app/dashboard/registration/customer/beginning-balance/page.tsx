@@ -6,42 +6,119 @@ import {
   NewInput,
   NewInputNumber,
   NewOption,
-  NewSearch,
   NewSelect,
 } from "@/components/input";
 import NewModal from "@/components/modal";
-import { getConsumerByCode } from "@/feature/common";
+import { getConsumerByCode, openNofi } from "@/feature/common";
 import { IDataConsumer } from "@/service/consumer/entities";
 import {
   IDataConsumerSection,
   TreeSectionType,
 } from "@/service/consumer/section/entities";
 import { ConsumerSectionService } from "@/service/consumer/section/service";
-import { AutoComplete, Form, Input, Space, Tabs } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Space,
+  Tabs,
+  Typography,
+} from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import EditableTable from "./editableTable";
-const items = [
-  {
-    label: "Харилцагчийн жагсаалт",
-    key: "item-1",
-    children: <CustomerList />,
-  },
-  {
-    label: "Дэлгэрэнгүй жагсаалт",
-    key: "item-2",
-    children: <DescriptionList />,
-  },
-];
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { initialBalanceService } from "@/service/beginning-balance/service";
+import Information from "../information/information";
+import dayjs from "dayjs";
+import { IDataInitialBalancePost } from "@/service/beginning-balance/entities";
+
+const { Title } = Typography;
+
+type IAccounts = {
+  code: string;
+  name: string;
+  date: string;
+  accountId: number;
+  amount: number;
+};
+
+type IForm = {
+  code: number | string;
+  name: string;
+  sectionId: number;
+  amount: number;
+  accounts?: IAccounts[];
+};
+
 const BeginningBalance = () => {
   const [form] = Form.useForm();
+  const [isReloadList, setIsReloadList] = useState<boolean>(false);
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [sections, setSections] = useState<IDataConsumerSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
+  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [selectedConsumer, setSelectedConsumer] = useState<
     IDataConsumer | undefined
   >();
+  // const [selectedBeginningBalance, setSelectedBeginningBalace] = useState<IData
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    setIsReloadList(false);
+    await initialBalanceService
+      .remove(id)
+      .then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          setIsReloadList(true);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const items = [
+    {
+      label: "Харилцагчийн жагсаалт",
+      key: "item-1",
+      children: (
+        <CustomerList
+          onReload={isReloadList}
+          onEdit={(row) => {
+            const data: IForm = {
+              code: row.consumer.code,
+              name: row.consumer.name,
+              sectionId: row.consumer.sectionId,
+              amount: row.amount,
+              accounts: row.accounts?.map((account) => {
+                return {
+                  code: account.account.code,
+                  name: account.account.name,
+                  date: account.date,
+                  accountId: account.id,
+                  amount: account.amount,
+                };
+              }),
+            };
+            form.setFieldsValue(data);
+            setEditMode(true);
+            setIsOpenModal(true);
+          }}
+          onDelete={onDelete}
+        />
+      ),
+    },
+    {
+      label: "Дэлгэрэнгүй жагсаалт",
+      key: "item-2",
+      children: <DescriptionList />,
+    },
+  ];
   const getConsumerSections = async () => {
     await ConsumerSectionService.get(TreeSectionType.Consumer).then(
       (response) => {
@@ -51,53 +128,78 @@ const BeginningBalance = () => {
       }
     );
   };
+  const onFinish = async (values: IForm) => {
+    if (editMode) {
+    } else {
+      console.log(consumers, values);
+      console.log(
+        "=-=-=-=-=-=-=-=-=->",
+        consumers?.find((consumer) => consumer.code === values.code)?.id
+      );
+      const data: IDataInitialBalancePost = {
+        consumerId: consumers?.find((consumer) => consumer.code === values.code)
+          ?.id,
+        accounts: values.accounts?.map((account) => {
+          return {
+            date: account.date,
+            accountId: account.accountId,
+            amount: account.amount,
+          };
+        }),
+      };
+      await initialBalanceService.post(data).then((response) => {
+        console.log(response);
+      });
+    }
+  };
   useEffect(() => {
     getConsumerSections();
   }, []);
   return (
     <div>
-      <div className="information">
-        <div className="header">
-          <div className="left">
-            <p>Үндсэн бүртгэл / Харилцагч / Эхний үлдэгдэл</p>
-            <button
-              className="app-button"
+      <Row gutter={[12, 24]}>
+        <Col md={24} lg={16} xl={19}>
+          <Space size={24}>
+            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Эхний үлдэгдэл</Title>
+            <Button
+              type="primary"
               onClick={() => {
                 setIsOpenModal(true);
                 form.resetFields();
               }}
-            >
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Эхний үлдэгдэл
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
+              icon={
                 <Image
-                  src={"/images/SearchIcon.svg"}
+                  src={"/images/AddIcon.svg"}
                   width={12}
                   height={12}
-                  alt="searchIcon"
+                  alt="addicon"
                 />
               }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
-          </div>
-        </div>
-        <Tabs className="lineTop" items={items} />
-      </div>
+            >
+              Эхний үлдэгдэл
+            </Button>
+          </Space>
+        </Col>
+        <Col md={24} lg={8} xl={5}>
+          <Input.Search />
+        </Col>
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
       <NewModal
         title="Эхний үлдэгдэл"
         open={isOpenModal}
         onCancel={() => setIsOpenModal(false)}
-        onOk={() => console.log("sdas")}
+        onOk={() =>
+          form.validateFields().then((values) => {
+            onFinish(values);
+          })
+        }
         width={1000}
       >
         <Form form={form} layout="vertical">
@@ -113,7 +215,7 @@ const BeginningBalance = () => {
                 <Space.Compact>
                   <div className="extraButton">
                     <Image
-                      // onClick={() => setIsOpenPopOver(true)}
+                      onClick={() => setIsOpenPopOver(true)}
                       src="/icons/clipboardBlack.svg"
                       width={16}
                       height={16}
@@ -207,7 +309,7 @@ const BeginningBalance = () => {
               </Form.Item>
               <Form.Item
                 label="Эхний үлдэгдэл"
-                name="limitAmount"
+                name="amount"
                 rules={[
                   {
                     // required: !isAccounts,
@@ -227,7 +329,7 @@ const BeginningBalance = () => {
                 />
               </Form.Item>
             </div>
-            <Form.List name="lendLimitAccounts">
+            <Form.List name="accounts">
               {(accounts, { add, remove }) => (
                 <EditableTable
                   data={accounts}
@@ -240,6 +342,20 @@ const BeginningBalance = () => {
             </Form.List>
           </div>
         </Form>
+      </NewModal>
+      <NewModal
+        title={" "}
+        width={1300}
+        open={isOpenPopOver}
+        onCancel={() => setIsOpenPopOver(false)}
+      >
+        <Information
+          ComponentsType="MIDDLE"
+          onClickModal={(row) => {
+            form.setFieldsValue(row);
+            setIsOpenPopOver(false);
+          }}
+        />
       </NewModal>
     </div>
   );

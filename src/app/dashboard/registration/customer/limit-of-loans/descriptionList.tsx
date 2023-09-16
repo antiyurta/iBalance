@@ -17,6 +17,7 @@ import {
 import { DataIndexType, IFilters, Meta } from "@/service/entities";
 //service
 import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
+import { Col, Row, Space } from "antd";
 
 const DescriptionList = () => {
   const blockContext: BlockView = useContext(BlockContext);
@@ -105,59 +106,69 @@ const DescriptionList = () => {
   }, []);
   return (
     <div>
-      <div className="second-header">
-        <Filtered
-          columns={columns}
-          isActive={(key, state) => {
-            onCloseFilterTag({
-              key: key,
-              state: state,
-              column: columns,
-              onColumn: (columns) => setColumns(columns),
-              params: newParams,
-              onParams: (params) => setNewParams(params),
-            });
-            getData(newParams);
-          }}
-        />
-        <div className="extra">
-          <ColumnSettings
-            columns={columns}
-            columnIndexes={(arg1, arg2) =>
-              findIndexInColumnSettings({
-                newRowIndexes: arg1,
-                unSelectedRow: arg2,
-                columns: columns,
-                onColumns: (columns) => setColumns(columns),
-                params: newParams,
-                onParams: (params) => setNewParams(params),
-                getData: (params) => getData(params),
-              })
-            }
-          />
-          <Image
-            src={"/images/PrintIcon.svg"}
-            width={24}
-            height={24}
-            alt="printIcon"
-          />
-          <Image
-            src={"/images/DownloadIcon.svg"}
-            width={24}
-            height={24}
-            alt="downloadIcon"
-          />
-        </div>
-      </div>
-      <div className="body">
-        <div
-          style={{
-            width: "100%",
-          }}
-        >
+      <Row gutter={[12, 24]}>
+        <Col sm={24}>
+          <Space
+            style={{
+              width: "100%",
+              justifyContent: "flex-end",
+            }}
+            size={12}
+          >
+            <Filtered
+              columns={columns}
+              isActive={(key, state) => {
+                onCloseFilterTag({
+                  key: key,
+                  state: state,
+                  column: columns,
+                  onColumn: (columns) => setColumns(columns),
+                  params: newParams,
+                  onParams: (params) => setNewParams(params),
+                });
+                getData(newParams);
+              }}
+            />
+            <Space
+              style={{
+                width: "100%",
+                justifyContent: "flex-end",
+              }}
+              size={12}
+            >
+              <ColumnSettings
+                columns={columns}
+                columnIndexes={(arg1, arg2) =>
+                  findIndexInColumnSettings({
+                    newRowIndexes: arg1,
+                    unSelectedRow: arg2,
+                    columns: columns,
+                    onColumns: (columns) => setColumns(columns),
+                    params: newParams,
+                    onParams: (params) => setNewParams(params),
+                    getData: (params) => getData(params),
+                  })
+                }
+              />
+              <Image
+                src={"/images/PrintIcon.svg"}
+                width={24}
+                height={24}
+                alt="printIcon"
+              />
+              <Image
+                src={"/images/DownloadIcon.svg"}
+                width={24}
+                height={24}
+                alt="downloadIcon"
+              />
+            </Space>
+          </Space>
+        </Col>
+        <Col span={24}>
           <NewTable
             scroll={{
-              x: 1700,
+              x: 1000,
             }}
             rowKey="id"
             data={data}
@@ -171,8 +182,8 @@ const DescriptionList = () => {
             onEdit={(row) => console.log(row)}
             onDelete={(id) => console.log(id)}
           />
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   );
 };

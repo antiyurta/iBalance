@@ -20,6 +20,14 @@ function patch(
 ): Promise<IConsumerResponseUpdate> {
   return api.patch("consumer/" + id, body);
 }
+
+function switchPatch(body: {
+  sectionId: number;
+  ids: number[];
+}): Promise<IConsumerResponseUpdate> {
+  return api.patch("consumer", body);
+}
+
 function remove(id: number): Promise<IConsumerResponse> {
   return api.delete("consumer/" + id);
 }
@@ -28,5 +36,6 @@ export const ConsumerService = {
   getAll,
   post,
   patch,
+  switchPatch,
   remove,
 };

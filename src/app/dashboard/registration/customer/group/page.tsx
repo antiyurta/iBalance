@@ -1,47 +1,64 @@
 "use client";
-import { SwapOutlined, SignalFilled } from "@ant-design/icons";
+import { SignalFilled } from "@ant-design/icons";
 import NewDirectoryTree from "@/components/directoryTree";
-import {
-  NewInput,
-  NewOption,
-  NewSearch,
-  NewSelect,
-  NewSwitch,
-} from "@/components/input";
+import { NewInput, NewOption, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
   IDataConsumerSection,
   TreeSectionType,
 } from "@/service/consumer/section/entities";
 import { ConsumerSectionService } from "@/service/consumer/section/service";
-import { Form, Modal, Popover, Space } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Popover,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Information from "../information/information";
+import { openNofi } from "@/feature/common";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { ConsumerService } from "@/service/consumer/service";
+
+const { Title } = Typography;
 
 const Group = () => {
   const [addForm] = Form.useForm();
-  const [updateForm] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<number>();
   const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
   const [sections, setSections] = useState<IDataConsumerSection[]>([]);
-  const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
-  const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
-  const [isOpenPopOverChange, setIsOpenPopOverChange] =
-    useState<boolean>(false);
-  //
+  const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const onFinish = async (values: IDataConsumerSection) => {
     values.type = TreeSectionType.Consumer;
     values.isExpand = !values.isExpand;
-    setIsOpenTree(false);
-    await ConsumerSectionService.post(values).then((response) => {
-      if (response.success) {
-        getConsumerSection(TreeSectionType.Consumer);
-        setIsOpenAddModal(false);
-      }
-    });
-    setIsOpenTree(true);
+    if (editMode) {
+      await ConsumerSectionService.patch(selectedGroupId, values).then(
+        (response) => {
+          if (response.success) {
+            getConsumerSection(TreeSectionType.Consumer);
+            setIsOpenAddModal(false);
+          }
+        }
+      );
+    } else {
+      await ConsumerSectionService.post(values).then((response) => {
+        if (response.success) {
+          getConsumerSection(TreeSectionType.Consumer);
+          setIsOpenAddModal(false);
+        }
+      });
+    }
   };
   const onFinishAdd = (values: IDataConsumerSection) => {
     if (isLeafAdd) {
@@ -70,93 +87,169 @@ const Group = () => {
       onFinish(values);
     }
   };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await ConsumerSectionService.getById(id)
+      .then((response) => {
+        if (response.response.sections.length > 0) {
+          Modal.error({
+            maskClosable: true,
+            title: "Алдаа",
+            content: (
+              <>
+                <p>
+                  Харилцагч бүртгэгдсэн тул "{response.response.name}" бүлгийг
+                  устгах боломжгүй байна.
+                </p>
+              </>
+            ),
+            footer: null,
+          });
+        } else {
+          Modal.info({
+            maskClosable: true,
+            title: "Устгах",
+            content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
+            onOk: async () => {
+              await ConsumerSectionService.remove(id)
+                .then((response) => {
+                  if (response.success) {
+                    openNofi("success", "Амжилттай", "Амжилттай устгагдлаа");
+                    getConsumerSection(TreeSectionType.Consumer);
+                  }
+                })
+                .finally(() => {
+                  return;
+                });
+            },
+          });
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  // etssin bulegt hariltsag bga eseh
+  const checkSectionInConsumer = async (sectionId: number) => {
+    await ConsumerService.get({
+      sectionId: [sectionId],
+    }).then((response) => {
+      console.log(response);
+      if (response.response.data?.length > 0) {
+        setIsHaveChild(true);
+      } else {
+        setIsHaveChild(false);
+      }
+    });
+  };
   // section awchirah
   const getConsumerSection = async (type: TreeSectionType) => {
-    await ConsumerSectionService.get(type).then((response) => {
-      setSections(response.response);
-    });
+    blockContext.block();
+    await ConsumerSectionService.get(type)
+      .then((response) => {
+        setSections(response.response);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getConsumerSection(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    console.log(isLeafAdd);
     addForm.setFieldsValue({
       isExpand: isLeafAdd,
     });
   }, [isLeafAdd]);
   return (
     <div>
-      <div className="information">
-        <div className="header">
-          <div className="left">
-            <p>Үндсэн бүртгэл / Харилцагч / Бүлэг</p>
-            <button
-              className="app-button"
+      <Row gutter={[12, 24]}>
+        <Col span={24}>
+          <Space size={24}>
+            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Бүлэг</Title>
+            <Button
+              type="primary"
               onClick={() => {
+                setEditMode(false);
                 setIsOpenAddModal(true);
                 addForm.resetFields();
               }}
-            >
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Шинээр бүртгэх
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
+              icon={
                 <Image
-                  src={"/images/SearchIcon.svg"}
+                  src={"/images/AddIcon.svg"}
                   width={12}
                   height={12}
-                  alt="searchIcon"
+                  alt="addicon"
                 />
               }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
-          </div>
-        </div>
-        <div className="second-header">
-          <button
-            className="app-button"
-            onClick={() => setIsOpenChangeModal(true)}
+            >
+              Шинээр бүртгэх
+            </Button>
+          </Space>
+        </Col>
+        <Col sm={24}>
+          <Space
+            style={{
+              width: "100%",
+              height: 39,
+              justifyContent: "flex-end",
+            }}
+            size={12}
           >
+            <Button
+              type="primary"
+              onClick={() => setIsOpenChangeModal(true)}
+              icon={
+                <Image
+                  src={"/images/AddIcon.svg"}
+                  width={12}
+                  height={12}
+                  alt="addicon"
+                />
+              }
+            >
+              Харилцагчийн бүлэг өөрчлөх
+            </Button>
             <Image
-              src={"/images/AddIcon.svg"}
-              width={12}
-              height={12}
-              alt="addicon"
+              src={"/images/PrintIcon.svg"}
+              width={24}
+              height={24}
+              alt="printIcon"
             />
-            Харилцагчийн бүлэг өөрчлөх
-          </button>
-          <Image
-            src={"/images/PrintIcon.svg"}
-            width={24}
-            height={24}
-            alt="printIcon"
-          />
-          <Image
-            src={"/images/DownloadIcon.svg"}
-            width={24}
-            height={24}
-            alt="downloadIcon"
-          />
-        </div>
-        <div className="body">
-          <NewDirectoryTree
-            isLeaf={true}
-            type={TreeSectionType.Consumer}
-            width={"100%"}
-            open={isOpenTree}
-          />
-        </div>
-      </div>
+            <Image
+              src={"/images/DownloadIcon.svg"}
+              width={24}
+              height={24}
+              alt="downloadIcon"
+            />
+          </Space>
+        </Col>
+        <Col sm={24}>
+          {sections.length > 0 ? (
+            <NewDirectoryTree
+              mode="CONSUMER"
+              extra="FULL"
+              data={sections}
+              isLeaf={true}
+              width={"100%"}
+              onEdit={(row) => {
+                setSelectedGroupId(row.key);
+                checkSectionInConsumer(row.key);
+                addForm.setFieldsValue({
+                  name: row.title,
+                  sectionId: row.parentId,
+                  isExpand: row.isLeaf,
+                });
+                setEditMode(true);
+                setIsOpenAddModal(true);
+              }}
+              onDelete={(id) => {
+                onDelete(id);
+              }}
+            />
+          ) : null}
+        </Col>
+      </Row>
       <NewModal
         title="Харилцагчийн бүлэг өөрчлөх"
         width={1300}
@@ -164,109 +257,12 @@ const Group = () => {
         onCancel={() => setIsOpenChangeModal(false)}
         footer={null}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 24,
+        <Information
+          ComponentsType="LITTLE"
+          onClickModal={(e) => {
+            setIsOpenChangeModal(e);
           }}
-        >
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              gap: 24,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 24,
-              }}
-            >
-              <Form
-                form={updateForm}
-                style={{
-                  width: "100%",
-                }}
-              >
-                <Space.Compact>
-                  <div
-                    className="extraButton"
-                    style={{
-                      display: "flex",
-                      height: 38,
-                      alignItems: "center",
-                      placeContent: "center",
-                    }}
-                  >
-                    <Popover
-                      placement="bottom"
-                      open={isOpenPopOverChange}
-                      onOpenChange={(state) => setIsOpenPopOverChange(state)}
-                      content={
-                        <NewDirectoryTree
-                          isLeaf={false}
-                          type={TreeSectionType.Consumer}
-                          open={true}
-                          onClick={(key, isLeaf) => {
-                            if (isLeaf) {
-                              setIsOpenPopOverChange(false);
-                              updateForm.setFieldsValue({
-                                sectionId: key,
-                              });
-                            }
-                          }}
-                        />
-                      }
-                      trigger={"click"}
-                    >
-                      <SignalFilled rotate={-90} />
-                    </Popover>
-                  </div>
-                  <Form.Item
-                    name="sectionId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Харилцагчийн бүлэг заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      className="ant-selecto-38px"
-                      disabled={true}
-                      style={{
-                        width: "100%",
-                      }}
-                    >
-                      {sections?.map((section: IDataConsumerSection, index) => {
-                        return (
-                          <NewOption key={index} value={section.id}>
-                            {section.name}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
-                  </Form.Item>
-                </Space.Compact>
-              </Form>
-              <button
-                className="app-button"
-                onClick={() => setIsOpenChangeModal(true)}
-              >
-                <SwapOutlined />
-                Шилжүүлэх
-              </button>
-            </div>
-            <Information
-              ComponentsType="LITTLE"
-              onClickModal={(e) => console.log(e)}
-            />
-          </div>
-        </div>
+        />
       </NewModal>
       <NewModal
         width={400}
@@ -294,19 +290,19 @@ const Group = () => {
             }}
           >
             <Form.Item
-              label="Харилцагчийн бүлэг"
+              label="Харилцагчийн бүлэг нэр"
               name="name"
               rules={[
                 {
                   required: true,
-                  message: "Харилцагчийн бүлэг заавал",
+                  message: "Харилцагчийн бүлэг нэр заавал",
                 },
               ]}
             >
               <NewInput />
             </Form.Item>
             <Form.Item
-              label="Харилцагчийн бүлэг"
+              label="Харъяалах бүлэг"
               style={{
                 width: "100%",
               }}
@@ -319,11 +315,14 @@ const Group = () => {
                     onOpenChange={(state) => setIsOpenPopOverAdd(state)}
                     content={
                       <NewDirectoryTree
+                        mode="CONSUMER"
+                        extra="HALF"
+                        data={sections}
                         isLeaf={true}
-                        type={TreeSectionType.Consumer}
-                        open={true}
                         onClick={(key, isLeaf) => {
-                          setIsLeafAdd(isLeaf);
+                          if (!editMode) {
+                            setIsLeafAdd(isLeaf);
+                          }
                           setIsOpenPopOverAdd(false);
                           addForm.setFieldsValue({
                             sectionId: key,
@@ -343,7 +342,7 @@ const Group = () => {
                   name="sectionId"
                   rules={[
                     {
-                      required: true,
+                      required: addForm.getFieldValue("isExpand"),
                       message: "Харилцагчийн бүлэг заавал",
                     },
                   ]}
@@ -371,7 +370,7 @@ const Group = () => {
                 name="isExpand"
                 valuePropName="checked"
               >
-                <NewSwitch />
+                <NewSwitch disabled={editMode && isHaveChild ? true : false} />
               </Form.Item>
             </div>
           </div>

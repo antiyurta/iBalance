@@ -47,7 +47,7 @@ const Login = () => {
             layout="vertical"
             onFinish={onFinish}
             initialValues={{
-              email: "gantuya467@gmail.com",
+              email: "ulziikhutag.gurensoft@gmail.com",
               password: "WETITr",
             }}
           >

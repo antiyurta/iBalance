@@ -1,7 +1,9 @@
-import { GenericResponse } from "@/service/entities";
+import { GenericResponse, Quearies } from "@/service/entities";
 
 export interface Params {
+  name?: string;
   sectionId?: number;
+  type?: TreeSectionType;
 }
 
 export enum TreeSectionType {
@@ -18,6 +20,10 @@ export interface IDataConsumerSection {
   isExpand: boolean;
   type: TreeSectionType;
   sections: IDataConsumerSection[];
+}
+
+export interface IConsumerSectionOneResponse extends GenericResponse {
+  response: IDataConsumerSection;
 }
 
 export interface IConsumerSectionResponse extends GenericResponse {

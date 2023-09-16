@@ -17,8 +17,12 @@ function patch(
 ): Promise<ILimitOfLoansResponse> {
   return api.patch("lend-limit/" + id, body);
 }
+function remove(id: number): Promise<ILimitOfLoansResponse> {
+  return api.delete("lend-limit/" + id);
+}
 export const limitOfLoansService = {
   get,
   post,
   patch,
+  remove,
 };

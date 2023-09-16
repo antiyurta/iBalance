@@ -23,9 +23,12 @@ export interface IFilters {
   bankAccountNo: string[];
   email: string[];
   sectionId: number[];
+  consumerSectionId: number[];
   isAccount: boolean[];
   accountCode: number[];
+  consumerCode: number[];
   accountName: string[];
+  consumerName: string[];
   amount: number[];
   measurementId: number[];
   countPackage: number[]; // ene sonin
@@ -36,13 +39,22 @@ export interface IFilters {
   isActive: boolean[];
   limitAmount: number[];
   type: string[];
+  countryId: number[];
   shortName: string[];
   barCode: string[];
+  serial: string[];
+  unitCodeId: number[];
+  materialSectionId: number[];
+  rankId: number[];
+  accountNo: number[];
   updatedAt: string[];
   updatedBy: string[];
+  updatedUser: object[];
+  description: string[];
 }
 
 export type ColumnType = {
+  width?: number;
   label: string; // ner mongol
   isView: boolean; // mor haragdah eseh
   isFiltered: boolean; // filterlegdsn eseh
@@ -56,12 +68,16 @@ export interface Quearies {
   param: string;
   operator?: string;
   value?: number | string;
+  typeof?: "string" | "number" | "date";
 }
 
 export enum DataIndexType {
   MULTI = "MULTI", // too bolon string
   STRING_SECTION = "STRING_SECTION",
   DATE = "DATE",
+  COUNTRY = "COUNTRY",
+  //
+  USER = "USER",
   // measuer ued
   MEASUREMENT = "MEASUREMENT",
   // measuer ued
@@ -87,4 +103,6 @@ export enum RadioType {
 
 export type DescMode = "NORMAL" | "PICTURE";
 
-export type TreeMode = "NORMAL" | "UNIT";
+export type TreeMode = "NORMAL" | "UNIT" | "MATERIAL" | "CONSUMER";
+
+export type ComponentsType = "FULL" | "MODAL" | "MIDDLE" | "LITTLE";
