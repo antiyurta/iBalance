@@ -27,8 +27,18 @@ export interface IFilters {
   isAccount: boolean[];
   accountCode: number[];
   consumerCode: number[];
+  consumerLastname: string[];
   accountName: string[];
   consumerName: string[];
+  consumerIsIndividual: boolean[];
+  consumerPhone: string[];
+  consumerIsActive: boolean[];
+  consumerRegno: string[];
+  membershipCardno: string[];
+  membershipName: string[];
+  branch: string[];
+  endAt: string[];
+  createdAt: string[];
   amount: number[];
   measurementId: number[];
   countPackage: number[]; // ene sonin

@@ -9,8 +9,8 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { TreeMode } from "@/service/entities";
 import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { listToTree } from "@/feature/common";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
-import { TreeSectionType } from "@/service/consumer/section/entities";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
+import { TreeSectionType } from "@/service/reference/tree-section/entities";
 
 type TreeExtra = "FULL" | "HALF";
 

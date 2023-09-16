@@ -13,19 +13,19 @@ export enum TreeSectionType {
   Department = "DEPARTMENT",
 }
 
-export interface IDataConsumerSection {
+export interface IDataTreeSection {
   id: number;
   sectionId: number;
   name: string;
   isExpand: boolean;
   type: TreeSectionType;
-  sections: IDataConsumerSection[];
+  sections: IDataTreeSection[];
 }
 
-export interface IConsumerSectionOneResponse extends GenericResponse {
-  response: IDataConsumerSection;
+export interface ITreeSectionOneResponse extends GenericResponse {
+  response: IDataTreeSection;
 }
 
-export interface IConsumerSectionResponse extends GenericResponse {
-  response: IDataConsumerSection[];
+export interface ITreeSectionResponse extends GenericResponse {
+  response: IDataTreeSection[];
 }

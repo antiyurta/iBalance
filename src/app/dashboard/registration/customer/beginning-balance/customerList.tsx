@@ -24,9 +24,9 @@ import {
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
+} from "@/service/reference/tree-section/entities";
 import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
 import { initialBalanceService } from "@/service/beginning-balance/service";
@@ -34,7 +34,7 @@ import {
   IDataInitialBalance,
   Params,
 } from "@/service/beginning-balance/entities";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 
 interface IProps {
   onReload: boolean;
@@ -49,7 +49,7 @@ const CustomerList = (props: IProps) => {
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [filters, setFilters] = useState<IFilters>();
   const [selectedRow, setSelectedRow] = useState<any>([]);
   const [columns, setColumns] = useState<FilteredColumns>({
@@ -158,7 +158,7 @@ const CustomerList = (props: IProps) => {
       });
   };
   const getSections = async (type: TreeSectionType) => {
-    await ConsumerSectionService.get(type).then((response) => {
+    await TreeSectionService.get(type).then((response) => {
       if (response.success) {
         setSections(response.response);
       }

@@ -1,9 +1,9 @@
 import { IDataConsumer } from "@/service/consumer/entities";
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+} from "@/service/reference/tree-section/entities";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Quearies } from "@/service/entities";
 import { IDataCountry } from "@/service/material/brand/entities";
@@ -375,11 +375,11 @@ async function countries(filters: any) {
 
 async function sectionToFilterName(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
-  const { response } = await ConsumerSectionService.get(
+  const { response } = await TreeSectionService.get(
     TreeSectionType.Consumer
   );
   filters?.map((filterSection: any) => {
-    response.map((section: IDataConsumerSection) => {
+    response.map((section: IDataTreeSection) => {
       if (section.id === filterSection) {
         outFilters.push({
           text: section.name,

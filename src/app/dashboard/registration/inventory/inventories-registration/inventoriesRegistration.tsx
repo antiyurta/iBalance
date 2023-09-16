@@ -26,7 +26,7 @@ import {
 import {
   IDataConsumerSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
+} from "@/service/reference/tree-section/entities";
 import {
   ComponentsType,
   DataIndexType,

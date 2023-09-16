@@ -7,7 +7,7 @@ import {
   RadioType,
 } from "../entities";
 import { IDataReference } from "../reference/entity";
-import { IDataConsumerSection } from "./section/entities";
+import { IDataTreeSection } from "../reference/tree-section/entities";
 
 export enum ToolsIcons {
   EQUALS = "/icons/tools/Equals.png",
@@ -55,7 +55,7 @@ export interface IDataConsumer {
   phone: string;
   regno: string;
   sectionId: number;
-  section: IDataConsumerSection;
+  section: IDataTreeSection;
   address: string;
   bankAccountNo: string;
   bankId: number;

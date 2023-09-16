@@ -4,10 +4,10 @@ import NewDirectoryTree from "@/components/directoryTree";
 import { NewInput, NewOption, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+} from "@/service/reference/tree-section/entities";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 import {
   Button,
   Col,
@@ -35,15 +35,15 @@ const Group = () => {
   const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number>();
   const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
-  const onFinish = async (values: IDataConsumerSection) => {
+  const onFinish = async (values: IDataTreeSection) => {
     values.type = TreeSectionType.Consumer;
     values.isExpand = !values.isExpand;
     if (editMode) {
-      await ConsumerSectionService.patch(selectedGroupId, values).then(
+      await TreeSectionService.patch(selectedGroupId, values).then(
         (response) => {
           if (response.success) {
             getConsumerSection(TreeSectionType.Consumer);
@@ -52,7 +52,7 @@ const Group = () => {
         }
       );
     } else {
-      await ConsumerSectionService.post(values).then((response) => {
+      await TreeSectionService.post(values).then((response) => {
         if (response.success) {
           getConsumerSection(TreeSectionType.Consumer);
           setIsOpenAddModal(false);
@@ -60,7 +60,7 @@ const Group = () => {
       });
     }
   };
-  const onFinishAdd = (values: IDataConsumerSection) => {
+  const onFinishAdd = (values: IDataTreeSection) => {
     if (isLeafAdd) {
       Modal.warning({
         title: "Анхааруулга",
@@ -89,7 +89,7 @@ const Group = () => {
   };
   const onDelete = async (id: number) => {
     blockContext.block();
-    await ConsumerSectionService.getById(id)
+    await TreeSectionService.getById(id)
       .then((response) => {
         if (response.response.sections.length > 0) {
           Modal.error({
@@ -98,7 +98,7 @@ const Group = () => {
             content: (
               <>
                 <p>
-                  Харилцагч бүртгэгдсэн тул "{response.response.name}" бүлгийг
+                  Харилцагч бүртгэгдсэн тул &ldquo;{response.response.name}&ldquo; бүлгийг
                   устгах боломжгүй байна.
                 </p>
               </>
@@ -111,7 +111,7 @@ const Group = () => {
             title: "Устгах",
             content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
             onOk: async () => {
-              await ConsumerSectionService.remove(id)
+              await TreeSectionService.remove(id)
                 .then((response) => {
                   if (response.success) {
                     openNofi("success", "Амжилттай", "Амжилттай устгагдлаа");
@@ -145,7 +145,7 @@ const Group = () => {
   // section awchirah
   const getConsumerSection = async (type: TreeSectionType) => {
     blockContext.block();
-    await ConsumerSectionService.get(type)
+    await TreeSectionService.get(type)
       .then((response) => {
         setSections(response.response);
       })
@@ -353,7 +353,7 @@ const Group = () => {
                       width: "100%",
                     }}
                   >
-                    {sections?.map((section: IDataConsumerSection, index) => {
+                    {sections?.map((section: IDataTreeSection, index) => {
                       return (
                         <NewOption key={index} value={section.id}>
                           {section.name}

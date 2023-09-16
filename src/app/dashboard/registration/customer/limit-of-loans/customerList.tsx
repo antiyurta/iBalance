@@ -16,9 +16,9 @@ import {
 import { NewTable } from "@/components/table";
 // interface  types
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
+} from "@/service/reference/tree-section/entities";
 import { DataIndexType, IFilters, Meta } from "@/service/entities";
 import {
   FilteredColumnsLimitOfLoans,
@@ -28,7 +28,7 @@ import {
 //service
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { Col, Row, Space } from "antd";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 
 interface IProps {
   onReload: boolean;
@@ -45,7 +45,7 @@ const CustomerList = (props: IProps) => {
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
   const [tableWidth, setTableWidth] = useState<string>("calc(100% - 262px)");
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsLimitOfLoans>({
     code: {
       label: "Харилцагчийн код",
@@ -171,7 +171,7 @@ const CustomerList = (props: IProps) => {
     blockContext.unblock();
   };
   const getConsumerSection = async (type: TreeSectionType) => {
-    await ConsumerSectionService.get(type).then((response) => {
+    await TreeSectionService.get(type).then((response) => {
       setSections(response.response);
     });
   };

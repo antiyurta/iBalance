@@ -28,13 +28,13 @@ import DescriptionList from "./descriptionList";
 import NewModal from "@/components/modal";
 import Information from "../information/information";
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
+} from "@/service/reference/tree-section/entities";
 import EditableTableLimit from "./editableTableLimit";
 import { IDataConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 import {
   IDataLimitOfLoans,
   IDataLimitOfLoansPost,
@@ -65,7 +65,7 @@ const LimitOfLoans = () => {
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [isAccounts, setIsAccounts] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
@@ -154,8 +154,8 @@ const LimitOfLoans = () => {
       });
     }
   };
-  const getConsumerSections = async () => {
-    await ConsumerSectionService.get(TreeSectionType.Consumer).then(
+  const getTreeSections = async () => {
+    await TreeSectionService.get(TreeSectionType.Consumer).then(
       (response) => {
         if (response.success) {
           setSections(response.response);
@@ -189,7 +189,7 @@ const LimitOfLoans = () => {
     }
   };
   useEffect(() => {
-    getConsumerSections();
+    getTreeSections();
   }, []);
   useEffect(() => {
     if (!isAccounts) {

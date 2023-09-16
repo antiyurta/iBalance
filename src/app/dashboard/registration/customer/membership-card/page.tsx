@@ -2,16 +2,22 @@
 
 import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CustomerList from "./customerList";
 import DescriptionList from "./descriptionList";
 import NewModal from "@/components/modal";
-import { NewInput, NewSelect, NewSwitch } from "@/components/input";
+import { NewInput, NewOption, NewSelect, NewSwitch } from "@/components/input";
 import EditableTableCard from "./editableTableCard";
+import { IDataConsumer, Params } from "@/service/consumer/entities";
+import { ConsumerService } from "@/service/consumer/service";
+import {
+  IDataConsumerMembership,
+  IInputConsumerMembership,
+} from "@/service/consumer/membership/entities";
+import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 
 const { Title } = Typography;
-
 const MembershipCard = () => {
   // modal neeh edit uu esvel new uu ??
   const items = [
@@ -31,6 +37,10 @@ const MembershipCard = () => {
   const [editMode, setIsEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
+  //
+  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  const [consumerDictionary, setConsumerDictionary] =
+    useState<Map<number, IDataConsumer>>();
   const openModal = (state: boolean, row?: any) => {
     setIsEditMode(state);
     if (!state) {
@@ -41,6 +51,49 @@ const MembershipCard = () => {
     setIsOpenModal(true);
     // setSelectedRow(row);
   };
+  const getConsumers = async (params: Params) => {
+    await ConsumerService.get(params).then((response) => {
+      if (response.success) {
+        setConsumers(response.response.data);
+        setConsumerDictionary(
+          consumers.reduce((dict, consumer) => {
+            dict.set(consumer.id, consumer);
+            return dict;
+          }, new Map<number, IDataConsumer>())
+        );
+      }
+    });
+  };
+  const consumerFormField = (id: number) => {
+    const consumer = consumerDictionary?.get(id);
+    console.log(consumer);
+    if (consumer) {
+      form.setFieldsValue({
+        name: consumer.name,
+        lastName: consumer.lastName,
+        regno: consumer.regno,
+        sectionName: consumer.section?.name,
+        phone: consumer.phone,
+        isIndividual: consumer.isIndividual,
+        isEmployee: consumer.isEmployee,
+        isActive: consumer.isActive,
+      });
+    }
+  };
+  const onFinish = async (consumerMemberships: IInputConsumerMembership) => {
+    console.log("consumerMemberships ========>", consumerMemberships);
+    if (editMode) {
+      await ConsumerMembershipService.patch(
+        consumerMemberships.consumerId,
+        consumerMemberships
+      );
+    } else {
+      await ConsumerMembershipService.post(consumerMemberships);
+    }
+  };
+  useEffect(() => {
+    getConsumers({});
+  }, []);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -97,6 +150,11 @@ const MembershipCard = () => {
         onCancel={() => {
           setIsOpenModal(false);
         }}
+        onOk={() =>
+          form.validateFields().then((values) => {
+            onFinish(values);
+          })
+        }
       >
         <Form form={form} layout="vertical">
           <div
@@ -111,48 +169,79 @@ const MembershipCard = () => {
                 <Space.Compact>
                   <div className="extraButton">
                     <Image
-                      //   onClick={() => setIsOpenPopOver(true)}
                       src="/icons/clipboardBlack.svg"
                       width={16}
                       height={16}
                       alt="clipboard"
                     />
                   </div>
-                  <Form.Item>
-                    <NewSelect />
+                  <Form.Item name="consumerId">
+                    <NewSelect
+                      onSelect={(id: number) => {
+                        consumerFormField(id);
+                      }}
+                    >
+                      {consumers?.map((consumer, index) => {
+                        return (
+                          <NewOption key={index} value={consumer.id}>
+                            {consumer.code}
+                          </NewOption>
+                        );
+                      })}
+                    </NewSelect>
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
-              <Form.Item label="Харилцагчийн нэр">
-                <NewInput />
+              <Form.Item label="Харилцагчийн нэр" name="name">
+                <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Харилцагчийн овог">
-                <NewInput />
+              <Form.Item label="Харилцагчийн овог" name="lastName">
+                <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Регистр №">
-                <NewInput />
+              <Form.Item label="Регистр №" name="regno">
+                <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Утасны дугаар">
-                <NewInput />
+              <Form.Item label="Утасны дугаар" name="phone">
+                <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Харилцагчийн бүлэг">
-                <NewInput />
+              <Form.Item label="Харилцагчийн бүлэг" name="sectionName">
+                <NewInput disabled />
               </Form.Item>
             </div>
             <div className="switches-col">
-              <Form.Item label="Хувь хүн эсэх" valuePropName="checked">
-                <NewSwitch />
+              <Form.Item
+                label="Хувь хүн эсэх"
+                valuePropName="checked"
+                name="isIndividual"
+              >
+                <NewSwitch disabled />
               </Form.Item>
-              <Form.Item label="Ажилтан эсэх" valuePropName="checked">
-                <NewSwitch />
+              <Form.Item
+                label="Ажилтан эсэх"
+                valuePropName="checked"
+                name="isEmployee"
+              >
+                <NewSwitch disabled />
               </Form.Item>
-              <Form.Item label="Идэвхтэй эсэх" valuePropName="checked">
-                <NewSwitch />
+              <Form.Item
+                label="Идэвхтэй эсэх"
+                valuePropName="checked"
+                name="isActive"
+              >
+                <NewSwitch disabled />
               </Form.Item>
             </div>
-            {/* <Form.List name="cards">
-                
-            </Form.List> */}
+            <Form.List name="cards">
+              {(cards, { add, remove }) => (
+                <EditableTableCard
+                  data={cards}
+                  form={form}
+                  add={add}
+                  remove={remove}
+                  editMode={false}
+                />
+              )}
+            </Form.List>
           </div>
         </Form>
       </NewModal>
@@ -171,6 +260,7 @@ const MembershipCard = () => {
               form={form}
               add={add}
               remove={remove}
+              editMode={true}
             />
           )}
         </Form.List>

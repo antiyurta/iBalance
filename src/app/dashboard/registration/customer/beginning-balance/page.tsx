@@ -12,10 +12,10 @@ import NewModal from "@/components/modal";
 import { getConsumerByCode, openNofi } from "@/feature/common";
 import { IDataConsumer } from "@/service/consumer/entities";
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+} from "@/service/reference/tree-section/entities";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 import {
   AutoComplete,
   Button,
@@ -60,7 +60,7 @@ const BeginningBalance = () => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [selectedConsumer, setSelectedConsumer] = useState<
@@ -119,8 +119,8 @@ const BeginningBalance = () => {
       children: <DescriptionList />,
     },
   ];
-  const getConsumerSections = async () => {
-    await ConsumerSectionService.get(TreeSectionType.Consumer).then(
+  const getTreeSections = async () => {
+    await TreeSectionService.get(TreeSectionType.Consumer).then(
       (response) => {
         if (response.success) {
           setSections(response.response);
@@ -153,7 +153,7 @@ const BeginningBalance = () => {
     }
   };
   useEffect(() => {
-    getConsumerSections();
+    getTreeSections();
   }, []);
   return (
     <div>

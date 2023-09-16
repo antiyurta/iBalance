@@ -41,13 +41,13 @@ import {
 //service iid
 import { ConsumerService } from "@/service/consumer/service";
 import { ReferenceService } from "@/service/reference/reference";
-import { ConsumerSectionService } from "@/service/consumer/section/service";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 // types
 import { IType, IDataReference } from "@/service/reference/entity";
 import {
-  IDataConsumerSection,
+  IDataTreeSection,
   TreeSectionType,
-} from "@/service/consumer/section/entities";
+} from "@/service/reference/tree-section/entities";
 
 //commans
 import {
@@ -173,7 +173,7 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   const [isFilterIcon, setIsFilterIcon] = useState<boolean>(false);
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
     useState<boolean>(false);
@@ -276,7 +276,7 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
   };
   // section awchirah
   const getConsumerSection = async (type: TreeSectionType) => {
-    await ConsumerSectionService.get(type).then((response) => {
+    await TreeSectionService.get(type).then((response) => {
       setSections(response.response);
     });
   };
@@ -547,7 +547,7 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
                             }}
                           >
                             {sections?.map(
-                              (section: IDataConsumerSection, index) => {
+                              (section: IDataTreeSection, index) => {
                                 return (
                                   <NewOption key={index} value={section.id}>
                                     {section.name}
@@ -884,7 +884,7 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
                         width: "100%",
                       }}
                     >
-                      {sections?.map((section: IDataConsumerSection, index) => {
+                      {sections?.map((section: IDataTreeSection, index) => {
                         return (
                           <NewOption key={index} value={section.id}>
                             {section.name}

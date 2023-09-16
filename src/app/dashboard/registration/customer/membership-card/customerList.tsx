@@ -3,26 +3,24 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { IDataConsumerSection } from "@/service/consumer/section/entities";
+import { IDataTreeSection, TreeSectionType } from "@/service/reference/tree-section/entities";
 import {
   DataIndexType,
   FilteredColumns,
   IFilters,
   Meta,
 } from "@/service/entities";
-import {
-  IDataMembershipCard,
-  Params,
-} from "@/service/membership-card/entities";
-import { MembershipCardService } from "@/service/membership-card/service";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { ConsumerService } from "@/service/consumer/service";
+import { IDataConsumer, Params } from "@/service/consumer/entities";
+import { TreeSectionService } from "@/service/reference/tree-section/service";
 
 const CustomerList = () => {
-  const [sections, setSections] = useState<IDataConsumerSection[]>([]);
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [newParams, setNewParams] = useState<Params>({});
-  const [data, setData] = useState<IDataMembershipCard[]>([]);
+  const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
   const [columns, setColumns] = useState<FilteredColumns>({
@@ -50,15 +48,27 @@ const CustomerList = () => {
   });
   //
   const getData = async (params: Params) => {
-    await MembershipCardService.get(params).then((response) => {
+    await ConsumerService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
+        setMeta(response.response.meta);
       }
     });
   };
+  const getTreeSections = async () => {
+    await TreeSectionService.get(TreeSectionType.Consumer).then(
+      (response) => {
+        if (response.success) {
+          setSections(response.response);
+        }
+      }
+    );
+  };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
+    getTreeSections();
   }, []);
+  
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -69,7 +79,7 @@ const CustomerList = () => {
             data={sections}
             isLeaf={true}
             onClick={(key) => {
-              // getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+              getData({ page: 1, limit: 10, sectionId: [`${key}`] });
             }}
           />
         </Col>
