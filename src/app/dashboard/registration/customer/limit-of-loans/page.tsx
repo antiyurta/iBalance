@@ -96,32 +96,29 @@ const LimitOfLoans = () => {
   const openModal = (state: boolean, row?: IDataLimitOfLoans) => {
     setIsReloadList(false);
     setEditMode(state);
-    if (!state) {
+    form.resetFields();
+    if (state && row) {
       form.resetFields();
-    } else {
-      if (row) {
-        form.resetFields();
-        const data: IForm = {
-          code: row.consumer.code,
-          name: row.consumer.name,
-          sectionId: row.consumer.sectionId,
-          isAccount: row.isAccount,
-          isClose: row.isClose,
-          limitAmount: row.limitAmount,
-          lendLimitAccounts: row.lendLimitAccounts?.map((lendLimit) => {
-            return {
-              code: lendLimit.account.code,
-              name: lendLimit.account.name,
-              accountId: lendLimit.accountId,
-              amount: lendLimit.amount,
-            };
-          }),
-        };
-        getConsumerByCode(data.code);
-        form.setFieldsValue(data);
-        setIsAccounts(row.isAccount);
-        setSelectedRow(row);
-      }
+      const data: IForm = {
+        code: row.consumer.code,
+        name: row.consumer.name,
+        sectionId: row.consumer.sectionId,
+        isAccount: row.isAccount,
+        isClose: row.isClose,
+        limitAmount: row.limitAmount,
+        lendLimitAccounts: row.lendLimitAccounts?.map((lendLimit) => {
+          return {
+            code: lendLimit.account.code,
+            name: lendLimit.account.name,
+            accountId: lendLimit.accountId,
+            amount: lendLimit.amount,
+          };
+        }),
+      };
+      getConsumerByCode(data.code);
+      form.setFieldsValue(data);
+      setIsAccounts(row.isAccount);
+      setSelectedRow(row);
     }
     setIsOpenModal(true);
   };
@@ -155,13 +152,11 @@ const LimitOfLoans = () => {
     }
   };
   const getTreeSections = async () => {
-    await TreeSectionService.get(TreeSectionType.Consumer).then(
-      (response) => {
-        if (response.success) {
-          setSections(response.response);
-        }
+    await TreeSectionService.get(TreeSectionType.Consumer).then((response) => {
+      if (response.success) {
+        setSections(response.response);
       }
-    );
+    });
   };
   const onFinish = async (values: IForm) => {
     const data: IDataLimitOfLoansPost = {

@@ -2,7 +2,7 @@
 
 import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import CustomerList from "./customerList";
 import DescriptionList from "./descriptionList";
@@ -20,24 +20,15 @@ import { BranchService } from "@/service/reference/branch/service";
 import { IDataBranch } from "@/service/reference/branch/entities";
 import { MembershipService } from "@/service/reference/membership/service";
 import { IDataMembership } from "@/service/reference/membership/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { openNofi } from "@/feature/common";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 const MembershipCard = () => {
-  // modal neeh edit uu esvel new uu ??
-  const items = [
-    {
-      label: "Харилцагчийн жагсаалт",
-      key: "item-1",
-      children: <CustomerList />,
-    },
-    {
-      label: "Дэлгэрэнгүй жагсаалт",
-      key: "item-2",
-      children: <DescriptionList />,
-    },
-  ];
-  //
   const [form] = Form.useForm();
+  const [isReloadList, setIsReloadList] = useState<boolean>(false);
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [editMode, setIsEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
@@ -47,13 +38,45 @@ const MembershipCard = () => {
   const [memberships, setMemberships] = useState<IDataMembership[]>([]);
   const [consumerDictionary, setConsumerDictionary] =
     useState<Map<number, IDataConsumer>>();
-  const openModal = (state: boolean, row?: any) => {
+
+  // modal neeh edit uu esvel new uu ??
+  const items = [
+    {
+      label: "Харилцагчийн жагсаалт",
+      key: "item-1",
+      children: (
+        <CustomerList
+          onReload={isReloadList}
+          onEdit={(row) => openModal(true, row)}
+          onDelete={(id) => {
+            console.log(id);
+          }}
+        />
+      ),
+    },
+    {
+      label: "Дэлгэрэнгүй жагсаалт",
+      key: "item-2",
+      children: <DescriptionList />,
+    },
+  ];
+  //
+
+  const openModal = (state: boolean, consumer?: IDataConsumer) => {
     setIsEditMode(state);
-    if (!state) {
-      form.resetFields();
-      getMemberships();
-    } else {
-      form.setFieldsValue(row);
+    form.resetFields();
+    getMemberships();
+    if (state && consumer) {
+      const data: IInputConsumerMembership = {
+        consumerId: consumer.id,
+        cards: consumer.memberships.map((card) => ({
+          ...card,
+          endAt: dayjs(card.endAt),
+          name: card.membership.name,
+        })),
+      };
+      consumerFormField(consumer.id);
+      form.setFieldsValue(data);
     }
     setIsOpenModal(true);
     // setSelectedRow(row);
@@ -68,6 +91,7 @@ const MembershipCard = () => {
             return dict;
           }, new Map<number, IDataConsumer>())
         );
+        console.table(consumerDictionary);
       }
     });
   };
@@ -85,8 +109,8 @@ const MembershipCard = () => {
     }
   };
   const consumerFormField = (id: number) => {
+    console.table(consumerDictionary);
     const consumer = consumerDictionary?.get(id);
-    console.log(consumer);
     if (consumer) {
       form.setFieldsValue({
         name: consumer.name,
@@ -101,15 +125,17 @@ const MembershipCard = () => {
     }
   };
   const onFinish = async (consumerMemberships: IInputConsumerMembership) => {
-    console.log("consumerMemberships ========>", consumerMemberships);
-    if (editMode) {
-      await ConsumerMembershipService.patch(
-        consumerMemberships.consumerId,
-        consumerMemberships
-      );
-    } else {
-      await ConsumerMembershipService.post(consumerMemberships);
-    }
+    blockContext.block();
+    await ConsumerMembershipService.post(consumerMemberships)
+      .then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжилттай", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
+          setIsOpenModal(false);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getConsumers({});
@@ -197,11 +223,7 @@ const MembershipCard = () => {
                     />
                   </div>
                   <Form.Item name="consumerId">
-                    <NewSelect
-                      onSelect={(id: number) => {
-                        consumerFormField(id);
-                      }}
-                    >
+                    <NewSelect onSelect={consumerFormField}>
                       {consumers?.map((consumer, index) => {
                         return (
                           <NewOption key={index} value={consumer.id}>

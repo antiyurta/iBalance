@@ -5,12 +5,13 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import {
-  AutoComplete,
   Button,
+  DatePicker,
   Form,
   FormInstance,
   FormListFieldData,
   Input,
+  InputNumber,
   Popconfirm,
   Select,
   Switch,
@@ -19,20 +20,9 @@ import {
 } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { EditableFormItemLimit } from "./editableFormItemLimit";
 import { IDataMembership } from "@/service/reference/membership/entities";
-import { MembershipService } from "@/service/reference/membership/service";
 import { IDataBranch } from "@/service/reference/branch/entities";
-import { BranchService } from "@/service/reference/branch/service";
-import {
-  NewInput,
-  NewInputNumber,
-  NewOption,
-  NewSelect,
-  NewDatePicker,
-} from "@/components/input";
-import dayjs, { Dayjs } from "dayjs";
-import moment from "moment";
+import dayjs from "dayjs";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import "dayjs/locale/mn";
 
@@ -61,7 +51,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
   const addService = () => {
     form
       .validateFields([
-        ["cards", editingIndex, "cardNo"],
+        ["cards", editingIndex, "membershipId"],
         ["cards", editingIndex, "name"],
         ["cards", editingIndex, "amount"],
         ["cards", editingIndex, "branchId"],
@@ -81,10 +71,9 @@ const EditableTableCard: React.FC<IProps> = (props) => {
   };
 
   const onSave = () => {
-    console.log(form.getFieldsValue());
     form
       .validateFields([
-        ["cards", editingIndex, "cardNo"],
+        ["cards", editingIndex, "membershipId"],
         ["cards", editingIndex, "name"],
         ["cards", editingIndex, "amount"],
         ["cards", editingIndex, "branchId"],
@@ -92,7 +81,6 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         ["cards", editingIndex, "isClose"],
       ])
       .then(() => {
-        console.log("end orson");
         setNewService(false);
         setEditingIndex(undefined);
         if (editMode) {
@@ -112,7 +100,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       remove(index);
     } else {
       form.resetFields([
-        ["cards", editingIndex, "cardNo"],
+        ["cards", editingIndex, "membershipId"],
         ["cards", editingIndex, "name"],
         ["cards", editingIndex, "amount"],
         ["cards", editingIndex, "branchId"],
@@ -123,30 +111,6 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     setNewService(false);
     setEditingIndex(undefined);
   };
-
-  // const getMemberships = async (cardNo: string) => {
-  //   if (!cardNo) {
-  //     message.error("Картын дугаар заавал оруулна уу.");
-  //   } else {
-  //     const response = await MembershipService.get({
-  //       queries: [
-  //         {
-  //           param: "cardNo",
-  //           operator: "CONTAINS",
-  //           value: cardNo,
-  //         },
-  //       ],
-  //     });
-  //     if (response.success) {
-  //       setMemberships(response.response.data);
-  //       setMembershipDictionary(
-  //         new Map<number, IDataMembership>(
-  //           memberships.map((membership) => [membership.id, membership])
-  //         )
-  //       );
-  //     }
-  //   }
-  // };
 
   const membershipFormField = async (id: number) => {
     const membership = membershipDictionary?.get(id);
@@ -202,11 +166,11 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       )}
     >
       <Column
-        dataIndex="cardNo"
+        dataIndex="membershipId"
         title="Картын дугаар"
         render={(value, row, index) => (
           <Form.Item
-            name={[index, "cardNo"]}
+            name={[index, "membershipId"]}
             rules={[{ required: true, message: "Картын дугаар заавал" }]}
           >
             <Select
@@ -233,27 +197,19 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         title="Карт эрхийн бичгийн нэр"
         render={(value, row, index) => (
           <Form.Item name={[index, "name"]}>
-            <NewInput disabled />
+            <Input disabled />
           </Form.Item>
-          // <EditableFormItemLimit
-          //   name={[index, "name"]}
-          //   editing={index === editingIndex}
-          //   className="ant-form-item-no-bottom-margin"
-          // >
-          //   <NewInput disabled min={0} max={150} />
-          // </EditableFormItemLimit>
         )}
       />
       <Column
         dataIndex="amount"
         title="Эхний үлдэгдэл"
         render={(value, row, index) => (
-          <EditableFormItemLimit
+          <Form.Item
             name={[index, "amount"]}
-            editing={index === editingIndex}
-            className="ant-form-item-no-bottom-margin"
+            rules={[{ required: true, message: "Эхний үлдэгдэл заавал" }]}
           >
-            <NewInputNumber
+            <InputNumber
               style={{ width: "100%" }}
               prefix="₮ "
               formatter={(value: any) =>
@@ -261,17 +217,16 @@ const EditableTableCard: React.FC<IProps> = (props) => {
               }
               parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
             />
-          </EditableFormItemLimit>
+          </Form.Item>
         )}
       />
       <Column
         dataIndex="branchId"
         title="Ашиглах салбар"
         render={(value, row, index) => (
-          <EditableFormItemLimit
+          <Form.Item
             name={[index, "branchId"]}
-            editing={index === editingIndex}
-            className="ant-form-item-no-bottom-margin"
+            rules={[{ required: true, message: "Ашиглах салбар заавал" }]}
           >
             <Select>
               {branchs?.map((branch, index) => {
@@ -282,50 +237,33 @@ const EditableTableCard: React.FC<IProps> = (props) => {
                 );
               })}
             </Select>
-          </EditableFormItemLimit>
+          </Form.Item>
         )}
       />
       <Column
         dataIndex="endAt"
         title="Дуусах огноо"
         render={(value, row, index) => (
-          <Form.Item name={[index, "endAt"]}>
-            <NewDatePicker
+          <Form.Item name={[index, "endAt"]} rules={[{ required: true, message: "Дуусах огноо заавал" }]}>
+            <DatePicker
               disabled={index === editingIndex ? false : true}
+              value={value ? dayjs(value, "YYYY-MM-DD hh:mm:ss") : null}
               locale={mnMN}
             />
           </Form.Item>
-          // <EditableFormItemLimit
-          //   name={[index, "endAt"]}
-          //   editing={index === editingIndex}
-          //   className="ant-form-item-no-bottom-margin"
-          //   getValueFromEvent={(onChange) =>
-          //     dayjs(onChange).format("YYYY-MM-DD")
-          //   }
-          //   // getValueProps={(i) => {
-          //   //   if (i) {
-          //   //     return { value: dayjs(i) };
-          //   //   } else {
-          //   //     return;
-          //   //   }
-          //   // }}
-          // >
-
-          // </EditableFormItemLimit>
         )}
       />
       <Column
         dataIndex="isClose"
         title="Хаах эсэх"
         render={(value, row, index) => (
-          <EditableFormItemLimit
+          <Form.Item
             valuePropName="checked"
             name={[index, "isClose"]}
-            editing={index === editingIndex}
             className="ant-form-item-no-bottom-margin"
           >
             <Switch />
-          </EditableFormItemLimit>
+          </Form.Item>
         )}
       />
       <Column

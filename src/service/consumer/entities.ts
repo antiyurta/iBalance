@@ -8,6 +8,7 @@ import {
 } from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
+import { IDataConsumerMembership } from "./membership/entities";
 
 export enum ToolsIcons {
   EQUALS = "/icons/tools/Equals.png",
@@ -37,6 +38,7 @@ export interface Params {
   email?: string[];
   isActive?: boolean[];
   queries?: Quearies[];
+  memberships?: boolean,
   orderParam?: string | null | undefined;
   order?: RadioType | null | undefined;
 }
@@ -60,6 +62,7 @@ export interface IDataConsumer {
   bankAccountNo: string;
   bankId: number;
   bank: IDataReference;
+  memberships: IDataConsumerMembership[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string;

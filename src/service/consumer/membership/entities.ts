@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import {
   GenericResponse,
   IFilters,
@@ -6,6 +7,7 @@ import {
   RadioType,
 } from "../../entities";
 import { IDataConsumer } from "../entities";
+import { IDataMembership } from "@/service/reference/membership/entities";
 
 export interface Params {
   page?: number | undefined;
@@ -30,9 +32,10 @@ export interface IDataConsumerMembership {
   consumerId: number;
   branchId: number;
   amount: number;
-  endAt: string;
+  endAt: Dayjs;
   isClose: boolean;
   consumer: IDataConsumer;
+  membership: IDataMembership;
   createdAt: string;
   updatedAt: string;
   createdBy: number;
@@ -40,7 +43,7 @@ export interface IDataConsumerMembership {
 }
 export interface IInputConsumerMembership {
   consumerId: number;
-  cards: IDataConsumerMembership[],
+  cards: IDataConsumerMembership[];
 }
 
 export interface IResponseConsumerMembership extends GenericResponse {

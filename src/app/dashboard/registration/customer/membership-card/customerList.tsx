@@ -3,7 +3,10 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { IDataTreeSection, TreeSectionType } from "@/service/reference/tree-section/entities";
+import {
+  IDataTreeSection,
+  TreeSectionType,
+} from "@/service/reference/tree-section/entities";
 import {
   DataIndexType,
   FilteredColumns,
@@ -17,7 +20,14 @@ import { ConsumerService } from "@/service/consumer/service";
 import { IDataConsumer, Params } from "@/service/consumer/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 
-const CustomerList = () => {
+interface IProps {
+  onReload: boolean;
+  onEdit: (row: IDataConsumer) => void;
+  onDelete: (id: number) => void;
+}
+
+const CustomerList = (props: IProps) => {
+  const { onReload, onEdit, onDelete } = props;
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [newParams, setNewParams] = useState<Params>({});
   const [data, setData] = useState<IDataConsumer[]>([]);
@@ -56,19 +66,23 @@ const CustomerList = () => {
     });
   };
   const getTreeSections = async () => {
-    await TreeSectionService.get(TreeSectionType.Consumer).then(
-      (response) => {
-        if (response.success) {
-          setSections(response.response);
-        }
+    await TreeSectionService.get(TreeSectionType.Consumer).then((response) => {
+      if (response.success) {
+        setSections(response.response);
       }
-    );
+    });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    getData({ page: 1, limit: 10, memberships: true });
     getTreeSections();
   }, []);
-  
+
+  useEffect(() => {
+    if (onReload) {
+      getData({ page: 1, limit: 10, memberships: true });
+    }
+  }, [onReload]);
+
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -157,8 +171,8 @@ const CustomerList = () => {
                 newParams={newParams}
                 onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
-                onEdit={(row) => console.log(true, row)}
-                onDelete={(id) => console.log(id)}
+                onEdit={(row) => onEdit(row)}
+                onDelete={(id) => onDelete(id)}
               />
             </Col>
           </Row>
