@@ -1,15 +1,15 @@
 import { api } from "@/feature/interceptor/interceptor";
-import { IBrandResponse, IDataBrand, IParams } from "./entities";
+import { IStorageResponse, IParamsStorage, IDataStorage } from "./entities";
 
-function get(params?: IParams): Promise<IBrandResponse> {
-  return api.get("brand", { params: params });
+function get(params: IParamsStorage): Promise<IStorageResponse> {
+  return api.get("storage", { params: params });
 }
 
-function post(body: IDataBrand): Promise<IBrandResponse> {
-  return api.post("brand", body);
+function post(body: IDataStorage): Promise<IStorageResponse> {
+  return api.post("storage", body);
 }
 
-export const BrandService = {
+export const StorageSerivce = {
   get,
   post,
 };

@@ -113,6 +113,6 @@ export enum RadioType {
 
 export type DescMode = "NORMAL" | "PICTURE";
 
-export type TreeMode = "NORMAL" | "UNIT" | "MATERIAL" | "CONSUMER";
+export type TreeMode = "NORMAL" | "STORAGE" | "UNIT" | "MATERIAL" | "CONSUMER";
 
 export type ComponentsType = "FULL" | "MODAL" | "MIDDLE" | "LITTLE";

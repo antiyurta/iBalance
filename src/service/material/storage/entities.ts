@@ -10,12 +10,12 @@ export interface IDataStorage {
   updatedBy: number;
 }
 
-export interface IParams {
+export interface IParamsStorage {
   page?: number | undefined;
   limit?: number | undefined;
 }
 
-export interface IBrandResponse extends GenericResponse {
+export interface IStorageResponse extends GenericResponse {
   response: {
     data: IDataStorage[];
     meta: Meta;

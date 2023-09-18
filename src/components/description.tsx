@@ -68,15 +68,16 @@ const Description = (props: IDescription) => {
       type === DataIndexType.STRING_SECTION
     ) {
       if (typeof dataIndex === "object") {
+        console.log("end baina aa");
         var clonedSelectedRow = selectedRow;
+        console.log("sadasd", clonedSelectedRow, dataIndex);
         dataIndex?.map((index) => {
-          clonedSelectedRow = clonedSelectedRow[`${index}`];
+          clonedSelectedRow = clonedSelectedRow?.[`${index}`];
         });
         return <p>{clonedSelectedRow}</p>;
       }
     }
   };
-  console.log("----->.", selectedRow);
   if (open) {
     return (
       <div className="extra-description">

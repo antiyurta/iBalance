@@ -75,9 +75,8 @@ const NewDirectoryTree = (props: IProps) => {
       onClick?.(info.node.key, info.node.isLeaf);
     }
   };
-  const getConsumerSection = async (data: any[]) => {
+  const getTreeData = async (data: any[]) => {
     setNewTreeData(listToTree(data));
-    console.log(listToTree(data));
   };
   const setMaterialToTree = async (data: any[]) => {
     setNewTreeData(listToTree(data));
@@ -87,11 +86,8 @@ const NewDirectoryTree = (props: IProps) => {
     setNewData(data);
   }, [data]);
   useEffect(() => {
-    console.log(newData);
-    if (mode === "CONSUMER") {
-      getConsumerSection(newData);
-    } else if (mode === "MATERIAL") {
-      setMaterialToTree(newData);
+    if (mode === "CONSUMER" || mode === "MATERIAL" || mode === "STORAGE") {
+      getTreeData(newData);
     }
   }, [newData]);
   return (

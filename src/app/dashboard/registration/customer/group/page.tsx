@@ -25,6 +25,7 @@ import Information from "../information/information";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
+import { DataNode } from "antd/es/tree";
 
 const { Title } = Typography;
 
@@ -98,8 +99,8 @@ const Group = () => {
             content: (
               <>
                 <p>
-                  Харилцагч бүртгэгдсэн тул &ldquo;{response.response.name}&ldquo; бүлгийг
-                  устгах боломжгүй байна.
+                  Харилцагч бүртгэгдсэн тул &ldquo;{response.response.name}
+                  &ldquo; бүлгийг устгах боломжгүй байна.
                 </p>
               </>
             ),
@@ -129,13 +130,46 @@ const Group = () => {
         blockContext.unblock();
       });
   };
-  // etssin bulegt hariltsag bga eseh
+  //
+  const checkEdit = (row: {
+    title: string;
+    key: number;
+    parentId: number;
+    isLeaf: boolean;
+    children: any[];
+  }) => {
+    console.log("row", row);
+    if (row.isLeaf) {
+      checkSectionInConsumer(row.key);
+    } else {
+      checkTreeIn(row.key);
+    }
+    setSelectedGroupId(row.key);
+    addForm.setFieldsValue({
+      name: row.title,
+      sectionId: row.parentId,
+      isExpand: row.isLeaf,
+    });
+    setEditMode(true);
+    setIsOpenAddModal(true);
+  };
+  // etssin bulgetg ym bga eseh
   const checkSectionInConsumer = async (sectionId: number) => {
-    await ConsumerService.get({
-      sectionId: [sectionId],
+    await ConsumerService.get({ sectionId: [sectionId] }).then((response) => {
+      if (response.response.data.length > 0) {
+        setIsHaveChild(true);
+      } else {
+        setIsHaveChild(false);
+      }
+    });
+  };
+  // treed ym bga eseh
+  const checkTreeIn = async (sectionId: number) => {
+    await TreeSectionService.getByFilter({
+      sectionId: sectionId,
+      type: TreeSectionType.Consumer,
     }).then((response) => {
-      console.log(response);
-      if (response.response.data?.length > 0) {
+      if (response.response.length > 0) {
         setIsHaveChild(true);
       } else {
         setIsHaveChild(false);
@@ -232,17 +266,7 @@ const Group = () => {
               data={sections}
               isLeaf={true}
               width={"100%"}
-              onEdit={(row) => {
-                setSelectedGroupId(row.key);
-                checkSectionInConsumer(row.key);
-                addForm.setFieldsValue({
-                  name: row.title,
-                  sectionId: row.parentId,
-                  isExpand: row.isLeaf,
-                });
-                setEditMode(true);
-                setIsOpenAddModal(true);
-              }}
+              onEdit={checkEdit}
               onDelete={(id) => {
                 onDelete(id);
               }}
@@ -324,9 +348,25 @@ const Group = () => {
                             setIsLeafAdd(isLeaf);
                           }
                           setIsOpenPopOverAdd(false);
-                          addForm.setFieldsValue({
-                            sectionId: key,
-                          });
+                          const section = sections.find(
+                            (e) => e.id === selectedGroupId
+                          );
+                          if (section?.id === key) {
+                            Modal.error({
+                              title: "Алдаа",
+                              content: (
+                                <>
+                                  <p>
+                                    {section.name} бүлэгт байгаа тул боломжгүй
+                                  </p>
+                                </>
+                              ),
+                            });
+                          } else {
+                            addForm.setFieldsValue({
+                              sectionId: key,
+                            });
+                          }
                         }}
                       />
                     }
@@ -340,12 +380,12 @@ const Group = () => {
                     width: "100%",
                   }}
                   name="sectionId"
-                  rules={[
-                    {
-                      required: addForm.getFieldValue("isExpand"),
-                      message: "Харилцагчийн бүлэг заавал",
-                    },
-                  ]}
+                  // rules={[
+                  //   {
+                  //     required: addForm.getFieldValue("isExpand"),
+                  //     message: "Харилцагчийн бүлэг заавал",
+                  //   },
+                  // ]}
                 >
                   <NewSelect
                     disabled={true}
@@ -370,7 +410,7 @@ const Group = () => {
                 name="isExpand"
                 valuePropName="checked"
               >
-                <NewSwitch disabled={editMode && isHaveChild ? true : false} />
+                <NewSwitch disabled={isHaveChild} />
               </Form.Item>
             </div>
           </div>
