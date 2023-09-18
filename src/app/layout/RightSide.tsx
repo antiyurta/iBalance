@@ -46,6 +46,7 @@ const DashboardLayout = () => {
         getItem("Бүлэг", "/inventories-group"),
         getItem("Бренд", "/inventories-brand"),
         getItem("Хэмжих нэгж", "/unit-of-measure"),
+        getItem("Эхний үлдэгдэл", "/beginning-balance"),
       ]),
     ]),
   ];
