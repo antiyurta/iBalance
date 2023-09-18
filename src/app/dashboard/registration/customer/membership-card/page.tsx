@@ -1,6 +1,16 @@
 "use client";
 
-import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Space,
+  Tabs,
+  Typography,
+} from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
@@ -11,10 +21,7 @@ import { NewInput, NewOption, NewSelect, NewSwitch } from "@/components/input";
 import EditableTableCard from "./editableTableCard";
 import { IDataConsumer, Params } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
-import {
-  IDataConsumerMembership,
-  IInputConsumerMembership,
-} from "@/service/consumer/membership/entities";
+import { IInputConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { BranchService } from "@/service/reference/branch/service";
 import { IDataBranch } from "@/service/reference/branch/entities";
@@ -23,6 +30,7 @@ import { IDataMembership } from "@/service/reference/membership/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { openNofi } from "@/feature/common";
 import dayjs from "dayjs";
+import Information from "../information/information";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -32,6 +40,7 @@ const MembershipCard = () => {
   const [editMode, setIsEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
+  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [branchs, setBranchs] = useState<IDataBranch[]>([]);
@@ -216,6 +225,7 @@ const MembershipCard = () => {
                 <Space.Compact>
                   <div className="extraButton">
                     <Image
+                      onClick={() => setIsOpenPopOver(true)}
                       src="/icons/clipboardBlack.svg"
                       width={16}
                       height={16}
@@ -289,6 +299,21 @@ const MembershipCard = () => {
             </Form.List>
           </div>
         </Form>
+      </NewModal>
+      <NewModal
+        width={1200}
+        open={isOpenPopOver}
+        onCancel={() => setIsOpenPopOver(false)}
+      >
+        <Information
+          ComponentsType="MIDDLE"
+          onClickModal={(row: IDataConsumer) => {
+            form.setFieldsValue({
+              consumerId: row.id,
+            });
+            setIsOpenPopOver(false);
+          }}
+        />
       </NewModal>
       <NewModal
         width={700}
