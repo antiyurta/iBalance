@@ -1,6 +1,6 @@
 import { GenericResponse, Meta } from "@/service/entities";
 
-export interface Params {
+export interface IParamMaterialSection {
   sectionId?: number;
 }
 

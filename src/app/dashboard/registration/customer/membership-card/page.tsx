@@ -94,13 +94,6 @@ const MembershipCard = () => {
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
         setConsumers(response.response.data);
-        setConsumerDictionary(
-          consumers.reduce((dict, consumer) => {
-            dict.set(consumer.id, consumer);
-            return dict;
-          }, new Map<number, IDataConsumer>())
-        );
-        console.table(consumerDictionary);
       }
     });
   };
@@ -118,7 +111,6 @@ const MembershipCard = () => {
     }
   };
   const consumerFormField = (id: number) => {
-    console.table(consumerDictionary);
     const consumer = consumerDictionary?.get(id);
     if (consumer) {
       form.setFieldsValue({
@@ -150,6 +142,14 @@ const MembershipCard = () => {
     getConsumers({});
     getBranchs();
   }, []);
+  useEffect(() => {
+    setConsumerDictionary(
+      consumers.reduce((dict, consumer) => {
+        dict.set(consumer.id, consumer);
+        return dict;
+      }, new Map<number, IDataConsumer>())
+    );
+  }, [consumers]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>

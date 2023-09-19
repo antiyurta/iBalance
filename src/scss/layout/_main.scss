@@ -482,6 +482,12 @@ html {
   flex-direction: row;
   gap: 12px;
 }
+.inputs-gird-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex-direction: row;
+  gap: 12px;
+}
 .switches-col {
   display: flex;
   flex-direction: row;

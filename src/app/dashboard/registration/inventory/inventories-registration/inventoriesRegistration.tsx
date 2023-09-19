@@ -17,16 +17,10 @@ import {
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
-  displayRender,
   findIndexInColumnSettings,
-  getConsumerByCode,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
-import {
-  IDataConsumerSection,
-  TreeSectionType,
-} from "@/service/reference/tree-section/entities";
 import {
   ComponentsType,
   DataIndexType,
@@ -37,7 +31,7 @@ import {
 import {
   IDataMaterial,
   IDataUnitCode,
-  IParams,
+  IParamMaterial,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import {
@@ -88,7 +82,7 @@ const InventoriesRegistration = (props: IProps) => {
       response: { accessToken },
     },
   } = useTypedSelector((state: RootState) => state.core);
-  const [newParams, setNewParams] = useState<IParams>({});
+  const [newParams, setNewParams] = useState<IParamMaterial>({});
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterial[]>([]);
@@ -235,7 +229,7 @@ const InventoriesRegistration = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParams) => {
+  const getData = async (params: IParamMaterial) => {
     await MaterialService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -250,7 +244,7 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getMaterialSections = async () => {
-    await MaterialSectionService.get().then((response) => {
+    await MaterialSectionService.get({}).then((response) => {
       setMaterialSections(response.response.data);
     });
   };
@@ -609,9 +603,13 @@ const InventoriesRegistration = (props: IProps) => {
                 rowKey="id"
                 doubleClick={true}
                 onDClick={(value) => {
-                  setSelectedRow(value);
-                  setIsDescription(true);
-                  setIsOpenTree(false);
+                  if (ComponentsType === "FULL") {
+                    setSelectedRow(value);
+                    setIsDescription(true);
+                    setIsOpenTree(false);
+                  } else if (ComponentsType === "MIDDLE") {
+                    onClickModal?.(value);
+                  }
                 }}
                 data={data}
                 meta={meta}

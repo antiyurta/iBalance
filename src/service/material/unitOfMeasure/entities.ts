@@ -9,7 +9,7 @@ export enum MeasurementType {
   Weight = "WEIGTH",
 }
 
-export interface IParams {
+export interface IParamUnitOfMeasure {
   page?: number | undefined;
   limit?: number | undefined;
   code?: number[] | undefined;

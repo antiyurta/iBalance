@@ -18,7 +18,7 @@ import {
 } from "@/service/entities";
 import {
   IDataUnitOfMeasure,
-  IParams,
+  IParamUnitOfMeasure,
   MeasurementType,
 } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
@@ -37,7 +37,7 @@ const UnitOfMeasure = (props: IProps) => {
   const tableWidth = "calc(100% - 262px)";
   const [form] = Form.useForm();
   const [data, setData] = useState<IDataUnitOfMeasure[]>([]);
-  const [newParams, setNewParams] = useState<IParams>({});
+  const [newParams, setNewParams] = useState<IParamUnitOfMeasure>({});
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -92,7 +92,7 @@ const UnitOfMeasure = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParams) => {
+  const getData = async (params: IParamUnitOfMeasure) => {
     blockContext.block();
     await UnitOfMeasureService.get(params)
       .then((response) => {

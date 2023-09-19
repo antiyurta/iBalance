@@ -1,12 +1,12 @@
 import { api } from "../../../feature/interceptor/interceptor";
 import {
   IUnitOfMeasureResponse,
-  IParams,
+  IParamUnitOfMeasure,
   IUnitOfMeasurePostResponse,
   IDataUnitOfMeasure,
 } from "./entities";
 
-function get(params: IParams): Promise<IUnitOfMeasureResponse> {
+function get(params: IParamUnitOfMeasure): Promise<IUnitOfMeasureResponse> {
   return api.get("reference-measurement", { params: params });
 }
 function post(body: IDataUnitOfMeasure): Promise<IUnitOfMeasurePostResponse> {
