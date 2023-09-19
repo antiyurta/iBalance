@@ -9,6 +9,7 @@ export interface IDataMaterialSection {
   sectionId: number;
   name: string;
   isExpand: boolean;
+  materialTypeId: number;
 }
 
 export interface IMaterialSectionResponse extends GenericResponse {

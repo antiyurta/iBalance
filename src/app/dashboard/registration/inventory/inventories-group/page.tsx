@@ -109,7 +109,7 @@ const InventoriesGroup = () => {
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Бүлэг</Title>
+            <Title level={5}>Үндсэн бүртгэл / Бараа материал / Бүлэг</Title>
             <Button
               type="primary"
               onClick={() => {
@@ -267,7 +267,7 @@ const InventoriesGroup = () => {
                   name="sectionId"
                   rules={[
                     {
-                      required: true,
+                      required: false,
                       message: "Харъяалах бүлэг заавал",
                     },
                   ]}
@@ -319,10 +319,10 @@ const InventoriesGroup = () => {
                   />
                 </div>
                 <Form.Item
-                  name="accountID"
+                  name="materialTypeId"
                   rules={[
                     {
-                      required: true,
+                      required: false,
                       message: "Холбох код",
                     },
                     {
@@ -360,7 +360,7 @@ const InventoriesGroup = () => {
           ComponentsType="MODAL"
           onClickModal={(row) => {
             addForm.setFieldsValue({
-              accountID: row.id,
+              materialTypeId: row.id,
             });
             setIsOpenModalType(false);
           }}

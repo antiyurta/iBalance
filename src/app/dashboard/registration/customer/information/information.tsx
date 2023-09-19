@@ -65,7 +65,8 @@ interface IProps {
   onClickModal?: (row: any) => void;
 }
 
-const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
+const Information = (props: IProps) => {
+  const { ComponentsType, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
   const [switchForm] = Form.useForm(); // buleg solih
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
@@ -120,18 +121,18 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
       dataIndex: "regno",
       type: DataIndexType.MULTI,
     },
+    isActive: {
+      label: "Төлөв",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isActive",
+      type: DataIndexType.BOOLEAN_STRING,
+    },
     phone: {
       label: "Утасны дугаар",
       isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "phone",
-      type: DataIndexType.MULTI,
-    },
-    address: {
-      label: "Хаяг",
-      isView: ComponentsType === "FULL" ? true : false,
-      isFiltered: false,
-      dataIndex: "address",
       type: DataIndexType.MULTI,
     },
     bankId: {
@@ -155,12 +156,12 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
       dataIndex: "email",
       type: DataIndexType.MULTI,
     },
-    isActive: {
-      label: "Төлөв",
-      isView: true,
+    address: {
+      label: "Хаяг",
+      isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "isActive",
-      type: DataIndexType.BOOLEAN_STRING,
+      dataIndex: "address",
+      type: DataIndexType.MULTI,
     },
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
@@ -697,6 +698,7 @@ const Information = ({ ComponentsType = "FULL", onClickModal }: IProps) => {
           })
         }
         width={800}
+        maskClosable={false}
       >
         <Form
           form={form}

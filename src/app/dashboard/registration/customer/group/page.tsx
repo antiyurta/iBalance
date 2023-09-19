@@ -298,6 +298,7 @@ const Group = () => {
             onFinishAdd(values);
           })
         }
+        maskClosable={false}
       >
         <Form
           form={addForm}
