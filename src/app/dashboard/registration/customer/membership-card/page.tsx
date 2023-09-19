@@ -17,7 +17,14 @@ import { useContext, useEffect, useState } from "react";
 import CustomerList from "./customerList";
 import DescriptionList from "./descriptionList";
 import NewModal from "@/components/modal";
-import { NewInput, NewOption, NewSelect, NewSwitch } from "@/components/input";
+import {
+  NewInput,
+  NewInputNumber,
+  NewOption,
+  NewSelect,
+  NewSwitch,
+  NewTextArea,
+} from "@/components/input";
 import EditableTableCard from "./editableTableCard";
 import { IDataConsumer, Params } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
@@ -26,27 +33,34 @@ import { ConsumerMembershipService } from "@/service/consumer/membership/service
 import { BranchService } from "@/service/reference/branch/service";
 import { IDataBranch } from "@/service/reference/branch/entities";
 import { MembershipService } from "@/service/reference/membership/service";
-import { IDataMembership } from "@/service/reference/membership/entities";
+import {
+  IDataMembership,
+  IInputMembership,
+} from "@/service/reference/membership/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { openNofi } from "@/feature/common";
 import dayjs from "dayjs";
 import Information from "../information/information";
+import CardList from "./cardList";
 
 const { Title } = Typography;
 const MembershipCard = () => {
   const [form] = Form.useForm();
+  const [formMembership] = Form.useForm();
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
+  const [isReloadCardList, setIsReloadCardList] = useState<boolean>(false);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [editMode, setIsEditMode] = useState<boolean>(false);
+  const [isEditMembership, setIsEditMembership] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [branchs, setBranchs] = useState<IDataBranch[]>([]);
-  const [memberships, setMemberships] = useState<IDataMembership[]>([]);
   const [consumerDictionary, setConsumerDictionary] =
     useState<Map<number, IDataConsumer>>();
+  const [memberships, setMemberships] = useState<IDataMembership[]>([]);
+  const [membership, setMembership] = useState<IDataMembership>();
 
   // modal neeh edit uu esvel new uu ??
   const items = [
@@ -68,11 +82,24 @@ const MembershipCard = () => {
       key: "item-2",
       children: <DescriptionList />,
     },
+    {
+      label: "Карт эрхийн бичгийн жагсаалт",
+      key: "item-3",
+      children: (
+        <CardList
+          onReload={isReloadCardList}
+          onEdit={(row) => openModalCard(true, row)}
+          onDelete={(id) => {
+            console.log(id);
+          }}
+        />
+      ),
+    },
   ];
   //
 
   const openModal = (state: boolean, consumer?: IDataConsumer) => {
-    setIsEditMode(state);
+    setIsReloadList(false);
     form.resetFields();
     getMemberships();
     if (state && consumer) {
@@ -90,6 +117,20 @@ const MembershipCard = () => {
     setIsOpenModal(true);
     // setSelectedRow(row);
   };
+  const openModalCard = (state: boolean, membership: IDataMembership) => {
+    setIsOpenModalCard(true);
+    setIsReloadCardList(false);
+    formMembership.resetFields();
+    setIsEditMembership(state);
+    if (isEditMembership) {
+      formMembership.setFieldsValue({
+        ...membership,
+      });
+      if (membership.material)
+        formMembership.setFieldValue("materialCode", membership.material.code);
+      setMembership(membership);
+    }
+  };
   const getConsumers = async (params: Params) => {
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
@@ -105,7 +146,10 @@ const MembershipCard = () => {
     });
   };
   const getMemberships = async () => {
-    const response = await MembershipService.get({});
+    const response = await MembershipService.get({
+      page: 1,
+      limit: 10,
+    });
     if (response.success) {
       setMemberships(response.response.data);
     }
@@ -132,11 +176,29 @@ const MembershipCard = () => {
         if (response.success) {
           openNofi("success", "Амжилттай", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
           setIsOpenModal(false);
+          setIsReloadList(true);
         }
       })
       .finally(() => {
         blockContext.unblock();
       });
+  };
+  const onFinishMembership = async (data: IInputMembership) => {
+    if (isEditMembership && membership) {
+      await MembershipService.patch(membership.id, data).then((response) => {
+        if (response.success) {
+          setIsOpenModalCard(false);
+          setIsReloadCardList(true);
+        }
+      });
+    } else {
+      await MembershipService.post(data).then((response) => {
+        if (response.success) {
+          setIsOpenModalCard(false);
+        }
+      });
+    }
+    openNofi("success", "Амжилттай", "Амжиллтай хадгаллаа.");
   };
   useEffect(() => {
     getConsumers({});
@@ -184,7 +246,7 @@ const MembershipCard = () => {
                 />
               }
             >
-              Картын бүртгэл
+              Карт, эрхийн бичиг бүртгэл
             </Button>
           </Space>
         </Col>
@@ -334,18 +396,122 @@ const MembershipCard = () => {
         onCancel={() => {
           setIsOpenModalCard(false);
         }}
+        onOk={() =>
+          formMembership.validateFields().then((values) => {
+            onFinishMembership(values);
+          })
+        }
       >
-        {/* <Form.List name="card">
-          {(cards, { add, remove }) => (
-            <EditableTableCard
-              data={cards}
-              form={form}
-              add={add}
-              remove={remove}
-              editMode={true}
-            />
-          )}
-        </Form.List> */}
+        <Form
+          form={formMembership}
+          layout="vertical"
+          initialValues={{
+            isActive: false,
+            isSave: false,
+            isPercent: false,
+            isSale: false,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="inputs-gird-3">
+              <Form.Item
+                label="Идэвхтэй эсэх"
+                name="isActive"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+              <Form.Item
+                label="Оноо хуримтлуулдаг эсэх"
+                name="isSave"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+              <Form.Item
+                label="Хөнгөлөлт хувиар эсэх"
+                name="isPercent"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+            </div>
+            <div className="inputs-gird-2">
+              <Form.Item label="Картын ID" name="cardNo">
+                <NewInput />
+              </Form.Item>
+              <Form.Item label="Карт, эрхийн бичгийн нэр" name="name">
+                <NewInput />
+              </Form.Item>
+              <Form.Item label="Хөнгөлөлт" shouldUpdate>
+                {() =>
+                  formMembership.getFieldValue("isPercent") ? (
+                    <Form.Item
+                      name="discount"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Төгрөгийн хөнгөлөлт заавал",
+                        },
+                      ]}
+                    >
+                      <NewInputNumber
+                        style={{
+                          width: "100%",
+                        }}
+                        prefix={"₮ "}
+                        formatter={(value: any) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                      />
+                    </Form.Item>
+                  ) : (
+                    <Form.Item
+                      name="discount"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Хувийн хөнгөлөлт заавал",
+                        },
+                      ]}
+                    >
+                      <NewInputNumber
+                        min={1}
+                        max={99}
+                        style={{
+                          width: "100%",
+                        }}
+                        prefix={"% "}
+                      />
+                    </Form.Item>
+                  )
+                }
+              </Form.Item>
+              <Form.Item
+                label="Ашиглах боломжтой онооны дээд хязгаар"
+                name="limitDiscount"
+              >
+                <NewInputNumber />
+              </Form.Item>
+              <Form.Item
+                label="Борлуулдаг эсэх"
+                name="isSale"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+              <Form.Item
+                label="Барааны материалын код үүсгэх"
+                name="materialCode"
+              >
+                <NewInput />
+              </Form.Item>
+            </div>
+            <Form.Item label="Тайлбар" name="description">
+              <NewTextArea />
+            </Form.Item>
+          </div>
+        </Form>
       </NewModal>
     </div>
   );

@@ -1,43 +1,54 @@
-import { GenericResponse, Meta, Quearies } from "@/service/entities";
-
-export interface Params {
-  cardNo?: string[];
-  name?: string[];
-  isSave?: boolean[];
-  isTotalAmount?: boolean[];
-  isPercent?: boolean[];
-  discount?: number[];
-  limitDiscount?: number[];
-  description?: string[];
-  createdBy?: number[];
-  queries?: Quearies[];
-}
+import {
+  ColumnType,
+  GenericResponse,
+  Meta,
+  Quearies,
+} from "@/service/entities";
+import { IDataMaterial } from "@/service/material/entities";
 
 export interface IDataMembership {
   id: number;
   cardNo: string;
   name: string;
   isSave: boolean;
-  isTotalAmount: boolean;
+  isActive: boolean;
   isPercent: boolean;
+  isSale: boolean;
   discount: number;
   limitDiscount: number;
   description: string;
+  materialId: number;
   createdBy: number;
   createdAt: string;
   updatedBy: number;
   updatedAt: string;
   deletedAt: string;
+  material: IDataMaterial;
 }
 
-export interface IMemmershipResponse extends GenericResponse {
-  response: IDataMembership;
+export interface IInputMembership extends IDataMembership {
+  materialCode: string;
 }
+export interface IFilterMembership {
+  cardNo?: string[];
+  name?: string[];
+  isSave?: boolean[];
+  isActive?: boolean[]
+  isPercent?: boolean[];
+  isSale?: boolean[];
+  discount?: number[];
+  limitDiscount?: number[];
+  description?: string[];
+}
+export type FilteredColumnsMembership = {
+  [T in keyof IFilterMembership]?: ColumnType;
+};
+export interface IParamMembership extends IFilterMembership, Meta {}
 
-export interface IMembershipsResponse extends GenericResponse {
+export interface IResponseMembership extends GenericResponse {
   response: {
-    data: IDataMembership[],
+    data: IDataMembership[];
     meta: Meta;
-    filter: Params;
+    filter: IParamMembership;
   };
 }

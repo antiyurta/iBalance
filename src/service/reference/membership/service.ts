@@ -1,29 +1,29 @@
 import { api } from "@/feature/interceptor/interceptor";
 import {
-  IMemmershipResponse,
-  IMembershipsResponse,
+  IResponseMembership,
   IDataMembership,
-  Params,
+  IParamMembership,
+  IInputMembership,
 } from "./entities";
 
-function get(params: Params): Promise<IMembershipsResponse> {
+function get(params: IParamMembership): Promise<IResponseMembership> {
   return api.get("reference-membership", { params });
 }
-function getById(id: number): Promise<IMemmershipResponse> {
+function getById(id: number): Promise<IResponseMembership> {
   return api.get("reference-membership/" + id);
 }
-function post(body: IDataMembership): Promise<IMemmershipResponse> {
+function post(body: IInputMembership): Promise<IResponseMembership> {
   return api.post("reference-membership", body);
 }
 
-function remove(id: number): Promise<IMembershipsResponse> {
+function remove(id: number): Promise<IResponseMembership> {
   return api.delete("reference-membership/" + id);
 }
 
 function patch(
   id: number,
-  body: IDataMembership
-): Promise<IMemmershipResponse> {
+  body: IInputMembership
+): Promise<IResponseMembership> {
   return api.patch("reference-membership/" + id, body);
 }
 export const MembershipService = {
