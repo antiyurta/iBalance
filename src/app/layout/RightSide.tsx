@@ -46,6 +46,7 @@ const DashboardLayout = () => {
         getItem("Бүлэг", "/inventories-group"),
         getItem("Бренд", "/inventories-brand"),
         getItem("Хэмжих нэгж", "/unit-of-measure"),
+        getItem("Байршлын бүртгэл", "/storagies-registration"),
         getItem("Эхний үлдэгдэл", "/beginning-balance"),
         getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
       ]),

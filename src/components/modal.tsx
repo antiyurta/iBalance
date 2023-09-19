@@ -14,6 +14,7 @@ interface IProps {
   okButtonProps?: {
     disabled: boolean;
   };
+  maskClosable?: boolean;
 }
 
 const NewModal = (props: IProps) => {
@@ -28,6 +29,7 @@ const NewModal = (props: IProps) => {
     children,
     destroyOnClose,
     okButtonProps,
+    maskClosable,
   } = props;
   return (
     <Modal
@@ -45,6 +47,7 @@ const NewModal = (props: IProps) => {
           {title}
         </span>
       }
+      maskClosable={maskClosable}
       okButtonProps={okButtonProps}
       open={open}
       onCancel={onCancel}

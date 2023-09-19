@@ -223,9 +223,11 @@ const MembershipCard = () => {
             <div className="inputs-gird-3">
               <Form.Item label="Харилцагчийн код">
                 <Space.Compact>
-                  <div className="extraButton">
+                  <div
+                    onClick={() => setIsOpenPopOver(true)}
+                    className="extraButton"
+                  >
                     <Image
-                      onClick={() => setIsOpenPopOver(true)}
                       src="/icons/clipboardBlack.svg"
                       width={16}
                       height={16}
@@ -233,7 +235,17 @@ const MembershipCard = () => {
                     />
                   </div>
                   <Form.Item name="consumerId">
-                    <NewSelect onSelect={consumerFormField}>
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      filterOption={(
+                        input: string,
+                        option: { children: string }
+                      ) => {
+                        return (option?.children ?? "").includes(input);
+                      }}
+                      onSelect={consumerFormField}
+                    >
                       {consumers?.map((consumer, index) => {
                         return (
                           <NewOption key={index} value={consumer.id}>

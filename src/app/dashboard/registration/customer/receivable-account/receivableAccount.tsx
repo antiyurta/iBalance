@@ -7,6 +7,7 @@ import {
   unDuplicate,
 } from "@/feature/common";
 import {
+  ComponentsType,
   DataIndexType,
   FilteredColumns,
   IFilters,
@@ -25,7 +26,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { NewTable } from "@/components/table";
 
 interface IProps {
-  ComponentsType: string;
+  ComponentsType: ComponentsType;
   onClickModal?: (row: IDataReceivableAccount) => void;
 }
 
@@ -154,38 +155,38 @@ const ReceivableAccount = (props: IProps) => {
   return (
     <div>
       <Row gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            {ComponentsType === "FULL" ? (
-              <Title level={5}>
-                Үндсэн бүртгэл / Харилцагч / Авлага дансны бүртгэл
-              </Title>
-            ) : (
-              <Title>Авлагын дансны бүртгэл</Title>
-            )}
-            <Button
-              type="primary"
-              onClick={() => {
-                form.resetFields();
-                setEditMode(false);
-                setIsOpenModal(true);
-              }}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
-        </Col>
+        {ComponentsType === "FULL" ? (
+          <>
+            <Col md={24} lg={16} xl={19}>
+              <Space size={24}>
+                <Title level={5}>
+                  Үндсэн бүртгэл / Харилцагч / Авлага дансны бүртгэл
+                </Title>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    form.resetFields();
+                    setEditMode(false);
+                    setIsOpenModal(true);
+                  }}
+                  icon={
+                    <Image
+                      src={"/images/AddIcon.svg"}
+                      width={12}
+                      height={12}
+                      alt="addicon"
+                    />
+                  }
+                >
+                  Шинээр бүртгэх
+                </Button>
+              </Space>
+            </Col>
+            <Col md={24} lg={8} xl={5}>
+              <Input.Search />
+            </Col>
+          </>
+        ) : null}
         <Col sm={24}>
           <Space
             style={{

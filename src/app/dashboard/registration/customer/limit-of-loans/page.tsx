@@ -32,7 +32,7 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import EditableTableLimit from "./editableTableLimit";
-import { IDataConsumer } from "@/service/consumer/entities";
+import { IDataConsumer, Params } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import {
@@ -54,6 +54,7 @@ type IForm = {
   sectionId: number;
   isAccount: boolean;
   isClose: boolean;
+  isActive: boolean;
   limitAmount: number;
   lendLimitAccounts: IAccounts[] | null;
 };
@@ -65,6 +66,8 @@ const LimitOfLoans = () => {
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [isAccounts, setIsAccounts] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  const [consumerDictionary, setConsumerDictionary] =
+    useState<Map<number, IDataConsumer>>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -104,6 +107,7 @@ const LimitOfLoans = () => {
         name: row.consumer.name,
         sectionId: row.consumer.sectionId,
         isAccount: row.isAccount,
+        isActive: row.consumer.isActive,
         isClose: row.isClose,
         limitAmount: row.limitAmount,
         lendLimitAccounts: row.lendLimitAccounts?.map((lendLimit) => {
@@ -115,41 +119,11 @@ const LimitOfLoans = () => {
           };
         }),
       };
-      getConsumerByCode(data.code);
       form.setFieldsValue(data);
       setIsAccounts(row.isAccount);
       setSelectedRow(row);
     }
     setIsOpenModal(true);
-  };
-  const getConsumerByCode = async (code: number | string) => {
-    if (!code) {
-      message.error("Код заавал оруулж хайх");
-    } else {
-      await ConsumerService.get({
-        queries: [
-          {
-            param: "code",
-            operator: "CONTAINS",
-            value: code.toString(),
-          },
-        ],
-      }).then((response) => {
-        if (response.success) {
-          if (response.response.data.length === 0) {
-            message.warning("Хайсан утгаар дата алга");
-            form.setFieldsValue({
-              code: undefined,
-              name: undefined,
-              sectionId: undefined,
-            });
-            setConsumers([]);
-          } else {
-            setConsumers(response.response.data);
-          }
-        }
-      });
-    }
   };
   const getTreeSections = async () => {
     await TreeSectionService.get(TreeSectionType.Consumer).then((response) => {
@@ -157,6 +131,31 @@ const LimitOfLoans = () => {
         setSections(response.response);
       }
     });
+  };
+  const getConsumers = async (params: Params) => {
+    await ConsumerService.get(params).then((response) => {
+      if (response.success) {
+        setConsumers(response.response.data);
+        setConsumerDictionary(
+          consumers.reduce((dict, consumer) => {
+            dict.set(consumer.id, consumer);
+            return dict;
+          }, new Map<number, IDataConsumer>())
+        );
+      }
+    });
+  };
+  const consumerFormField = (id: number) => {
+    console.log(id);
+    console.log("=-", consumerDictionary);
+    const consumer = consumerDictionary?.get(id);
+    if (consumer) {
+      console.log(consumer);
+      form.setFieldsValue({
+        name: consumer.name,
+        sectionId: consumer.sectionId,
+      });
+    }
   };
   const onFinish = async (values: IForm) => {
     const data: IDataLimitOfLoansPost = {
@@ -184,6 +183,7 @@ const LimitOfLoans = () => {
     }
   };
   useEffect(() => {
+    getConsumers({});
     getTreeSections();
   }, []);
   useEffect(() => {
@@ -234,6 +234,7 @@ const LimitOfLoans = () => {
           })
         }
         width={900}
+        maskClosable={false}
       >
         <Form
           form={form}
@@ -253,16 +254,40 @@ const LimitOfLoans = () => {
             <div className="inputs-gird-4">
               <Form.Item label="Харилцагчийн код">
                 <Space.Compact>
-                  <div className="extraButton">
+                  <div
+                    className="extraButton"
+                    onClick={() => setIsOpenPopOver(true)}
+                  >
                     <Image
-                      onClick={() => setIsOpenPopOver(true)}
                       src="/icons/clipboardBlack.svg"
                       width={16}
                       height={16}
                       alt="clipboard"
                     />
                   </div>
-                  <Form.Item
+                  <Form.Item name="consumerId">
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      filterOption={(
+                        input: string,
+                        option: { children: string }
+                      ) => {
+                        return (option?.children ?? "").includes(input);
+                      }}
+                      onClear={() => console.log("sdasasd")}
+                      onSelect={consumerFormField}
+                    >
+                      {consumers?.map((consumer, index) => {
+                        return (
+                          <NewOption key={index} value={consumer.id}>
+                            {consumer.code}
+                          </NewOption>
+                        );
+                      })}
+                    </NewSelect>
+                  </Form.Item>
+                  {/* <Form.Item
                     name="code"
                     rules={[
                       {
@@ -306,7 +331,7 @@ const LimitOfLoans = () => {
                         }}
                       />
                     </AutoComplete>
-                  </Form.Item>
+                  </Form.Item> */}
                 </Space.Compact>
               </Form.Item>
               <Form.Item

@@ -9,7 +9,6 @@ import {
   NewInput,
   NewInputNumber,
   NewOption,
-  NewSearch,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -17,16 +16,10 @@ import {
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
-  displayRender,
   findIndexInColumnSettings,
-  getConsumerByCode,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
-import {
-  IDataConsumerSection,
-  TreeSectionType,
-} from "@/service/reference/tree-section/entities";
 import {
   ComponentsType,
   DataIndexType,
@@ -41,13 +34,10 @@ import {
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import {
-  AutoComplete,
   Button,
-  Cascader,
   Col,
   Form,
   Input,
-  Modal,
   Popover,
   Row,
   Space,

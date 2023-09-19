@@ -120,13 +120,11 @@ const BeginningBalance = () => {
     },
   ];
   const getTreeSections = async () => {
-    await TreeSectionService.get(TreeSectionType.Consumer).then(
-      (response) => {
-        if (response.success) {
-          setSections(response.response);
-        }
+    await TreeSectionService.get(TreeSectionType.Consumer).then((response) => {
+      if (response.success) {
+        setSections(response.response);
       }
-    );
+    });
   };
   const onFinish = async (values: IForm) => {
     if (editMode) {
@@ -201,6 +199,7 @@ const BeginningBalance = () => {
           })
         }
         width={1000}
+        maskClosable={false}
       >
         <Form form={form} layout="vertical">
           <div
