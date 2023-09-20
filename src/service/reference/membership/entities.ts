@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -8,7 +9,6 @@ import { IDataMaterial } from "@/service/material/entities";
 
 export interface IDataMembership {
   id: number;
-  cardNo: string;
   name: string;
   isSave: boolean;
   isActive: boolean;
@@ -29,8 +29,7 @@ export interface IDataMembership {
 export interface IInputMembership extends IDataMembership {
   materialCode: string;
 }
-export interface IFilterMembership {
-  cardNo?: string[];
+export interface IFilterMembership extends IFilter {
   name?: string[];
   isSave?: boolean[];
   isActive?: boolean[]

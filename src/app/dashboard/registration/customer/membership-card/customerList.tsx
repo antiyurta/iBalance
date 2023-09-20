@@ -41,18 +41,25 @@ const CustomerList = (props: IProps) => {
       dataIndex: "code",
       type: DataIndexType.MULTI,
     },
+    isIndividual: {
+      label: "Хувь хүн эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isIndividual",
+      type: DataIndexType.BOOLEAN,
+    },
     isEmployee: {
       label: "Ажилтан эсэх",
       isView: true,
       isFiltered: false,
       dataIndex: "isEmployee",
-      type: DataIndexType.MULTI,
+      type: DataIndexType.BOOLEAN,
     },
     lastName: {
       label: "Харилцагчийн овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "isEmployee",
+      dataIndex: "lastName",
       type: DataIndexType.MULTI,
     },
     name: {
@@ -66,8 +73,8 @@ const CustomerList = (props: IProps) => {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: "sectionId",
-      type: DataIndexType.MULTI,
+      dataIndex: ["section", "name"],
+      type: DataIndexType.STRING_SECTION,
     },
     regno: {
       label: "Регистр №",

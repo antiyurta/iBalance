@@ -73,7 +73,11 @@ export interface IFilters {
   updatedUser: object[];
   description: string[];
 }
-
+export interface IFilter {
+  createdBy?: string[];
+  updatedAt?: string[];
+  updatedBy?: string[];
+}
 export type ColumnType = {
   width?: number;
   label: string; // ner mongol

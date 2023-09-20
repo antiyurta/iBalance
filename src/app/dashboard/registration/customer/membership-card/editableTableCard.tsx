@@ -118,18 +118,6 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     setEditingIndex(undefined);
   };
 
-  const membershipFormField = async (id: number) => {
-    const membership = membershipDictionary?.get(id);
-    if (membership) {
-      form.setFieldsValue({
-        ["cards"]: {
-          [`${editingIndex}`]: {
-            name: membership.name,
-          },
-        },
-      });
-    }
-  };
   useEffect(() => {
     setMembershipDictionary(
       new Map<number, IDataMembership>(
@@ -172,8 +160,17 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       )}
     >
       <Column
-        dataIndex="membershipId"
+        dataIndex="cardno"
         title="Картын дугаар"
+        render={(value, row, index) => (
+          <Form.Item name={[index, "cardno"]}>
+            <NewInput disabled={!(index === editingIndex)}/>
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex="membershipId"
+        title="Карт эрхийн бичгийн нэр"
         render={(value, row, index) => (
           <Form.Item
             name={[index, "membershipId"]}
@@ -191,31 +188,10 @@ const EditableTableCard: React.FC<IProps> = (props) => {
               }
               options={memberships?.map((membership) => ({
                 value: membership.id,
-                label: membership.cardNo,
+                label: membership.name,
               }))}
-              onClear={() => {
-                // form.resetFields([
-                //   "name",
-                //   "lastName",
-                //   "regno",
-                //   "phone",
-                //   "sectionName",
-                //   "isIndividual",
-                //   "isEmployee",
-                //   "isActive",
-                // ]);
-              }}
-              onSelect={membershipFormField}
+              disabled={!(index === editingIndex)}
             />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex="name"
-        title="Карт эрхийн бичгийн нэр"
-        render={(value, row, index) => (
-          <Form.Item name={[index, "name"]}>
-            <NewInput disabled />
           </Form.Item>
         )}
       />
@@ -234,17 +210,18 @@ const EditableTableCard: React.FC<IProps> = (props) => {
                 `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
               }
               parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+              disabled={!(index === editingIndex)}
             />
           </Form.Item>
         )}
       />
       <Column
         dataIndex="branchId"
-        title="Ашиглах салбар"
+        title="Нээсэн салбар"
         render={(value, row, index) => (
           <Form.Item
             name={[index, "branchId"]}
-            rules={[{ required: true, message: "Ашиглах салбар заавал" }]}
+            rules={[{ required: true, message: "Нээсэн салбар заавал" }]}
           >
             <NewSelect
               allowClear
@@ -260,6 +237,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
                 value: branch.id,
                 label: branch.name,
               }))}
+              disabled={!(index === editingIndex)}
             />
           </Form.Item>
         )}
@@ -270,10 +248,9 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         render={(value, row, index) => (
           <Form.Item
             name={[index, "endAt"]}
-            rules={[{ required: true, message: "Дуусах огноо заавал" }]}
           >
             <DatePicker
-              disabled={index === editingIndex ? false : true}
+              disabled={!(index === editingIndex)}
               value={value ? dayjs(value, "YYYY-MM-DD hh:mm:ss") : null}
               locale={mnMN}
             />
@@ -289,7 +266,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
             name={[index, "isClose"]}
             className="ant-form-item-no-bottom-margin"
           >
-            <Switch />
+            <Switch disabled={!(index === editingIndex)} />
           </Form.Item>
         )}
       />

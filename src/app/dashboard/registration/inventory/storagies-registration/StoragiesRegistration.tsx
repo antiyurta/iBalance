@@ -6,7 +6,7 @@ import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import {
-  ComponentsType,
+  ComponentType,
   DataIndexType,
   FilteredColumns,
   IFilters,
@@ -34,7 +34,7 @@ import { useEffect, useState } from "react";
 import { SignalFilled } from "@ant-design/icons";
 
 interface IProps {
-  ComponentType: ComponentsType;
+  ComponentType: ComponentType;
 }
 
 const { Title } = Typography;

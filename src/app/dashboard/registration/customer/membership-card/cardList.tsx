@@ -23,24 +23,17 @@ interface IProps {
 
 const CardList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
-  const [params, setParams] = useState<IParamMembership>();
+  const [params, setParams] = useState<IParamMembership>({});
   const [data, setData] = useState<IDataMembership[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMembership>();
-  const [column, setColumn] = useState<FilteredColumnsMembership>({
-    cardNo: {
-      label: "Картын ID",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "cardNo",
-      type: DataIndexType.STRING,
-    },
+  const [columns, setColumns] = useState<FilteredColumnsMembership>({
     name: {
       label: "Карт эрхийн бичгийн нэр",
       isView: true,
       isFiltered: false,
       dataIndex: "name",
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     isSave: {
       label: "Оноо хуримтлуулдаг эсэх",
@@ -61,7 +54,7 @@ const CardList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "discount",
-      type: DataIndexType.NUMBER,
+      type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
@@ -84,24 +77,40 @@ const CardList = (props: IProps) => {
       dataIndex: "isSale",
       type: DataIndexType.BOOLEAN,
     },
+    description: {
+      label: "Тайлбар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "description",
+      type: DataIndexType.MULTI,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.USER,
+    },
   });
   // Жагсаалтын өгөгдөл дуудаж авчирна
   const getData = async (params: IParamMembership) => {
     await MembershipService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
+        setFilters(response.response.filter);
         setMeta(response.response.meta);
       }
     });
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
-  }, []);
-
-  useEffect(() => {
-    if (onReload) {
-      getData({ page: 1, limit: 10 });
-    }
   }, [onReload]);
 
   return (
@@ -118,17 +127,17 @@ const CardList = (props: IProps) => {
                 size={12}
               >
                 <Filtered
-                  columns={column}
+                  columns={columns}
                   isActive={(key, state) => {
                     onCloseFilterTag({
-                      key,
-                      state,
-                      column,
-                      onColumn: setColumn,
-                      params,
-                      onParams: setParams,
+                      key: key,
+                      state: state,
+                      column: columns,
+                      onColumn: (column) => setColumns(column),
+                      params: params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(params ? params : { page: 1, limit: 10 });
+                    getData(params);
                   }}
                 />
                 <Space
@@ -139,13 +148,13 @@ const CardList = (props: IProps) => {
                   size={12}
                 >
                   <ColumnSettings
-                    columns={column}
+                    columns={columns}
                     columnIndexes={(arg1, arg2) =>
                       findIndexInColumnSettings({
                         newRowIndexes: arg1,
                         unSelectedRow: arg2,
-                        columns: column,
-                        onColumns: setColumn,
+                        columns: columns,
+                        onColumns: setColumns,
                         params,
                         onParams: setParams,
                         getData,
@@ -175,9 +184,9 @@ const CardList = (props: IProps) => {
                 rowKey="id"
                 data={data}
                 meta={meta}
-                columns={column}
+                columns={columns}
                 onChange={getData}
-                onColumns={setColumn}
+                onColumns={setColumns}
                 newParams={params}
                 onParams={setParams}
                 incomeFilters={filters}

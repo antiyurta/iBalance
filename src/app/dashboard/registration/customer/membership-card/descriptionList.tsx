@@ -2,16 +2,16 @@ import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { IDataTreeSection } from "@/service/reference/tree-section/entities";
 import {
   DataIndexType,
   FilteredColumns,
-  IFilters,
   Meta,
 } from "@/service/entities";
 import {
+  FilteredColumnsConsumerMembership,
   IDataConsumerMembership,
-  Params,
+  IFilterConsumerMembership,
+  IParamConsumerMembership,
 } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { Col, Row, Space } from "antd";
@@ -19,11 +19,11 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const DescriptionList = () => {
-  const [newParams, setNewParams] = useState<Params>({});
+  const [newParams, setNewParams] = useState<IParamConsumerMembership>({});
   const [data, setData] = useState<IDataConsumerMembership[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [filters, setFilters] = useState<IFilterConsumerMembership>();
+  const [columns, setColumns] = useState<FilteredColumnsConsumerMembership>({
     consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
@@ -66,6 +66,34 @@ const DescriptionList = () => {
       dataIndex: ["consumer", "isActive"],
       type: DataIndexType.BOOLEAN,
     },
+    consumerIsEmployee: {
+      label: "Ажилтан эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumer", "isEmployee"],
+      type: DataIndexType.BOOLEAN,
+    },
+    consumerSectionId: {
+      label: "Бүлэг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumer", "section", "name"],
+      type: DataIndexType.STRING_SECTION,
+    },
+    consumerEmail: {
+      label: "И-мэйл хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumer", "email"],
+      type: DataIndexType.MULTI,
+    },
+    consumerAddress: {
+      label: "Хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumer", "address"],
+      type: DataIndexType.MULTI,
+    },
     consumerRegno: {
       label: "Харилцагчийн РД",
       isView: true,
@@ -73,11 +101,11 @@ const DescriptionList = () => {
       dataIndex: ["consumer", "regno"],
       type: DataIndexType.MULTI,
     },
-    membershipCardno: {
+    cardno: {
       label: "Картын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["membership", "cardNo"],
+      dataIndex: "cardno",
       type: DataIndexType.MULTI,
     },
     membershipName: {
@@ -115,9 +143,23 @@ const DescriptionList = () => {
       dataIndex: ["endAt"],
       type: DataIndexType.DATE,
     },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["updatedAt"],
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
+    },
   });
   //
-  const getData = async (params: Params) => {
+  const getData = async (params: IParamConsumerMembership) => {
     await ConsumerMembershipService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);

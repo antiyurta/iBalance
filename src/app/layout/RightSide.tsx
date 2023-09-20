@@ -49,6 +49,7 @@ const DashboardLayout = () => {
         getItem("Байршлын бүртгэл", "/storagies-registration"),
         getItem("Эхний үлдэгдэл", "/beginning-balance"),
         getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
+        getItem("Буцаалтын шалтгаан", "/refund-reason"),
       ]),
     ]),
   ];

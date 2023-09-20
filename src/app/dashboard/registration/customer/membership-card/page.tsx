@@ -116,18 +116,14 @@ const MembershipCard = () => {
     // setSelectedRow(row);
   };
   const openModalCard = (state: boolean, membership?: IDataMembership) => {
-    setIsOpenModalCard(true);
-    setIsReloadCardList(false);
     formMembership.resetFields();
     setIsEditMembership(state);
-    if (isEditMembership && membership) {
-      formMembership.setFieldsValue({
-        ...membership,
-      });
-      if (membership.material)
-        formMembership.setFieldValue("materialCode", membership.material.code);
+    if (state && membership) {
+      formMembership.setFieldsValue(membership);
       setMembership(membership);
     }
+    setIsOpenModalCard(true);
+    setIsReloadCardList(!isReloadCardList);
   };
   const getConsumers = async (params: IParamConsumer) => {
     await ConsumerService.get(params).then((response) => {
@@ -171,7 +167,7 @@ const MembershipCard = () => {
         if (response.success) {
           openNofi("success", "Амжилттай", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
           setIsOpenModal(false);
-          setIsReloadList(true);
+          setIsReloadCardList(!isReloadCardList);
         }
       })
       .finally(() => {
@@ -183,14 +179,14 @@ const MembershipCard = () => {
       await MembershipService.patch(membership.id, data).then((response) => {
         if (response.success) {
           setIsOpenModalCard(false);
-          setIsReloadCardList(true);
+          setIsReloadCardList(!isReloadCardList);
         }
       });
     } else {
       await MembershipService.post(data).then((response) => {
         if (response.success) {
           setIsOpenModalCard(false);
-          setIsReloadCardList(true);
+          setIsReloadCardList(!isReloadCardList);
         }
       });
     }
@@ -199,7 +195,7 @@ const MembershipCard = () => {
   const onDeleteMembership = async (id: number) => {
     await MembershipService.remove(id).then((response) => {
       if (response.success) {
-        setIsReloadCardList(true);
+        setIsReloadCardList(!isReloadCardList);
         openNofi("success", "Амжилттай", "Амжиллтай устгалаа.");
       }
     });
@@ -406,7 +402,7 @@ const MembershipCard = () => {
       </NewModal>
       <NewModal
         width={700}
-        title="Картын бүртгэл"
+        title="Картын төрөл"
         open={isOpenModalCard}
         onCancel={() => {
           setIsOpenModalCard(false);
@@ -437,24 +433,21 @@ const MembershipCard = () => {
                 <NewSwitch />
               </Form.Item>
               <Form.Item
-                label="Оноо хуримтлуулдаг эсэх"
-                name="isSave"
-                valuePropName="checked"
-              >
-                <NewSwitch />
-              </Form.Item>
-              <Form.Item
                 label="Хөнгөлөлт хувиар эсэх"
                 name="isPercent"
                 valuePropName="checked"
               >
                 <NewSwitch />
               </Form.Item>
-            </div>
-            <div className="inputs-gird-2">
-              <Form.Item label="Картын ID" name="cardNo">
-                <NewInput />
+              <Form.Item
+                label="Оноо хуримтлуулдаг эсэх"
+                name="isSave"
+                valuePropName="checked"
+              >
+                <NewSwitch />
               </Form.Item>
+            </div>
+            <div className="inputs-gird-3">
               <Form.Item label="Карт, эрхийн бичгийн нэр" name="name">
                 <NewInput />
               </Form.Item>
@@ -503,7 +496,7 @@ const MembershipCard = () => {
                 }
               </Form.Item>
               <Form.Item
-                label="Ашиглах боломжтой онооны дээд хязгаар"
+                label="Онооны дээд хязгаар"
                 shouldUpdate
               >
                 {() => (
