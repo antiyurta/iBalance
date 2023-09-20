@@ -24,7 +24,9 @@ export interface IFilterInitialBalance {
   code?: string[];
   sectionId?: number[];
   name?: string[];
+  amount?: number[];
   updatedBy?: number;
+  updatedAt?: string;
 }
 export type FilteredColumnsInitialBalance = {
   [T in keyof IFilterInitialBalance]?: ColumnType;

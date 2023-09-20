@@ -65,7 +65,6 @@ export const Interceptor = (api: AxiosInstance, store: any) => {
         (response?.data?.message instanceof Array
           ? response?.data?.message[0]
           : response?.data?.message) || error.message;
-
       notification.error({
         message: "Амжилтгүй",
         description: message,

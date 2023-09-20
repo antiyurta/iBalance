@@ -1,9 +1,7 @@
 import {
-  AutoComplete,
   Button,
   Form,
   FormListFieldData,
-  Input,
   Popconfirm,
   Space,
   Table,
@@ -17,12 +15,16 @@ import {
 } from "@ant-design/icons";
 import { FormInstance } from "antd/lib";
 import Image from "next/image";
-import React, { useState } from "react";
-import { EditableFormItemLimit } from "../limit-of-loans/editableFormItemLimit";
-import { getReceivableAccountByCode } from "@/feature/common";
-import { IDataAccount } from "@/service/limit-of-loans/account/entities";
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
-import { EditableFormItemLimitNumber } from "../limit-of-loans/editableFormItemLimitNumber";
+import React, { useEffect, useState } from "react";
+import { IDataReferenceAccount } from "@/service/reference/account/entities";
+import {
+  NewDatePicker,
+  NewInput,
+  NewInputNumber,
+  NewSelect,
+} from "@/components/input";
+import { IParamReferenceAccount } from "@/service/reference/account/entities";
+import { referenceAccountService } from "@/service/reference/account/service";
 
 interface IProps {
   data: FormListFieldData[];
@@ -36,30 +38,96 @@ const { Column } = Table;
 
 function EditableTable(props: IProps) {
   const { data, form, editMode, add, remove } = props;
-  const [accounts, setAccounts] = useState<IDataAccount[]>([]);
+  const [accounts, setAccounts] = useState<IDataReferenceAccount[]>([]);
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
+  const [accountsDictionary, setAccountsDictionary] =
+    useState<Map<number, IDataReferenceAccount>>();
   const addService = () => {
-    form
-      .validateFields([
-        ["accounts", editingIndex, "code"],
-        ["accounts", editingIndex, "name"],
-        ["accounts", editingIndex, "amount"],
-      ])
-      .then(() => {
+    onSave().then((state) => {
+      if (state) {
         add();
         setEditingIndex(data.length);
         setNewService(true);
+      }
+    });
+  };
+  const onSave = async () => {
+    return form
+      .validateFields([
+        ["accounts", editingIndex, "accountId"],
+        ["accounts", editingIndex, "amount"],
+      ])
+      .then(() => {
+        setNewService(false);
+        setEditingIndex(undefined);
+        const amounts = form
+          .getFieldValue("accounts")
+          ?.reduce((sum: number, account: any) => (sum += account.amount), 0);
+        form.setFieldsValue({
+          amount: amounts,
+        });
+        return true;
       })
       .catch((error) => {
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
+        return false;
       });
   };
+  const getAccounts = async (params: IParamReferenceAccount) => {
+    await referenceAccountService.get(params).then((response) => {
+      if (response.success) {
+        const data = response.response.data;
+        setAccounts(response.response.data);
+        setAccountsDictionary(
+          data.reduce((dict, account) => {
+            dict.set(account.id, account);
+            return dict;
+          }, new Map<number, IDataReferenceAccount>())
+        );
+      }
+    });
+  };
+  const accountFormField = (id: number) => {
+    const account = accountsDictionary?.get(id);
+    if (account) {
+      form.setFieldsValue({
+        ["accounts"]: {
+          [`${editingIndex}`]: {
+            accountId: account.id,
+            name: account.name,
+          },
+        },
+      });
+    }
+  };
+  const onRemove = (index: number) => {
+    const amount = form.getFieldValue(["accounts", index, "amount"]);
+    const limitAmount = form.getFieldValue("amount");
+    form.setFieldValue("amount", limitAmount - amount);
+    remove(index);
+  };
+  const onCancel = (index: number) => {
+    if (isNewService) {
+      remove(index);
+    } else {
+      onSave().then((state) => {
+        if (state) {
+          setNewService(false);
+          setEditingIndex(undefined);
+        }
+      });
+    }
+    setEditingIndex(undefined);
+  };
+  useEffect(() => {
+    getAccounts({});
+  }, []);
   return (
     <Table
       locale={{
@@ -117,55 +185,40 @@ function EditableTable(props: IProps) {
                     />
                   </div>
                 ) : null}
-                <EditableFormItemLimit
+                <Form.Item
+                  name={[index, "accoundId"]}
                   rules={[
                     {
                       required: true,
                       message: "Дансны код заавал",
                     },
                   ]}
-                  name={[index, "code"]}
-                  editing={index === editingIndex}
-                  className={"ant-form-item-no-bottom-margin"}
                 >
-                  <AutoComplete
-                    options={accounts?.map((account) => {
-                      return {
-                        label: account.code,
-                        value: account.code,
-                      };
-                    })}
-                    onSelect={(id) => {
-                      const data = accounts?.find(
-                        (account) => account.code === id
-                      );
-                      const value = form.getFieldValue("accounts");
-                      form.setFieldsValue({
-                        ["accounts"]: {
-                          ...value,
-                          [`${editingIndex}`]: {
-                            accountId: data?.id,
-                            code: data?.code,
-                            name: data?.name,
-                          },
-                        },
-                      });
+                  <NewSelect
+                    allowClear
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    disabled={index === editingIndex ? false : true}
+                    onClear={() => {
+                      form.resetFields([
+                        ["accounts", index, "name"],
+                        ["accounts", index, "date"],
+                        ["accounts", index, "amount"],
+                      ]);
                     }}
-                    className="ant-selecto-border-no"
-                  >
-                    <Input.Search
-                      style={{
-                        border: "none",
-                      }}
-                      enterButton={false}
-                      placeholder="Хайх"
-                      onSearch={async (e: any) => {
-                        const result = await getReceivableAccountByCode(e);
-                        if (result) setAccounts(result);
-                      }}
-                    />
-                  </AutoComplete>
-                </EditableFormItemLimit>
+                    options={accounts?.map((account) => ({
+                      value: account.id,
+                      label: account.code,
+                    }))}
+                    onSelect={accountFormField}
+                  />
+                </Form.Item>
               </Space.Compact>
             </Form.Item>
           );
@@ -176,19 +229,17 @@ function EditableTable(props: IProps) {
         title={"Дансны нэр"}
         render={(value, row, index) => {
           return (
-            <EditableFormItemLimit
+            <Form.Item
+              name={[index, "name"]}
               rules={[
                 {
                   required: true,
                   message: "Дансны нэр заавал",
                 },
               ]}
-              name={[index, "name"]}
-              editing={index === editingIndex}
-              className={"ant-form-item-no-bottom-margin"}
             >
-              <NewInput disabled placeholder="Дансны нэр" min={0} max={150} />
-            </EditableFormItemLimit>
+              <NewInput disabled placeholder="Дансны нэр" />
+            </Form.Item>
           );
         }}
       />
@@ -197,7 +248,7 @@ function EditableTable(props: IProps) {
         title={"Авлага үүссэн огноо"}
         render={(value, row, index) => {
           return (
-            <EditableFormItemLimit
+            <Form.Item
               rules={[
                 {
                   required: true,
@@ -205,11 +256,12 @@ function EditableTable(props: IProps) {
                 },
               ]}
               name={[index, "date"]}
-              editing={index === editingIndex}
-              className={"ant-form-item-no-bottom-margin"}
             >
-              <NewDatePicker format={"YYYY/MM/DD"} />
-            </EditableFormItemLimit>
+              <NewDatePicker
+                disabled={index === editingIndex ? false : true}
+                format={"YYYY/MM/DD"}
+              />
+            </Form.Item>
           );
         }}
       />
@@ -218,7 +270,7 @@ function EditableTable(props: IProps) {
         title={"Дансны эхний үлдэгдэл"}
         render={(value, row, index) => {
           return (
-            <EditableFormItemLimitNumber
+            <Form.Item
               rules={[
                 {
                   required: true,
@@ -226,10 +278,9 @@ function EditableTable(props: IProps) {
                 },
               ]}
               name={[index, "amount"]}
-              editing={index === editingIndex}
-              className={"ant-form-item-no-bottom-margin"}
             >
               <NewInputNumber
+                disabled={index === editingIndex ? false : true}
                 style={{ width: "100%" }}
                 prefix={"₮ "}
                 formatter={(value: any) =>
@@ -237,7 +288,7 @@ function EditableTable(props: IProps) {
                 }
                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
               />
-            </EditableFormItemLimitNumber>
+            </Form.Item>
           );
         }}
       />
@@ -253,7 +304,7 @@ function EditableTable(props: IProps) {
                   shape={"circle"}
                   type={"primary"}
                   style={{ marginRight: 8 }}
-                  //   onClick={onSave}
+                  onClick={onSave}
                 />
                 <Button
                   danger
@@ -265,7 +316,7 @@ function EditableTable(props: IProps) {
                     />
                   }
                   shape={"circle"}
-                  //   onClick={() => onCancel(index)}
+                  onClick={() => onCancel(index)}
                 />
               </React.Fragment>
             );
@@ -283,7 +334,7 @@ function EditableTable(props: IProps) {
                   title="Are you sure？"
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => remove(index)}
+                  onConfirm={() => onRemove(index)}
                 >
                   <Button
                     danger

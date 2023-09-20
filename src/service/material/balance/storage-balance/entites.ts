@@ -1,8 +1,4 @@
-import {
-  ColumnType,
-  GenericResponse,
-  Meta,
-} from "@/service/entities";
+import { ColumnType, GenericResponse, Meta } from "@/service/entities";
 import { IDataStorage } from "../../storage/entities";
 import { IDataBalance, IFilterBalance } from "../entities";
 

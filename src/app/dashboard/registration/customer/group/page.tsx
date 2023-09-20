@@ -12,7 +12,6 @@ import {
   Button,
   Col,
   Form,
-  Input,
   Modal,
   Popover,
   Row,
@@ -25,7 +24,6 @@ import Information from "../information/information";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
-import { DataNode } from "antd/es/tree";
 
 const { Title } = Typography;
 
@@ -282,7 +280,7 @@ const Group = () => {
         footer={null}
       >
         <Information
-          ComponentsType="LITTLE"
+          ComponentType="LITTLE"
           onClickModal={(e) => {
             setIsOpenChangeModal(e);
           }}

@@ -20,7 +20,7 @@ interface IProps {
   data: any[];
   width?: string;
   isLeaf: boolean;
-  onClick?: (key: number | string, isLeaf: boolean | undefined) => void;
+  onClick?: (key: number, isLeaf: boolean | undefined) => void;
   onEdit?: (row: any) => void;
   onDelete?: (id: any) => void;
 }
@@ -70,9 +70,9 @@ const NewDirectoryTree = (props: IProps) => {
   ];
   const onSelect: DirectoryTreeProps["onSelect"] = async (keys, info) => {
     if (isLeaf && info.node.isLeaf) {
-      onClick?.(info.node.key, isLeaf);
+      onClick?.(Number(info.node.key), isLeaf);
     } else {
-      onClick?.(info.node.key, info.node.isLeaf);
+      onClick?.(Number(info.node.key), info.node.isLeaf);
     }
   };
   const getTreeData = async (data: any[]) => {

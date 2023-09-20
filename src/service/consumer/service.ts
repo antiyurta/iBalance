@@ -1,5 +1,10 @@
 import { api } from "../../feature/interceptor/interceptor";
-import { IResponseConsumer, IDataConsumer, IParamConsumer } from "./entities";
+import {
+  IResponseConsumer,
+  IDataConsumer,
+  IParamConsumer,
+  IConsumerResponseUpdate,
+} from "./entities";
 function getAll(): Promise<IResponseConsumer> {
   return api.get("consumer");
 }
@@ -10,9 +15,9 @@ function post(body: IDataConsumer): Promise<IResponseConsumer> {
   return api.post("consumer", body);
 }
 function patch(
-  id: number | undefined,
+  id: number,
   body: IDataConsumer
-): Promise<IResponseConsumer> {
+): Promise<IConsumerResponseUpdate> {
   return api.patch("consumer/" + id, body);
 }
 

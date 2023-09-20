@@ -7,7 +7,7 @@ import {
   unDuplicate,
 } from "@/feature/common";
 import {
-  ComponentsType,
+  ComponentType,
   DataIndexType,
   FilteredColumns,
   Meta,
@@ -26,14 +26,14 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { NewTable } from "@/components/table";
 
 interface IProps {
-  ComponentsType: ComponentsType;
+  ComponentType: ComponentType;
   onClickModal?: (row: IDataReferenceAccount) => void;
 }
 
 const { Title } = Typography;
 
 const ReceivableAccount = (props: IProps) => {
-  const { ComponentsType = "FULL", onClickModal } = props;
+  const { ComponentType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [data, setData] = useState<IDataReferenceAccount[]>([]);
@@ -62,14 +62,14 @@ const ReceivableAccount = (props: IProps) => {
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedAt",
       type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: ["updatedUser", "firstName"],
       type: DataIndexType.USER,
@@ -79,8 +79,8 @@ const ReceivableAccount = (props: IProps) => {
   const getReceivableAccounts = async (param: IParamReferenceAccount) => {
     blockContext.block();
     var prm: IParamReferenceAccount = {
-      ...params,
       ...param,
+      ...params,
       queries: params?.queries,
     };
     if (param.queries?.length) {
@@ -147,7 +147,7 @@ const ReceivableAccount = (props: IProps) => {
   return (
     <div>
       <Row gutter={[12, 24]}>
-        {ComponentsType === "FULL" ? (
+        {ComponentType === "FULL" ? (
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
@@ -201,7 +201,7 @@ const ReceivableAccount = (props: IProps) => {
                 getReceivableAccounts(params ? params : { page: 1, limit: 10 });
               }}
             />
-            {ComponentsType === "FULL" ? (
+            {ComponentType === "FULL" ? (
               <Space
                 style={{
                   width: "100%",
@@ -248,12 +248,12 @@ const ReceivableAccount = (props: IProps) => {
         <Col span={24}>
           <NewTable
             scroll={{
-              x: ComponentsType === "FULL" ? 500 : 400,
+              x: ComponentType === "FULL" ? 500 : 400,
             }}
             rowKey="id"
             doubleClick={true}
             onDClick={(value) => {
-              if (ComponentsType === "MIDDLE") {
+              if (ComponentType === "MIDDLE") {
                 onClickModal?.(value);
               }
             }}

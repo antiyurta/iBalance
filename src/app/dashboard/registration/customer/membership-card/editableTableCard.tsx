@@ -10,10 +10,8 @@ import {
   Form,
   FormInstance,
   FormListFieldData,
-  Input,
   InputNumber,
   Popconfirm,
-  Select,
   Switch,
   Table,
   message,
@@ -25,6 +23,7 @@ import { IDataBranch } from "@/service/reference/branch/entities";
 import dayjs from "dayjs";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import "dayjs/locale/mn";
+import { NewInput, NewSelect } from "@/components/input";
 
 interface IProps {
   data: FormListFieldData[];
@@ -37,7 +36,6 @@ interface IProps {
 }
 
 const { Column } = Table;
-const { Option } = Select;
 
 const EditableTableCard: React.FC<IProps> = (props) => {
   const { data, branchs, memberships, form, editMode, add, remove } = props;
@@ -49,6 +47,13 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     useState<Map<number, IDataMembership>>();
 
   const addService = () => {
+    onSave().then((state) => {
+      if (state) {
+        add();
+        setEditingIndex(data.length);
+        setNewService(true);
+      }
+    });
     form
       .validateFields([
         ["cards", editingIndex, "membershipId"],
@@ -69,9 +74,8 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         });
       });
   };
-
-  const onSave = () => {
-    form
+  const onSave = async () => {
+    return form
       .validateFields([
         ["cards", editingIndex, "membershipId"],
         ["cards", editingIndex, "name"],
@@ -86,12 +90,14 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         if (editMode) {
           console.log("end account patch");
         }
+        return true;
       })
       .catch((error) => {
         console.log(error);
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
+        return false;
       });
   };
 
@@ -173,22 +179,34 @@ const EditableTableCard: React.FC<IProps> = (props) => {
             name={[index, "membershipId"]}
             rules={[{ required: true, message: "Картын дугаар заавал" }]}
           >
-            <Select
-              showSearch
+            <NewSelect
               allowClear
-              // filterOption={(input: any, option: { children: any }) => {
-              //   return (option?.children.toLowerCase() ?? "").includes(input);
-              // }}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={memberships?.map((membership) => ({
+                value: membership.id,
+                label: membership.cardNo,
+              }))}
+              onClear={() => {
+                // form.resetFields([
+                //   "name",
+                //   "lastName",
+                //   "regno",
+                //   "phone",
+                //   "sectionName",
+                //   "isIndividual",
+                //   "isEmployee",
+                //   "isActive",
+                // ]);
+              }}
               onSelect={membershipFormField}
-            >
-              {memberships?.map((membership, index) => {
-                return (
-                  <Option key={index} value={membership.id}>
-                    {membership.cardNo}
-                  </Option>
-                );
-              })}
-            </Select>
+            />
           </Form.Item>
         )}
       />
@@ -197,7 +215,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         title="Карт эрхийн бичгийн нэр"
         render={(value, row, index) => (
           <Form.Item name={[index, "name"]}>
-            <Input disabled />
+            <NewInput disabled />
           </Form.Item>
         )}
       />
@@ -228,15 +246,21 @@ const EditableTableCard: React.FC<IProps> = (props) => {
             name={[index, "branchId"]}
             rules={[{ required: true, message: "Ашиглах салбар заавал" }]}
           >
-            <Select>
-              {branchs?.map((branch, index) => {
-                return (
-                  <Option key={index} value={branch.id}>
-                    {branch.name}
-                  </Option>
-                );
-              })}
-            </Select>
+            <NewSelect
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={branchs?.map((branch) => ({
+                value: branch.id,
+                label: branch.name,
+              }))}
+            />
           </Form.Item>
         )}
       />
@@ -244,7 +268,10 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         dataIndex="endAt"
         title="Дуусах огноо"
         render={(value, row, index) => (
-          <Form.Item name={[index, "endAt"]} rules={[{ required: true, message: "Дуусах огноо заавал" }]}>
+          <Form.Item
+            name={[index, "endAt"]}
+            rules={[{ required: true, message: "Дуусах огноо заавал" }]}
+          >
             <DatePicker
               disabled={index === editingIndex ? false : true}
               value={value ? dayjs(value, "YYYY-MM-DD hh:mm:ss") : null}

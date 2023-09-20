@@ -31,7 +31,7 @@ export interface IDataAccountsPost {
 }
 
 export interface IDataLimitOfLoansPost {
-  consumerId: number | undefined;
+  consumerId: number;
   isAccount: boolean;
   isClose: boolean;
   limitAmount: number;

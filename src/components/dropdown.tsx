@@ -8,10 +8,9 @@ import {
   NewRadio,
   NewRadioGroup,
 } from "./input";
-import { Params, ToolsIcons } from "@/service/consumer/entities";
 import { Popover, Space } from "antd";
 import Image from "next/image";
-import { DataIndexType, RadioType } from "@/service/entities";
+import { DataIndexType, RadioType, ToolsIcons } from "@/service/entities";
 import { typeOfFilters } from "@/feature/common";
 
 import { SearchOutlined } from "@ant-design/icons";
@@ -23,7 +22,7 @@ interface IProps {
   type: DataIndexType;
   filters: number[] | string | boolean[];
   isFiltered: boolean;
-  handleSearch: (params: Params, state: boolean) => void;
+  handleSearch: (params: object, state: boolean) => void;
 }
 type CheckedList = (number | string | boolean)[];
 enum SearchType {
@@ -229,8 +228,8 @@ const DropDown = (props: IProps) => {
               {
                 param: dataIndex,
                 operator: tool,
-                value: dayjs(datePickerValue).format("YYYY-MM-DD"),
-                typeof: type === "DATE" ? "date" : "number",
+                value: searchValue,
+                // typeof: type === "DATE" ? "date" : "number",
               },
             ],
           },
@@ -456,7 +455,8 @@ const DropDown = (props: IProps) => {
               }}
               disabled={checkedList.length > 0 ? true : false}
               value={searchValue}
-              onChange={(e: number) => setSearchValue(e)}
+              // onChange={(e: number) => setSearchValue(e)}
+              onChange={(e) => console.log(typeof e)}
               onPressEnter={() => configureSearch(SearchType.INPUT)}
               addonBefore={
                 <Popover

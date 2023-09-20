@@ -1,11 +1,22 @@
+export enum ToolsIcons {
+  EQUALS = "/icons/tools/Equals.png",
+  NOT_EQUAL = "/icons/tools/notEquals.png",
+  CONTAINS = "/icons/tools/Contains.png",
+  NOT_CONTAINS = "/icons/tools/notContains.png",
+  IS_GREATER = "/icons/tools/isGreetThan.png",
+  IS_GREATOR_OR_EQUAL = "/icons/tools/isGreetThanOrEqual.png",
+  IS_LESS = "/icons/tools/isLessThan.png",
+  IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
+}
+
 export interface GenericResponse {
   success: boolean;
   message: string;
   statusCode: number;
 }
 export interface Meta {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   itemCount?: number;
   pageCount?: number;
 }
@@ -126,4 +137,4 @@ export type DescMode = "NORMAL" | "PICTURE";
 
 export type TreeMode = "NORMAL" | "STORAGE" | "UNIT" | "MATERIAL" | "CONSUMER";
 
-export type ComponentsType = "FULL" | "MODAL" | "MIDDLE" | "LITTLE";
+export type ComponentType = "FULL" | "MODAL" | "MIDDLE" | "LITTLE";

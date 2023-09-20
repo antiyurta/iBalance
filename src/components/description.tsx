@@ -1,4 +1,3 @@
-import { FilteredColumns } from "@/service/consumer/entities";
 import { DataIndexType, DescMode } from "@/service/entities";
 import { Modal } from "antd";
 import AntImage from "antd/es/image/index";
@@ -8,7 +7,7 @@ interface IDescription {
   mode?: DescMode;
   title: string;
   open: boolean;
-  columns: FilteredColumns;
+  columns: object;
   selectedRow: any;
   onEdit: () => void;
   onDelete: (id: number) => void;

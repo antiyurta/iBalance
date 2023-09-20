@@ -28,15 +28,16 @@ import {
 import NewModal from "@/components/modal";
 // interface
 import {
-  ComponentsType,
+  ComponentType,
   DataIndexType,
   IFilters,
   Meta,
 } from "@/service/entities";
 import {
-  Params,
+  FilteredColumnsConsumer,
   IDataConsumer,
-  FilteredColumns,
+  IFilterConsumer,
+  IParamConsumer,
 } from "@/service/consumer/entities";
 //service iid
 import { ConsumerService } from "@/service/consumer/service";
@@ -61,17 +62,17 @@ import { NewTable } from "@/components/table";
 const { Title } = Typography;
 
 interface IProps {
-  ComponentsType: ComponentsType;
+  ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
 
 const Information = (props: IProps) => {
-  const { ComponentsType, onClickModal } = props;
+  const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
   const [switchForm] = Form.useForm(); // buleg solih
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [filters, setFilters] = useState<IFilters>();
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [filters, setFilters] = useState<IFilterConsumer>();
+  const [columns, setColumns] = useState<FilteredColumnsConsumer>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
@@ -81,14 +82,14 @@ const Information = (props: IProps) => {
     },
     isIndividual: {
       label: "Хувь хүн эсэх",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "isIndividual",
       type: DataIndexType.BOOLEAN,
     },
     isEmployee: {
       label: "Ажилтан эсэх",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "isEmployee",
       type: DataIndexType.BOOLEAN,
@@ -116,7 +117,7 @@ const Information = (props: IProps) => {
     },
     regno: {
       label: "Регистр №",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "regno",
       type: DataIndexType.MULTI,
@@ -130,35 +131,35 @@ const Information = (props: IProps) => {
     },
     phone: {
       label: "Утасны дугаар",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "phone",
       type: DataIndexType.MULTI,
     },
     bankId: {
       label: "Банкны нэр",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: ["bank", "name"],
       type: DataIndexType.STRING_BANK,
     },
     bankAccountNo: {
       label: "Дансны дугаар",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "bankAccountNo",
       type: DataIndexType.MULTI,
     },
     email: {
       label: "И-мэйл хаяг",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "email",
       type: DataIndexType.MULTI,
     },
     address: {
       label: "Хаяг",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "address",
       type: DataIndexType.MULTI,
@@ -166,12 +167,11 @@ const Information = (props: IProps) => {
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [newParams, setNewParams] = useState<Params>({});
+  const [newParams, setNewParams] = useState<IParamConsumer>({});
   const [banks, setBanks] = useState<IDataReference[]>([]);
   const [editMode, setIsMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
-  const [isFilterIcon, setIsFilterIcon] = useState<boolean>(false);
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
@@ -194,9 +194,9 @@ const Information = (props: IProps) => {
     setSelectedRow(row);
   };
   //data awcirah
-  const getData = async (params: Params) => {
+  const getData = async (params: IParamConsumer) => {
     blockContext.block();
-    var prm: Params = {
+    var prm: IParamConsumer = {
       page: params.page || newParams.page,
       limit: params.limit || newParams.limit,
       orderParam: params.orderParam || newParams.orderParam,
@@ -284,8 +284,8 @@ const Information = (props: IProps) => {
   // hadgalah
   const onFinish = async (values: IDataConsumer) => {
     blockContext.block();
-    if (editMode) {
-      await ConsumerService.patch(selectedRow?.id, values)
+    if (editMode && selectedRow) {
+      await ConsumerService.patch(selectedRow.id, values)
         .then((response) => {
           if (response.success) {
             setSelectedRow(response.response);
@@ -375,7 +375,6 @@ const Information = (props: IProps) => {
   // switch group solih
   const switchGroup = async (values: { sectionId: number }) => {
     if (tableSelectedRows.length > 0) {
-      console.log(values, tableSelectedRows);
       await ConsumerService.switchPatch({
         sectionId: values.sectionId,
         ids: tableSelectedRows.map((row) => row.id),
@@ -389,19 +388,6 @@ const Information = (props: IProps) => {
       openNofi("error", "Алдаа", "Харилцагч сонгоно уу");
     }
   };
-  //row selection
-  useEffect(() => {
-    if (isFilterIcon) {
-      setIsOpenTree(false);
-      if (isDescription) {
-        setIsDescription(false);
-      }
-    } else {
-      if (!isDescription) {
-        setIsOpenTree(true);
-      }
-    }
-  }, [isFilterIcon]);
   useEffect(() => {
     getData({ page: 1, limit: 10 });
     getConsumerSection(TreeSectionType.Consumer);
@@ -410,7 +396,7 @@ const Information = (props: IProps) => {
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {ComponentsType === "FULL" ? (
+        {ComponentType === "FULL" ? (
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
@@ -445,11 +431,6 @@ const Information = (props: IProps) => {
               isLeaf={true}
               onClick={(key, isLeaf) => {
                 if (isLeaf) {
-                  // getData({
-                  //   page: 1,
-                  //   limit: 10,
-                  //   sectionId: [`${key}`],
-                  // });
                   onCloseFilterTag({
                     key: "sectionId",
                     state: true,
@@ -461,7 +442,7 @@ const Information = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    sectionId: [`${key}`],
+                    sectionId: [key],
                   });
                 }
               }}
@@ -470,7 +451,7 @@ const Information = (props: IProps) => {
         ) : null}
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>
-            {ComponentsType === "LITTLE" ? (
+            {ComponentType === "LITTLE" ? (
               <Col span={24}>
                 <div
                   style={{
@@ -594,10 +575,10 @@ const Information = (props: IProps) => {
                       params: newParams,
                       onParams: (params) => setNewParams(params),
                     });
-                    getData(newParams);
+                    getData(newParams ? newParams : {});
                   }}
                 />
-                {ComponentsType === "FULL" ? (
+                {ComponentType === "FULL" ? (
                   <Space
                     style={{
                       width: "100%",
@@ -643,17 +624,17 @@ const Information = (props: IProps) => {
             </Col>
             <Col span={24}>
               <NewTable
-                componentsType={ComponentsType}
-                scroll={{ x: ComponentsType === "FULL" ? 1700 : 400 }}
+                componentType={ComponentType}
+                scroll={{ x: ComponentType === "FULL" ? 1700 : 400 }}
                 rowKey="id"
-                rowSelection={ComponentsType === "LITTLE" ? rowSelection : null}
+                rowSelection={ComponentType === "LITTLE" ? rowSelection : null}
                 doubleClick={true}
                 onDClick={(value) => {
-                  if (ComponentsType === "FULL") {
+                  if (ComponentType === "FULL") {
                     setSelectedRow(value);
                     setIsDescription(true);
                     setIsOpenTree(false);
-                  } else if (ComponentsType === "MIDDLE") {
+                  } else if (ComponentType === "MIDDLE") {
                     onClickModal?.(value);
                   }
                 }}

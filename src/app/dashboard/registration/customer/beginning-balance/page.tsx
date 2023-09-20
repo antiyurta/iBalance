@@ -2,39 +2,24 @@
 
 import CustomerList from "./customerList";
 import DescriptionList from "./descriptionList";
-import {
-  NewInput,
-  NewInputNumber,
-  NewOption,
-  NewSelect,
-} from "@/components/input";
+import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
-import { getConsumerByCode, openNofi } from "@/feature/common";
-import { IDataConsumer } from "@/service/consumer/entities";
+import { openNofi } from "@/feature/common";
+import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import {
-  AutoComplete,
-  Button,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space,
-  Tabs,
-  Typography,
-} from "antd";
+import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import EditableTable from "./editableTable";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { initialBalanceService } from "@/service/beginning-balance/service";
+import { initialBalanceService } from "@/service/consumer/initial-balance/service";
 import Information from "../information/information";
-import dayjs from "dayjs";
-import { IDataInitialBalancePost } from "@/service/beginning-balance/entities";
+import { IDataInitialBalance } from "@/service/consumer/initial-balance/entities";
+import { ConsumerService } from "@/service/consumer/service";
 
 const { Title } = Typography;
 
@@ -60,13 +45,11 @@ const BeginningBalance = () => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  const [consumerDictionary, setConsumerDictionary] =
+    useState<Map<number, IDataConsumer>>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [selectedConsumer, setSelectedConsumer] = useState<
-    IDataConsumer | undefined
-  >();
-  // const [selectedBeginningBalance, setSelectedBeginningBalace] = useState<IData
   const onDelete = async (id: number) => {
     blockContext.block();
     setIsReloadList(false);
@@ -82,6 +65,61 @@ const BeginningBalance = () => {
         blockContext.unblock();
       });
   };
+  const getTreeSections = async () => {
+    await TreeSectionService.get(TreeSectionType.Consumer).then((response) => {
+      if (response.success) {
+        setSections(response.response);
+      }
+    });
+  };
+  const onFinish = async (values: IForm) => {
+    if (editMode) {
+    } else {
+      console.log(values);
+      // await initialBalanceService.post(data).then((response) => {
+      //   console.log(response);
+      // });
+    }
+  };
+  //
+  const openModal = (state: boolean, balance?: IDataInitialBalance) => {
+    setIsReloadList(false);
+    setEditMode(state);
+    form.resetFields();
+    getConsumers({});
+    if (state && balance) {
+      // const data: IInputConsumerMembership = {
+      //   consumerId: consumer.id,
+      //   cards: consumer.memberships.map((card) => ({
+      //     ...card,
+      //     endAt: dayjs(card.endAt),
+      //     name: card.membership.name,
+      //   })),
+      // };
+      // consumerFormField(consumer.id);
+      // form.setFieldsValue(data);
+    }
+    setIsOpenModal(true);
+    // setSelectedRow(row);
+  };
+  const consumerFormField = (id: number) => {
+    const consumer = consumerDictionary?.get(id);
+    if (consumer) {
+      form.setFieldsValue({
+        name: consumer.name,
+        lastName: consumer.lastName,
+        sectionId: consumer.sectionId,
+      });
+    }
+  };
+  const getConsumers = async (params: IParamConsumer) => {
+    await ConsumerService.get(params).then((response) => {
+      if (response.success) {
+        setConsumers(response.response.data);
+      }
+    });
+  };
+
   const items = [
     {
       label: "Харилцагчийн жагсаалт",
@@ -90,24 +128,7 @@ const BeginningBalance = () => {
         <CustomerList
           onReload={isReloadList}
           onEdit={(row) => {
-            const data: IForm = {
-              code: row.consumer.code,
-              name: row.consumer.name,
-              sectionId: row.consumer.sectionId,
-              amount: row.amount,
-              accounts: row.accounts?.map((account) => {
-                return {
-                  code: account.account.code,
-                  name: account.account.name,
-                  date: account.date,
-                  accountId: account.id,
-                  amount: account.amount,
-                };
-              }),
-            };
-            form.setFieldsValue(data);
-            setEditMode(true);
-            setIsOpenModal(true);
+            openModal(true, row);
           }}
           onDelete={onDelete}
         />
@@ -119,40 +140,17 @@ const BeginningBalance = () => {
       children: <DescriptionList />,
     },
   ];
-  const getTreeSections = async () => {
-    await TreeSectionService.get(TreeSectionType.Consumer).then((response) => {
-      if (response.success) {
-        setSections(response.response);
-      }
-    });
-  };
-  const onFinish = async (values: IForm) => {
-    if (editMode) {
-    } else {
-      console.log(consumers, values);
-      console.log(
-        "=-=-=-=-=-=-=-=-=->",
-        consumers?.find((consumer) => consumer.code === values.code)?.id
-      );
-      const data: IDataInitialBalancePost = {
-        consumerId: consumers?.find((consumer) => consumer.code === values.code)
-          ?.id,
-        accounts: values.accounts?.map((account) => {
-          return {
-            date: account.date,
-            accountId: account.accountId,
-            amount: account.amount,
-          };
-        }),
-      };
-      await initialBalanceService.post(data).then((response) => {
-        console.log(response);
-      });
-    }
-  };
   useEffect(() => {
     getTreeSections();
   }, []);
+  useEffect(() => {
+    setConsumerDictionary(
+      consumers.reduce((dict, consumer) => {
+        dict.set(consumer.id, consumer);
+        return dict;
+      }, new Map<number, IDataConsumer>())
+    );
+  }, [consumers]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -162,8 +160,7 @@ const BeginningBalance = () => {
             <Button
               type="primary"
               onClick={() => {
-                setIsOpenModal(true);
-                form.resetFields();
+                openModal(false);
               }}
               icon={
                 <Image
@@ -212,65 +209,37 @@ const BeginningBalance = () => {
             <div className="inputs-gird-4">
               <Form.Item label="Харилцагчийн код">
                 <Space.Compact>
-                  <div className="extraButton">
+                  <div
+                    className="extraButton"
+                    onClick={() => setIsOpenPopOver(true)}
+                  >
                     <Image
-                      onClick={() => setIsOpenPopOver(true)}
                       src="/icons/clipboardBlack.svg"
                       width={16}
                       height={16}
                       alt="clipboard"
                     />
                   </div>
-                  <Form.Item
-                    name="code"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Харилцагчийн код",
-                      },
-                      {
-                        pattern: /^\d*(?:\.\d+)?$/,
-                        message: "Зөвхөн тоо оруулах",
-                      },
-                    ]}
-                  >
-                    <AutoComplete
-                      options={consumers?.map((consumer) => {
-                        return {
-                          label: consumer.code,
-                          value: consumer.code,
-                        };
-                      })}
-                      onSelect={(id) => {
-                        const data = consumers.find(
-                          (consumer) => consumer.code === id
-                        );
-                        setSelectedConsumer(data);
-                        form.setFieldsValue(data);
+                  <Form.Item name="consumerId">
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={consumers?.map((consumer) => ({
+                        value: consumer.id,
+                        label: consumer.code,
+                      }))}
+                      onClear={() => {
+                        form.resetFields(["name", "sectionId"]);
                       }}
-                      className="ant-selecto-border-no"
-                    >
-                      <Input.Search
-                        style={{
-                          border: "none",
-                        }}
-                        enterButton={false}
-                        placeholder="Хайх"
-                        onSearch={async (e: any) => {
-                          const result = await getConsumerByCode(e);
-                          if (result?.state) {
-                            setConsumers(result.data);
-                          } else {
-                            form.setFieldsValue({
-                              code: undefined,
-                              name: undefined,
-                              sectionId: undefined,
-                            });
-                            setConsumers([]);
-                          }
-                        }}
-                      />
-                    </AutoComplete>
+                      onSelect={consumerFormField}
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -296,15 +265,13 @@ const BeginningBalance = () => {
                   },
                 ]}
               >
-                <NewSelect disabled>
-                  {sections?.map((section, index) => {
-                    return (
-                      <NewOption key={index} value={section.id}>
-                        {section.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                <NewSelect
+                  disabled
+                  options={sections?.map((section) => ({
+                    value: section.id,
+                    label: section.name,
+                  }))}
+                />
               </Form.Item>
               <Form.Item
                 label="Эхний үлдэгдэл"
@@ -349,9 +316,13 @@ const BeginningBalance = () => {
         onCancel={() => setIsOpenPopOver(false)}
       >
         <Information
-          ComponentsType="MIDDLE"
-          onClickModal={(row) => {
-            form.setFieldsValue(row);
+          ComponentType="MIDDLE"
+          onClickModal={(row: IDataConsumer) => {
+            form.setFieldsValue({
+              consumerId: row.id,
+              name: row.name,
+              sectionId: row.sectionId,
+            });
             setIsOpenPopOver(false);
           }}
         />

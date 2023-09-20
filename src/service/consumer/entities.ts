@@ -3,16 +3,6 @@ import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
 import { IDataConsumerMembership } from "./membership/entities";
 
-export enum ToolsIcons {
-  EQUALS = "/icons/tools/Equals.png",
-  NOT_EQUAL = "/icons/tools/notEquals.png",
-  CONTAINS = "/icons/tools/Contains.png",
-  NOT_CONTAINS = "/icons/tools/notContains.png",
-  IS_GREATER = "/icons/tools/isGreetThan.png",
-  IS_GREATOR_OR_EQUAL = "/icons/tools/isGreetThanOrEqual.png",
-  IS_LESS = "/icons/tools/isLessThan.png",
-  IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
-}
 export interface IDataConsumer {
   id: number;
   code: string;
@@ -67,4 +57,8 @@ export interface IResponseConsumer extends GenericResponse {
     meta: Meta;
     filter: IFilterConsumer;
   };
+}
+
+export interface IConsumerResponseUpdate extends GenericResponse {
+  response: IDataConsumer;
 }

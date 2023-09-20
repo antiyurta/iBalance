@@ -13,7 +13,7 @@ import {
 } from "antd";
 import Image from "next/image";
 import { IDataBalance } from "@/service/material/balance/entities";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Thumbnail from "./thumbnail";
 import Detailed from "./detailed";
 import NewModal from "@/components/modal";
@@ -267,7 +267,10 @@ const BeginningBalancePage = () => {
                   })}
                 </NewSelect>
               </Form.Item>
-              <Form.Item label="Бараа материалын бүлэг" name="materialSectionId">
+              <Form.Item
+                label="Бараа материалын бүлэг"
+                name="materialSectionId"
+              >
                 <NewSelect disabled>
                   {materialSections?.map((section, index) => {
                     return (

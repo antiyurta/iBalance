@@ -1,9 +1,9 @@
 import React from "react";
-import { ConfigProvider, Dropdown, Modal, Popover, Table } from "antd";
+import { ConfigProvider, Dropdown, Modal, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
-import { Meta, ColumnType } from "@/service/entities";
+import { Meta, ColumnType, ComponentType } from "@/service/entities";
 import DropDown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
@@ -15,7 +15,7 @@ type columns = {
 };
 
 interface ITable {
-  componentsType?: string;
+  componentType?: ComponentType;
   scroll: {
     x?: number;
     y?: number;
@@ -38,7 +38,7 @@ interface ITable {
 
 function NewTable(props: ITable) {
   const {
-    componentsType,
+    componentType,
     scroll,
     rowKey,
     rowSelection,
@@ -150,14 +150,13 @@ function NewTable(props: ITable) {
               onChange?.({ page: page, limit: pageSize }),
           }}
         >
-          <Column
+          {/* <Column
             title={"№"}
             rowScope={"row"}
-            width={40}
             render={(_value, _row, index) => {
               return meta.page * meta.limit - (meta.limit - index - 1);
             }}
-          />
+          /> */}
           {Object.entries(columns)?.map(([key, value]: [any, ColumnType]) => {
             if (value.isView) {
               return (

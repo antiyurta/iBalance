@@ -10,7 +10,6 @@ import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
-import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
 import { Col, Row, Space } from "antd";
 import {
   FilteredColumnsStorageBalance,

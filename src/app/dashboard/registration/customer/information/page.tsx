@@ -3,7 +3,7 @@
 import Information from "./information";
 
 const InformationPage = () => {
-  return <Information ComponentsType="FULL" />;
+  return <Information ComponentType="FULL" />;
 };
 
 export default InformationPage;

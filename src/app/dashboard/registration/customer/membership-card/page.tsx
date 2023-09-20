@@ -144,10 +144,7 @@ const MembershipCard = () => {
     });
   };
   const getMemberships = async () => {
-    const response = await MembershipService.get({
-      page: 1,
-      limit: 10,
-    });
+    const response = await MembershipService.get({});
     if (response.success) {
       setMemberships(response.response.data);
     }
@@ -208,10 +205,7 @@ const MembershipCard = () => {
     });
   };
   useEffect(() => {
-    getConsumers({
-      page: 1,
-      limit: 10,
-    });
+    getConsumers({});
     getBranchs();
   }, []);
   useEffect(() => {
@@ -310,22 +304,31 @@ const MembershipCard = () => {
                     <NewSelect
                       allowClear
                       showSearch
-                      filterOption={(
-                        input: string,
-                        option: { children: string }
-                      ) => {
-                        return (option?.children ?? "").includes(input);
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={consumers?.map((consumer) => ({
+                        value: consumer.id,
+                        label: consumer.code,
+                      }))}
+                      onClear={() => {
+                        form.resetFields([
+                          "name",
+                          "lastName",
+                          "regno",
+                          "phone",
+                          "sectionName",
+                          "isIndividual",
+                          "isEmployee",
+                          "isActive",
+                        ]);
                       }}
                       onSelect={consumerFormField}
-                    >
-                      {consumers?.map((consumer, index) => {
-                        return (
-                          <NewOption key={index} value={consumer.id}>
-                            {consumer.code}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -390,10 +393,12 @@ const MembershipCard = () => {
         onCancel={() => setIsOpenPopOver(false)}
       >
         <Information
-          ComponentsType="MIDDLE"
+          ComponentType="MIDDLE"
           onClickModal={(row: IDataConsumer) => {
             form.setFieldsValue({
+              ...row,
               consumerId: row.id,
+              sectionName: row.section.name,
             });
             setIsOpenPopOver(false);
           }}

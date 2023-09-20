@@ -12,7 +12,7 @@ function post(body: IDataLimitOfLoansPost): Promise<ILimitOfLoansResponse> {
   return api.post("lend-limit", body);
 }
 function patch(
-  id: number | undefined,
+  id: number,
   body: IDataLimitOfLoansPost
 ): Promise<ILimitOfLoansResponse> {
   return api.patch("lend-limit/" + id, body);

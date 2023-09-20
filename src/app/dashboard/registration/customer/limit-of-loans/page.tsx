@@ -3,22 +3,10 @@
 import {
   NewInput,
   NewInputNumber,
-  NewOption,
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import {
-  AutoComplete,
-  Button,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space,
-  Tabs,
-  Typography,
-  message,
-} from "antd";
+import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 //hariltsagchin jagsaalt
@@ -32,31 +20,24 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import EditableTableLimit from "./editableTableLimit";
-import { IDataConsumer, Params } from "@/service/consumer/entities";
+import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import {
-  IDataLimitOfLoans,
-  IDataLimitOfLoansPost,
-} from "@/service/limit-of-loans/entities";
+import { IDataLimitOfLoans } from "@/service/limit-of-loans/entities";
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 
 type IAccounts = {
-  code: string;
-  name: string;
   accountId: number;
+  name?: string;
   amount: number;
 };
 
 type IForm = {
-  code: number | string;
-  name: string;
-  sectionId: number;
+  consumerId: number;
   isAccount: boolean;
   isClose: boolean;
-  isActive: boolean;
   limitAmount: number;
-  lendLimitAccounts: IAccounts[] | null;
+  accounts?: IAccounts[] | [];
 };
 
 const { Title } = Typography;
@@ -73,9 +54,6 @@ const LimitOfLoans = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataLimitOfLoans>();
-  const [selectedConsumer, setSelectedConsumer] = useState<
-    IDataConsumer | undefined
-  >();
   const items = [
     {
       label: "Харилцагчийн жагсаалт",
@@ -101,26 +79,20 @@ const LimitOfLoans = () => {
     setEditMode(state);
     form.resetFields();
     if (state && row) {
-      form.resetFields();
+      setIsAccounts(row.isAccount);
       const data: IForm = {
-        code: row.consumer.code,
-        name: row.consumer.name,
-        sectionId: row.consumer.sectionId,
+        consumerId: row.consumerId,
         isAccount: row.isAccount,
-        isActive: row.consumer.isActive,
         isClose: row.isClose,
         limitAmount: row.limitAmount,
-        lendLimitAccounts: row.lendLimitAccounts?.map((lendLimit) => {
-          return {
-            code: lendLimit.account.code,
-            name: lendLimit.account.name,
-            accountId: lendLimit.accountId,
-            amount: lendLimit.amount,
-          };
-        }),
+        accounts: row.lendLimitAccounts.map((account) => ({
+          accountId: account.accountId,
+          name: account.account.name,
+          amount: account.amount,
+        })),
       };
+      consumerFormField(row.id);
       form.setFieldsValue(data);
-      setIsAccounts(row.isAccount);
       setSelectedRow(row);
     }
     setIsOpenModal(true);
@@ -132,12 +104,13 @@ const LimitOfLoans = () => {
       }
     });
   };
-  const getConsumers = async (params: Params) => {
+  const getConsumers = async (params: IParamConsumer) => {
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
+        const data = response.response.data;
         setConsumers(response.response.data);
         setConsumerDictionary(
-          consumers.reduce((dict, consumer) => {
+          data.reduce((dict, consumer) => {
             dict.set(consumer.id, consumer);
             return dict;
           }, new Map<number, IDataConsumer>())
@@ -146,35 +119,28 @@ const LimitOfLoans = () => {
     });
   };
   const consumerFormField = (id: number) => {
-    console.log(id);
-    console.log("=-", consumerDictionary);
     const consumer = consumerDictionary?.get(id);
     if (consumer) {
-      console.log(consumer);
       form.setFieldsValue({
         name: consumer.name,
         sectionId: consumer.sectionId,
+        isActive: consumer.isActive,
       });
     }
   };
   const onFinish = async (values: IForm) => {
-    const data: IDataLimitOfLoansPost = {
-      consumerId: consumers?.find((consumer) => consumer.code === values.code)
-        ?.id,
-      limitAmount: values.limitAmount,
-      isAccount: values.isAccount,
-      isClose: values.isClose,
-      accounts: values.lendLimitAccounts || [],
-    };
-    if (editMode) {
-      console.log(data);
+    if (editMode && selectedRow) {
       await limitOfLoansService
-        .patch(selectedRow?.id, data)
+        .patch(selectedRow?.id, values)
         .then((response) => {
           console.log(response);
+          if (response.success) {
+            setIsOpenModal(false);
+            setIsReloadList(true);
+          }
         });
     } else {
-      await limitOfLoansService.post(data).then((response) => {
+      await limitOfLoansService.post(values).then((response) => {
         if (response.success) {
           setIsOpenModal(false);
           setIsReloadList(true);
@@ -265,73 +231,37 @@ const LimitOfLoans = () => {
                       alt="clipboard"
                     />
                   </div>
-                  <Form.Item name="consumerId">
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      filterOption={(
-                        input: string,
-                        option: { children: string }
-                      ) => {
-                        return (option?.children ?? "").includes(input);
-                      }}
-                      onClear={() => console.log("sdasasd")}
-                      onSelect={consumerFormField}
-                    >
-                      {consumers?.map((consumer, index) => {
-                        return (
-                          <NewOption key={index} value={consumer.id}>
-                            {consumer.code}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
-                  </Form.Item>
-                  {/* <Form.Item
-                    name="code"
+                  <Form.Item
+                    name="consumerId"
                     rules={[
                       {
                         required: true,
-                        message: "Харилцагчийн код",
-                      },
-                      {
-                        pattern: /^\d*(?:\.\d+)?$/,
-                        message: "Зөвхөн тоо оруулах",
+                        message: "Харилцагчийн код заавал",
                       },
                     ]}
                   >
-                    <AutoComplete
-                      options={consumers?.map((consumer) => {
-                        return {
-                          label: consumer.code,
-                          value: consumer.code,
-                        };
-                      })}
-                      onChange={(id) => {
-                        console.log(id);
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      filterOption={(input, label) =>
+                        (label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={consumers?.map((consumer) => ({
+                        value: consumer.id,
+                        label: consumer.code,
+                      }))}
+                      onClear={() => {
+                        form.resetFields([
+                          ["name"],
+                          ["sectionId"],
+                          ["isActive"],
+                        ]);
                       }}
-                      onSelect={(id) => {
-                        const data = consumers.find(
-                          (consumer) => consumer.code === id
-                        );
-                        setSelectedConsumer(data);
-                        form.setFieldsValue(data);
-                      }}
-                      className="ant-selecto-border-no"
-                    >
-                      <Input.Search
-                        style={{
-                          border: "none",
-                        }}
-                        onChange={(e) => console.log(e)}
-                        enterButton={false}
-                        placeholder="Хайх"
-                        onSearch={(e: any) => {
-                          getConsumerByCode(e);
-                        }}
-                      />
-                    </AutoComplete>
-                  </Form.Item> */}
+                      onSelect={consumerFormField}
+                    />
+                  </Form.Item>
                 </Space.Compact>
               </Form.Item>
               <Form.Item
@@ -356,15 +286,13 @@ const LimitOfLoans = () => {
                   },
                 ]}
               >
-                <NewSelect disabled>
-                  {sections?.map((section, index) => {
-                    return (
-                      <NewOption key={index} value={section.id}>
-                        {section.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                <NewSelect
+                  disabled
+                  options={sections?.map((section) => ({
+                    value: section.id,
+                    label: section.name,
+                  }))}
+                />
               </Form.Item>
               <Form.Item
                 label="Харилцагчид олгох нийт лимит"
@@ -419,7 +347,7 @@ const LimitOfLoans = () => {
               </Form.Item>
             </div>
             {isAccounts ? (
-              <Form.List name="lendLimitAccounts">
+              <Form.List name="accounts">
                 {(accounts, { add, remove }) => (
                   <EditableTableLimit
                     data={accounts}
@@ -441,9 +369,14 @@ const LimitOfLoans = () => {
         onCancel={() => setIsOpenPopOver(false)}
       >
         <Information
-          ComponentsType="MIDDLE"
-          onClickModal={(row) => {
-            form.setFieldsValue(row);
+          ComponentType="MIDDLE"
+          onClickModal={(row: IDataConsumer) => {
+            form.setFieldsValue({
+              consumerId: row.id,
+              name: row.name,
+              sectionId: row.sectionId,
+              isActive: row.isActive,
+            });
             setIsOpenPopOver(false);
           }}
         />

@@ -17,17 +17,18 @@ import {
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
-import { balanceAccountService } from "@/service/beginning-balance/account/service";
+import { balanceAccountService } from "@/service/consumer/initial-balance/account/service";
 import {
   IDataBalanceAccount,
-  Params,
-} from "@/service/beginning-balance/account/entities";
+  IFilterBalanceAccount,
+  IParamBalanceAccount,
+} from "@/service/consumer/initial-balance/account/entities";
 
 const DescriptionList = () => {
   const [data, setData] = useState<IDataBalanceAccount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
-  const [newParams, setNewParams] = useState<Params>({});
+  const [filters, setFilters] = useState<IFilterBalanceAccount>();
+  const [newParams, setNewParams] = useState<IParamBalanceAccount>({});
   const [columns, setColumns] = useState<FilteredColumns>({
     consumerCode: {
       label: "Харилцагчийн код",
@@ -93,7 +94,7 @@ const DescriptionList = () => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: Params) => {
+  const getData = async (params: IParamBalanceAccount) => {
     await balanceAccountService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);

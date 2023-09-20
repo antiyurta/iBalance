@@ -29,11 +29,12 @@ import {
 } from "@/service/reference/tree-section/entities";
 import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
-import { initialBalanceService } from "@/service/beginning-balance/service";
+import { initialBalanceService } from "@/service/consumer/initial-balance/service";
 import {
   IDataInitialBalance,
-  Params,
-} from "@/service/beginning-balance/entities";
+  IFilterInitialBalance,
+  IParamInitialBalance,
+} from "@/service/consumer/initial-balance/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 
 interface IProps {
@@ -45,12 +46,12 @@ interface IProps {
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [newParams, setNewParams] = useState<Params>({});
+  const [newParams, setNewParams] = useState<IParamInitialBalance>({});
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [filters, setFilters] = useState<IFilters>();
+  const [filters, setFilters] = useState<IFilterInitialBalance>();
   const [selectedRow, setSelectedRow] = useState<any>([]);
   const [columns, setColumns] = useState<FilteredColumns>({
     code: {
@@ -106,9 +107,9 @@ const CustomerList = (props: IProps) => {
     // setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: Params) => {
+  const getData = async (params: IParamInitialBalance) => {
     blockContext.block();
-    var prm: Params = {
+    var prm: IParamInitialBalance = {
       page: params.page || newParams.page,
       limit: params.limit || newParams.limit,
       orderParam: params.orderParam || newParams.orderParam,
@@ -183,7 +184,7 @@ const CustomerList = (props: IProps) => {
             data={sections}
             isLeaf={true}
             onClick={(key) => {
-              getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+              getData({ page: 1, limit: 10, sectionId: [key] });
             }}
           />
         </Col>

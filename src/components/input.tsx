@@ -12,6 +12,10 @@ import {
   Switch,
 } from "antd";
 import type { DatePickerProps } from "antd/es/date-picker";
+import type { SelectProps } from "antd/es/select";
+import type { InputProps } from "antd/es/input";
+import type { InputNumberProps } from "antd/es/input-number";
+import type { TextAreaProps } from "antd/es/input/TextArea";
 // shalguur
 const checkNumber = (event: any) => {
   var charCode = event.charCode;
@@ -38,7 +42,7 @@ function NewDatePicker(props: DatePickerProps) {
   return <DatePicker {...props} />;
 }
 
-function NewSelect(props: any) {
+function NewSelect(props: SelectProps) {
   return (
     <ConfigProvider
       renderEmpty={() => (
@@ -51,7 +55,7 @@ function NewSelect(props: any) {
         </div>
       )}
     >
-      <Select {...props}></Select>
+      <Select {...props} />
     </ConfigProvider>
   );
 }
@@ -59,11 +63,11 @@ function NewOption(props: any) {
   return <Option {...props}>{props.children}</Option>;
 }
 
-function NewInput(props: any) {
-  return <Input {...props}>{props.children}</Input>;
+function NewInput(props: InputProps) {
+  return <Input {...props} />;
 }
 
-function NewInputNumber(props: any) {
+function NewInputNumber(props: InputNumberProps) {
   return (
     <InputNumber
       onKeyPress={checkNumber}
@@ -78,7 +82,7 @@ function NewInputNumber(props: any) {
   );
 }
 
-function NewTextArea(props: any) {
+function NewTextArea(props: TextAreaProps) {
   return <TextArea {...props} />;
 }
 

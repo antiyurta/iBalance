@@ -26,10 +26,10 @@ const ubuntu = Ubuntu({
 
 Interceptor(api, store);
 
-// export const metadata: Metadata = {
-//   title: "iBalance",
-//   description: "iBalance",
-// };
+export const metadata = {
+  title: "iBalance",
+  description: "iBalance",
+};
 
 export default function RootLayout({
   children,
