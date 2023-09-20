@@ -1,8 +1,8 @@
 import {
   ColumnType,
   GenericResponse,
+  IParam,
   Meta,
-  Quearies,
 } from "@/service/entities";
 import { IDataMaterial } from "@/service/material/entities";
 
@@ -43,7 +43,7 @@ export interface IFilterMembership {
 export type FilteredColumnsMembership = {
   [T in keyof IFilterMembership]?: ColumnType;
 };
-export interface IParamMembership extends IFilterMembership, Meta {}
+export interface IParamMembership extends IFilterMembership, Meta, IParam {}
 
 export interface IResponseMembership extends GenericResponse {
   response: {

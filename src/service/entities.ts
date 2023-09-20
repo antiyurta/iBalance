@@ -74,13 +74,24 @@ export type ColumnType = {
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
 
-export interface Quearies {
+export interface Queries {
   param: string;
   operator?: string;
   value?: number | string;
   typeof?: "string" | "number" | "date";
 }
-
+export interface IParam {
+  queries?: Queries[];
+  orderParam?: string;
+  order?: RadioType;
+}
+export interface IData {
+  createdBy: number;
+  updatedBy: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+}
 export enum DataIndexType {
   MULTI = "MULTI", // too bolon string
   STRING_SECTION = "STRING_SECTION",

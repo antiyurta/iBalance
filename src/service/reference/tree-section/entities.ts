@@ -1,4 +1,4 @@
-import { GenericResponse, Quearies } from "@/service/entities";
+import { GenericResponse } from "@/service/entities";
 
 export interface Params {
   name?: string;
