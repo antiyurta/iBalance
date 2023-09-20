@@ -10,7 +10,7 @@ export interface Params {
   isActive?: boolean[];
   updatedAt?: string[];
   updatedBy?: number[];
-  queries?: Quearies[];
+  queries?: Queries[];
   orderParam?: string | null | undefined;
   order?: RadioType | null | undefined;
 }
@@ -20,25 +20,17 @@ import {
   GenericResponse,
   IFilters,
   Meta,
-  Quearies,
+  Queries,
   RadioType,
 } from "@/service/entities";
 import { IDataLimitOfLoans } from "../entities";
+import { IDataReferenceAccount } from "@/service/reference/account/entities";
 
-export interface IDataAccount {
-  id: number;
-  code: string;
-  name: string;
-  createdBy: number;
-  createdAt: string;
-  updatedAt: string;
-  updatedBy: number;
-}
 
 export interface IDataLimitOfLoansAccount {
   id: number;
   code: number;
-  account: IDataAccount;
+  account: IDataReferenceAccount;
   accountId: number;
   amount: number;
   lendLimitId: number;

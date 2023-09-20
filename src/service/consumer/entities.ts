@@ -1,11 +1,4 @@
-import {
-  ColumnType,
-  GenericResponse,
-  IFilters,
-  Meta,
-  Quearies,
-  RadioType,
-} from "../entities";
+import { ColumnType, GenericResponse, IParam, Meta } from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
 import { IDataConsumerMembership } from "./membership/entities";
@@ -20,32 +13,9 @@ export enum ToolsIcons {
   IS_LESS = "/icons/tools/isLessThan.png",
   IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
 }
-
-export interface Params {
-  page?: number | undefined;
-  limit?: number | undefined;
-  code?: number[] | undefined;
-  isIndividual?: boolean[];
-  isEmployee?: boolean[];
-  lastName?: string[] | undefined;
-  name?: string[];
-  sectionId?: string[] | number[];
-  regno?: string[];
-  phone?: string[];
-  address?: string[];
-  bankId?: string[] | number[];
-  bankAccountNo?: string[];
-  email?: string[];
-  isActive?: boolean[];
-  queries?: Quearies[];
-  memberships?: boolean,
-  orderParam?: string | null | undefined;
-  order?: RadioType | null | undefined;
-}
-
 export interface IDataConsumer {
   id: number;
-  code: number | string;
+  code: string;
   isActive: boolean;
   isEmployee: boolean;
   isIndividual: boolean;
@@ -67,17 +37,34 @@ export interface IDataConsumer {
   updatedAt: string;
   deletedAt: string;
 }
+export interface IFilterConsumer {
+  code?: number[];
+  isIndividual?: boolean[];
+  isEmployee?: boolean[];
+  lastName?: string[];
+  name?: string[];
+  sectionId?: number[] | string[];
+  regno?: string[];
+  phone?: string[];
+  address?: string[];
+  bankId?: number[];
+  bankAccountNo?: string[];
+  email?: string[];
+  isActive?: boolean[];
+  updatedAt?: string;
+  updatedBy?: number[];
+}
+export type FilteredColumnsConsumer = {
+  [T in keyof IFilterConsumer]?: ColumnType;
+};
 
-export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
-
-export interface IConsumerResponse extends GenericResponse {
+export interface IParamConsumer extends Meta, IParam, IFilterConsumer {
+  memberships?: boolean;
+}
+export interface IResponseConsumer extends GenericResponse {
   response: {
     data: IDataConsumer[];
     meta: Meta;
-    filter: IFilters;
+    filter: IFilterConsumer;
   };
-}
-
-export interface IConsumerResponseUpdate extends GenericResponse {
-  response: IDataConsumer;
 }

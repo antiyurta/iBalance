@@ -1,30 +1,7 @@
 import { Dayjs } from "dayjs";
-import {
-  GenericResponse,
-  IFilters,
-  Meta,
-  Quearies,
-  RadioType,
-} from "../../entities";
+import { ColumnType, GenericResponse, IParam, Meta } from "../../entities";
 import { IDataConsumer } from "../entities";
 import { IDataMembership } from "@/service/reference/membership/entities";
-
-export interface Params {
-  page?: number | undefined;
-  limit?: number | undefined;
-  consumerCode?: string[];
-  consumerLastname?: string[];
-  consumerName?: string[];
-  consumerIsIndividual?: boolean[];
-  consumerPhone?: string[];
-  consumerIsActive?: boolean[];
-  consumerRegno?: string[];
-  membershipCardno?: string[];
-  membershipName?: string[];
-  queries?: Quearies[];
-  orderParam?: string | null | undefined;
-  order?: RadioType | null | undefined;
-}
 
 export interface IDataConsumerMembership {
   id: number;
@@ -45,11 +22,28 @@ export interface IInputConsumerMembership {
   consumerId: number;
   cards: IDataConsumerMembership[];
 }
-
+export interface IFilterConsumerMembership {
+  consumerCode?: string[];
+  consumerLastname?: string[];
+  consumerName?: string[];
+  consumerIsIndividual?: boolean[];
+  consumerPhone?: string[];
+  consumerIsActive?: boolean[];
+  consumerRegno?: string[];
+  membershipCardno?: string[];
+  membershipName?: string[];
+}
+export type FilteredColumnsMembership = {
+  [T in keyof IFilterConsumerMembership]?: ColumnType;
+};
+export interface IParamConsumerMembership
+  extends Meta,
+    IParam,
+    IFilterConsumerMembership {}
 export interface IResponseConsumerMembership extends GenericResponse {
   response: {
     data: IDataConsumerMembership[];
     meta: Meta;
-    filter: IFilters;
+    filter: IFilterConsumerMembership;
   };
 }
