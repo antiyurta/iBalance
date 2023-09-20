@@ -67,7 +67,7 @@ const CardList = (props: IProps) => {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActve",
+      dataIndex: "isActive",
       type: DataIndexType.BOOLEAN,
     },
     limitDiscount: {

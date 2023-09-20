@@ -21,10 +21,10 @@ import React, { useState } from "react";
 import { NewInput, NewInputNumber } from "@/components/input";
 import { FormInstance } from "antd/lib";
 import { EditableFormItemLimitNumber } from "./editableFormItemLimitNumber";
-import { IDataAccount } from "@/service/limit-of-loans/account/entities";
 import NewModal from "@/components/modal";
 import ReceivableAccount from "../receivable-account/receivableAccount";
-import { ReceivableAccountService } from "@/service/receivable-account/service";
+import { referenceAccountService } from "@/service/reference/account/service";
+import { IDataReferenceAccount } from "@/service/reference/account/entities";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
@@ -37,7 +37,7 @@ const { Column } = Table;
 
 function EditableTableLimit(props: IProps) {
   const { data, form, editMode, add, remove } = props;
-  const [accounts, setAccounts] = useState<IDataAccount[]>([]);
+  const [accounts, setAccounts] = useState<IDataReferenceAccount[]>([]);
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
@@ -105,24 +105,28 @@ function EditableTableLimit(props: IProps) {
     if (!code) {
       message.error("Код заавал оруулж хайх");
     } else {
-      await ReceivableAccountService.get({
-        queries: [
-          {
-            param: "code",
-            operator: "CONTAINS",
-            value: code,
-          },
-        ],
-      }).then((response) => {
-        if (response.success) {
-          if (response.response.data.length === 0) {
-            message.warning("Хайсан утгаар дата алга");
-            setAccounts([]);
-          } else {
-            setAccounts(response.response.data);
+      await referenceAccountService
+        .get({
+          queries: [
+            {
+              param: "code",
+              operator: "CONTAINS",
+              value: code,
+            },
+          ],
+          page: 1,
+          limit: 10
+        })
+        .then((response) => {
+          if (response.success) {
+            if (response.response.data.length === 0) {
+              message.warning("Хайсан утгаар дата алга");
+              setAccounts([]);
+            } else {
+              setAccounts(response.response.data);
+            }
           }
-        }
-      });
+        });
     }
   };
   //

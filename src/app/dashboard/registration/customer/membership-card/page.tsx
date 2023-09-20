@@ -26,7 +26,7 @@ import {
   NewTextArea,
 } from "@/components/input";
 import EditableTableCard from "./editableTableCard";
-import { IDataConsumer, Params } from "@/service/consumer/entities";
+import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { IInputConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
@@ -89,9 +89,7 @@ const MembershipCard = () => {
         <CardList
           onReload={isReloadCardList}
           onEdit={(row) => openModalCard(true, row)}
-          onDelete={(id) => {
-            console.log(id);
-          }}
+          onDelete={(id) => onDeleteMembership(id)}
         />
       ),
     },
@@ -117,12 +115,12 @@ const MembershipCard = () => {
     setIsOpenModal(true);
     // setSelectedRow(row);
   };
-  const openModalCard = (state: boolean, membership: IDataMembership) => {
+  const openModalCard = (state: boolean, membership?: IDataMembership) => {
     setIsOpenModalCard(true);
     setIsReloadCardList(false);
     formMembership.resetFields();
     setIsEditMembership(state);
-    if (isEditMembership) {
+    if (isEditMembership && membership) {
       formMembership.setFieldsValue({
         ...membership,
       });
@@ -131,7 +129,7 @@ const MembershipCard = () => {
       setMembership(membership);
     }
   };
-  const getConsumers = async (params: Params) => {
+  const getConsumers = async (params: IParamConsumer) => {
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
         setConsumers(response.response.data);
@@ -195,13 +193,25 @@ const MembershipCard = () => {
       await MembershipService.post(data).then((response) => {
         if (response.success) {
           setIsOpenModalCard(false);
+          setIsReloadCardList(true);
         }
       });
     }
     openNofi("success", "Амжилттай", "Амжиллтай хадгаллаа.");
   };
+  const onDeleteMembership = async (id: number) => {
+    await MembershipService.remove(id).then((response) => {
+      if (response.success) {
+        setIsReloadCardList(true);
+        openNofi("success", "Амжилттай", "Амжиллтай устгалаа.");
+      }
+    });
+  };
   useEffect(() => {
-    getConsumers({});
+    getConsumers({
+      page: 1,
+      limit: 10,
+    });
     getBranchs();
   }, []);
   useEffect(() => {
@@ -236,7 +246,7 @@ const MembershipCard = () => {
             </Button>
             <Button
               type="primary"
-              onClick={() => setIsOpenModalCard(true)}
+              onClick={() => openModalCard(false)}
               icon={
                 <Image
                   src={"/images/AddIcon.svg"}
@@ -406,7 +416,7 @@ const MembershipCard = () => {
           form={formMembership}
           layout="vertical"
           initialValues={{
-            isActive: false,
+            isActive: true,
             isSave: false,
             isPercent: false,
             isSale: false,
@@ -456,13 +466,12 @@ const MembershipCard = () => {
                       ]}
                     >
                       <NewInputNumber
+                        min={1}
+                        max={99}
                         style={{
                           width: "100%",
                         }}
-                        prefix={"₮ "}
-                        formatter={(value: any) =>
-                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                        }
+                        prefix={"% "}
                       />
                     </Form.Item>
                   ) : (
@@ -476,12 +485,13 @@ const MembershipCard = () => {
                       ]}
                     >
                       <NewInputNumber
-                        min={1}
-                        max={99}
                         style={{
                           width: "100%",
                         }}
-                        prefix={"% "}
+                        prefix={"₮ "}
+                        formatter={(value: any) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
                       />
                     </Form.Item>
                   )
@@ -489,9 +499,15 @@ const MembershipCard = () => {
               </Form.Item>
               <Form.Item
                 label="Ашиглах боломжтой онооны дээд хязгаар"
-                name="limitDiscount"
+                shouldUpdate
               >
-                <NewInputNumber />
+                {() => (
+                  <Form.Item name="limitDiscount">
+                    <NewInputNumber
+                      disabled={!formMembership.getFieldValue("isSave")}
+                    />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item
                 label="Борлуулдаг эсэх"
@@ -500,11 +516,14 @@ const MembershipCard = () => {
               >
                 <NewSwitch />
               </Form.Item>
-              <Form.Item
-                label="Барааны материалын код үүсгэх"
-                name="materialCode"
-              >
-                <NewInput />
+              <Form.Item label="Барааны материалын код үүсгэх" shouldUpdate>
+                {() => (
+                  <Form.Item name="materialCode">
+                    <NewInput
+                      disabled={!formMembership.getFieldValue("isSale")}
+                    />
+                  </Form.Item>
+                )}
               </Form.Item>
             </div>
             <Form.Item label="Тайлбар" name="description">

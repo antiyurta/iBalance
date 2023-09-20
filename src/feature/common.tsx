@@ -5,9 +5,9 @@ import {
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
-import { DataIndexType, Quearies } from "@/service/entities";
+import { DataIndexType, Queries } from "@/service/entities";
 import { IDataCountry } from "@/service/material/brand/entities";
-import { ReceivableAccountService } from "@/service/receivable-account/service";
+import { referenceAccountService } from "@/service/reference/account/service";
 import { IDataReference, IDataUser, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import { message, notification } from "antd";
@@ -103,7 +103,7 @@ function removeDuplicates(set: any[]) {
 }
 
 function unDuplicate(text: string, newParams: any) {
-  var newQueries: Quearies[] = [];
+  var newQueries: Queries[] = [];
   newParams.queries?.map((query: any) => {
     if (query.param != text) {
       newQueries.push(query);
@@ -177,8 +177,8 @@ function onCloseFilterTag(props: IOnCloseFilterTag) {
       newClonedParams.order = undefined;
     }
     if (params.queries) {
-      var newQueries: Quearies[] = [];
-      params.queries.map((query: Quearies) => {
+      var newQueries: Queries[] = [];
+      params.queries.map((query: Queries) => {
         if (query.param != key) {
           newQueries.push(query);
         }
@@ -324,19 +324,11 @@ async function measurementToFilter(filters: any) {
   return outFilters;
 }
 
-async function userToFilter(filters: any) {
+async function userToFilter(ids: number[]) {
   const outFilters: ColumnFilterItem[] = [];
-  const { response } = await ReferenceService.getUsers({ ids: filters });
-  console.log("======>", response);
-  filters?.map((filterSection: any) => {
-    response.map((user: IDataUser) => {
-      if (user.id === filterSection) {
-        outFilters.push({
-          text: user.firstName,
-          value: filterSection,
-        });
-      }
-    });
+  const { response } = await ReferenceService.getUsers({ ids });
+  response.map((res) => {
+    outFilters.push({ text: res.firstName, value: res.id });
   });
   return outFilters;
 }
@@ -456,6 +448,8 @@ const getConsumerByCode = async (code: number | string) => {
           value: code.toString(),
         },
       ],
+      page: 1,
+      limit: 10
     }).then((response) => {
       if (response.success) {
         if (response.response.data.length === 0) {
@@ -479,24 +473,28 @@ const getReceivableAccountByCode = async (code: string) => {
   if (!code) {
     message.error("Код заавал оруулж хайх");
   } else {
-    return await ReceivableAccountService.get({
-      queries: [
-        {
-          param: "code",
-          operator: "CONTAINS",
-          value: code,
-        },
-      ],
-    }).then((response) => {
-      if (response.success) {
-        if (response.response.data.length === 0) {
-          message.warning("Хайсан утгаар дата алга");
-          return [];
-        } else {
-          return response.response.data;
+    return await referenceAccountService
+      .get({
+        queries: [
+          {
+            param: "code",
+            operator: "CONTAINS",
+            value: code,
+          },
+        ],
+        page: 1,
+        limit: 10,
+      })
+      .then((response) => {
+        if (response.success) {
+          if (response.response.data.length === 0) {
+            message.warning("Хайсан утгаар дата алга");
+            return [];
+          } else {
+            return response.response.data;
+          }
         }
-      }
-    });
+      });
   }
 };
 

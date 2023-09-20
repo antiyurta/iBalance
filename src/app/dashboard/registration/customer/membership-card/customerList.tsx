@@ -7,17 +7,17 @@ import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
-import {
-  DataIndexType,
-  FilteredColumns,
-  IFilters,
-  Meta,
-} from "@/service/entities";
+import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ConsumerService } from "@/service/consumer/service";
-import { IDataConsumer, Params } from "@/service/consumer/entities";
+import {
+  FilteredColumnsConsumer,
+  IDataConsumer,
+  IFilterConsumer,
+  IParamConsumer,
+} from "@/service/consumer/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 
 interface IProps {
@@ -29,16 +29,30 @@ interface IProps {
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [newParams, setNewParams] = useState<Params>({});
+  const [params, setParams] = useState<IParamConsumer>();
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [filters, setFilters] = useState<IFilterConsumer>();
+  const [column, setColumn] = useState<FilteredColumnsConsumer>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
       dataIndex: "code",
+      type: DataIndexType.MULTI,
+    },
+    isEmployee: {
+      label: "Ажилтан эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isEmployee",
+      type: DataIndexType.MULTI,
+    },
+    lastName: {
+      label: "Харилцагчийн овог",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isEmployee",
       type: DataIndexType.MULTI,
     },
     name: {
@@ -48,20 +62,84 @@ const CustomerList = (props: IProps) => {
       dataIndex: "name",
       type: DataIndexType.MULTI,
     },
+    sectionId: {
+      label: "Харилцагчийн бүлэг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "sectionId",
+      type: DataIndexType.MULTI,
+    },
+    regno: {
+      label: "Регистр №",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "regno",
+      type: DataIndexType.MULTI,
+    },
+    phone: {
+      label: "Утасны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "phone",
+      type: DataIndexType.MULTI,
+    },
+    address: {
+      label: "Хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "address",
+      type: DataIndexType.MULTI,
+    },
+    bankId: {
+      label: "Банкны нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["bank", "name"],
+      type: DataIndexType.MULTI,
+    },
+    bankAccountNo: {
+      label: "Дансны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "bankAccountNo",
+      type: DataIndexType.MULTI,
+    },
+    email: {
+      label: "И-мэйл хаяг",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "email",
+      type: DataIndexType.MULTI,
+    },
+    isActive: {
+      label: "Төлөв",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isActive",
+      type: DataIndexType.BOOLEAN,
+    },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
-      isView: true,
+      isView: false,
       isFiltered: false,
       dataIndex: "updatedAt",
       type: DataIndexType.DATE,
     },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
+    },
   });
   //
-  const getData = async (params: Params) => {
+  const getData = async (params: IParamConsumer) => {
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
+        setFilters(response.response.filter);
       }
     });
   };
@@ -93,7 +171,9 @@ const CustomerList = (props: IProps) => {
             data={sections}
             isLeaf={true}
             onClick={(key) => {
-              getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+              if (key) {
+                getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+              }
             }}
           />
         </Col>
@@ -108,17 +188,17 @@ const CustomerList = (props: IProps) => {
                 size={12}
               >
                 <Filtered
-                  columns={columns}
+                  columns={column}
                   isActive={(key, state) => {
                     onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      key,
+                      state,
+                      column,
+                      onColumn: setColumn,
+                      params,
+                      onParams: setParams,
                     });
-                    getData(newParams);
+                    getData(params ? params : { page: 1, limit: 10 });
                   }}
                 />
                 <Space
@@ -129,15 +209,15 @@ const CustomerList = (props: IProps) => {
                   size={12}
                 >
                   <ColumnSettings
-                    columns={columns}
+                    columns={column}
                     columnIndexes={(arg1, arg2) =>
                       findIndexInColumnSettings({
                         newRowIndexes: arg1,
                         unSelectedRow: arg2,
-                        columns: columns,
-                        onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
+                        columns: column,
+                        onColumns: setColumn,
+                        params,
+                        onParams: setParams,
                         getData: (params) => getData(params),
                       })
                     }
@@ -165,11 +245,11 @@ const CustomerList = (props: IProps) => {
                 rowKey="id"
                 data={data}
                 meta={meta}
-                columns={columns}
-                onChange={(params) => getData(params)}
-                onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                columns={column}
+                onChange={getData}
+                onColumns={setColumn}
+                newParams={params}
+                onParams={setParams}
                 incomeFilters={filters}
                 onEdit={(row) => onEdit(row)}
                 onDelete={(id) => onDelete(id)}
