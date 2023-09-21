@@ -2,34 +2,38 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
+import { useContext, useEffect, useState } from "react";
+import { DataIndexType, Meta } from "@/service/entities";
 import {
-  FilteredColumnsLimitOfLoansAccount,
-  IDataLimitOfLoansAccount,
-} from "@/service/limit-of-loans/account/entities";
-import {
-  DataIndexType,
-  FilteredColumns,
-  IFilters,
-  Meta,
-} from "@/service/entities";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  unDuplicate,
+} from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
 import { balanceAccountService } from "@/service/consumer/initial-balance/account/service";
 import {
+  FilteredColumnsBalanceAccount,
   IDataBalanceAccount,
   IFilterBalanceAccount,
   IParamBalanceAccount,
 } from "@/service/consumer/initial-balance/account/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 
-const DescriptionList = () => {
+interface IProps {
+  onReload: boolean;
+  onEdit?: (row: IDataBalanceAccount) => void;
+  onDelete?: (id: number) => void;
+}
+
+const DescriptionList = (props: IProps) => {
+  const { onReload, onEdit, onDelete } = props;
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [data, setData] = useState<IDataBalanceAccount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBalanceAccount>();
-  const [newParams, setNewParams] = useState<IParamBalanceAccount>({});
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [params, setParams] = useState<IParamBalanceAccount>({});
+  const [columns, setColumns] = useState<FilteredColumnsBalanceAccount>({
     consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
@@ -42,14 +46,14 @@ const DescriptionList = () => {
       isView: true,
       isFiltered: false,
       dataIndex: ["balance", "consumer", "name"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.STRING_CONSUMER_NAME,
     },
-    sectionId: {
+    consumerSectionId: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["balance", "consumer", "section", "name"],
-      type: DataIndexType.STRING_CONSUMER_SECTION,
+      type: DataIndexType.STRING_SECTION,
     },
     accountCode: {
       label: "Дансны код",
@@ -72,11 +76,11 @@ const DescriptionList = () => {
       dataIndex: "amount",
       type: DataIndexType.VALUE,
     },
-    isClose: {
+    date: {
       label: "Авлага үүссэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: "date",
       type: DataIndexType.DATE,
     },
     updatedAt: {
@@ -94,18 +98,60 @@ const DescriptionList = () => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamBalanceAccount) => {
-    await balanceAccountService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
+  const getData = async (param: IParamBalanceAccount) => {
+    blockContext.block();
+    var prm: IParamBalanceAccount = {
+      ...param,
+      ...params,
+      queries: params.queries,
+    };
+    if (param.queries?.length) {
+      const incomeParam = param.queries[0].param;
+      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
+    }
+    if (param.consumerCode) {
+      prm.queries = [...unDuplicate("consumerCode", params)];
+    }
+    if (param.consumerName) {
+      prm.queries = [...unDuplicate("consumerName", params)];
+    }
+    if (param.consumerSectionId) {
+      prm.queries = [...unDuplicate("consumerSectionId", params)];
+    }
+    if (param.accountCode) {
+      prm.queries = [...unDuplicate("accountCode", params)];
+    }
+    if (param.accountName) {
+      prm.queries = [...unDuplicate("accountName", params)];
+    }
+    if (param.amount) {
+      prm.queries = [...unDuplicate("amount", params)];
+    }
+    if (param.date) {
+      prm.queries = [...unDuplicate("date", params)];
+    }
+    if (param.updatedAt) {
+      prm.queries = [...unDuplicate("updatedAt", params)];
+    }
+    if (param.updatedBy) {
+      prm.queries = [...unDuplicate("updatedBy", params)];
+    }
+    await balanceAccountService
+      .get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
-  }, []);
+  }, [onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -125,10 +171,10 @@ const DescriptionList = () => {
                   state: state,
                   column: columns,
                   onColumn: (columns) => setColumns(columns),
-                  params: newParams,
-                  onParams: (params) => setNewParams(params),
+                  params: params,
+                  onParams: (params) => setParams(params),
                 });
-                getData(newParams);
+                getData(params);
               }}
             />
             <Space
@@ -146,8 +192,8 @@ const DescriptionList = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: newParams,
-                    onParams: (params) => setNewParams(params),
+                    params: params,
+                    onParams: (params) => setParams(params),
                     getData: (params) => getData(params),
                   })
                 }
@@ -176,13 +222,14 @@ const DescriptionList = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={(params) => getData(params)}
+            onChange={(param) => getData(param)}
             onColumns={(columns) => setColumns(columns)}
-            newParams={newParams}
-            onParams={(params) => setNewParams(params)}
+            newParams={params}
+            onParams={(params) => setParams(params)}
             incomeFilters={filters}
-            onEdit={(row) => console.log(row)}
-            onDelete={(id) => console.log(id)}
+            isEdit={true}
+            onEdit={(row) => onEdit?.(row)}
+            isDelete={false}
           />
         </Col>
       </Row>

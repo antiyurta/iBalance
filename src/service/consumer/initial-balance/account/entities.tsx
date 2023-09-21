@@ -1,4 +1,3 @@
-import { IDataReference } from "@/service/reference/entity";
 import {
   ColumnType,
   GenericResponse,
@@ -21,11 +20,12 @@ export interface IDataBalanceAccount extends IData {
 // Хайлт
 export interface IFilterBalanceAccount {
   consumerCode?: string[];
-  consumerSectionId?: number[];
   consumerName?: string[];
+  consumerSectionId?: number[];
   accountCode?: string[];
   accountName?: string[];
   amount?: number[];
+  date?: string[];
   updatedBy?: number[];
   createdAt?: string[];
   updatedAt?: string[];

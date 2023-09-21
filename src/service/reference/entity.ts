@@ -12,7 +12,7 @@ export interface IDataUser {
 }
 // START => Reference section
 export interface IDataReference {
-  id: number;
+  id?: number;
   name: string;
   type: IType;
 }

@@ -1,56 +1,43 @@
-export interface Params {
-  page?: number | undefined;
-  limit?: number | undefined;
-  code?: number[] | undefined;
-  name?: string[];
-  sectionId?: string[] | number[];
-  isAccount?: boolean[];
-  limitAmount?: number[];
-  isClose?: boolean[];
-  isActive?: boolean[];
-  updatedAt?: string[];
-  updatedBy?: number[];
-  queries?: Queries[];
-  orderParam?: string | null | undefined;
-  order?: RadioType | null | undefined;
-}
-
 import {
   ColumnType,
   GenericResponse,
+  IData,
   IFilters,
+  IParam,
   Meta,
-  Queries,
-  RadioType,
 } from "@/service/entities";
 import { IDataLimitOfLoans } from "../entities";
 import { IDataReferenceAccount } from "@/service/reference/account/entities";
 
-
-export interface IDataLimitOfLoansAccount {
-  id: number;
-  code: number;
+export interface IDataLimitOfLoansAccount extends IData {
   account: IDataReferenceAccount;
   accountId: number;
   amount: number;
+  id: number;
   lendLimitId: number;
   lendLimit: IDataLimitOfLoans;
-  createdAt: string;
-  createdBy: number;
-  updatedAt: string;
-  deletedAt: string;
-  updatedBy: string;
-  consumer: string;
-  section: string;
-  name: string;
-  isAccount: string;
-  isClose: string;
-  isActive: boolean;
+}
+
+export interface IFilterLimitOfLoansAccount {
+  code?: number[];
+  name?: string[];
+  sectionId?: number[];
+  isAccount?: boolean[];
+  accountCode?: number[];
+  accountName?: string[];
+  amount?: number[];
+  isClose?: boolean[];
+  isActive?: boolean[];
 }
 
 export type FilteredColumnsLimitOfLoansAccount = {
-  [T in keyof IFilters]?: ColumnType;
+  [T in keyof IFilterLimitOfLoansAccount]?: ColumnType;
 };
+
+export interface IParamLimitOFloansAccount
+  extends IFilterLimitOfLoansAccount,
+    Meta,
+    IParam {}
 
 export interface ILimitOfLoansAccountResponse extends GenericResponse {
   response: {
@@ -58,4 +45,7 @@ export interface ILimitOfLoansAccountResponse extends GenericResponse {
     meta: Meta;
     filter: IFilters;
   };
+}
+export interface ILimitOfLoansAccountResponseUpdate extends GenericResponse {
+  response: IDataLimitOfLoansAccount;
 }

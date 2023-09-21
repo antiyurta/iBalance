@@ -4,27 +4,20 @@ import {
   SaveOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import {
-  AutoComplete,
-  Button,
-  Form,
-  Input,
-  Popconfirm,
-  Space,
-  Table,
-  message,
-} from "antd";
+import { Button, Form, Popconfirm, Space, Table, message } from "antd";
 import type { FormListFieldData } from "antd";
 import Image from "next/image";
-import { EditableFormItemLimit } from "./editableFormItemLimit";
-import React, { useState } from "react";
-import { NewInput, NewInputNumber } from "@/components/input";
+import React, { useEffect, useState } from "react";
+import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import { FormInstance } from "antd/lib";
-import { EditableFormItemLimitNumber } from "./editableFormItemLimitNumber";
 import NewModal from "@/components/modal";
 import ReceivableAccount from "../receivable-account/receivableAccount";
 import { referenceAccountService } from "@/service/reference/account/service";
-import { IDataReferenceAccount } from "@/service/reference/account/entities";
+import {
+  IDataReferenceAccount,
+  IParamReferenceAccount,
+} from "@/service/reference/account/entities";
+import { IDataLimitOfLoansAccount } from "@/service/limit-of-loans/account/entities";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
@@ -43,48 +36,44 @@ function EditableTableLimit(props: IProps) {
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
+  const [accountsDictionary, setAccountsDictionary] =
+    useState<Map<number, IDataReferenceAccount>>();
   const addService = () => {
-    form
-      .validateFields([
-        ["lendLimitAccounts", editingIndex, "code"],
-        ["lendLimitAccounts", editingIndex, "name"],
-        ["lendLimitAccounts", editingIndex, "amount"],
-      ])
-      .then(() => {
+    onSave().then((state) => {
+      if (state) {
         add();
         setEditingIndex(data.length);
         setNewService(true);
-      })
-      .catch((error) => {
-        error.errorFields?.map((errorMsg: any) => {
-          message.error(errorMsg.errors[0]);
-        });
-      });
+      }
+    });
   };
-  const onSave = () => {
-    form
+  const onSave = async () => {
+    return form
       .validateFields([
-        ["lendLimitAccounts", editingIndex, "code"],
-        ["lendLimitAccounts", editingIndex, "name"],
-        ["lendLimitAccounts", editingIndex, "amount"],
+        ["accounts", editingIndex, "accountId"],
+        ["accounts", editingIndex, "name"],
+        ["accounts", editingIndex, "amount"],
       ])
       .then(() => {
         setNewService(false);
         setEditingIndex(undefined);
         const amounts = form
-          .getFieldValue("lendLimitAccounts")
-          ?.reduce((sum: number, account: any) => (sum += account.amount), 0);
+          .getFieldValue("accounts")
+          ?.reduce(
+            (sum: number, account: IDataLimitOfLoansAccount) =>
+              (sum += account.amount),
+            0
+          );
         form.setFieldsValue({
           limitAmount: amounts,
         });
-        if (editMode) {
-          console.log("end acount patch");
-        }
+        return true;
       })
       .catch((error) => {
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
+        return false;
       });
   };
   const onCancel = (index: number) => {
@@ -92,44 +81,44 @@ function EditableTableLimit(props: IProps) {
       remove(index);
     } else {
       form.resetFields([
-        ["lendLimitAccounts", index, "code"],
-        ["lendLimitAccounts", index, "name"],
-        ["lendLimitAccounts", index, "amount"],
+        ["accounts", index, "accountId"],
+        ["accounts", index, "name"],
+        ["accounts", index, "amount"],
       ]);
     }
     setNewService(false);
     setEditingIndex(undefined);
   };
-  //
-  const getReceivableAccountByCode = async (code: string) => {
-    if (!code) {
-      message.error("Код заавал оруулж хайх");
-    } else {
-      await referenceAccountService
-        .get({
-          queries: [
-            {
-              param: "code",
-              operator: "CONTAINS",
-              value: code,
-            },
-          ],
-          page: 1,
-          limit: 10
-        })
-        .then((response) => {
-          if (response.success) {
-            if (response.response.data.length === 0) {
-              message.warning("Хайсан утгаар дата алга");
-              setAccounts([]);
-            } else {
-              setAccounts(response.response.data);
-            }
-          }
-        });
+  const accountFormField = (id: number) => {
+    const account = accountsDictionary?.get(id);
+    if (account) {
+      form.setFieldsValue({
+        ["accounts"]: {
+          [`${editingIndex}`]: {
+            accountId: account.id,
+            name: account.name,
+          },
+        },
+      });
     }
   };
-  //
+  const getAccounts = async (params: IParamReferenceAccount) => {
+    await referenceAccountService.get(params).then((response) => {
+      if (response.success) {
+        const data = response.response.data;
+        setAccounts(response.response.data);
+        setAccountsDictionary(
+          data.reduce((dict, account) => {
+            dict.set(account.id, account);
+            return dict;
+          }, new Map<number, IDataReferenceAccount>())
+        );
+      }
+    });
+  };
+  useEffect(() => {
+    getAccounts({});
+  }, []);
   return (
     <>
       <Table
@@ -174,7 +163,7 @@ function EditableTableLimit(props: IProps) {
         }}
       >
         <Column
-          dataIndex={"code"}
+          dataIndex={"accountId"}
           title={"Дансны код"}
           render={(value, row, index) => {
             return (
@@ -191,54 +180,33 @@ function EditableTableLimit(props: IProps) {
                       />
                     </div>
                   ) : null}
-                  <EditableFormItemLimit
+                  <Form.Item
+                    name={[index, "accountId"]}
                     rules={[
                       {
                         required: true,
                         message: "Дансны код заавал",
                       },
                     ]}
-                    name={[index, "code"]}
-                    editing={index === editingIndex}
-                    className={"ant-form-item-no-bottom-margin"}
                   >
-                    <AutoComplete
-                      options={accounts?.map((account) => {
-                        return {
-                          label: account.code,
-                          value: account.code,
-                        };
-                      })}
-                      onSelect={(id) => {
-                        const data = accounts?.find(
-                          (account) => account.code === id
-                        );
-                        const value = form.getFieldValue("lendLimitAccounts");
-                        form.setFieldsValue({
-                          ["lendLimitAccounts"]: {
-                            ...value,
-                            [`${editingIndex}`]: {
-                              accountId: data?.id,
-                              code: data?.code,
-                              name: data?.name,
-                            },
-                          },
-                        });
-                      }}
-                      className="ant-selecto-border-no"
-                    >
-                      <Input.Search
-                        style={{
-                          border: "none",
-                        }}
-                        enterButton={false}
-                        placeholder="Хайх"
-                        onSearch={(e: any) => {
-                          getReceivableAccountByCode(e);
-                        }}
-                      />
-                    </AutoComplete>
-                  </EditableFormItemLimit>
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      disabled={!(index === editingIndex)}
+                      options={accounts?.map((account) => ({
+                        value: account.id,
+                        label: account.code,
+                      }))}
+                      onSelect={accountFormField}
+                    />
+                  </Form.Item>
                 </Space.Compact>
               </Form.Item>
             );
@@ -249,19 +217,17 @@ function EditableTableLimit(props: IProps) {
           title={"Дансны нэр"}
           render={(value, row, index) => {
             return (
-              <EditableFormItemLimit
+              <Form.Item
+                name={[index, "name"]}
                 rules={[
                   {
                     required: true,
                     message: "Дансны нэр заавал",
                   },
                 ]}
-                name={[index, "name"]}
-                editing={index === editingIndex}
-                className={"ant-form-item-no-bottom-margin"}
               >
                 <NewInput disabled placeholder="Дансны нэр" min={0} max={150} />
-              </EditableFormItemLimit>
+              </Form.Item>
             );
           }}
         />
@@ -270,7 +236,7 @@ function EditableTableLimit(props: IProps) {
           title={"Зээлийн лимит /дансаарх/"}
           render={(value, row, index) => {
             return (
-              <EditableFormItemLimitNumber
+              <Form.Item
                 rules={[
                   {
                     required: true,
@@ -278,8 +244,6 @@ function EditableTableLimit(props: IProps) {
                   },
                 ]}
                 name={[index, "amount"]}
-                editing={index === editingIndex}
-                className={"ant-form-item-no-bottom-margin"}
               >
                 <NewInputNumber
                   style={{ width: "100%" }}
@@ -287,9 +251,10 @@ function EditableTableLimit(props: IProps) {
                   formatter={(value: any) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
+                  disabled={!(index === editingIndex)}
                   parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
                 />
-              </EditableFormItemLimitNumber>
+              </Form.Item>
             );
           }}
         />
@@ -362,12 +327,10 @@ function EditableTableLimit(props: IProps) {
         onCancel={() => setIsOpenPopOver(false)}
       >
         <ReceivableAccount
-          ComponentsType="MIDDLE"
+          ComponentType="MIDDLE"
           onClickModal={(row) => {
-            const value = form.getFieldValue("lendLimitAccounts");
             form.setFieldsValue({
-              ["lendLimitAccounts"]: {
-                ...value,
+              ["accounts"]: {
                 [`${editingIndex}`]: {
                   accountId: row.id,
                   code: row.code,

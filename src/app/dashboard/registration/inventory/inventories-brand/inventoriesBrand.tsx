@@ -1,6 +1,6 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
-import { NewInput, NewOption, NewSearch, NewSelect } from "@/components/input";
+import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
@@ -9,6 +9,7 @@ import {
   openNofi,
 } from "@/feature/common";
 import {
+  ComponentType,
   DataIndexType,
   FilteredColumns,
   IFilters,
@@ -26,12 +27,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface IProps {
-  ComponentsType: string;
+  ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
 
 const InventoriesBrand = (props: IProps) => {
-  const { ComponentsType = "FULL", onClickModal } = props;
+  const { ComponentType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [data, setData] = useState<IDataBrand[]>([]);
@@ -58,14 +59,14 @@ const InventoriesBrand = (props: IProps) => {
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedAt",
       type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedBy",
       type: DataIndexType.MULTI,
@@ -116,7 +117,7 @@ const InventoriesBrand = (props: IProps) => {
       <div className="information">
         <div className="header">
           <div className="left">
-            {ComponentsType === "FULL" ? (
+            {ComponentType === "FULL" ? (
               <p>Үндсэн бүртгэл / Бараа материал / Бренд</p>
             ) : (
               <p>Бренд</p>
@@ -167,7 +168,7 @@ const InventoriesBrand = (props: IProps) => {
               getData(newParams);
             }}
           />
-          {ComponentsType === "FULL" ? (
+          {ComponentType === "FULL" ? (
             <div className="extra">
               <ColumnSettings
                 columns={columns}
@@ -205,7 +206,7 @@ const InventoriesBrand = (props: IProps) => {
             }}
           >
             <NewTable
-              scroll={{ x: ComponentsType === "FULL" ? 1000 : 400 }}
+              scroll={{ x: ComponentType === "FULL" ? 1000 : 400 }}
               rowKey="id"
               //   doubleClick={true}
               //   onDClick={(value) => {
@@ -258,19 +259,20 @@ const InventoriesBrand = (props: IProps) => {
             ]}
           >
             <NewSelect
+              allowClear
               showSearch
-              filterOption={(input: any, option: { children: any }) => {
-                return (option?.children ?? "").includes(input);
-              }}
-            >
-              {countries?.map((country, index) => {
-                return (
-                  <NewOption key={index} value={country.id}>
-                    {country.name}
-                  </NewOption>
-                );
-              })}
-            </NewSelect>
+              optionFilterProp="children"
+              filterOption={(input, label) =>
+                (label?.label ?? "")
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={countries?.map((country) => ({
+                label: country.name,
+                value: country.id,
+              }))}
+            />
           </Form.Item>
         </Form>
       </NewModal>

@@ -3,6 +3,6 @@
 import InventoriesType from "./inventoriesType";
 
 const InventoriesTypePage = () => {
-  return <InventoriesType ComponentsType="FULL" />;
+  return <InventoriesType ComponentType="FULL" />;
 };
 export default InventoriesTypePage;

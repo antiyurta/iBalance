@@ -43,8 +43,6 @@ const ReceivableAccount = (props: IProps) => {
   const [selectedRow, setSelectedRow] = useState<IDataReferenceAccount>();
   const [params, setParams] = useState<IParamReferenceAccount>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [isOpenActionPopover, setIsOpenActionPopover] =
-    useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumns>({
     code: {
       label: "Дансны код",
@@ -133,13 +131,17 @@ const ReceivableAccount = (props: IProps) => {
   };
   const onDelete = async (id: number) => {
     blockContext.block();
-    await referenceAccountService.remove(id).then((response) => {
-      if (response.success) {
-        setSelectedRow(undefined);
-        getReceivableAccounts({ page: 1, limit: 10 });
-      }
-    });
-    blockContext.unblock();
+    await referenceAccountService
+      .remove(id)
+      .then((response) => {
+        if (response.success) {
+          setSelectedRow(undefined);
+          getReceivableAccounts({ page: 1, limit: 10 });
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getReceivableAccounts({ page: 1, limit: 10 });
@@ -265,12 +267,14 @@ const ReceivableAccount = (props: IProps) => {
             newParams={params}
             onParams={(params) => setParams(params)}
             incomeFilters={filters}
+            isEdit={true}
             onEdit={(row) => {
               setEditMode(true);
               form.setFieldsValue(row);
               setSelectedRow(row);
               setIsOpenModal(true);
             }}
+            isDelete={true}
             onDelete={(id) => onDelete(id)}
           />
         </Col>

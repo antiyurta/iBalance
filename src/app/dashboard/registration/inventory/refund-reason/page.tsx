@@ -86,7 +86,7 @@ const RefundReasonPage = () => {
   const onFinish = async (data: IDataReference) => {
     blockContext.block();
     data.type = IType.REASON_REFUND;
-    if (isEdit && selectedRow) {
+    if (isEdit && selectedRow && selectedRow.id) {
       await ReferenceService.patch(selectedRow.id, data).then((response) => {
         success(response);
       });

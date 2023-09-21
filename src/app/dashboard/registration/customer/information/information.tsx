@@ -27,12 +27,7 @@ import {
 } from "@/components/input";
 import NewModal from "@/components/modal";
 // interface
-import {
-  ComponentType,
-  DataIndexType,
-  IFilters,
-  Meta,
-} from "@/service/entities";
+import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsConsumer,
   IDataConsumer,
@@ -167,7 +162,7 @@ const Information = (props: IProps) => {
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [newParams, setNewParams] = useState<IParamConsumer>({});
+  const [params, setParams] = useState<IParamConsumer>({});
   const [banks, setBanks] = useState<IDataReference[]>([]);
   const [editMode, setIsMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -194,80 +189,69 @@ const Information = (props: IProps) => {
     setSelectedRow(row);
   };
   //data awcirah
-  const getData = async (params: IParamConsumer) => {
+  const getData = async (param: IParamConsumer) => {
     blockContext.block();
+
     var prm: IParamConsumer = {
-      page: params.page || newParams.page,
-      limit: params.limit || newParams.limit,
-      orderParam: params.orderParam || newParams.orderParam,
-      order: params.order || newParams.order,
-      code: params.code || newParams.code,
-      isIndividual: params.isIndividual || newParams.isIndividual,
-      isEmployee: params.isEmployee || newParams.isEmployee,
-      lastName: params.lastName || newParams.lastName,
-      name: params.name || newParams.name,
-      sectionId: params.sectionId || newParams.sectionId,
-      regno: params.regno || newParams.regno,
-      phone: params.phone || newParams.phone,
-      address: params.address || newParams.address,
-      bankId: params.bankId || newParams.bankId,
-      bankAccountNo: params.bankAccountNo || newParams.bankAccountNo,
-      email: params.email || newParams.email,
-      isActive: params.isActive || newParams.isActive,
-      queries: newParams.queries,
+      ...param,
+      ...params,
+      queries: params.queries,
     };
-    if (params.queries?.length) {
-      const incomeParam = params.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, newParams), ...params.queries];
+    if (param.queries?.length) {
+      const incomeParam = param.queries[0].param;
+      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
     }
-    if (params.code) {
-      prm.queries = [...unDuplicate("code", newParams)];
+    if (param.code) {
+      prm.queries = [...unDuplicate("code", params)];
     }
-    if (params.isIndividual) {
-      prm.queries = [...unDuplicate("isIndividual", newParams)];
+    if (param.isIndividual) {
+      prm.queries = [...unDuplicate("isIndividual", params)];
     }
-    if (params.isEmployee) {
-      prm.queries = [...unDuplicate("isEmployee", newParams)];
+    if (param.isEmployee) {
+      prm.queries = [...unDuplicate("isEmployee", params)];
     }
-    if (params.lastName) {
-      prm.queries = [...unDuplicate("lastName", newParams)];
+    if (param.lastName) {
+      prm.queries = [...unDuplicate("lastName", params)];
     }
-    if (params.name) {
-      prm.queries = [...unDuplicate("name", newParams)];
+    if (param.name) {
+      prm.queries = [...unDuplicate("name", params)];
     }
-    if (params.sectionId) {
-      prm.queries = [...unDuplicate("sectionId", newParams)];
+    if (param.sectionId) {
+      prm.queries = [...unDuplicate("sectionId", params)];
     }
-    if (params.regno) {
-      prm.queries = [...unDuplicate("regno", newParams)];
+    if (param.regno) {
+      prm.queries = [...unDuplicate("regno", params)];
     }
-    if (params.phone) {
-      prm.queries = [...unDuplicate("phone", newParams)];
+    if (param.phone) {
+      prm.queries = [...unDuplicate("phone", params)];
     }
-    if (params.address) {
-      prm.queries = [...unDuplicate("address", newParams)];
+    if (param.address) {
+      prm.queries = [...unDuplicate("address", params)];
     }
-    if (params.bankId) {
-      prm.queries = [...unDuplicate("bankId", newParams)];
+    if (param.bankId) {
+      prm.queries = [...unDuplicate("bankId", params)];
     }
-    if (params.bankAccountNo) {
-      prm.queries = [...unDuplicate("bankAccountNo", newParams)];
+    if (param.bankAccountNo) {
+      prm.queries = [...unDuplicate("bankAccountNo", params)];
     }
-    if (params.email) {
-      prm.queries = [...unDuplicate("email", newParams)];
+    if (param.email) {
+      prm.queries = [...unDuplicate("email", params)];
     }
-    if (params.isActive) {
-      prm.queries = [...unDuplicate("isActive", newParams)];
+    if (param.isActive) {
+      prm.queries = [...unDuplicate("isActive", params)];
     }
-    setNewParams(prm);
-    await ConsumerService.get(prm).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
-    blockContext.unblock();
+    setParams(prm);
+    await ConsumerService.get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   // bank awcirah
   const getBanks = async (type: IType) => {
@@ -436,8 +420,8 @@ const Information = (props: IProps) => {
                     state: true,
                     column: columns,
                     onColumn: (columns) => setColumns(columns),
-                    params: newParams,
-                    onParams: (params) => setNewParams(params),
+                    params: params,
+                    onParams: (params) => setParams(params),
                   });
                   getData({
                     page: 1,
@@ -572,10 +556,10 @@ const Information = (props: IProps) => {
                       state: state,
                       column: columns,
                       onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      params: params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(newParams ? newParams : {});
+                    getData(params ? params : {});
                   }}
                 />
                 {ComponentType === "FULL" ? (
@@ -594,8 +578,8 @@ const Information = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns: columns,
                           onColumns: (columns) => setColumns(columns),
-                          params: newParams,
-                          onParams: (params) => setNewParams(params),
+                          params: params,
+                          onParams: (params) => setParams(params),
                           getData: (params) => getData(params),
                         })
                       }
@@ -643,8 +627,8 @@ const Information = (props: IProps) => {
                 columns={columns}
                 onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 onEdit={(row) => openModal(true, row)}
                 onDelete={(id) => onDelete(id)}

@@ -7,6 +7,7 @@ import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import {
+  ComponentType,
   DataIndexType,
   FilteredColumns,
   IFilters,
@@ -19,12 +20,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface IProps {
-  ComponentsType: string;
+  ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
 
 const InventoriesType = (props: IProps) => {
-  const { ComponentsType, onClickModal } = props;
+  const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
   const [newParams, setNewParams] = useState<IParams>({});
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -52,14 +53,14 @@ const InventoriesType = (props: IProps) => {
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedAt",
       type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
-      isView: ComponentsType === "FULL" ? true : false,
+      isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
       dataIndex: "updatedBy",
       type: DataIndexType.MULTI,
@@ -116,10 +117,10 @@ const InventoriesType = (props: IProps) => {
       <div className="information">
         <div className="header">
           <div className="left">
-            {ComponentsType === "FULL" ? (
+            {ComponentType === "FULL" ? (
               <p>Үндсэн бүртгэл / Бараа материал / Данс</p>
             ) : null}
-            {ComponentsType === "MODAL" ? <p>Данс</p> : null}
+            {ComponentType === "MODAL" ? <p>Данс</p> : null}
             <button
               className="app-button"
               onClick={() => {
@@ -208,14 +209,14 @@ const InventoriesType = (props: IProps) => {
             }}
           >
             <NewTable
-              scroll={{ x: ComponentsType === "FULL" ? 1400 : 400 }}
+              scroll={{ x: ComponentType === "FULL" ? 1400 : 400 }}
               rowKey="id"
               data={data}
               meta={meta}
               columns={columns}
-              doubleClick={ComponentsType === "MODAL" ? true : false}
+              doubleClick={ComponentType === "MODAL" ? true : false}
               onDClick={(value) => {
-                if (ComponentsType === "MODAL") {
+                if (ComponentType === "MODAL") {
                   onClickModal?.(value);
                 }
               }}

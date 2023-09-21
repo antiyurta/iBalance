@@ -8,7 +8,7 @@ import {
 } from "@/components/input";
 import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 //hariltsagchin jagsaalt
 import CustomerList from "./customerList";
 // delgerengu jagsaalt
@@ -23,27 +23,18 @@ import EditableTableLimit from "./editableTableLimit";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import { IDataLimitOfLoans } from "@/service/limit-of-loans/entities";
+import {
+  IDataLimitOfLoans,
+  IInputLimitOfLoans,
+} from "@/service/limit-of-loans/entities";
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
-
-type IAccounts = {
-  accountId: number;
-  name?: string;
-  amount: number;
-};
-
-type IForm = {
-  consumerId: number;
-  isAccount: boolean;
-  isClose: boolean;
-  limitAmount: number;
-  accounts?: IAccounts[] | [];
-};
-
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { openNofi } from "@/feature/common";
 const { Title } = Typography;
 
 const LimitOfLoans = () => {
   const [form] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [isAccounts, setIsAccounts] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
@@ -54,44 +45,40 @@ const LimitOfLoans = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataLimitOfLoans>();
-  const items = [
-    {
-      label: "Харилцагчийн жагсаалт",
-      key: "item-1",
-      children: (
-        <CustomerList
-          onReload={isReloadList}
-          onEdit={(row) => openModal(true, row)}
-          onDelete={(id) => {
-            console.log(id);
-          }}
-        />
-      ),
-    },
-    {
-      label: "Дэлгэрэнгүй жагсаалт",
-      key: "item-2",
-      children: <DescriptionList />,
-    },
-  ];
-  const openModal = (state: boolean, row?: IDataLimitOfLoans) => {
+  const onDelete = async (id: number) => {
+    blockContext.block();
     setIsReloadList(false);
+    await limitOfLoansService
+      .remove(id)
+      .then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          setIsReloadList(true);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const openModal = (state: boolean, row?: IDataLimitOfLoans) => {
     setEditMode(state);
     form.resetFields();
     if (state && row) {
       setIsAccounts(row.isAccount);
-      const data: IForm = {
+      const data: IInputLimitOfLoans = {
         consumerId: row.consumerId,
+        name: row.consumer.name,
+        sectionId: row.consumer.sectionId,
+        limitAmount: row.limitAmount,
         isAccount: row.isAccount,
         isClose: row.isClose,
-        limitAmount: row.limitAmount,
-        accounts: row.lendLimitAccounts.map((account) => ({
-          accountId: account.accountId,
+        isActive: row.consumer.isActive,
+        accounts: row.accounts.map((account) => ({
+          accountId: account.account.id,
           name: account.account.name,
           amount: account.amount,
         })),
       };
-      consumerFormField(row.id);
       form.setFieldsValue(data);
       setSelectedRow(row);
     }
@@ -128,7 +115,7 @@ const LimitOfLoans = () => {
       });
     }
   };
-  const onFinish = async (values: IForm) => {
+  const onFinish = async (values: IInputLimitOfLoans) => {
     if (editMode && selectedRow) {
       await limitOfLoansService
         .patch(selectedRow?.id, values)
@@ -148,6 +135,35 @@ const LimitOfLoans = () => {
       });
     }
   };
+  const items = [
+    {
+      label: "Харилцагчийн жагсаалт",
+      key: "item-1",
+      children: (
+        <CustomerList
+          onReload={isReloadList}
+          onEdit={(row) => openModal(true, row)}
+          onDelete={onDelete}
+        />
+      ),
+    },
+    {
+      label: "Дэлгэрэнгүй жагсаалт",
+      key: "item-2",
+      children: (
+        <DescriptionList
+          onReload={isReloadList}
+          onEdit={async (row) => {
+            await limitOfLoansService
+              .getById(row.lendLimitId)
+              .then((response) => {
+                openModal(true, response.response);
+              });
+          }}
+        />
+      ),
+    },
+  ];
   useEffect(() => {
     getConsumers({});
     getTreeSections();
@@ -193,7 +209,10 @@ const LimitOfLoans = () => {
       <NewModal
         title="Харилцагчийн зээлийн лимит"
         open={isOpenModal}
-        onCancel={() => setIsOpenModal(false)}
+        onCancel={() => {
+          setIsOpenModal(false);
+          setIsAccounts(false);
+        }}
         onOk={() =>
           form.validateFields().then((values) => {
             onFinish(values);
@@ -201,6 +220,7 @@ const LimitOfLoans = () => {
         }
         width={900}
         maskClosable={false}
+        okText="Хадгалах"
       >
         <Form
           form={form}
@@ -243,8 +263,10 @@ const LimitOfLoans = () => {
                     <NewSelect
                       allowClear
                       showSearch
+                      optionFilterProp="children"
                       filterOption={(input, label) =>
-                        (label ?? "")
+                        (label?.label ?? "")
+                          .toString()
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
@@ -260,6 +282,7 @@ const LimitOfLoans = () => {
                         ]);
                       }}
                       onSelect={consumerFormField}
+                      placeholder="Харилцагчийн код"
                     />
                   </Form.Item>
                 </Space.Compact>
@@ -274,7 +297,7 @@ const LimitOfLoans = () => {
                   },
                 ]}
               >
-                <NewInput disabled />
+                <NewInput placeholder="Харилцагчийн нэр" disabled />
               </Form.Item>
               <Form.Item
                 label="Харилцагчийн бүлэг"
@@ -292,6 +315,7 @@ const LimitOfLoans = () => {
                     value: section.id,
                     label: section.name,
                   }))}
+                  placeholder="Харилцагчийн бүлэг"
                 />
               </Form.Item>
               <Form.Item
@@ -313,6 +337,7 @@ const LimitOfLoans = () => {
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
                   parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                  placeholder="Харилцагчид олгох нийт лимит"
                 />
               </Form.Item>
             </div>

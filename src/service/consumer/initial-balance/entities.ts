@@ -1,3 +1,4 @@
+import { Dayjs, extend } from "dayjs";
 import { IDataConsumer } from "../entities";
 import { IDataBalanceAccount } from "./account/entities";
 import { ColumnType, GenericResponse, IParam, Meta } from "@/service/entities";
@@ -13,8 +14,9 @@ export interface IDataInitialBalance {
 // Оролт харилцагчийн эхний үлдэгдэл
 export interface IInputInitialBalance {
   consumerId: number;
+  amount: number;
   accounts?: {
-    date: string;
+    date: Dayjs;
     accountId: number;
     amount: number;
   }[];
@@ -25,6 +27,7 @@ export interface IFilterInitialBalance {
   sectionId?: number[];
   name?: string[];
   amount?: number[];
+  accountId?: number[];
   updatedBy?: number;
   updatedAt?: string;
 }
@@ -43,4 +46,7 @@ export interface IResponseInitialBalance extends GenericResponse {
     meta: Meta;
     filter: IFilterInitialBalance;
   };
+}
+export interface IResponseInitialBalanceUpdate extends GenericResponse {
+  response: IDataInitialBalance;
 }

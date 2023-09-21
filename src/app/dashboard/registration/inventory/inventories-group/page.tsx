@@ -34,16 +34,12 @@ const { Title } = Typography;
 
 const InventoriesGroup = () => {
   const [addForm] = Form.useForm();
-  const [updateForm] = Form.useForm();
   const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
-  const [isOpenPopOverChange, setIsOpenPopOverChange] =
-    useState<boolean>(false);
-  //
   const [type, setType] = useState<IDataType[]>([]);
   const [isOpenModalType, setIsOpenModalType] = useState<boolean>(false);
   //
@@ -87,7 +83,7 @@ const InventoriesGroup = () => {
   };
   // section awchirah
   const getMaterialSections = async () => {
-    await MaterialSectionService.get().then((response) => {
+    await MaterialSectionService.get({}).then((response) => {
       setSections(response.response.data);
     });
   };
@@ -187,7 +183,7 @@ const InventoriesGroup = () => {
         footer={null}
       >
         <InventoriesRegistration
-          ComponentsType="LITTLE"
+          ComponentType="LITTLE"
           onClickModal={(e) => console.log(e)}
         />
       </NewModal>
@@ -277,15 +273,11 @@ const InventoriesGroup = () => {
                     style={{
                       width: "100%",
                     }}
-                  >
-                    {sections?.map((section: IDataMaterialSection, index) => {
-                      return (
-                        <NewOption key={index} value={section.id}>
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
+                    options={sections?.map((section: IDataMaterialSection) => ({
+                      label: section.name,
+                      value: section.id,
+                    }))}
+                  />
                 </Form.Item>
               </Space.Compact>
             </Form.Item>
@@ -332,19 +324,20 @@ const InventoriesGroup = () => {
                   ]}
                 >
                   <NewSelect
+                    allowClear
                     showSearch
-                    filterOption={(input: any, option: { children: any }) => {
-                      return (option?.children ?? "").includes(input);
-                    }}
-                  >
-                    {type?.map((type, index) => {
-                      return (
-                        <NewOption key={index} value={type.id}>
-                          {type.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
+                    optionFilterProp="children"
+                    filterOption={(input, label) =>
+                      (label?.label ?? "")
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={type?.map((type) => ({
+                      label: type.name,
+                      value: type.id,
+                    }))}
+                  />
                 </Form.Item>
               </Space.Compact>
             </Form.Item>
@@ -357,7 +350,7 @@ const InventoriesGroup = () => {
         onCancel={() => setIsOpenModalType(false)}
       >
         <InventoriesType
-          ComponentsType="MODAL"
+          ComponentType="MODAL"
           onClickModal={(row) => {
             addForm.setFieldsValue({
               materialTypeId: row.id,

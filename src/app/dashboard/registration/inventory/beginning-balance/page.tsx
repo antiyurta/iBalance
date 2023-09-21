@@ -311,7 +311,7 @@ const BeginningBalancePage = () => {
         footer={null}
       >
         <InventoriesRegistration
-          ComponentsType="MIDDLE"
+          ComponentType="MIDDLE"
           onClickModal={(row: IDataMaterial) => {
             console.log(row);
             // form.setFieldsValue({

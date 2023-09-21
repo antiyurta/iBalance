@@ -20,7 +20,6 @@ import NewModal from "@/components/modal";
 import {
   NewInput,
   NewInputNumber,
-  NewOption,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -495,10 +494,7 @@ const MembershipCard = () => {
                   )
                 }
               </Form.Item>
-              <Form.Item
-                label="Онооны дээд хязгаар"
-                shouldUpdate
-              >
+              <Form.Item label="Онооны дээд хязгаар" shouldUpdate>
                 {() => (
                   <Form.Item name="limitDiscount">
                     <NewInputNumber

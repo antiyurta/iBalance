@@ -1,36 +1,11 @@
 import { Modal } from "antd";
 import { ReactNode } from "react";
-
-interface IProps {
+import type { ModalProps } from "antd/es/modal";
+interface IProps extends ModalProps {
   positionTitle?: "left" | "center" | "right";
-  title?: string;
-  open: boolean;
-  width?: number;
-  onCancel?: () => void;
-  onOk?: () => void;
-  footer?: ReactNode;
-  children: ReactNode;
-  destroyOnClose?: boolean;
-  okButtonProps?: {
-    disabled: boolean;
-  };
-  maskClosable?: boolean;
 }
 
 const NewModal = (props: IProps) => {
-  const {
-    positionTitle,
-    title,
-    open,
-    width,
-    onCancel,
-    onOk,
-    footer,
-    children,
-    destroyOnClose,
-    okButtonProps,
-    maskClosable,
-  } = props;
   return (
     <Modal
       className="ant-modal-title-left"
@@ -41,24 +16,15 @@ const NewModal = (props: IProps) => {
             width: "100%",
             fontSize: 20,
             fontWeight: 500,
-            justifyContent: positionTitle,
+            justifyContent: props.positionTitle,
           }}
         >
-          {title}
+          {props.title}
         </span>
       }
-      maskClosable={maskClosable}
-      okButtonProps={okButtonProps}
-      open={open}
-      onCancel={onCancel}
-      onOk={onOk}
-      cancelText="Болих"
-      okText="Хадгалах"
-      width={width}
-      footer={footer}
-      destroyOnClose={destroyOnClose}
+      {...props}
     >
-      {children}
+      {props.children}
     </Modal>
   );
 };

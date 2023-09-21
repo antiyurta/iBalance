@@ -2,6 +2,6 @@
 import ReceivableAccount from "./receivableAccount";
 
 const ReceivableAccountPage = () => {
-  return <ReceivableAccount ComponentsType="FULL" />;
+  return <ReceivableAccount ComponentType="FULL" />;
 };
 export default ReceivableAccountPage;

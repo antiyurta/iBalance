@@ -102,7 +102,7 @@ body {
     width: 100%;
   }
   .ant-input-number-input {
-    background: $color-gray-100;
+    // background: $color-gray-100;
     width: 100%;
   }
   .ant-input-number-group-addon {
@@ -112,14 +112,14 @@ body {
   }
   input[type="text"],
   textarea {
-    background: $color-gray-100;
+    // background: $color-gray-100;
     border: 1px solid #dee2e6;
   }
   .ant-form-item {
     margin: 0px;
     width: auto;
     .ant-select-selector {
-      background: $color-gray-100;
+      // background: $color-gray-100;
       border: 1px solid #dee2e6;
     }
   }
@@ -289,11 +289,13 @@ body {
       font-weight: 500;
       line-height: 13px;
       background-color: white;
-      span.ant-table-column-title {
-        white-space: pre-line;
-      }
-      &:hover {
-        cursor: move;
+      .ant-table-column-sorters {
+        span.ant-table-column-title {
+          white-space: pre-line;
+          &:hover {
+            cursor: move;
+          }
+        }
       }
     }
     td {
@@ -302,6 +304,7 @@ body {
       font-weight: 400;
       line-height: 13px;
       color: $color-gray-600;
+      padding: 4px 4px !important;
     }
   }
 }
@@ -514,9 +517,9 @@ html {
     cursor: pointer;
   }
 }
-.ant-input-number-affix-wrapper {
-  background-color: #f8f9fa !important;
-}
+// .ant-input-number-affix-wrapper {
+//   background-color: #f8f9fa !important;
+// }
 
 .numberValue-to-right {
   .ant-input-number-input-wrap {

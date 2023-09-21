@@ -23,7 +23,7 @@ import { DataIndexType, IFilters, Meta } from "@/service/entities";
 import {
   FilteredColumnsLimitOfLoans,
   IDataLimitOfLoans,
-  Params,
+  IParamLimitOfLoans,
 } from "@/service/limit-of-loans/entities";
 //service
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
@@ -39,12 +39,10 @@ interface IProps {
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [newParams, setNewParams] = useState<Params>({});
-  const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
+  const [params, setParams] = useState<IParamLimitOfLoans>({});
   const [data, setData] = useState<IDataLimitOfLoans[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
-  const [tableWidth, setTableWidth] = useState<string>("calc(100% - 262px)");
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsLimitOfLoans>({
     code: {
@@ -111,64 +109,57 @@ const CustomerList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: Params) => {
+  const getData = async (param: IParamLimitOfLoans) => {
     blockContext.block();
-    var prm: Params = {
-      page: params.page || newParams.page,
-      limit: params.limit || newParams.limit,
-      orderParam: params.orderParam || newParams.orderParam,
-      order: params.order || newParams.order,
-      code: params.code || newParams.code,
-      name: params.name || newParams.name,
-      sectionId: params.sectionId || newParams.sectionId,
-      isAccount: params.isAccount || newParams.isAccount,
-      limitAmount: params.limitAmount || newParams.limitAmount,
-      isClose: params.isClose || newParams.isClose,
-      isActive: params.isActive || newParams.isActive,
-      updatedAt: params.updatedAt || newParams.updatedAt,
-      updatedBy: params.updatedBy || newParams.updatedBy,
-      queries: newParams.queries,
+    var prm: IParamLimitOfLoans = {
+      ...param,
+      ...params,
+      queries: params.queries,
     };
-    if (params.queries?.length) {
-      const incomeParam = params.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, newParams), ...params.queries];
+    if (param.queries?.length) {
+      const incomeParam = param.queries[0].param;
+      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
     }
-    if (params.code) {
-      prm.queries = [...unDuplicate("code", newParams)];
+    if (param.code) {
+      prm.queries = [...unDuplicate("code", params)];
     }
-    if (params.name) {
-      prm.queries = [...unDuplicate("name", newParams)];
+    if (param.name) {
+      prm.queries = [...unDuplicate("name", params)];
     }
-    if (params.sectionId) {
-      prm.queries = [...unDuplicate("sectionId", newParams)];
+    if (param.sectionId) {
+      prm.queries = [...unDuplicate("sectionId", params)];
     }
-    if (params.isAccount) {
-      prm.queries = [...unDuplicate("isAccount", newParams)];
+    if (param.isAccount) {
+      prm.queries = [...unDuplicate("isAccount", params)];
     }
-    if (params.limitAmount) {
-      prm.queries = [...unDuplicate("limitAmount", newParams)];
+    if (param.limitAmount) {
+      prm.queries = [...unDuplicate("limitAmount", params)];
     }
-    if (params.isClose) {
-      prm.queries = [...unDuplicate("isClose", newParams)];
+    if (param.isClose) {
+      prm.queries = [...unDuplicate("isClose", params)];
     }
-    if (params.isActive) {
-      prm.queries = [...unDuplicate("isActive", newParams)];
+    if (param.isActive) {
+      prm.queries = [...unDuplicate("isActive", params)];
     }
-    if (params.updatedAt) {
-      prm.queries = [...unDuplicate("updatedAt", newParams)];
+    if (param.updatedAt) {
+      prm.queries = [...unDuplicate("updatedAt", params)];
     }
-    if (params.updatedBy) {
-      prm.queries = [...unDuplicate("updatedBy", newParams)];
+    if (param.updatedBy) {
+      prm.queries = [...unDuplicate("updatedBy", params)];
     }
-    setNewParams(prm);
-    await limitOfLoansService.get(prm).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
-    blockContext.unblock();
+    setParams(prm);
+    await limitOfLoansService
+      .get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   const getConsumerSection = async (type: TreeSectionType) => {
     await TreeSectionService.get(type).then((response) => {
@@ -176,13 +167,10 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
     getConsumerSection(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    if (onReload) {
-      getData({ page: 1, limit: 10 });
-    }
+    getData({ page: 1, limit: 10 });
   }, [onReload]);
   return (
     <div>
@@ -198,7 +186,7 @@ const CustomerList = (props: IProps) => {
                 getData({
                   page: 1,
                   limit: 10,
-                  sectionId: [`${key}`],
+                  sectionId: [key],
                 });
               }
             }}
@@ -222,10 +210,10 @@ const CustomerList = (props: IProps) => {
                       state: state,
                       column: columns,
                       onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      params: params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(newParams);
+                    getData(params);
                   }}
                 />
                 <Space
@@ -243,8 +231,8 @@ const CustomerList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
+                        params: params,
+                        onParams: (params) => setParams(params),
                         getData: (params) => getData(params),
                       })
                     }
@@ -275,10 +263,12 @@ const CustomerList = (props: IProps) => {
                 columns={columns}
                 onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
+                isEdit={true}
                 onEdit={(row) => onEdit(row)}
+                isDelete={true}
                 onDelete={(id) => onDelete(id)}
               />
             </Col>

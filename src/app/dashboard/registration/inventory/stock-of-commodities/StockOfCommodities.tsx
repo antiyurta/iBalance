@@ -1,7 +1,7 @@
-import { ComponentsType } from "@/service/entities";
+import { ComponentType } from "@/service/entities";
 
 interface IProps {
-  ComponentType: ComponentsType;
+  ComponentType: ComponentType;
 }
 
 const StockOfCommodities = (props: IProps) => {

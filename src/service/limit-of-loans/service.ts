@@ -1,20 +1,26 @@
 import { api } from "../../feature/interceptor/interceptor";
 import {
-  IDataLimitOfLoansPost,
+  IInputLimitOfLoans,
   ILimitOfLoansResponse,
-  Params,
+  ILimitOfLoansResponseUpdate,
+  IParamLimitOfLoans,
 } from "./entities";
 
-function get(params: Params): Promise<ILimitOfLoansResponse> {
+function get(params: IParamLimitOfLoans): Promise<ILimitOfLoansResponse> {
   return api.get("lend-limit", { params: params });
 }
-function post(body: IDataLimitOfLoansPost): Promise<ILimitOfLoansResponse> {
+
+function getById(id: number): Promise<ILimitOfLoansResponseUpdate> {
+  return api.get("lend-limit/" + id);
+}
+
+function post(body: IInputLimitOfLoans): Promise<ILimitOfLoansResponse> {
   return api.post("lend-limit", body);
 }
 function patch(
   id: number,
-  body: IDataLimitOfLoansPost
-): Promise<ILimitOfLoansResponse> {
+  body: IInputLimitOfLoans
+): Promise<ILimitOfLoansResponseUpdate> {
   return api.patch("lend-limit/" + id, body);
 }
 function remove(id: number): Promise<ILimitOfLoansResponse> {
@@ -22,6 +28,7 @@ function remove(id: number): Promise<ILimitOfLoansResponse> {
 }
 export const limitOfLoansService = {
   get,
+  getById,
   post,
   patch,
   remove,

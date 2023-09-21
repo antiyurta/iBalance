@@ -3,6 +3,6 @@
 import InventoriesRegistration from "./inventoriesRegistration";
 
 const InventoriesRegistrationPage = () => {
-  return <InventoriesRegistration ComponentsType="FULL" />;
+  return <InventoriesRegistration ComponentType="FULL" />;
 };
 export default InventoriesRegistrationPage;

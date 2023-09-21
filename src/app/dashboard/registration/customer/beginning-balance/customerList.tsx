@@ -3,16 +3,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import {
-  DataIndexType,
-  FilteredColumns,
-  IFilters,
-  Meta,
-} from "@/service/entities";
-import {
-  FilteredColumnsLimitOfLoans,
-  IDataLimitOfLoans,
-} from "@/service/limit-of-loans/entities";
+import { DataIndexType, Meta } from "@/service/entities";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -21,7 +12,6 @@ import {
   unDuplicate,
 } from "@/feature/common";
 
-import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   IDataTreeSection,
@@ -31,6 +21,7 @@ import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
 import { initialBalanceService } from "@/service/consumer/initial-balance/service";
 import {
+  FilteredColumnsInitialBalance,
   IDataInitialBalance,
   IFilterInitialBalance,
   IParamInitialBalance,
@@ -47,13 +38,11 @@ const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [newParams, setNewParams] = useState<IParamInitialBalance>({});
-  const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [filters, setFilters] = useState<IFilterInitialBalance>();
-  const [selectedRow, setSelectedRow] = useState<any>([]);
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [sections, setSections] = useState<IDataTreeSection[]>([]);
+  const [columns, setColumns] = useState<FilteredColumnsInitialBalance>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
@@ -97,16 +86,6 @@ const CustomerList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const openModal = (state: boolean, row?: IDataLimitOfLoans) => {
-    // setIsMode(state);
-    // if (!state) {
-    //   form.resetFields();
-    // } else {
-    //   form.setFieldsValue(row);
-    // }
-    // setIsOpenModal(true);
-    setSelectedRow(row);
-  };
   const getData = async (params: IParamInitialBalance) => {
     blockContext.block();
     var prm: IParamInitialBalance = {
@@ -166,13 +145,10 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
     getSections(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    if (onReload) {
-      getData({ page: 1, limit: 10 });
-    }
+    getData({ page: 1, limit: 10 });
   }, [onReload]);
   return (
     <div>
@@ -183,8 +159,10 @@ const CustomerList = (props: IProps) => {
             extra="HALF"
             data={sections}
             isLeaf={true}
-            onClick={(key) => {
-              getData({ page: 1, limit: 10, sectionId: [key] });
+            onClick={(key, isLeaf) => {
+              if (isLeaf) {
+                getData({ page: 1, limit: 10, sectionId: [key] });
+              }
             }}
           />
         </Col>
@@ -262,7 +240,9 @@ const CustomerList = (props: IProps) => {
                 newParams={newParams}
                 onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
+                isEdit={true}
                 onEdit={(row) => onEdit(row)}
+                isDelete={true}
                 onDelete={(id) => onDelete(id)}
               />
             </Col>

@@ -8,7 +8,6 @@ import Filtered from "@/components/filtered";
 import {
   NewInput,
   NewInputNumber,
-  NewOption,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -63,14 +62,14 @@ import { MaterialSectionService } from "@/service/material/section/service";
 import InventoriesBrand from "../inventories-brand/inventoriesBrand";
 
 interface IProps {
-  ComponentsType: ComponentType;
+  ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
 
 const { Title } = Typography;
 
 const InventoriesRegistration = (props: IProps) => {
-  const { ComponentsType = "FULL", onClickModal } = props;
+  const { ComponentType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
   const [switchForm] = Form.useForm();
   const {
@@ -245,7 +244,7 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getMaterialRanks = async (type: IType) => {
-    await ReferenceService.get({type}).then((response) => {
+    await ReferenceService.get({ type }).then((response) => {
       setMaterialRanks(response.response.data);
     });
   };
@@ -310,6 +309,46 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   //
+  const rowSelection = {
+    onSelectAll: (state: boolean, allRow: any, changeRow: any) => {
+      console.log("select all", state, allRow, changeRow);
+      // if (state) {
+      //   const clone = [...tableSelectedRows, ...changeRow];
+      //   console.log(clone);
+      //   setTableSelectedRows(clone);
+      // } else {
+      //   const clone = [...tableSelectedRows];
+      //   changeRow?.map((row: any) => {
+      //     clone.splice(
+      //       clone.findIndex((clo) => {
+      //         return clo.id === row.id;
+      //       }),
+      //       1
+      //     );
+      //   });
+      //   setTableSelectedRows(clone);
+      // }
+    },
+    onSelect: (selectedRow: IDataConsumer, selected: boolean) => {
+      // if (selected) {
+      //   if (!tableSelectedRows.find((e) => e.id === selectedRow.id)) {
+      //     setTableSelectedRows([...tableSelectedRows, selectedRow]);
+      //   }
+      // } else {
+      //   var clone = [...tableSelectedRows];
+      //   clone.splice(
+      //     tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
+      //     1
+      //   );
+      //   setTableSelectedRows(clone);
+      // }
+    },
+    onChange: (
+      selectedRowKeys: React.Key[],
+      selectedRows: IDataConsumer[]
+    ) => {},
+    // selectedRowKeys: tableSelectedRows.map((e) => e.id),
+  };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
     getMaterialSections();
@@ -318,7 +357,7 @@ const InventoriesRegistration = (props: IProps) => {
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {ComponentsType === "FULL" ? (
+        {ComponentType === "FULL" ? (
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
@@ -376,7 +415,7 @@ const InventoriesRegistration = (props: IProps) => {
         ) : null}
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>
-            {ComponentsType === "LITTLE" ? (
+            {ComponentType === "LITTLE" ? (
               <Col span={24}>
                 <div
                   style={{
@@ -450,17 +489,13 @@ const InventoriesRegistration = (props: IProps) => {
                                 style={{
                                   width: "100%",
                                 }}
-                              >
-                                {materialSections?.map(
-                                  (section: IDataMaterialSection, index) => {
-                                    return (
-                                      <NewOption key={index} value={section.id}>
-                                        {section.name}
-                                      </NewOption>
-                                    );
-                                  }
+                                options={materialSections?.map(
+                                  (section: IDataMaterialSection) => ({
+                                    label: section.name,
+                                    value: section.id,
+                                  })
                                 )}
-                              </NewSelect>
+                              />
                             </Form.Item>
                           </Space.Compact>
                         </Form.Item>
@@ -491,24 +526,18 @@ const InventoriesRegistration = (props: IProps) => {
                               ]}
                             >
                               <NewSelect
+                                allowClear
                                 showSearch
-                                filterOption={(
-                                  input: any,
-                                  option: { children: any }
-                                ) => {
-                                  return (option?.children ?? "").includes(
-                                    input
-                                  );
-                                }}
-                              >
-                                {consumers?.map((consumer, index) => {
-                                  return (
-                                    <NewOption key={index} value={consumer.id}>
-                                      {consumer.code + "-" + consumer.name}
-                                    </NewOption>
-                                  );
-                                })}
-                              </NewSelect>
+                                filterOption={(input, label) =>
+                                  (label ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                                }
+                                options={consumers?.map((consumer) => ({
+                                  label: consumer.code + "-" + consumer.name,
+                                  value: consumer.id,
+                                }))}
+                              />
                             </Form.Item>
                           </Space.Compact>
                         </Form.Item>
@@ -598,12 +627,13 @@ const InventoriesRegistration = (props: IProps) => {
                 scroll={{ x: 1400 }}
                 rowKey="id"
                 doubleClick={true}
+                rowSelection={ComponentType === "LITTLE" ? rowSelection : null}
                 onDClick={(value) => {
-                  if (ComponentsType === "FULL") {
+                  if (ComponentType === "FULL") {
                     setSelectedRow(value);
                     setIsDescription(true);
                     setIsOpenTree(false);
-                  } else if (ComponentsType === "MIDDLE") {
+                  } else if (ComponentType === "MIDDLE") {
                     onClickModal?.(value);
                   }
                 }}
@@ -711,32 +741,34 @@ const InventoriesRegistration = (props: IProps) => {
                       style={{
                         width: "100%",
                       }}
-                    >
-                      {materialSections?.map(
-                        (section: IDataMaterialSection, index) => {
-                          return (
-                            <NewOption key={index} value={section.id}>
-                              {section.name}
-                            </NewOption>
-                          );
-                        }
+                      options={materialSections?.map(
+                        (section: IDataMaterialSection) => ({
+                          label: section.name,
+                          value: section.id,
+                        })
                       )}
-                    </NewSelect>
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
               <Form.Item label="Хэмжих нэгж">
                 <Space.Compact>
                   <Form.Item name="measurementId">
-                    <NewSelect>
-                      {measuries?.map((measure, index) => {
-                        return (
-                          <NewOption key={index} value={measure.id}>
-                            {measure.name}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, label) =>
+                        (label?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={measuries?.map((measure) => ({
+                        label: measure.name,
+                        value: measure.id,
+                      }))}
+                    />
                   </Form.Item>
                   <div
                     style={{
@@ -760,15 +792,21 @@ const InventoriesRegistration = (props: IProps) => {
               <Form.Item label="Зэрэглэл">
                 <Space.Compact>
                   <Form.Item name="rankId">
-                    <NewSelect>
-                      {materialRanks?.map((rank, index) => {
-                        return (
-                          <NewOption key={index} value={rank.id}>
-                            {rank.name}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, label) =>
+                        (label?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={materialRanks?.map((rank) => ({
+                        label: rank.name,
+                        value: rank.id,
+                      }))}
+                    />
                   </Form.Item>
                   <div
                     style={{
@@ -800,19 +838,20 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
               <Form.Item label="Нэгдсэн ангилалын код" name="unitCodeId">
                 <NewSelect
+                  allowClear
                   showSearch
-                  filterOption={(input: any, option: { children: any }) => {
-                    return (option?.children ?? "").includes(input);
-                  }}
-                >
-                  {unitCodes?.map((unitCode, index) => {
-                    return (
-                      <NewOption key={index} value={unitCode.id}>
-                        {unitCode.code + "-" + unitCode.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                  optionFilterProp="children"
+                  filterOption={(input, label) =>
+                    (label?.label ?? "")
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={unitCodes?.map((unitCode) => ({
+                    label: unitCode.name,
+                    value: unitCode.id,
+                  }))}
+                />
               </Form.Item>
             </div>
             <div className="box">
@@ -839,21 +878,20 @@ const InventoriesRegistration = (props: IProps) => {
                 <Space.Compact>
                   <Form.Item name="brandId">
                     <NewSelect
+                      allowClear
                       showSearch
-                      filterOption={(input: any, option: { children: any }) => {
-                        return (option?.children.toLowerCase() ?? "").includes(
-                          input
-                        );
-                      }}
-                    >
-                      {brands?.map((brand, index) => {
-                        return (
-                          <NewOption key={index} value={brand.id}>
-                            {brand.name}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
+                      optionFilterProp="children"
+                      filterOption={(input, label) =>
+                        (label?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={brands?.map((brand) => ({
+                        label: brand.name,
+                        value: brand.id,
+                      }))}
+                    />
                   </Form.Item>
                   <div
                     style={{
@@ -896,19 +934,20 @@ const InventoriesRegistration = (props: IProps) => {
                     ]}
                   >
                     <NewSelect
+                      allowClear
                       showSearch
-                      filterOption={(input: any, option: { children: any }) => {
-                        return (option?.children ?? "").includes(input);
-                      }}
-                    >
-                      {consumers?.map((consumer, index) => {
-                        return (
-                          <NewOption key={index} value={consumer.id}>
-                            {consumer.code + "-" + consumer.name}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
+                      optionFilterProp="children"
+                      filterOption={(input, label) =>
+                        (label?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={consumers?.map((consumer) => ({
+                        label: consumer.code + "-" + consumer.name,
+                        value: consumer.id,
+                      }))}
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -984,7 +1023,7 @@ const InventoriesRegistration = (props: IProps) => {
         onCancel={() => setIsOpenModalConsumer(false)}
       >
         <Information
-          ComponentsType="MIDDLE"
+          ComponentType="MIDDLE"
           onClickModal={(row: IDataConsumer) => {
             form.setFieldsValue({
               consumerId: row.id,
@@ -999,7 +1038,7 @@ const InventoriesRegistration = (props: IProps) => {
         onCancel={() => setIsOpenModalBrand(false)}
       >
         <InventoriesBrand
-          ComponentsType="MODAL"
+          ComponentType="MODAL"
           onClickModal={(row) => console.log(row)}
         />
       </NewModal>

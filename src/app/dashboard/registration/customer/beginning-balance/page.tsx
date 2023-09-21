@@ -20,23 +20,23 @@ import { initialBalanceService } from "@/service/consumer/initial-balance/servic
 import Information from "../information/information";
 import { IDataInitialBalance } from "@/service/consumer/initial-balance/entities";
 import { ConsumerService } from "@/service/consumer/service";
+import dayjs, { Dayjs } from "dayjs";
 
 const { Title } = Typography;
 
 type IAccounts = {
-  code: string;
-  name: string;
-  date: string;
   accountId: number;
   amount: number;
+  date: Dayjs;
+  name: string;
 };
 
 type IForm = {
-  code: number | string;
+  accounts?: IAccounts[];
+  amount: number;
+  consumerId: number;
   name: string;
   sectionId: number;
-  amount: number;
-  accounts?: IAccounts[];
 };
 
 const BeginningBalance = () => {
@@ -44,6 +44,7 @@ const BeginningBalance = () => {
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [selectedBalance, setSelectedBalance] = useState<IDataInitialBalance>();
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [consumerDictionary, setConsumerDictionary] =
     useState<Map<number, IDataConsumer>>();
@@ -73,13 +74,24 @@ const BeginningBalance = () => {
     });
   };
   const onFinish = async (values: IForm) => {
-    if (editMode) {
+    if (editMode && selectedBalance) {
+      await initialBalanceService
+        .patch(selectedBalance.id, values)
+        .then((response) => {
+          if (response.success) {
+            setIsOpenModal(false);
+            setIsReloadList(!isReloadList);
+          }
+        });
     } else {
-      console.log(values);
-      // await initialBalanceService.post(data).then((response) => {
-      //   console.log(response);
-      // });
+      await initialBalanceService.post(values).then((response) => {
+        if (response.success) {
+          setIsOpenModal(false);
+          setIsReloadList(!isReloadList);
+        }
+      });
     }
+    openNofi("success", "Амжилттай", "Амжиллтай хадгаллаа.");
   };
   //
   const openModal = (state: boolean, balance?: IDataInitialBalance) => {
@@ -88,19 +100,22 @@ const BeginningBalance = () => {
     form.resetFields();
     getConsumers({});
     if (state && balance) {
-      // const data: IInputConsumerMembership = {
-      //   consumerId: consumer.id,
-      //   cards: consumer.memberships.map((card) => ({
-      //     ...card,
-      //     endAt: dayjs(card.endAt),
-      //     name: card.membership.name,
-      //   })),
-      // };
-      // consumerFormField(consumer.id);
-      // form.setFieldsValue(data);
+      setSelectedBalance(balance);
+      form.setFieldsValue({
+        name: balance.consumer.name,
+        sectionId: balance.consumer.sectionId,
+        amount: balance.amount,
+        consumerId: balance.consumerId,
+        accounts: balance.accounts.map((account) => ({
+          id: account.id,
+          accountId: account.accountId,
+          name: account.account.name,
+          date: dayjs(account.date),
+          amount: account.amount,
+        })),
+      });
     }
     setIsOpenModal(true);
-    // setSelectedRow(row);
   };
   const consumerFormField = (id: number) => {
     const consumer = consumerDictionary?.get(id);
@@ -115,7 +130,14 @@ const BeginningBalance = () => {
   const getConsumers = async (params: IParamConsumer) => {
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
+        const data = response.response.data;
         setConsumers(response.response.data);
+        setConsumerDictionary(
+          data.reduce((dict, consumer) => {
+            dict.set(consumer.id, consumer);
+            return dict;
+          }, new Map<number, IDataConsumer>())
+        );
       }
     });
   };
@@ -137,20 +159,23 @@ const BeginningBalance = () => {
     {
       label: "Дэлгэрэнгүй жагсаалт",
       key: "item-2",
-      children: <DescriptionList />,
+      children: (
+        <DescriptionList
+          onReload={isReloadList}
+          onEdit={async (row) => {
+            await initialBalanceService
+              .getById(row.balanceId)
+              .then((response) => {
+                openModal(true, response.response);
+              });
+          }}
+        />
+      ),
     },
   ];
   useEffect(() => {
     getTreeSections();
   }, []);
-  useEffect(() => {
-    setConsumerDictionary(
-      consumers.reduce((dict, consumer) => {
-        dict.set(consumer.id, consumer);
-        return dict;
-      }, new Map<number, IDataConsumer>())
-    );
-  }, [consumers]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -195,6 +220,7 @@ const BeginningBalance = () => {
             onFinish(values);
           })
         }
+        okText="Хадгалах"
         width={1000}
         maskClosable={false}
       >
@@ -273,16 +299,7 @@ const BeginningBalance = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item
-                label="Эхний үлдэгдэл"
-                name="amount"
-                rules={[
-                  {
-                    // required: !isAccounts,
-                    message: "Заавал",
-                  },
-                ]}
-              >
+              <Form.Item label="Эхний үлдэгдэл" name="amount">
                 <NewInputNumber
                   disabled
                   className="numberValue-to-right"

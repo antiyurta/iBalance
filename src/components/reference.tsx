@@ -5,7 +5,6 @@ import { FormListFieldData } from "antd/lib";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { NewInput } from "./input";
-import { EditableFormItemLimit } from "@/app/dashboard/registration/customer/limit-of-loans/editableFormItemLimit";
 import {
   EditOutlined,
   SaveOutlined,
@@ -162,7 +161,7 @@ const Reference = (props: IProps) => {
             title={"Нэр"}
             render={(value, row, index) => {
               return (
-                <EditableFormItemLimit
+                <Form.Item
                   rules={[
                     {
                       required: true,
@@ -170,11 +169,14 @@ const Reference = (props: IProps) => {
                     },
                   ]}
                   name={[index, "name"]}
-                  editing={index === editingIndex}
-                  className={"ant-form-item-no-bottom-margin"}
                 >
-                  <NewInput placeholder="Нэр" min={0} max={150} />
-                </EditableFormItemLimit>
+                  <NewInput
+                    disabled={!(index === editingIndex)}
+                    placeholder="Нэр"
+                    min={0}
+                    max={150}
+                  />
+                </Form.Item>
               );
             }}
           />

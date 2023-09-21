@@ -32,8 +32,10 @@ interface ITable {
   newParams: any;
   onParams: (params: any) => void;
   incomeFilters: any;
-  onEdit: (row: any) => void;
-  onDelete: (id: number) => void;
+  isEdit?: boolean;
+  onEdit?: (row: any) => void;
+  isDelete?: boolean;
+  onDelete?: (id: number) => void;
 }
 
 function NewTable(props: ITable) {
@@ -52,7 +54,9 @@ function NewTable(props: ITable) {
     newParams,
     onParams,
     incomeFilters,
+    isEdit = false,
     onEdit,
+    isDelete = false,
     onDelete,
   } = props;
   const dragProps = {
@@ -65,58 +69,63 @@ function NewTable(props: ITable) {
     },
     nodeSelector: "th",
   };
+  console.log("asdasd", isDelete);
   const warning = (key: number) => {
     Modal.error({
       title: "Устгах",
       content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
       maskClosable: true,
-      onOk: () => onDelete(key),
+      onOk: () => onDelete?.(key),
     });
   };
   const items = [
-    {
-      key: "edit",
-      label: (
-        <div className="popupButton">
-          <Image src="/icons/Edit.png" width={16} height={16} alt="edit" />
-          <p
-            style={{
-              color: "#FD7E14",
-              margin: 0,
-              fontSize: "14px",
-              fontWeight: 400,
-              lineHeight: "16px",
-            }}
-          >
-            Засварлах
-          </p>
-        </div>
-      ),
-    },
-    {
-      key: "delete",
-      label: (
-        <div className="popupButton">
-          <Image
-            src="/icons/DeleteOff.png"
-            width={16}
-            height={16}
-            alt="delete"
-          />
-          <p
-            style={{
-              color: "#DC3545",
-              margin: 0,
-              fontSize: "14px",
-              fontWeight: 400,
-              lineHeight: "16px",
-            }}
-          >
-            Устгах
-          </p>
-        </div>
-      ),
-    },
+    isEdit
+      ? {
+          key: "edit",
+          label: (
+            <div className="popupButton">
+              <Image src="/icons/Edit.png" width={16} height={16} alt="edit" />
+              <p
+                style={{
+                  color: "#FD7E14",
+                  margin: 0,
+                  fontSize: "14px",
+                  fontWeight: 400,
+                  lineHeight: "16px",
+                }}
+              >
+                Засварлах
+              </p>
+            </div>
+          ),
+        }
+      : null,
+    isDelete
+      ? {
+          key: "delete",
+          label: (
+            <div className="popupButton">
+              <Image
+                src="/icons/DeleteOff.png"
+                width={16}
+                height={16}
+                alt="delete"
+              />
+              <p
+                style={{
+                  color: "#DC3545",
+                  margin: 0,
+                  fontSize: "14px",
+                  fontWeight: 400,
+                  lineHeight: "16px",
+                }}
+              >
+                Устгах
+              </p>
+            </div>
+          ),
+        }
+      : null,
   ];
   return (
     <ConfigProvider locale={mnMn}>
@@ -135,6 +144,9 @@ function NewTable(props: ITable) {
               },
             };
           }}
+          // onChange={(pag, filter, sorter, extra) => {
+          //   console.log(pag, filter, sorter, extra);
+          // }}
           pagination={{
             position: ["bottomCenter"],
             size: "small",
@@ -196,6 +208,8 @@ function NewTable(props: ITable) {
                       />
                     );
                   }}
+                  // sorter={true}
+                  // showSorterTooltip={true}
                   render={(text) => renderCheck(text, value.type)}
                 />
               );
@@ -215,7 +229,7 @@ function NewTable(props: ITable) {
                       if (key === "delete") {
                         warning(text);
                       } else if (key === "edit") {
-                        onEdit(row);
+                        onEdit?.(row);
                       }
                     },
                   }}
