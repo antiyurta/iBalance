@@ -1,4 +1,4 @@
-import { ColumnType, GenericResponse, IParam, Meta } from "../entities";
+import { ColumnType, GenericResponse, IFilter, IParam, Meta } from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
 import { IDataConsumerMembership } from "./membership/entities";
@@ -27,7 +27,7 @@ export interface IDataConsumer {
   updatedAt: string;
   deletedAt: string;
 }
-export interface IFilterConsumer {
+export interface IFilterConsumer extends IFilter {
   code?: number[];
   isIndividual?: boolean[];
   isEmployee?: boolean[];
@@ -41,8 +41,6 @@ export interface IFilterConsumer {
   bankAccountNo?: string[];
   email?: string[];
   isActive?: boolean[];
-  updatedAt?: string;
-  updatedBy?: number[];
 }
 export type FilteredColumnsConsumer = {
   [T in keyof IFilterConsumer]?: ColumnType;

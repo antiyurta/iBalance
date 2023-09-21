@@ -2,18 +2,11 @@ import { api } from "../../feature/interceptor/interceptor";
 import { ICountryResponse } from "../material/brand/entities";
 import {
   IDataReference,
-  IReferenceResponse,
+  IParamReference,
+  IResponseReference,
   IType,
   IUserResponse,
 } from "./entity";
-
-function get(type: IType): Promise<IReferenceResponse> {
-  return api.get("reference-section", {
-    params: {
-      type: type,
-    },
-  });
-}
 
 function getUsers(params: { ids: number[] }): Promise<IUserResponse> {
   return api.get("user", {
@@ -28,12 +21,17 @@ function getCountries(): Promise<ICountryResponse> {
     },
   });
 }
-
-function post(body: IDataReference): Promise<IReferenceResponse> {
+function get(params: IParamReference): Promise<IResponseReference> {
+  return api.get("reference-section", { params });
+}
+function post(body: IDataReference): Promise<IResponseReference> {
   return api.post("reference-section", body);
 }
+function patch(id: number, body: IDataReference): Promise<IResponseReference> {
+  return api.patch(`reference-section/${id}`, body);
+}
 
-function remove(id: number): Promise<IReferenceResponse> {
+function remove(id: number): Promise<IResponseReference> {
   return api.delete("reference-section/" + id);
 }
 
@@ -46,6 +44,7 @@ export const ReferenceService = {
   getCountries,
   getUsers,
   post,
+  patch,
   remove,
   removeUploadImage,
 };

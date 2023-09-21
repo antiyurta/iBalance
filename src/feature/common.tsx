@@ -335,9 +335,9 @@ async function userToFilter(ids: number[]) {
 
 async function banksToFilter(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
-  const { response } = await ReferenceService.get(IType.BANK);
+  const { response } = await ReferenceService.get({ type: IType.BANK });
   filters?.map((filterSection: any) => {
-    response.map((section: IDataReference) => {
+    response.data.map((section: IDataReference) => {
       if (section.id === filterSection) {
         outFilters.push({
           text: section.name,
@@ -449,7 +449,7 @@ const getConsumerByCode = async (code: number | string) => {
         },
       ],
       page: 1,
-      limit: 10
+      limit: 10,
     }).then((response) => {
       if (response.success) {
         if (response.response.data.length === 0) {

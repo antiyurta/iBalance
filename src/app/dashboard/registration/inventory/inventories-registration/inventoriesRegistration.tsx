@@ -21,7 +21,7 @@ import {
   openNofi,
 } from "@/feature/common";
 import {
-  ComponentsType,
+  ComponentType,
   DataIndexType,
   FilteredColumns,
   IFilters,
@@ -63,7 +63,7 @@ import { MaterialSectionService } from "@/service/material/section/service";
 import InventoriesBrand from "../inventories-brand/inventoriesBrand";
 
 interface IProps {
-  ComponentsType: ComponentsType;
+  ComponentsType: ComponentType;
   onClickModal?: (row: any) => void;
 }
 
@@ -245,8 +245,8 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getMaterialRanks = async (type: IType) => {
-    await ReferenceService.get(type).then((response) => {
-      setMaterialRanks(response.response);
+    await ReferenceService.get({type}).then((response) => {
+      setMaterialRanks(response.response.data);
     });
   };
   const getUnitCode = async () => {

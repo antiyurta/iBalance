@@ -32,9 +32,9 @@ const Reference = (props: IProps) => {
   const { type, onClickModal } = props;
   const [form] = Form.useForm();
   const getData = async () => {
-    await ReferenceService.get(type).then((response) => {
+    await ReferenceService.get({ type }).then((response) => {
       form.setFieldsValue({
-        reference: response.response,
+        reference: response.response.data,
       });
     });
   };

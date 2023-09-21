@@ -271,8 +271,8 @@ const Information = (props: IProps) => {
   };
   // bank awcirah
   const getBanks = async (type: IType) => {
-    await ReferenceService.get(type).then((response) => {
-      setBanks(response.response);
+    await ReferenceService.get({ type }).then((response) => {
+      setBanks(response.response.data);
     });
   };
   // section awchirah
