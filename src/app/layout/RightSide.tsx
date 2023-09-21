@@ -50,6 +50,7 @@ const DashboardLayout = () => {
         getItem("Эхний үлдэгдэл", "/beginning-balance"),
         getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
         getItem("Буцаалтын шалтгаан", "/refund-reason"),
+        getItem("Үйлчилгээний бүртгэл", "/services-registration"),
       ]),
     ]),
   ];
