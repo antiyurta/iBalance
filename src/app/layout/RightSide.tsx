@@ -47,10 +47,13 @@ const DashboardLayout = () => {
         getItem("Бренд", "/inventories-brand"),
         getItem("Хэмжих нэгж", "/unit-of-measure"),
         getItem("Байршлын бүртгэл", "/storagies-registration"),
+        getItem("Үйлчилгээний бүртгэл", "/services-registration"),
         getItem("Эхний үлдэгдэл", "/beginning-balance"),
         getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
         getItem("Буцаалтын шалтгаан", "/refund-reason"),
-        getItem("Үйлчилгээний бүртгэл", "/services-registration"),
+      ]),
+      getItem("Төлбөр үнэ", "/payment-price", <AppstoreOutlined />, [
+        getItem("Бүртгэл", "/product-price"),
       ]),
     ]),
   ];

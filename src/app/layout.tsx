@@ -72,6 +72,9 @@ export default function RootLayout({
                     padding: 12,
                     fontSize: 14,
                   },
+                  Card: {
+                    borderRadius: 12,
+                  },
                 },
                 algorithm: theme.compactAlgorithm,
                 token: {
