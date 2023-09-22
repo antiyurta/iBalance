@@ -21,6 +21,8 @@ type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const title = useTypedSelector((state: RootState) => state.title);
+  console.log(title);
   const blockContext: BlockView = useContext(BlockContext);
   const { label, path } = useTypedSelector(
     (state: RootState) => state.currentPath
@@ -131,11 +133,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           gap: 12,
           overflow: "auto",
           width: "100%",
+          height: "100%",
         }}
       >
         <div className="navbar">
           <div className="left">
-            <p>Агуулахын систем</p>
+            <p>{title.label}</p>
           </div>
           <div className="right">
             <div className="date">
@@ -171,7 +174,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
         </div>
-        <main>
+        <main
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+          }}
+        >
           <Tabs
             activeKey={activeKey}
             hideAdd={true}
@@ -180,7 +189,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             onEdit={onEdit}
             items={tabsItems}
           />
-          <div>{children}</div>
+          {children}
         </main>
       </div>
     </div>

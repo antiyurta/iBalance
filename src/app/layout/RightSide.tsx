@@ -8,9 +8,11 @@ import {
   UserOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  WindowsOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { PathActions } from "@/feature/core/actions/PathAction";
+import { TitleActions } from "@/feature/core/actions/TitleAction";
 import { useState } from "react";
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -61,6 +63,9 @@ const DashboardLayout = () => {
         getItem("Төлбөрийн хэлбэр", "/payment-method"),
       ]),
     ]),
+    getItem("Төлбөр тооцоо", "/payments", <WindowsOutlined />, [
+      getItem("Поссын борлуулалт", "/pos-sales"),
+    ]),
   ];
   // fuctions
   const fillter = (array: any, key: string) => {
@@ -72,6 +77,10 @@ const DashboardLayout = () => {
   };
   const menuClick = (keyPath: string[]) => {
     var clonedMenuItems = items;
+    const top = fillter(clonedMenuItems, keyPath[keyPath.length - 1]);
+    if (top.label) {
+      dispatch(TitleActions.setTitleData({ label: top.label }));
+    }
     keyPath.reverse().map((path) => {
       const data = fillter(clonedMenuItems, path);
       if (data.children) {

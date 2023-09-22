@@ -1,7 +1,7 @@
 "use client";
 import "antd/dist/reset.css";
 import "../app/globals.scss";
-import React from "react";
+import React, { useState } from "react";
 import { Ubuntu } from "next/font/google";
 import { AppBlock } from "@/feature/context/BlockContext";
 import { Provider } from "react-redux";
@@ -13,8 +13,8 @@ import { ConfigProvider, Spin, theme } from "antd";
 import mn_MN from "antd/locale/mn_MN";
 
 //
-import { Layout, Space } from "antd";
-const { Header, Footer, Sider, Content } = Layout;
+import { Layout } from "antd";
+const { Sider, Content } = Layout;
 //
 
 const ubuntu = Ubuntu({
@@ -36,6 +36,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [isView, setIsView] = useState<boolean>(false);
   return (
     <html lang="en">
       <body className={ubuntu.className}>
@@ -71,6 +72,8 @@ export default function RootLayout({
                     controlHeight: 39,
                     padding: 12,
                     fontSize: 14,
+                    colorText: "#198754",
+                    colorBorder: "#198754",
                   },
                   Card: {
                     borderRadius: 12,
@@ -82,7 +85,13 @@ export default function RootLayout({
                   colorBgContainer: "white",
                   colorPrimaryBg: "#f8f9fa",
                   lineHeight: 1.2,
-                  fontSizeHeading5: 14,
+                  fontSizeHeading1: 24,
+                  fontSizeHeading2: 19,
+                  fontSizeHeading3: 14,
+                  fontSizeHeading4: 12,
+                  lineHeightHeading4: 1.1,
+                  fontSizeHeading5: 10,
+                  lineHeightHeading5: 1.1,
                   fontWeightStrong: 700,
                   colorTextHeading: "#495057",
                 },
@@ -90,8 +99,13 @@ export default function RootLayout({
             >
               <AppBlock />
               <Layout>
-                <Sider theme="light">
-                  <Sidebar />
+                <Sider
+                  style={{
+                    display: isView ? "block" : "none",
+                  }}
+                  theme="light"
+                >
+                  <Sidebar isView={(state) => setIsView(state)} />
                 </Sider>
                 <Layout>
                   <Content>

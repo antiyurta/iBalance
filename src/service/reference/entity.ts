@@ -41,4 +41,5 @@ export enum IType {
   BANK = "BANK", // Банк
   MATERIAL_RANK = "MATERIAL_RANK", // Барааны зэрэглэл
   REASON_REFUND = "RETURN", // Буцаалтын шалтгаан
+  MONEY = "MONEY", // мөнгөн дэвсгэрт
 }

@@ -6,26 +6,7 @@ interface IProps extends ModalProps {
 }
 
 const NewModal = (props: IProps) => {
-  return (
-    <Modal
-      className="ant-modal-title-left"
-      title={
-        <span
-          style={{
-            display: "flex",
-            width: "100%",
-            fontSize: 20,
-            fontWeight: 500,
-            justifyContent: props.positionTitle,
-          }}
-        >
-          {props.title}
-        </span>
-      }
-      {...props}
-    >
-      {props.children}
-    </Modal>
-  );
+  const { positionTitle } = props;
+  return <Modal {...props}>{props.children}</Modal>;
 };
 export default NewModal;
