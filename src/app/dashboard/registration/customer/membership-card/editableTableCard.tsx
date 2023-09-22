@@ -164,7 +164,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         title="Картын дугаар"
         render={(value, row, index) => (
           <Form.Item name={[index, "cardno"]}>
-            <NewInput disabled={!(index === editingIndex)}/>
+            <NewInput disabled={!(index === editingIndex)} />
           </Form.Item>
         )}
       />
@@ -246,9 +246,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         dataIndex="endAt"
         title="Дуусах огноо"
         render={(value, row, index) => (
-          <Form.Item
-            name={[index, "endAt"]}
-          >
+          <Form.Item name={[index, "endAt"]}>
             <DatePicker
               disabled={!(index === editingIndex)}
               value={value ? dayjs(value, "YYYY-MM-DD hh:mm:ss") : null}

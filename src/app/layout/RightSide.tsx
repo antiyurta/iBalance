@@ -52,8 +52,13 @@ const DashboardLayout = () => {
         getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
         getItem("Буцаалтын шалтгаан", "/refund-reason"),
       ]),
-      getItem("Төлбөр үнэ", "/payment-price", <AppstoreOutlined />, [
+      getItem("Төлбөр, үнэ", "/payment-price", <AppstoreOutlined />, [
         getItem("Бүртгэл", "/product-price"),
+        getItem("Үйлчилгээний үнэ", "/service-price"),
+        getItem("Багц үнэ", "/package-price"),
+        getItem("Хөнгөлөлт", "/discount"),
+        getItem("Урамшуулал", "/coupon"),
+        getItem("Төлбөрийн хэлбэр", "/payment-method"),
       ]),
     ]),
   ];

@@ -15,6 +15,8 @@ import {
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
+  DownOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
 import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import {
@@ -23,7 +25,6 @@ import {
   MaterialType,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
-
 const { Column } = Table;
 
 interface IProps {
@@ -33,13 +34,14 @@ interface IProps {
   remove: (index: number) => void;
 }
 
-const EditableTableProduct = (props: IProps) => {
+const EditableTablePackage = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [materialDictionary, setMaterialDictionary] =
     useState<Map<number, IDataMaterial>>();
   const [isNewService, setNewService] = useState<boolean>(false);
   const [materials, setMaterials] = useState<IDataMaterial[]>([]);
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
+
   const [editingIndex, setEditingIndex] = useState<number>();
   const addService = () => {
     onSave().then((state) => {
@@ -102,8 +104,8 @@ const EditableTableProduct = (props: IProps) => {
           [`${editingIndex}`]: {
             name: material.name,
             measurement: material.measurement?.name,
-            countPackage: material.countPackage,
             section: material.section?.name,
+            countPackage: material.countPackage,
           },
         },
       });
@@ -118,12 +120,27 @@ const EditableTableProduct = (props: IProps) => {
     );
   }, [materials]);
   useEffect(() => {
-    getMaterials({ type: MaterialType.Material });
+    getMaterials({ type: MaterialType.Package });
   }, []);
   return (
     <>
       <Table
         dataSource={data}
+        expandable={{
+          expandedRowRender: (render) => {
+            if (editingIndex === render.key) {
+              form.getFieldValue('materialId')
+              console.log('expandedRowRender', render);
+            }
+            return "миний контент";
+          },
+          expandIcon: ({ expanded, onExpand, record }) =>
+            expanded ? (
+              <UpOutlined onClick={(e) => onExpand(record, e)} />
+            ) : (
+              <DownOutlined onClick={(e) => onExpand(record, e)} />
+            ),
+        }}
         footer={() => {
           return (
             <div
@@ -219,10 +236,21 @@ const EditableTableProduct = (props: IProps) => {
         />
         <Column
           dataIndex={"name"}
-          title="Бараа материалын нэр"
+          title="Багцын нэр"
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "name"]}>
+                <NewInput disabled />
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"section"}
+          title="Багцын бүлэг"
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "section"]}>
                 <NewInput disabled />
               </Form.Item>
             );
@@ -245,18 +273,7 @@ const EditableTableProduct = (props: IProps) => {
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "countPackage"]}>
-                <NewInput disabled />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"section"}
-          title="Бараа материалын бүлэг"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "section"]}>
-                <NewInput disabled />
+                <NewInputNumber disabled />
               </Form.Item>
             );
           }}
@@ -275,42 +292,6 @@ const EditableTableProduct = (props: IProps) => {
                   },
                 ]}
               >
-                <NewInputNumber
-                  disabled={!(index === editingIndex)}
-                  prefix={"₮ "}
-                  formatter={(value: any) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  }
-                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-                />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"lumpQuantity"}
-          title="Бөөний үнээрх тоо хэмжээ"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "lumpQuantity"]}>
-                <NewInputNumber
-                  disabled={!(index === editingIndex)}
-                  prefix={"ш "}
-                  formatter={(value: any) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  }
-                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-                />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"lumpAmount"}
-          title="Бөөний нэгж үнэ"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "lumpAmount"]}>
                 <NewInputNumber
                   disabled={!(index === editingIndex)}
                   prefix={"₮ "}
@@ -388,4 +369,4 @@ const EditableTableProduct = (props: IProps) => {
     </>
   );
 };
-export default EditableTableProduct;
+export default EditableTablePackage;

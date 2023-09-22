@@ -1,20 +1,21 @@
 import { api } from "../../feature/interceptor/interceptor";
 import {
   IDataMaterial,
-  IMaterialResponse,
-  IParams,
-  IUnitCodeResponse,
+  IResponseMaterial,
+  IParamMaterial,
+  IResponseUnitCode,
+  IResponseOneMaterial,
 } from "./entities";
 
-function get(params: IParams): Promise<IMaterialResponse> {
-  return api.get("material", { params: params });
+function get(params: IParamMaterial): Promise<IResponseMaterial> {
+  return api.get("material", { params });
 }
 
-function getUnitCode(): Promise<IUnitCodeResponse> {
+function getUnitCode(): Promise<IResponseUnitCode> {
   return api.get("material-unit-code");
 }
 
-function post(body: IDataMaterial): Promise<IMaterialResponse> {
+function post(body: IDataMaterial): Promise<IResponseOneMaterial> {
   return api.post("material", body);
 }
 

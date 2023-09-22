@@ -1,8 +1,9 @@
 "use client";
 
-import ProductPrice from "./productPrice";
+import { CommandType } from "@/service/command/entities";
+import Price from "../price";
 
 const ProductPricePage = () => {
-  return <ProductPrice ComponentType="FULL" />;
+  return <Price ComponentType="FULL" name="Үндсэн үнэ" type={CommandType.Material} />;
 };
 export default ProductPricePage;

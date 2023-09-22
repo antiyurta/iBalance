@@ -258,7 +258,9 @@ const CustomerList = (props: IProps) => {
                 newParams={params}
                 onParams={setParams}
                 incomeFilters={filters}
+                isEdit={true}
                 onEdit={(row) => onEdit(row)}
+                isDelete={true}
                 onDelete={(id) => onDelete(id)}
               />
             </Col>

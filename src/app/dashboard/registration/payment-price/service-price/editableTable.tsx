@@ -23,7 +23,6 @@ import {
   MaterialType,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
-
 const { Column } = Table;
 
 interface IProps {
@@ -33,7 +32,7 @@ interface IProps {
   remove: (index: number) => void;
 }
 
-const EditableTableProduct = (props: IProps) => {
+const EditableTableService = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [materialDictionary, setMaterialDictionary] =
     useState<Map<number, IDataMaterial>>();
@@ -102,7 +101,6 @@ const EditableTableProduct = (props: IProps) => {
           [`${editingIndex}`]: {
             name: material.name,
             measurement: material.measurement?.name,
-            countPackage: material.countPackage,
             section: material.section?.name,
           },
         },
@@ -118,7 +116,7 @@ const EditableTableProduct = (props: IProps) => {
     );
   }, [materials]);
   useEffect(() => {
-    getMaterials({ type: MaterialType.Material });
+    getMaterials({ type: MaterialType.Service });
   }, []);
   return (
     <>
@@ -219,10 +217,21 @@ const EditableTableProduct = (props: IProps) => {
         />
         <Column
           dataIndex={"name"}
-          title="Бараа материалын нэр"
+          title="Үйлчилгээний нэр"
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "name"]}>
+                <NewInput disabled />
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"section"}
+          title="Үйлчилгээний бүлэг"
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "section"]}>
                 <NewInput disabled />
               </Form.Item>
             );
@@ -234,28 +243,6 @@ const EditableTableProduct = (props: IProps) => {
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "measurement"]}>
-                <NewInput disabled />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"countPackage"}
-          title="Багц доторх тоо"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "countPackage"]}>
-                <NewInput disabled />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"section"}
-          title="Бараа материалын бүлэг"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "section"]}>
                 <NewInput disabled />
               </Form.Item>
             );
@@ -275,42 +262,6 @@ const EditableTableProduct = (props: IProps) => {
                   },
                 ]}
               >
-                <NewInputNumber
-                  disabled={!(index === editingIndex)}
-                  prefix={"₮ "}
-                  formatter={(value: any) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  }
-                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-                />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"lumpQuantity"}
-          title="Бөөний үнээрх тоо хэмжээ"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "lumpQuantity"]}>
-                <NewInputNumber
-                  disabled={!(index === editingIndex)}
-                  prefix={"ш "}
-                  formatter={(value: any) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  }
-                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-                />
-              </Form.Item>
-            );
-          }}
-        />
-        <Column
-          dataIndex={"lumpAmount"}
-          title="Бөөний нэгж үнэ"
-          render={(value, row, index) => {
-            return (
-              <Form.Item name={[index, "lumpAmount"]}>
                 <NewInputNumber
                   disabled={!(index === editingIndex)}
                   prefix={"₮ "}
@@ -388,4 +339,4 @@ const EditableTableProduct = (props: IProps) => {
     </>
   );
 };
-export default EditableTableProduct;
+export default EditableTableService;

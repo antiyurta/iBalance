@@ -1,16 +1,22 @@
 import { ComponentType } from "@/service/entities";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { Col, Input, Row, Space, Tabs, Typography } from "antd";
-import AddPage from "./addPage";
+import SavePrice from "./save-price";
+import CommandList from "./command-list";
+import PriceList from "./price-list";
+import { MaterialType } from "@/service/material/entities";
+import { CommandType } from "@/service/command/entities";
 
 interface IProps {
   ComponentType: ComponentType;
+  name: string;
+  type: CommandType;
 }
 
 const { Title } = Typography;
 
-const ProductPrice = (props: IProps) => {
-  const { ComponentType } = props;
+const Price = (props: IProps) => {
+  const { ComponentType, name, type } = props;
   const items = [
     {
       label: (
@@ -20,15 +26,17 @@ const ProductPrice = (props: IProps) => {
         </div>
       ),
       key: "item-1",
-      children: <AddPage />,
+      children: <SavePrice type={type} />,
     },
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
+      children: <CommandList type={type} />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
+      children: <PriceList type={type} />,
     },
   ];
   return (
@@ -38,9 +46,7 @@ const ProductPrice = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>
-                  Үндсэн бүртгэл / Төлбөр, үнэ / Үндсэн үнэ
-                </Title>
+                <Title level={5}>Үндсэн бүртгэл / Төлбөр, үнэ / {name}</Title>
               </Space>
             </Col>
             <Col md={24} lg={8} xl={5}>
@@ -59,4 +65,4 @@ const ProductPrice = (props: IProps) => {
     </div>
   );
 };
-export default ProductPrice;
+export default Price;

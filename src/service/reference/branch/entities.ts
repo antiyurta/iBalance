@@ -1,55 +1,50 @@
 import {
   ColumnType,
   GenericResponse,
-  IFilters,
+  IData,
+  IFilter,
+  IParam,
   Meta,
-  Quearies,
-  RadioType,
 } from "../../entities";
 import { IDataTreeSection } from "../tree-section/entities";
 
-export interface Params {
-  page?: number | undefined;
-  limit?: number | undefined;
-  code?: number[] | undefined;
-  isIndividual?: boolean[];
-  isEmployee?: boolean[];
-  lastName?: string[] | undefined;
-  name?: string[];
-  sectionId?: string[] | number[];
-  regno?: string[];
-  phone?: string[];
-  address?: string[];
-  bankId?: string[] | number[];
-  bankAccountNo?: string[];
-  email?: string[];
-  isActive?: boolean[];
-  queries?: Quearies[];
-  orderParam?: string | null | undefined;
-  order?: RadioType | null | undefined;
-}
-
-export interface IDataBranch {
+export interface IDataBranch extends IData {
   id: number;
   sectionId: number;
-  code: number | string;
+  code: string;
   name: string;
   provinceId: number;
   districtId: number;
   fileId: number;
   isActive: string;
   section: IDataTreeSection;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
 }
 
-export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
+export interface IFilterBranch extends IFilter {
+  sectionId?: number[];
+  code?: string[];
+  name?: string[];
+  provinceId?: number[];
+  districtId?: number[];
+  fileId?: number[];
+  isActive?: string[];
+}
 
-export interface IBranchResponse extends GenericResponse {
+export type FilteredColumnsBranch = {
+  [T in keyof IFilterBranch]?: ColumnType;
+};
+
+export type FilteredColumns = { [T in keyof IFilterBranch]?: ColumnType };
+
+export interface IParamBranch extends Meta, IParam, IFilterBranch {}
+
+export interface IResponseBranch extends GenericResponse {
   response: {
     data: IDataBranch[];
     meta: Meta;
-    filter: IFilters;
+    filter: IFilterBranch;
   };
+}
+export interface IResponseOneBranch extends GenericResponse {
+  response: IDataBranch;
 }
