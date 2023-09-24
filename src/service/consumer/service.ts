@@ -5,9 +5,6 @@ import {
   IParamConsumer,
   IConsumerResponseUpdate,
 } from "./entities";
-function getAll(): Promise<IResponseConsumer> {
-  return api.get("consumer");
-}
 function get(params: IParamConsumer): Promise<IResponseConsumer> {
   return api.get("consumer", { params: params });
 }
@@ -33,7 +30,6 @@ function remove(id: number): Promise<IResponseConsumer> {
 }
 export const ConsumerService = {
   get,
-  getAll,
   post,
   patch,
   switchPatch,

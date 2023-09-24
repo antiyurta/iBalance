@@ -29,6 +29,7 @@ import {
 import {
   IDataMaterial,
   IDataUnitCode,
+  IFilterMaterial,
   IParamMaterial,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
@@ -52,14 +53,15 @@ import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import Reference from "@/components/reference";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import { BrandService } from "@/service/material/brand/service";
-import { IDataBrand } from "@/service/material/brand/entities";
+import { BrandService } from "@/service/reference/brand/service";
+import { IDataBrand } from "@/service/reference/brand/entities";
 import Information from "../../customer/information/information";
 import { IDataConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { IDataMaterialSection } from "@/service/material/section/entities";
 import { MaterialSectionService } from "@/service/material/section/service";
 import InventoriesBrand from "../inventories-brand/inventoriesBrand";
+import { UnitCodeService } from "@/service/reference/unit-code/service";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -99,7 +101,7 @@ const InventoriesRegistration = (props: IProps) => {
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   //
-  const [filters, setFilters] = useState<IFilters>();
+  const [filters, setFilters] = useState<IFilterMaterial>();
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -249,17 +251,17 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getUnitCode = async () => {
-    await MaterialService.getUnitCode().then((response) => {
+    await UnitCodeService.get({}).then((response) => {
       setUnitCodes(response.response.data);
     });
   };
   const getBrands = async () => {
-    await BrandService.get().then((response) => {
+    await BrandService.get({}).then((response) => {
       setBrands(response.response.data);
     });
   };
   const getConsumers = async () => {
-    await ConsumerService.getAll().then((response) => {
+    await ConsumerService.get({}).then((response) => {
       setConsumers(response.response.data);
     });
   };
@@ -406,7 +408,7 @@ const InventoriesRegistration = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    materialSectionId: [`${key}`],
+                    materialSectionId: key,
                   });
                 }
               }}

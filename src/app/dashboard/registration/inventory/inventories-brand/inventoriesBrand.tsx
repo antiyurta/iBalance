@@ -19,8 +19,8 @@ import {
   IDataBrand,
   IDataCountry,
   IParams,
-} from "@/service/material/brand/entities";
-import { BrandService } from "@/service/material/brand/service";
+} from "@/service/reference/brand/entities";
+import { BrandService } from "@/service/reference/brand/service";
 import { ReferenceService } from "@/service/reference/reference";
 import { Form } from "antd";
 import Image from "next/image";

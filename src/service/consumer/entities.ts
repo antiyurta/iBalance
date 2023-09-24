@@ -48,6 +48,7 @@ export type FilteredColumnsConsumer = {
 
 export interface IParamConsumer extends Meta, IParam, IFilterConsumer {
   memberships?: boolean;
+  isSupplier?: boolean;
 }
 export interface IResponseConsumer extends GenericResponse {
   response: {

@@ -1,5 +1,5 @@
 import { api } from "../../feature/interceptor/interceptor";
-import { ICountryResponse } from "../material/brand/entities";
+import { ICountryResponse } from "./brand/entities";
 import {
   IDataReference,
   IParamReference,

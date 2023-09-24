@@ -6,7 +6,6 @@ import {
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Queries } from "@/service/entities";
-import { IDataCountry } from "@/service/material/brand/entities";
 import { referenceAccountService } from "@/service/reference/account/service";
 import { IDataReference, IDataUser, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
@@ -20,6 +19,7 @@ import React from "react";
 import { NumericFormat } from "react-number-format";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
+import { IDataCountry } from "@/service/reference/country/entities";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
@@ -353,7 +353,7 @@ async function consumerToFilterName(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
   const {
     response: { data },
-  } = await ConsumerService.getAll();
+  } = await ConsumerService.get({});
   console.log(filters, data);
   filters?.map((filterSection: any) => {
     data.map((consumer: IDataConsumer) => {

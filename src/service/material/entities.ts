@@ -3,14 +3,14 @@ import {
   ColumnType,
   GenericResponse,
   IFilter,
-  IFilters,
   IParam,
   Meta,
 } from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataMembership } from "../reference/membership/entities";
+import { IDataUnitCode } from "../reference/unit-code/entities";
 import { IDataBalance } from "./balance/entities";
-import { IDataBrand } from "./brand/entities";
+import { IDataBrand } from "../reference/brand/entities";
 import { IDataMaterialSection } from "./section/entities";
 import { IDataUnitOfMeasure } from "./unitOfMeasure/entities";
 
@@ -19,11 +19,6 @@ export enum MaterialType {
   Material = "MATERIAL", // Бараа
   Service = "SERVICE", // Үйлчилгээ
   Package = "PACKAGE", // Багц
-}
-export interface IDataUnitCode {
-  id: number;
-  code: string;
-  name: string;
 }
 
 export interface IDataMaterial {
@@ -92,18 +87,11 @@ export type FilteredColumnsMaterial = {
 
 export interface IParamMaterial extends Meta, IParam, IFilterMaterial {}
 
-export interface IResponseUnitCode extends GenericResponse {
-  response: {
-    data: IDataUnitCode[];
-    meta: Meta;
-  };
-}
-
 export interface IResponseMaterial extends GenericResponse {
   response: {
     data: IDataMaterial[];
     meta: Meta;
-    filter: IFilters;
+    filter: IFilterMaterial;
   };
 }
 

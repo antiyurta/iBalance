@@ -1,22 +1,12 @@
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { SignalFilled, SwapOutlined } from "@ant-design/icons";
+import { SignalFilled, PlusOutlined } from "@ant-design/icons";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import {
-  Params,
-  IDataConsumer,
-  FilteredColumns,
-} from "@/service/consumer/entities";
-import {
-  ComponentType,
-  DataIndexType,
-  IFilters,
-  Meta,
-} from "@/service/entities";
+import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
   Button,
   Col,
@@ -26,10 +16,11 @@ import {
   Row,
   Space,
   Typography,
+  Upload,
 } from "antd";
 import {
   NewInput,
-  NewOption,
+  NewInputNumber,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -38,15 +29,44 @@ import {
   findIndexInColumnSettings,
   onCloseFilterTag,
   openNofi,
-  unDuplicate,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
-import { IType, IDataReference } from "@/service/reference/entity";
 import {
-  IDataTreeSection,
-  TreeSectionType,
-} from "@/service/reference/tree-section/entities";
+  IDataReference,
+  IParamReference,
+  IType,
+} from "@/service/reference/entity";
 import NewModal from "@/components/modal";
+import {
+  IDataMaterialSection,
+  IParamMaterialSection,
+} from "@/service/material/section/entities";
+import { MaterialSectionService } from "@/service/material/section/service";
+import {
+  FilteredColumnsMaterial,
+  IDataMaterial,
+  IFilterMaterial,
+  IParamMaterial,
+  IResponseOneMaterial,
+  MaterialType,
+} from "@/service/material/entities";
+import { MaterialService } from "@/service/material/service";
+import {
+  IDataUnitCode,
+  IParamUnitCode,
+} from "@/service/reference/unit-code/entities";
+import { UnitCodeService } from "@/service/reference/unit-code/service";
+import { ReferenceService } from "@/service/reference/reference";
+import {
+  IDataUnitOfMeasure,
+  IParamUnitOfMeasure,
+} from "@/service/material/unitOfMeasure/entities";
+import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
+import { IDataBrand, IParamBrand } from "@/service/reference/brand/entities";
+import { BrandService } from "@/service/reference/brand/service";
+import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
+import { ConsumerService } from "@/service/consumer/service";
 const { Title } = Typography;
 
 interface IProps {
@@ -55,29 +75,47 @@ interface IProps {
 }
 
 const ServicesRegistration = (props: IProps) => {
+  const {
+    login_data: {
+      response: { accessToken },
+    },
+  } = useTypedSelector((state: RootState) => state.core);
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+  };
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
   const [switchForm] = Form.useForm(); // buleg solih
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
     useState<boolean>(false);
-  const [data, setData] = useState<IDataConsumer[]>([]);
+  const [data, setData] = useState<IDataMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [filters, setFilters] = useState<IFilterMaterial>();
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [editMode, setIsMode] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
-  const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [isFilterIcon, setIsFilterIcon] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
+  // start used datas
+  const [materialSections, setMaterialSections] = useState<
+    IDataMaterialSection[]
+  >([]);
+  const [measurements, setMeasurements] = useState<IDataUnitOfMeasure[]>([]);
+  const [unitCodes, setUnitCodes] = useState<IDataUnitCode[]>([]);
+  const [ranks, setRanks] = useState<IDataReference[]>([]);
+  const [brands, setBrands] = useState<IDataBrand[]>([]);
+  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  // end used datas
+  const [imageIds, setImageIds] = useState<number[]>([]);
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
-  const [newParams, setNewParams] = useState<Params>({});
+  const [params, setParams] = useState<IParamMaterial>({});
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [filters, setFilters] = useState<IFilters>();
-  const [banks, setBanks] = useState<IDataReference[]>([]);
-  const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
+  const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
     []
   );
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [fileList, setFileList] = useState<any[]>([]);
+  const [columns, setColumns] = useState<FilteredColumnsMaterial>({
     code: {
       label: "Дотоод код",
       isView: true,
@@ -85,39 +123,39 @@ const ServicesRegistration = (props: IProps) => {
       dataIndex: "code",
       type: DataIndexType.MULTI,
     },
-    isIndividual: {
+    name: {
       label: "Үйлчилгээний нэр",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "isIndividual",
+      dataIndex: "name",
       type: DataIndexType.MULTI,
     },
-    isEmployee: {
+    measurementId: {
       label: "Хэмжих нэгж",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "isEmployee",
-      type: DataIndexType.STRING_SECTION,
+      dataIndex: ["measurement", "name"],
+      type: DataIndexType.MULTI,
     },
-    lastName: {
+    brandId: {
       label: "Брэнд",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["brand", "name"],
       type: DataIndexType.MULTI,
     },
-    name: {
+    isTax: {
       label: "НӨАТ суутгах эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: "isTax",
       type: DataIndexType.BOOLEAN,
     },
-    sectionId: {
+    isCitizenTax: {
       label: "НХАТ суутгах эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: ["section", "name"],
+      dataIndex: "isCitizenTax",
       type: DataIndexType.BOOLEAN,
     },
     isActive: {
@@ -128,83 +166,15 @@ const ServicesRegistration = (props: IProps) => {
       type: DataIndexType.BOOLEAN_STRING,
     },
   });
-  const openModal = (state: boolean, row?: IDataConsumer) => {
-    setIsMode(state);
+  const openModal = (state: boolean, row?: IDataMaterial) => {
+    setIsEdit(state);
+    setIsOpenModal(true);
     if (!state) {
       form.resetFields();
     } else {
       form.setFieldsValue(row);
+      setSelectedRow(row);
     }
-    setIsOpenModal(true);
-    setSelectedRow(row);
-  };
-  const getData = async (params: Params) => {
-    blockContext.block();
-    var prm: Params = {
-      page: params.page || newParams.page,
-      limit: params.limit || newParams.limit,
-      orderParam: params.orderParam || newParams.orderParam,
-      order: params.order || newParams.order,
-      code: params.code || newParams.code,
-      isIndividual: params.isIndividual || newParams.isIndividual,
-      isEmployee: params.isEmployee || newParams.isEmployee,
-      lastName: params.lastName || newParams.lastName,
-      name: params.name || newParams.name,
-      sectionId: params.sectionId || newParams.sectionId,
-      regno: params.regno || newParams.regno,
-      phone: params.phone || newParams.phone,
-      address: params.address || newParams.address,
-      bankId: params.bankId || newParams.bankId,
-      bankAccountNo: params.bankAccountNo || newParams.bankAccountNo,
-      email: params.email || newParams.email,
-      isActive: params.isActive || newParams.isActive,
-      queries: newParams.queries,
-    };
-    if (params.queries?.length) {
-      const incomeParam = params.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, newParams), ...params.queries];
-    }
-    if (params.code) {
-      prm.queries = [...unDuplicate("code", newParams)];
-    }
-    if (params.isIndividual) {
-      prm.queries = [...unDuplicate("isIndividual", newParams)];
-    }
-    if (params.isEmployee) {
-      prm.queries = [...unDuplicate("isEmployee", newParams)];
-    }
-    if (params.lastName) {
-      prm.queries = [...unDuplicate("lastName", newParams)];
-    }
-    if (params.name) {
-      prm.queries = [...unDuplicate("name", newParams)];
-    }
-    if (params.sectionId) {
-      prm.queries = [...unDuplicate("sectionId", newParams)];
-    }
-    if (params.regno) {
-      prm.queries = [...unDuplicate("regno", newParams)];
-    }
-    if (params.phone) {
-      prm.queries = [...unDuplicate("phone", newParams)];
-    }
-    if (params.address) {
-      prm.queries = [...unDuplicate("address", newParams)];
-    }
-    if (params.bankId) {
-      prm.queries = [...unDuplicate("bankId", newParams)];
-    }
-    if (params.bankAccountNo) {
-      prm.queries = [...unDuplicate("bankAccountNo", newParams)];
-    }
-    if (params.email) {
-      prm.queries = [...unDuplicate("email", newParams)];
-    }
-    if (params.isActive) {
-      prm.queries = [...unDuplicate("isActive", newParams)];
-    }
-    setNewParams(prm);
-    blockContext.unblock();
   };
   const rowSelection = {
     onSelectAll: (state: boolean, allRow: any, changeRow: any) => {
@@ -226,7 +196,7 @@ const ServicesRegistration = (props: IProps) => {
         setTableSelectedRows(clone);
       }
     },
-    onSelect: (selectedRow: IDataConsumer, selected: boolean) => {
+    onSelect: (selectedRow: IDataMaterial, selected: boolean) => {
       if (selected) {
         if (!tableSelectedRows.find((e) => e.id === selectedRow.id)) {
           setTableSelectedRows([...tableSelectedRows, selectedRow]);
@@ -242,16 +212,125 @@ const ServicesRegistration = (props: IProps) => {
     },
     onChange: (
       selectedRowKeys: React.Key[],
-      selectedRows: IDataConsumer[]
+      selectedRows: IDataMaterial[]
     ) => {},
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
   };
-  const isisIndividual = (checked: boolean) => {
-    if (checked) {
-      form.setFieldsValue({
-        isIndividual: checked,
+  // start zuragtai hamaarah functionuud
+  const onPreview = (info: any) => {
+    var my = window.open("about:blank", "_blank");
+    my?.document.write(`<image src="${info.thumbUrl}" alt="any" />`);
+  };
+  const onChange = (info: any) => {
+    console.log(info);
+    setFileList(info.fileList);
+    if (info.file.status === "done" || info.file.status === "removed") {
+      const ids: number[] = info.fileList?.map((file: any) => {
+        return file.response.response.id;
       });
+      setImageIds(ids);
     }
+  };
+  const handleRemove = async (info: any) => {
+    const id = info.response.response.id;
+    await ReferenceService.removeUploadImage(id).then((response) => {
+      if (response.success) {
+        openNofi("success", "Амжиллтай", "Устгагдав");
+      }
+    });
+  };
+  // end zuragtai hamaarah functionuud
+  const getData = async (params: IParamMaterial) => {
+    blockContext.block();
+    setParams(params);
+    await MaterialService.get(params).then((response) => {
+      setData(response.response.data);
+      setMeta(response.response.meta);
+      setFilters(response.response.filter);
+    });
+    blockContext.unblock();
+  };
+  const getMaterialSection = async (params: IParamMaterialSection) => {
+    await MaterialSectionService.get(params).then((response) => {
+      setMaterialSections(response.response.data);
+    });
+  };
+  const getMeasurements = async (params: IParamUnitOfMeasure) => {
+    await UnitOfMeasureService.get(params).then((response) => {
+      setMeasurements(response.response.data);
+    });
+  };
+  const getUnitCode = async (params: IParamUnitCode) => {
+    await UnitCodeService.get(params).then((response) => {
+      setUnitCodes(response.response.data);
+    });
+  };
+  const getRanks = async (params: IParamReference) => {
+    await ReferenceService.get(params).then((response) => {
+      setRanks(response.response.data);
+    });
+  };
+  const getBrands = async (params: IParamBrand) => {
+    await BrandService.get(params).then((response) => {
+      setBrands(response.response.data);
+    });
+  };
+  const getConsumers = async (params: IParamConsumer) => {
+    await ConsumerService.get(params).then((response) => {
+      setConsumers(response.response.data);
+    });
+  };
+  useEffect(() => {
+    getMaterialSection({});
+    getData({ page: 1, limit: 10, type: MaterialType.Service });
+  }, []);
+  useEffect(() => {
+    if (isOpenModal) {
+      getMeasurements({});
+      getUnitCode({});
+      getRanks({ type: IType.MATERIAL_RANK });
+      getBrands({});
+      getConsumers({ isSupplier: true });
+    }
+  }, [isOpenModal]);
+
+  // Өгөгдөлөө хадгалах
+  const onFinish = async (data: IDataMaterial) => {
+    blockContext.block();
+    if (isEdit && selectedRow) {
+      await MaterialService.patch(selectedRow.id, data)
+        .then((response) => {
+          success(response);
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await MaterialService.postService(data)
+        .then((response) => {
+          success(response);
+        })
+        .finally(() => blockContext.unblock());
+    }
+  };
+  const success = (response: IResponseOneMaterial) => {
+    if (response.success) {
+      openNofi("success", "Амжилттай", "Үйлчилгээ амжилттай хадгаллаа.");
+      getData(params);
+    }
+    setIsOpenModal(false);
+  };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await MaterialService
+      .remove(id)
+      .then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          getData(params);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   return (
     <>
@@ -284,12 +363,12 @@ const ServicesRegistration = (props: IProps) => {
             </Col>
           </>
         ) : null}
-        {isOpenTree && sections?.length > 0 ? (
+        {isOpenTree && materialSections?.length > 0 ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
-              mode="CONSUMER"
+              mode="MATERIAL"
               extra="HALF"
-              data={sections}
+              data={materialSections}
               isLeaf={true}
               onClick={(key, isLeaf) => {
                 if (isLeaf) {
@@ -303,13 +382,13 @@ const ServicesRegistration = (props: IProps) => {
                     state: true,
                     column: columns,
                     onColumn: (columns) => setColumns(columns),
-                    params: newParams,
-                    onParams: (params) => setNewParams(params),
+                    params,
+                    onParams: (params) => setParams(params),
                   });
                   getData({
                     page: 1,
                     limit: 10,
-                    sectionId: [`${key}`],
+                    materialSectionId: key,
                   });
                 }
               }}
@@ -360,9 +439,9 @@ const ServicesRegistration = (props: IProps) => {
                             }
                             content={
                               <NewDirectoryTree
-                                mode="CONSUMER"
+                                mode="MATERIAL"
                                 extra="HALF"
-                                data={sections}
+                                data={materialSections}
                                 isLeaf={false}
                                 onClick={(key, isLeaf) => {
                                   if (isLeaf) {
@@ -389,22 +468,22 @@ const ServicesRegistration = (props: IProps) => {
                           ]}
                         >
                           <NewSelect
-                            className="ant-selecto-38px"
-                            disabled={true}
-                            style={{
-                              width: "100%",
-                            }}
-                          >
-                            {sections?.map(
-                              (section: IDataTreeSection, index) => {
-                                return (
-                                  <NewOption key={index} value={section.id}>
-                                    {section.name}
-                                  </NewOption>
-                                );
-                              }
+                            allowClear
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toString()
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={materialSections.map(
+                              (materialSection) => ({
+                                value: materialSection.id,
+                                label: materialSection.name,
+                              })
                             )}
-                          </NewSelect>
+                          />
                         </Form.Item>
                       </Space.Compact>
                     </Form.Item>
@@ -439,10 +518,10 @@ const ServicesRegistration = (props: IProps) => {
                       state: state,
                       column: columns,
                       onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(newParams);
+                    getData(params);
                   }}
                 />
                 {ComponentType === "FULL" ? (
@@ -459,10 +538,10 @@ const ServicesRegistration = (props: IProps) => {
                         findIndexInColumnSettings({
                           newRowIndexes: arg1,
                           unSelectedRow: arg2,
-                          columns: columns,
+                          columns,
                           onColumns: (columns) => setColumns(columns),
-                          params: newParams,
-                          onParams: (params) => setNewParams(params),
+                          params,
+                          onParams: (params) => setParams(params),
                           getData: (params) => getData(params),
                         })
                       }
@@ -510,11 +589,13 @@ const ServicesRegistration = (props: IProps) => {
                 columns={columns}
                 onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
+                isEdit
+                isDelete
                 onEdit={(row) => openModal(true, row)}
-                onDelete={(id) => 1}
+                onDelete={onDelete}
               />
             </Col>
           </Row>
@@ -537,14 +618,16 @@ const ServicesRegistration = (props: IProps) => {
         ) : null}
       </Row>
       <NewModal
-        title="Харилцагчийн бүртгэл"
+        title="Үйлчилгээний бүртгэл"
         open={isOpenModal}
         onCancel={() => setIsOpenModal(false)}
         onOk={() =>
           form.validateFields().then((values) => {
-            values;
+            onFinish(values);
           })
         }
+        okText="Хадгалах"
+        cancelText="Болих"
         width={800}
         maskClosable={false}
       >
@@ -560,231 +643,293 @@ const ServicesRegistration = (props: IProps) => {
           <div className="form-grid-2">
             <div className="box-1">
               <p className="title">Үндсэн мэдээлэл</p>
-              <Form.Item label="Дотоод код" name="code"
-               rules={[
-                {
-                  required: true,
-                  message: "Дотоод код заавал",
-                },
-              ]}>
+              <Form.Item
+                label="Дотоод код"
+                name="code"
+                rules={[
+                  {
+                    required: true,
+                    message: "Дотоод код заавал",
+                  },
+                  {
+                    pattern: /^-?\d*(\.\d*)?$/,
+                    message: "тоо оруулна уу",
+                  },
+                ]}
+              >
                 <NewInput />
               </Form.Item>
               <Form.Item
-              label="Үйлчилгээний нэр"
-              rules={[
-                {
-                  required: true,
-                  message: "Үйлчилгээний нэр заавал",
-                },
-              ]}
-            >
-              <NewInput />
-            </Form.Item>
-            <Form.Item
-              label="Үйлчилгээний бүлэг"
-              style={{
-                width: "100%",
-              }}
-            >
-              <Space.Compact>
-                <div className="extraButton">
-                  <Popover
-                    placement="bottom"
-                    open={isOpenPopOver}
-                    onOpenChange={(state) => setIsOpenPopOver(state)}
-                    content={
-                      <NewDirectoryTree
-                        mode={"CONSUMER"}
-                        data={sections}
-                        extra="HALF"
-                        isLeaf={true}
-                        onClick={(key, isLeaf) => {
-                          if (isLeaf) {
-                            setIsOpenPopOver(false);
-                            form.setFieldsValue({
-                              sectionId: key,
-                            });
-                          }
-                        }}
-                      />
-                    }
-                    trigger={"click"}
-                  >
-                    <SignalFilled rotate={-90} />
-                  </Popover>
-                </div>
-                <Form.Item
-                  style={{
-                    width: "100%",
-                  }}
-                  name="sectionId"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Үйлчилгээний бүлэг заавал",
-                    },
-                  ]}
-                >
-                  <NewSelect
-                    disabled={true}
+                label="Үйлчилгээний нэр"
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Үйлчилгээний нэр заавал",
+                  },
+                ]}
+              >
+                <NewInput />
+              </Form.Item>
+              <Form.Item label="Үйлчилгээний бүлэг">
+                <Space.Compact>
+                  <div className="extraButton">
+                    <Popover
+                      placement="bottom"
+                      open={isOpenPopOver}
+                      onOpenChange={(state) => setIsOpenPopOver(state)}
+                      content={
+                        <NewDirectoryTree
+                          mode={"MATERIAL"}
+                          data={materialSections}
+                          extra="HALF"
+                          isLeaf={true}
+                          onClick={(key, isLeaf) => {
+                            if (isLeaf) {
+                              setIsOpenPopOver(false);
+                              form.setFieldsValue({
+                                sectionId: key,
+                              });
+                            }
+                          }}
+                        />
+                      }
+                      trigger={"click"}
+                    >
+                      <SignalFilled rotate={-90} />
+                    </Popover>
+                  </div>
+                  <Form.Item
                     style={{
                       width: "100%",
                     }}
+                    name="materialSectionId"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Үйлчилгээний бүлэг заавал",
+                      },
+                    ]}
                   >
-                    {sections?.map((section: IDataTreeSection, index) => {
-                      return (
-                        <NewOption key={index} value={section.id}>
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
-                </Form.Item>
-                
-              </Space.Compact>
-            </Form.Item>
-            <Form.Item label="Хэмжих нэгж">
-              <Space.Compact>
-                <Form.Item name="sectionId">
-                  <NewSelect>
-                    {sections?.map((section, index) => {
-                      return (
-                        <NewOption
-                          style={{
-                            display: section.isExpand ? "none" : "block",
-                          }}
-                          key={index}
-                          value={section.id}
-                        >
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
-                </Form.Item>
-                <div
-                  style={{
-                    marginLeft: 4,
-                  }}
-                  className="app-button-square"
-                  //   onClick={() => setIsOpenModalBrand(true)}
-                >
-                  <Image
-                    src={"/icons/plusGray.svg"}
-                    height={18}
-                    width={18}
-                    alt="plsu"
-                  />
-                </div>
-              </Space.Compact>
-            </Form.Item>
-            <Form.Item
-                label="Нэгдсэн ангилалын код"
-                name="bankId"
-              >
-                <NewSelect>
-                  {banks?.map((bank, index) => {
-                    return (
-                      <NewOption key={index} value={bank.id}>
-                        {bank.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={materialSections.map((materialSection) => ({
+                        value: materialSection.id,
+                        label: materialSection.name,
+                      }))}
+                    />
+                  </Form.Item>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label="Хэмжих нэгж">
+                <Space.Compact>
+                  <Form.Item
+                    name="measurementId"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Хэмжих нэгж заавал",
+                      },
+                    ]}
+                  >
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={measurements.map((measurement) => ({
+                        value: measurement.id,
+                        label: measurement.name,
+                      }))}
+                    />
+                  </Form.Item>
+                  <div
+                    style={{
+                      marginLeft: 4,
+                    }}
+                    className="app-button-square"
+                    //   onClick={() => setIsOpenModalBrand(true)}
+                  >
+                    <Image
+                      src={"/icons/plusGray.svg"}
+                      height={18}
+                      width={18}
+                      alt="Нэмэх"
+                    />
+                  </div>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label="Нэгдсэн ангилалын код" name="unitCodeId">
+                <NewSelect
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={unitCodes.map((unitCode) => ({
+                    value: unitCode.id,
+                    label: unitCode.name,
+                  }))}
+                />
               </Form.Item>
             </div>
             <div className="box-1">
               <p className="title">Нэмэлт мэдээлэл</p>
+              <Form.Item label="Зураг оруулах" valuePropName="fileList">
+                <Upload
+                  headers={headers}
+                  action={`${process.env.NEXT_PUBLIC_BASEURL}/local-files/fileUpload`}
+                  listType="picture-card"
+                  fileList={fileList}
+                  onPreview={onPreview}
+                  onChange={onChange}
+                  onRemove={handleRemove}
+                >
+                  <PlusOutlined
+                    style={{
+                      fontSize: 24,
+                      color: "#6c757d",
+                    }}
+                  />
+                </Upload>
+              </Form.Item>
               <Form.Item label="Зэрэглэл">
-              <Space.Compact>
-                <Form.Item name="sectionId">
-                  <NewSelect>
-                    {sections?.map((section, index) => {
-                      return (
-                        <NewOption
-                          style={{
-                            display: section.isExpand ? "none" : "block",
-                          }}
-                          key={index}
-                          value={section.id}
-                        >
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
-                </Form.Item>
-                <div
-                  style={{
-                    marginLeft: 4,
-                  }}
-                  className="app-button-square"
-                  //   onClick={() => setIsOpenModalBrand(true)}
-                >
-                  <Image
-                    src={"/icons/plusGray.svg"}
-                    height={18}
-                    width={18}
-                    alt="plsu"
-                  />
-                </div>
-              </Space.Compact>
-            </Form.Item>
-            <Form.Item label="Брэнд">
-              <Space.Compact>
-                <Form.Item name="sectionId">
-                  <NewSelect>
-                    {sections?.map((section, index) => {
-                      return (
-                        <NewOption
-                          style={{
-                            display: section.isExpand ? "none" : "block",
-                          }}
-                          key={index}
-                          value={section.id}
-                        >
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
-                </Form.Item>
-                <div
-                  style={{
-                    marginLeft: 4,
-                  }}
-                  className="app-button-square"
-                >
-                  <Image
-                    src={"/icons/plusGray.svg"}
-                    height={18}
-                    width={18}
-                    alt="plsu"
-                  />
-                </div>
-              </Space.Compact>
-            </Form.Item>
-            <Form.Item label="Дэлгэрэнгүй мэдээлэл">
-              <NewTextArea />
-            </Form.Item>
+                <Space.Compact>
+                  <Form.Item name="rankId">
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={ranks.map((rank) => ({
+                        value: rank.id,
+                        label: rank.name,
+                      }))}
+                    />
+                  </Form.Item>
+                  <div
+                    style={{
+                      marginLeft: 4,
+                    }}
+                    className="app-button-square"
+                    //   onClick={() => setIsOpenModalBrand(true)}
+                  >
+                    <Image
+                      src={"/icons/plusGray.svg"}
+                      height={18}
+                      width={18}
+                      alt="plsu"
+                    />
+                  </div>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label="Брэнд">
+                <Space.Compact>
+                  <Form.Item name="brandId">
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={brands.map((rank) => ({
+                        value: rank.id,
+                        label: rank.name,
+                      }))}
+                    />
+                  </Form.Item>
+                  <div
+                    style={{
+                      marginLeft: 4,
+                    }}
+                    className="app-button-square"
+                  >
+                    <Image
+                      src={"/icons/plusGray.svg"}
+                      height={18}
+                      width={18}
+                      alt="plus"
+                    />
+                  </div>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label="Бэлтгэн нийлүүлэгч">
+                <Space.Compact>
+                  <div
+                    className="extraButton"
+                    onClick={() => setIsOpenPopOver(true)}
+                  >
+                    <Image
+                      src="/icons/clipboardBlack.svg"
+                      width={16}
+                      height={16}
+                      alt="clipboard"
+                    />
+                  </div>
+                  <Form.Item name="consumerSupplierId">
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={consumers.map((consumer) => ({
+                        value: consumer.id,
+                        label: `${consumer.code},${consumer.name}`,
+                      }))}
+                    />
+                  </Form.Item>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label="Дэлгэрэнгүй мэдээлэл">
+                <NewTextArea />
+              </Form.Item>
             </div>
           </div>
-          <div className="switches">
+          <div className="form-grid-3">
             <Form.Item
               label="НӨАТ суутгах эсэх"
-              name="isIndividual"
+              name="isTax"
               valuePropName="checked"
             >
               <NewSwitch />
             </Form.Item>
             <Form.Item
               label="НХАТ суутгах эсэх"
-              name="isEmployee"
+              name="isCitizenTax"
               valuePropName="checked"
             >
-              <NewSwitch
-                onChange={(checked: boolean) => isisIndividual(checked)}
-              />
+              <NewSwitch />
             </Form.Item>
             <Form.Item
               label="Идэвхтэй эсэх"
