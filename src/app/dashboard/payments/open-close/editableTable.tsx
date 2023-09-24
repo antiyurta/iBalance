@@ -20,13 +20,13 @@ interface DummyProps {
 
 const EditableTable = (props: IProps) => {
   const { data, moneyType, form, add, remove } = props;
-  const onChange = (count: number, index: number) => {
+  const onChange = (quantity: number, index: number) => {
     if (moneyType) {
       const value = moneyType[index].name;
       form.setFieldsValue({
         ["moneys"]: {
           [index]: {
-            total: Number(value) * count,
+            amount: Number(value) * quantity,
           },
         },
       });
@@ -39,7 +39,6 @@ const EditableTable = (props: IProps) => {
         <NumericFormat
           value={moneyType?.find((type) => type.id === props.value)?.name}
           thousandSeparator=","
-          decimalScale={2}
           fixedDecimalScale
           displayType="text"
         />
@@ -67,9 +66,9 @@ const EditableTable = (props: IProps) => {
           let totals: number = 0;
           pageData.forEach(({ name }) => {
             counts =
-              counts + Number(form.getFieldValue(["moneys", name, "count"]));
+              counts + Number(form.getFieldValue(["moneys", name, "quantity"]));
             totals =
-              totals + Number(form.getFieldValue(["moneys", name, "total"]));
+              totals + Number(form.getFieldValue(["moneys", name, "amount"]));
           });
           return (
             <>
@@ -123,7 +122,7 @@ const EditableTable = (props: IProps) => {
           title="Дэвсгэрт"
           render={(text, row, index) => {
             return (
-              <Form.Item noStyle name={[index, "id"]}>
+              <Form.Item noStyle name={[index, "sectionMoneyId"]}>
                 <DummyForSelect />
               </Form.Item>
             );
@@ -132,7 +131,7 @@ const EditableTable = (props: IProps) => {
         <Column
           title="Тоо"
           render={(text, row, index) => (
-            <Form.Item name={[index, "count"]}>
+            <Form.Item name={[index, "quantity"]}>
               <NewInputNumber
                 min={0}
                 onChange={(e) => onChange(e as number, index)}
@@ -144,7 +143,7 @@ const EditableTable = (props: IProps) => {
           title="Бэлэн дүн"
           render={(text, row, index) => {
             return (
-              <Form.Item noStyle name={[index, "total"]}>
+              <Form.Item noStyle name={[index, "amount"]}>
                 <Dummy />
               </Form.Item>
             );

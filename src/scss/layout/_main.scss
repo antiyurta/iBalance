@@ -820,6 +820,9 @@ html {
   gap: 6px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  &:hover {
+    cursor: pointer;
+  }
 }
 .ant-modal-title {
   display: flex;
@@ -828,4 +831,105 @@ html {
 }
 .ant-modal-title-center {
   justify-content: center;
+}
+
+.step-membership {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    h3 {
+      margin: 0px;
+      font-weight: 400;
+    }
+    .names {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .card-no {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+  }
+  .inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+  }
+  .numbers {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    h1 {
+      margin: 0px;
+    }
+  }
+}
+.step-payment {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .payment-types {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .payment-info {
+    h3 {
+      margin: 0px;
+    }
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-self: flex-end;
+  }
+}
+.step-tax {
+  h3 {
+    margin: 0px !important;
+  }
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .tax-type {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .numbers {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    h3 {
+      margin: 0px;
+    }
+  }
+}
+
+.open-close-close {
+  width: 100%;
+  .close-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .close-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 }

@@ -1,14 +1,25 @@
 import Image from "next/image";
 import { useState } from "react";
-import { PlusCircleOutlined, CreditCardOutlined } from "@ant-design/icons";
+import {
+  PlusCircleOutlined,
+  CreditCardOutlined,
+  SwapOutlined,
+  CloseOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
 import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import Item from "./component/Item";
-import { Button, Typography } from "antd";
+import { Badge, Button, Table, Typography } from "antd";
+import StepIndex from "./steps/StepIndex";
+import OpenClose from "../open-close/openClose";
 
 const { Title } = Typography;
 const PayController = () => {
+  const [isOpenModalClose, setIsOpenModalClose] = useState<boolean>(false);
+  const [isOpenModalSave, setIsOpenModalSave] = useState<boolean>(false);
   const [isOpenModalExtra, setIsOpenModalExtra] = useState<boolean>(false);
+  const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
   return (
     <>
       <div
@@ -190,8 +201,16 @@ const PayController = () => {
               style={{
                 height: 38,
               }}
+              onClick={() => setIsOpenModalSave(true)}
             >
-              <Image src="/images/save.png" width={24} height={24} alt="save" />
+              <Badge count={3}>
+                <Image
+                  src="/images/save.png"
+                  width={24}
+                  height={24}
+                  alt="save"
+                />
+              </Badge>
             </button>
             <button
               className="app-button-regular"
@@ -207,6 +226,7 @@ const PayController = () => {
                 width: "100%",
               }}
               type="primary"
+              onClick={() => setIsOpenModalSteps(true)}
             >
               Үргэлжлүүлэх
             </Button>
@@ -214,9 +234,61 @@ const PayController = () => {
         </div>
       </div>
       <NewModal
+        title="Түр хадгалах"
+        open={isOpenModalSave}
+        onCancel={() => setIsOpenModalSave(false)}
+        footer={null}
+      >
+        <Table
+          columns={[
+            {
+              title: "№",
+              dataIndex: "id",
+              render: (text) => {
+                return <Button type="dashed" icon={<SwapOutlined />}></Button>;
+              },
+            },
+            {
+              title: "Баримтын дугаар",
+            },
+            {
+              title: "Огноо",
+            },
+            {
+              title: "Төлөх дүн",
+            },
+            {
+              title: " ",
+              render: () => {
+                return (
+                  <Button
+                    style={{
+                      padding: 0,
+                    }}
+                    type="text"
+                    icon={
+                      <CloseOutlined
+                        style={{
+                          fontSize: 24,
+                          color: "red",
+                        }}
+                      />
+                    }
+                  />
+                );
+              },
+            },
+          ]}
+          dataSource={[
+            {
+              id: 1,
+            },
+          ]}
+        />
+      </NewModal>
+      <NewModal
         title=" "
         width={500}
-        positionTitle="center"
         open={isOpenModalExtra}
         onCancel={() => setIsOpenModalExtra(false)}
         footer={false}
@@ -266,7 +338,7 @@ const PayController = () => {
                 fontWeight: 500,
               }}
             >
-              Менежерийн эрх
+              Кассчины эрх
             </Title>
             <div className="form-grid-2">
               <div className="payment-type-box">
@@ -286,10 +358,50 @@ const PayController = () => {
                   Бэлэн мөнгө
                 </Title>
               </div>
-              <div className="payment-type-box">1</div>
+              <div
+                onClick={() => {
+                  setIsOpenModalClose(true);
+                }}
+                className="payment-type-box"
+              >
+                <FileTextOutlined
+                  style={{
+                    color: "#DC3545",
+                    fontSize: 24,
+                  }}
+                />
+                <Title
+                  level={4}
+                  style={{
+                    fontWeight: 700,
+                    color: "#DC3545",
+                  }}
+                >
+                  Хаалт хийх
+                </Title>
+              </div>
             </div>
           </div>
         </div>
+      </NewModal>
+      <NewModal
+        title=" "
+        open={isOpenModalSteps}
+        onCancel={() => setIsOpenModalSteps(false)}
+        width={400}
+        footer={null}
+        destroyOnClose
+      >
+        <StepIndex />
+      </NewModal>
+      <NewModal
+        title=" "
+        open={isOpenModalClose}
+        width={1000}
+        onCancel={() => setIsOpenModalClose(false)}
+        footer={null}
+      >
+        <OpenClose type="close" />
       </NewModal>
     </>
   );

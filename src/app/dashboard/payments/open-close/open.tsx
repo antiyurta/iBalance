@@ -1,16 +1,21 @@
 import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
 import NewModal from "@/components/modal";
-import { Button, Col, Form, Row, Space, Table } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import EditableTable from "./editableTable";
 import { ReferenceService } from "@/service/reference/reference";
 import { IDataReference, IType } from "@/service/reference/entity";
+import { IDataPosOpener } from "@/service/pos/opener/entities";
+import { OpenerService } from "@/service/pos/opener/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 
 const OpenState = () => {
   const [form] = Form.useForm();
   const [moneyForm] = Form.useForm();
   const today = dayjs(new Date());
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [isBankNote, setIsBankNote] = useState<boolean>(false);
   const [isOpenMoneyListModal, setIsOpenMoneyListModal] =
     useState<boolean>(false);
   const [moneyType, setMoneyType] = useState<IDataReference[]>();
@@ -31,11 +36,23 @@ const OpenState = () => {
   const setDefualtValues = () => {
     moneyForm.setFieldsValue({
       moneys: moneyType?.map((type) => ({
-        id: type.id,
-        count: 0,
-        total: 0,
+        sectionMoneyId: type.id,
+        quantity: 0,
+        amount: 0,
       })),
     });
+  };
+  const onFinish = async (values: IDataPosOpener) => {
+    blockContext.block();
+    values.isBankNote = isBankNote;
+    values.posBankNotes = moneyForm.getFieldValue("moneys");
+    await OpenerService.post(values)
+      .then((response) => {
+        console.log(response);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getMoneyTypes(IType.MONEY);
@@ -54,14 +71,17 @@ const OpenState = () => {
         <Col
           style={{
             margin: "auto",
-            paddingTop: 150,
           }}
           span={4}
         >
           <Form
+            form={form}
             layout="vertical"
+            onFinish={onFinish}
             initialValues={{
               date: today,
+              amount: 0,
+              ppasword: "",
             }}
           >
             <Space
@@ -88,28 +108,46 @@ const OpenState = () => {
                 />
               </Form.Item>
               <Form.Item label="Эхлэх мөнгө">
-                <Space
+                <div
                   style={{
-                    width: "100%",
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 12,
+                    justifyContent: "space-between",
                   }}
-                  direction="horizontal"
-                  size={8}
                 >
-                  <Form.Item
-                    name="startMoney"
-                    style={{
-                      width: "100%",
-                    }}
-                  >
-                    <NewInputNumber />
+                  <Form.Item name="amount">
+                    <NewInputNumber
+                      style={{
+                        alignItems: "center",
+                        width: "100%",
+                        height: 39,
+                      }}
+                      prefix="₮"
+                      formatter={(value: any) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      }
+                      parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                    />
                   </Form.Item>
                   <Button onClick={() => setIsOpenMoneyListModal(true)}>
-                    Тоолох
+                    Дэвсгэрт
                   </Button>
-                </Space>
+                </div>
               </Form.Item>
               <Form.Item label="Нууц үг" name="ppasword">
                 <NewInput type="password" />
+              </Form.Item>
+              <Form.Item>
+                <Button
+                  style={{
+                    width: "100%",
+                  }}
+                  type="primary"
+                  htmlType="submit"
+                >
+                  Өдрийн нээлт хийх
+                </Button>
               </Form.Item>
             </Space>
           </Form>
@@ -129,7 +167,16 @@ const OpenState = () => {
             type="primary"
             onClick={() =>
               moneyForm.validateFields().then((values) => {
-                console.log(values);
+                setIsBankNote(true);
+                form.setFieldsValue({
+                  amount: values.moneys.reduce(
+                    (total: number, current: IDataPosOpener) => {
+                      return total + current.amount;
+                    },
+                    0
+                  ),
+                });
+                setIsOpenMoneyListModal(false);
               })
             }
           >
