@@ -12,14 +12,14 @@ import {
   ComponentType,
   DataIndexType,
   FilteredColumns,
-  IFilters,
   Meta,
 } from "@/service/entities";
 import {
   IDataBrand,
-  IDataCountry,
-  IParams,
+  IFilterBrand,
+  IParamBrand,
 } from "@/service/reference/brand/entities";
+import { IDataCountry } from "@/service/reference/country/entities";
 import { BrandService } from "@/service/reference/brand/service";
 import { ReferenceService } from "@/service/reference/reference";
 import { Form } from "antd";
@@ -38,8 +38,8 @@ const InventoriesBrand = (props: IProps) => {
   const [data, setData] = useState<IDataBrand[]>([]);
   const [countries, setCountries] = useState<IDataCountry[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
-  const [newParams, setNewParams] = useState<IParams>({});
+  const [filters, setFilters] = useState<IFilterBrand>();
+  const [newParams, setNewParams] = useState<IParamBrand>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataBrand>();
   const [columns, setColumns] = useState<FilteredColumns>({
@@ -83,7 +83,7 @@ const InventoriesBrand = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParams) => {
+  const getData = async (params: IParamBrand) => {
     await BrandService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
