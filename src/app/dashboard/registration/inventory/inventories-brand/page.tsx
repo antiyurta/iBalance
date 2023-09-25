@@ -3,6 +3,6 @@
 import InventoriesBrand from "./inventoriesBrand";
 
 const InventoriesBrandPage = () => {
-  return <InventoriesBrand ComponentsType="FULL" />;
+  return <InventoriesBrand ComponentType="FULL" />;
 };
 export default InventoriesBrandPage;
