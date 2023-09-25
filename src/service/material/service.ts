@@ -17,11 +17,25 @@ function post(body: IDataMaterial): Promise<IResponseOneMaterial> {
 function postService(body: IDataMaterial): Promise<IResponseOneMaterial> {
   return api.post("material/service", body);
 }
+function postPackage(body: IDataMaterial): Promise<IResponseOneMaterial> {
+  return api.post("material/package", body);
+}
 function patch(id: number, body: IDataMaterial): Promise<IResponseOneMaterial> {
   return api.patch(`material/${id}`, body);
+}
+function patchPackage(id: number, body: IDataMaterial): Promise<IResponseOneMaterial> {
+  return api.patch(`material/package/${id}`, body);
 }
 function remove(id: number): Promise<GenericResponse> {
   return api.delete(`material/${id}`);
 }
 
-export const MaterialService = { get, post, postService, patch, remove };
+export const MaterialService = {
+  get,
+  post,
+  postService,
+  postPackage,
+  patch,
+  patchPackage,
+  remove,
+};

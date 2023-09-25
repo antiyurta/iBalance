@@ -50,6 +50,7 @@ const DashboardLayout = () => {
         getItem("Хэмжих нэгж", "/unit-of-measure"),
         getItem("Байршлын бүртгэл", "/storagies-registration"),
         getItem("Үйлчилгээний бүртгэл", "/services-registration"),
+        getItem("Багцын бүртгэл", "/package-registration"),
         getItem("Эхний үлдэгдэл", "/beginning-balance"),
         getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
         getItem("Буцаалтын шалтгаан", "/refund-reason"),

@@ -20,6 +20,7 @@ import {
 } from "antd";
 import {
   NewInput,
+  NewInputNumber,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -66,6 +67,7 @@ import { BrandService } from "@/service/reference/brand/service";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
+import EditableTableMaterial from "./editableTableMaterial";
 const { Title } = Typography;
 
 interface IProps {
@@ -73,7 +75,7 @@ interface IProps {
   onClickModal?: (row: any) => void;
 }
 
-const ServicesRegistration = (props: IProps) => {
+const PackageRegistration = (props: IProps) => {
   const {
     login_data: {
       response: { accessToken },
@@ -116,46 +118,32 @@ const ServicesRegistration = (props: IProps) => {
   const [fileList, setFileList] = useState<any[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsMaterial>({
     code: {
-      label: "Дотоод код",
+      label: "Багцын код",
       isView: true,
       isFiltered: false,
       dataIndex: "code",
       type: DataIndexType.MULTI,
     },
     name: {
-      label: "Үйлчилгээний нэр",
-      isView: ComponentType === "FULL" ? true : false,
+      label: "Багцын нэр",
+      isView: true,
       isFiltered: false,
       dataIndex: "name",
       type: DataIndexType.MULTI,
     },
     measurementId: {
-      label: "Хэмжих нэгж",
-      isView: ComponentType === "FULL" ? true : false,
+      label: "Багцын хэмжих нэгж",
+      isView: true,
       isFiltered: false,
       dataIndex: ["measurement", "name"],
       type: DataIndexType.MULTI,
     },
-    brandId: {
-      label: "Брэнд",
+    materialSectionId: {
+      label: "Багцын бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["brand", "name"],
+      dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
-    },
-    isTax: {
-      label: "НӨАТ суутгах эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isTax",
-      type: DataIndexType.BOOLEAN,
-    },
-    isCitizenTax: {
-      label: "НХАТ суутгах эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isCitizenTax",
-      type: DataIndexType.BOOLEAN,
     },
     isActive: {
       label: "Төлөв",
@@ -163,6 +151,13 @@ const ServicesRegistration = (props: IProps) => {
       isFiltered: false,
       dataIndex: "isActive",
       type: DataIndexType.BOOLEAN_STRING,
+    },
+    countPackage: {
+      label: "Багц доторх тоо хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isActive",
+      type: DataIndexType.NUMBER,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
@@ -185,7 +180,18 @@ const ServicesRegistration = (props: IProps) => {
     if (!state) {
       form.resetFields();
     } else {
-      form.setFieldsValue(row);
+      form.setFieldsValue({
+        ...row,
+        packageMaterials: row?.packageMaterials.map((packageMaterial) => ({
+          materialId: packageMaterial.materialId,
+          name: packageMaterial.material.name,
+          materialSectionId: packageMaterial.material.materialSectionId,
+          measurementId: packageMaterial.material.measurementId,
+          countPackage: packageMaterial.material.countPackage,
+          quantity: packageMaterial.quantity,
+        })),
+      });
+
       setSelectedRow(row);
     }
   };
@@ -228,29 +234,6 @@ const ServicesRegistration = (props: IProps) => {
       selectedRows: IDataMaterial[]
     ) => {},
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
-  };
-  // start zuragtai hamaarah functionuud
-  const onPreview = (info: any) => {
-    var my = window.open("about:blank", "_blank");
-    my?.document.write(`<image src="${info.thumbUrl}" alt="any" />`);
-  };
-  const onChange = (info: any) => {
-    console.log(info);
-    setFileList(info.fileList);
-    if (info.file.status === "done" || info.file.status === "removed") {
-      const ids: number[] = info.fileList?.map((file: any) => {
-        return file.response.response.id;
-      });
-      setImageIds(ids);
-    }
-  };
-  const handleRemove = async (info: any) => {
-    const id = info.response.response.id;
-    await ReferenceService.removeUploadImage(id).then((response) => {
-      if (response.success) {
-        openNofi("success", "Амжиллтай", "Устгагдав");
-      }
-    });
   };
   // end zuragtai hamaarah functionuud
   const getData = async (params: IParamMaterial) => {
@@ -295,7 +278,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   useEffect(() => {
     getMaterialSection({});
-    getData({ page: 1, limit: 10, type: MaterialType.Service });
+    getData({ page: 1, limit: 10, type: MaterialType.Package });
   }, []);
   useEffect(() => {
     if (isOpenModal) {
@@ -311,13 +294,13 @@ const ServicesRegistration = (props: IProps) => {
   const onFinish = async (data: IDataMaterial) => {
     blockContext.block();
     if (isEdit && selectedRow) {
-      await MaterialService.patch(selectedRow.id, data)
+      await MaterialService.patchPackage(selectedRow.id, data)
         .then((response) => {
           success(response);
         })
         .finally(() => blockContext.unblock());
     } else {
-      await MaterialService.postService(data)
+      await MaterialService.postPackage(data)
         .then((response) => {
           success(response);
         })
@@ -326,7 +309,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      openNofi("success", "Амжилттай", "Үйлчилгээ амжилттай хадгаллаа.");
+      openNofi("success", "Амжилттай", "Багц амжилттай хадгаллаа.");
       getData(params);
     }
     setIsOpenModal(false);
@@ -336,7 +319,7 @@ const ServicesRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          openNofi("success", "Амжилттай", "Багц амжиллтай устгагдлаа");
           getData(params);
         }
       })
@@ -352,7 +335,7 @@ const ServicesRegistration = (props: IProps) => {
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
                 <Title level={5}>
-                  Үндсэн бүртгэл / Бараа материал / Үйлчилгээний бүртгэл
+                  Үндсэн бүртгэл / Бараа материал / Багцын бүртгэл
                 </Title>
                 <Button
                   type="primary"
@@ -630,7 +613,7 @@ const ServicesRegistration = (props: IProps) => {
         ) : null}
       </Row>
       <NewModal
-        title="Үйлчилгээний бүртгэл"
+        title="Багцын бүртгэл"
         open={isOpenModal}
         onCancel={() => setIsOpenModal(false)}
         onOk={() =>
@@ -652,296 +635,138 @@ const ServicesRegistration = (props: IProps) => {
             isActive: true,
           }}
         >
-          <div className="form-grid-2">
-            <div className="box-1">
-              <p className="title">Үндсэн мэдээлэл</p>
-              <Form.Item
-                label="Дотоод код"
-                name="code"
-                rules={[
-                  {
-                    required: true,
-                    message: "Дотоод код заавал",
-                  },
-                  {
-                    pattern: /^-?\d*(\.\d*)?$/,
-                    message: "тоо оруулна уу",
-                  },
-                ]}
-              >
-                <NewInput />
-              </Form.Item>
-              <Form.Item
-                label="Үйлчилгээний нэр"
-                name="name"
-                rules={[
-                  {
-                    required: true,
-                    message: "Үйлчилгээний нэр заавал",
-                  },
-                ]}
-              >
-                <NewInput />
-              </Form.Item>
-              <Form.Item label="Үйлчилгээний бүлэг">
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Popover
-                      placement="bottom"
-                      open={isOpenPopOver}
-                      onOpenChange={(state) => setIsOpenPopOver(state)}
-                      content={
-                        <NewDirectoryTree
-                          mode={"MATERIAL"}
-                          data={materialSections}
-                          extra="HALF"
-                          isLeaf={true}
-                          onClick={(key, isLeaf) => {
-                            if (isLeaf) {
-                              setIsOpenPopOver(false);
-                              form.setFieldsValue({
-                                sectionId: key,
-                              });
-                            }
-                          }}
-                        />
-                      }
-                      trigger={"click"}
-                    >
-                      <SignalFilled rotate={-90} />
-                    </Popover>
-                  </div>
-                  <Form.Item
-                    style={{
-                      width: "100%",
-                    }}
-                    name="materialSectionId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Үйлчилгээний бүлэг заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={materialSections.map((materialSection) => ({
-                        value: materialSection.id,
-                        label: materialSection.name,
-                      }))}
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-              <Form.Item label="Хэмжих нэгж">
-                <Space.Compact>
-                  <Form.Item
-                    name="measurementId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Хэмжих нэгж заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={measurements.map((measurement) => ({
-                        value: measurement.id,
-                        label: measurement.name,
-                      }))}
-                    />
-                  </Form.Item>
-                  <div
-                    style={{
-                      marginLeft: 4,
-                    }}
-                    className="app-button-square"
-                    //   onClick={() => setIsOpenModalBrand(true)}
-                  >
-                    <Image
-                      src={"/icons/plusGray.svg"}
-                      height={18}
-                      width={18}
-                      alt="Нэмэх"
-                    />
-                  </div>
-                </Space.Compact>
-              </Form.Item>
-              <Form.Item label="Нэгдсэн ангилалын код" name="unitCodeId">
-                <NewSelect
-                  allowClear
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={unitCodes.map((unitCode) => ({
-                    value: unitCode.id,
-                    label: unitCode.name,
-                  }))}
-                />
-              </Form.Item>
-            </div>
-            <div className="box-1">
-              <p className="title">Нэмэлт мэдээлэл</p>
-              <Form.Item label="Зураг оруулах" valuePropName="fileList">
-                <Upload
-                  headers={headers}
-                  action={`${process.env.NEXT_PUBLIC_BASEURL}/local-files/fileUpload`}
-                  listType="picture-card"
-                  fileList={fileList}
-                  onPreview={onPreview}
-                  onChange={onChange}
-                  onRemove={handleRemove}
-                >
-                  <PlusOutlined
-                    style={{
-                      fontSize: 24,
-                      color: "#6c757d",
-                    }}
-                  />
-                </Upload>
-              </Form.Item>
-              <Form.Item label="Зэрэглэл">
-                <Space.Compact>
-                  <Form.Item name="rankId">
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={ranks.map((rank) => ({
-                        value: rank.id,
-                        label: rank.name,
-                      }))}
-                    />
-                  </Form.Item>
-                  <div
-                    style={{
-                      marginLeft: 4,
-                    }}
-                    className="app-button-square"
-                    //   onClick={() => setIsOpenModalBrand(true)}
-                  >
-                    <Image
-                      src={"/icons/plusGray.svg"}
-                      height={18}
-                      width={18}
-                      alt="plsu"
-                    />
-                  </div>
-                </Space.Compact>
-              </Form.Item>
-              <Form.Item label="Брэнд">
-                <Space.Compact>
-                  <Form.Item name="brandId">
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={brands.map((rank) => ({
-                        value: rank.id,
-                        label: rank.name,
-                      }))}
-                    />
-                  </Form.Item>
-                  <div
-                    style={{
-                      marginLeft: 4,
-                    }}
-                    className="app-button-square"
-                  >
-                    <Image
-                      src={"/icons/plusGray.svg"}
-                      height={18}
-                      width={18}
-                      alt="plus"
-                    />
-                  </div>
-                </Space.Compact>
-              </Form.Item>
-              <Form.Item label="Бэлтгэн нийлүүлэгч">
-                <Space.Compact>
-                  <div
-                    className="extraButton"
-                    onClick={() => setIsOpenPopOver(true)}
-                  >
-                    <Image
-                      src="/icons/clipboardBlack.svg"
-                      width={16}
-                      height={16}
-                      alt="clipboard"
-                    />
-                  </div>
-                  <Form.Item name="consumerSupplierId">
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={consumers.map((consumer) => ({
-                        value: consumer.id,
-                        label: `${consumer.code},${consumer.name}`,
-                      }))}
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-              <Form.Item label="Дэлгэрэнгүй мэдээлэл">
-                <NewTextArea />
-              </Form.Item>
-            </div>
-          </div>
           <div className="form-grid-3">
             <Form.Item
-              label="НӨАТ суутгах эсэх"
-              name="isTax"
-              valuePropName="checked"
+              label="Багцын нэр"
+              name="name"
+              rules={[
+                {
+                  required: true,
+                  message: "Багцын нэр заавал",
+                },
+              ]}
             >
-              <NewSwitch />
+              <NewInput />
             </Form.Item>
             <Form.Item
-              label="НХАТ суутгах эсэх"
-              name="isCitizenTax"
-              valuePropName="checked"
+              label="Дотоод код"
+              name="code"
+              rules={[
+                {
+                  required: true,
+                  message: "Дотоод код заавал",
+                },
+                {
+                  pattern: /^-?\d*(\.\d*)?$/,
+                  message: "тоо оруулна уу",
+                },
+              ]}
             >
-              <NewSwitch />
+              <NewInput disabled={isEdit} />
+            </Form.Item>
+            <Form.Item label="Багцын хэмжих нэгж">
+              <Space.Compact>
+                <Form.Item
+                  name="measurementId"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Хэмжих нэгж заавал",
+                    },
+                  ]}
+                >
+                  <NewSelect
+                    allowClear
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={measurements.map((measurement) => ({
+                      value: measurement.id,
+                      label: measurement.name,
+                    }))}
+                  />
+                </Form.Item>
+                <div
+                  style={{
+                    marginLeft: 4,
+                  }}
+                  className="app-button-square"
+                  //   onClick={() => setIsOpenModalBrand(true)}
+                >
+                  <Image
+                    src={"/icons/plusGray.svg"}
+                    height={18}
+                    width={18}
+                    alt="Нэмэх"
+                  />
+                </div>
+              </Space.Compact>
+            </Form.Item>
+            <Form.Item label="Багцын бүлэг">
+              <Space.Compact>
+                <div className="extraButton">
+                  <Popover
+                    placement="bottom"
+                    open={isOpenPopOver}
+                    onOpenChange={(state) => setIsOpenPopOver(state)}
+                    content={
+                      <NewDirectoryTree
+                        mode={"MATERIAL"}
+                        data={materialSections}
+                        extra="HALF"
+                        isLeaf={true}
+                        onClick={(key, isLeaf) => {
+                          if (isLeaf) {
+                            setIsOpenPopOver(false);
+                            form.setFieldsValue({
+                              sectionId: key,
+                            });
+                          }
+                        }}
+                      />
+                    }
+                    trigger={"click"}
+                  >
+                    <SignalFilled rotate={-90} />
+                  </Popover>
+                </div>
+                <Form.Item
+                  style={{
+                    width: "100%",
+                  }}
+                  name="materialSectionId"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Багцын бүлэг заавал",
+                    },
+                  ]}
+                >
+                  <NewSelect
+                    allowClear
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={materialSections.map((materialSection) => ({
+                      value: materialSection.id,
+                      label: materialSection.name,
+                    }))}
+                  />
+                </Form.Item>
+              </Space.Compact>
+            </Form.Item>
+            <Form.Item label="Нийт тоо хэмжээ" name="countPackage">
+              <NewInputNumber disabled />
             </Form.Item>
             <Form.Item
               label="Идэвхтэй эсэх"
@@ -951,9 +776,20 @@ const ServicesRegistration = (props: IProps) => {
               <NewSwitch />
             </Form.Item>
           </div>
+          <hr />
+          <Form.List name="packageMaterials">
+            {(packageMaterials, { add, remove }) => (
+              <EditableTableMaterial
+                data={packageMaterials}
+                form={form}
+                add={add}
+                remove={remove}
+              />
+            )}
+          </Form.List>
         </Form>
       </NewModal>
     </>
   );
 };
-export default ServicesRegistration;
+export default PackageRegistration;

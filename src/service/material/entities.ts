@@ -20,13 +20,18 @@ export enum MaterialType {
   Service = "SERVICE", // Үйлчилгээ
   Package = "PACKAGE", // Багц
 }
-
+// Багцын материал
+export interface IDataPackageMaterial {
+  id: number;
+  materialId: number;
+  material: IDataMaterial;
+  quantity: number;
+}
+// Материал дата
 export interface IDataMaterial {
   id: number;
   type: MaterialType; // төрөл
   code: string;
-  materialId: number;
-  material: IDataMaterial;
   measurementId: number;
   measurement: IDataUnitOfMeasure;
   materialSectionId: number;
@@ -47,7 +52,7 @@ export interface IDataMaterial {
   isTax: boolean;
   createdAt: string;
   updatedAt: string;
-  materials: IDataMaterial[];
+  packageMaterials: IDataPackageMaterial[];
   balances: IDataBalance[];
   // TODO resourceSizes: ResourceSize[];
   prices: IDataPrice[];
@@ -64,7 +69,6 @@ export interface IDataMaterial {
 export interface IFilterMaterial extends IFilter {
   type?: MaterialType; // төрөл
   code?: string;
-  materialId?: number;
   measurementId?: number;
   materialSectionId?: number;
   countPackage?: number;
