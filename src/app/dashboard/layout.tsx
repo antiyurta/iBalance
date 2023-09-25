@@ -12,7 +12,6 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   NewAvatar,
   NewDatePicker,
-  NewOption,
   NewSelect,
 } from "@/components/input";
 
@@ -22,7 +21,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const title = useTypedSelector((state: RootState) => state.title);
-  console.log(title);
   const blockContext: BlockView = useContext(BlockContext);
   const { label, path } = useTypedSelector(
     (state: RootState) => state.currentPath
@@ -150,27 +148,32 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <p>Б.Бадамхатан #0001</p>
             </div>
             <div className="dep">
-              <NewSelect>
-                <NewOption value={0}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "12px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <NewAvatar size={32} />
-                    <p
-                      style={{
-                        margin: "0px",
-                      }}
-                    >
-                      Салбар-1 УИД
-                    </p>
-                  </div>
-                </NewOption>
-              </NewSelect>
+              <NewSelect
+                options={[
+                  {
+                    label: (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: "12px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <NewAvatar size={32} />
+                        <p
+                          style={{
+                            margin: "0px",
+                          }}
+                        >
+                          Салбар-1 УИД
+                        </p>
+                      </div>
+                    ),
+                    value: 0,
+                  },
+                ]}
+              ></NewSelect>
             </div>
           </div>
         </div>

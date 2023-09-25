@@ -34,7 +34,7 @@ import {
   IParamsStorage,
 } from "@/service/material/storage/entities";
 import { StorageSerivce } from "@/service/material/storage/service";
-import { NewOption, NewSelect } from "@/components/input";
+import { NewSelect } from "@/components/input";
 import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
 import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
@@ -243,13 +243,13 @@ const BeginningBalancePage = () => {
                       },
                     ]}
                   >
-                    <NewSelect onSelect={materialFormField}>
-                      {materials?.map((material, index) => (
-                        <NewOption key={index} value={material.id}>
-                          {material.code}
-                        </NewOption>
-                      ))}
-                    </NewSelect>
+                    <NewSelect
+                      onSelect={materialFormField}
+                      options={materials?.map((material) => ({
+                        label: material.code,
+                        value: material.id,
+                      }))}
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -257,29 +257,25 @@ const BeginningBalancePage = () => {
                 <Input disabled />
               </Form.Item>
               <Form.Item label="Хэмжих нэгж" name="measurementId">
-                <NewSelect disabled>
-                  {measumerments?.map((measumerment, index) => {
-                    return (
-                      <NewOption key={index} value={measumerment.id}>
-                        {measumerment.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                <NewSelect
+                  disabled
+                  options={measumerments?.map((measumerment, index) => ({
+                    label: measumerment.name,
+                    value: measumerment.id,
+                  }))}
+                />
               </Form.Item>
               <Form.Item
                 label="Бараа материалын бүлэг"
                 name="materialSectionId"
               >
-                <NewSelect disabled>
-                  {materialSections?.map((section, index) => {
-                    return (
-                      <NewOption key={index} value={section.id}>
-                        {section.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                <NewSelect
+                  disabled
+                  options={materialSections?.map((section, index) => ({
+                    label: section.name,
+                    value: section.id,
+                  }))}
+                />
               </Form.Item>
               <Form.Item label="Багцын доторх тоо" name="countPackage">
                 <InputNumber disabled />

@@ -1,7 +1,7 @@
 "use client";
 import { SignalFilled } from "@ant-design/icons";
 import NewDirectoryTree from "@/components/directoryTree";
-import { NewInput, NewOption, NewSelect, NewSwitch } from "@/components/input";
+import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
   IDataTreeSection,
@@ -391,15 +391,11 @@ const Group = () => {
                     style={{
                       width: "100%",
                     }}
-                  >
-                    {sections?.map((section: IDataTreeSection, index) => {
-                      return (
-                        <NewOption key={index} value={section.id}>
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
+                    options={sections?.map((section: IDataTreeSection) => ({
+                      label: section.name,
+                      value: section.id,
+                    }))}
+                  />
                 </Form.Item>
               </Space.Compact>
             </Form.Item>

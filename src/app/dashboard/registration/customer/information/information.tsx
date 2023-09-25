@@ -20,7 +20,6 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import {
   NewInput,
-  NewOption,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -511,17 +510,13 @@ const Information = (props: IProps) => {
                             style={{
                               width: "100%",
                             }}
-                          >
-                            {sections?.map(
-                              (section: IDataTreeSection, index) => {
-                                return (
-                                  <NewOption key={index} value={section.id}>
-                                    {section.name}
-                                  </NewOption>
-                                );
-                              }
+                            options={sections?.map(
+                              (section: IDataTreeSection) => ({
+                                label: section.name,
+                                value: section.id,
+                              })
                             )}
-                          </NewSelect>
+                          />
                         </Form.Item>
                       </Space.Compact>
                     </Form.Item>
@@ -850,15 +845,11 @@ const Information = (props: IProps) => {
                       style={{
                         width: "100%",
                       }}
-                    >
-                      {sections?.map((section: IDataTreeSection, index) => {
-                        return (
-                          <NewOption key={index} value={section.id}>
-                            {section.name}
-                          </NewOption>
-                        );
-                      })}
-                    </NewSelect>
+                      options={sections?.map((section: IDataTreeSection) => ({
+                        label: section.name,
+                        value: section.id,
+                      }))}
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -880,15 +871,12 @@ const Information = (props: IProps) => {
                 label="Банкны нэр"
                 name="bankId"
               >
-                <NewSelect>
-                  {banks?.map((bank, index) => {
-                    return (
-                      <NewOption key={index} value={bank.id}>
-                        {bank.name}
-                      </NewOption>
-                    );
-                  })}
-                </NewSelect>
+                <NewSelect
+                  options={banks?.map((bank) => ({
+                    label: bank.name,
+                    value: bank.id,
+                  }))}
+                />
               </Form.Item>
               <Form.Item
                 style={{

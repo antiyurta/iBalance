@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewInput, NewOption, NewSearch, NewSelect } from "@/components/input";
+import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
@@ -42,7 +42,6 @@ const UnitOfMeasure = (props: IProps) => {
   const [filters, setFilters] = useState<IFilters>();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [selectedRow, setSelectedRow] = useState<IDataUnitOfMeasure>();
   const [columns, setColumns] = useState<FilteredColumns>({
     shortName: {
@@ -317,26 +316,35 @@ const UnitOfMeasure = (props: IProps) => {
               },
             ]}
           >
-            <NewSelect placeholder="Бүлэг">
-              <NewOption value={MeasurementType.Quantity}>
-                Тооны хэмжих нэгж
-              </NewOption>
-              <NewOption value={MeasurementType.Length}>
-                Уртын хэмжих нэгж
-              </NewOption>
-              <NewOption value={MeasurementType.Volume}>
-                Шингэний хэмжих нэгж
-              </NewOption>
-              <NewOption value={MeasurementType.Area}>
-                Талбайн хэмжих нэгж
-              </NewOption>
-              <NewOption value={MeasurementType.Time}>
-                Цаг хугацааны хэмжих нэгж
-              </NewOption>
-              <NewOption value={MeasurementType.Weight}>
-                Хүндийн хэмжих нэгж
-              </NewOption>
-            </NewSelect>
+            <NewSelect
+              placeholder="Бүлэг"
+              options={[
+                {
+                  label: "Тооны хэмжих нэгж",
+                  value: MeasurementType.Quantity,
+                },
+                {
+                  label: "Уртын хэмжих нэгж",
+                  value: MeasurementType.Length,
+                },
+                {
+                  label: "Шингэний хэмжих нэгж",
+                  value: MeasurementType.Volume,
+                },
+                {
+                  label: "Талбайн хэмжих нэгж",
+                  value: MeasurementType.Area,
+                },
+                {
+                  label: " Цаг хугацааны хэмжих нэгж",
+                  value: MeasurementType.Time,
+                },
+                {
+                  label: "Хүндийн хэмжих нэгж",
+                  value: MeasurementType.Weight,
+                },
+              ]}
+            />
           </Form.Item>
         </Form>
       </NewModal>

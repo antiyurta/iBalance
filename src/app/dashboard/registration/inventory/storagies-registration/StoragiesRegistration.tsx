@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewInputNumber, NewOption, NewSelect } from "@/components/input";
+import { NewInputNumber, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
@@ -269,21 +269,15 @@ const StoragiesRegistration = (props: IProps) => {
                   </Popover>
                 </div>
                 <Form.Item name="sectionId">
-                  <NewSelect>
-                    {sections?.map((section, index) => {
-                      return (
-                        <NewOption
-                          style={{
-                            display: section.isExpand ? "none" : "block",
-                          }}
-                          key={index}
-                          value={section.id}
-                        >
-                          {section.name}
-                        </NewOption>
-                      );
-                    })}
-                  </NewSelect>
+                  <NewSelect
+                    //TODO end ih sonin shaaclaa
+                    options={sections
+                      ?.filter((section) => !section.isExpand)
+                      ?.map((section) => ({
+                        label: section.name,
+                        value: section.id,
+                      }))}
+                  />
                 </Form.Item>
                 <div
                   style={{

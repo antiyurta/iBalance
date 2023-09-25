@@ -59,9 +59,6 @@ function NewSelect(props: SelectProps) {
     </ConfigProvider>
   );
 }
-function NewOption(props: any) {
-  return <Option {...props}>{props.children}</Option>;
-}
 
 function NewInput(props: InputProps) {
   return <Input {...props} />;
@@ -113,7 +110,6 @@ export {
   NewAvatar,
   NewDatePicker,
   NewSelect,
-  NewOption,
   NewInput,
   NewTextArea,
   NewSearch,
