@@ -1,13 +1,7 @@
 "use client";
-import { SwapOutlined, SignalFilled } from "@ant-design/icons";
+import { SignalFilled } from "@ant-design/icons";
 import NewDirectoryTree from "@/components/directoryTree";
-import {
-  NewInput,
-  NewOption,
-  NewSearch,
-  NewSelect,
-  NewSwitch,
-} from "@/components/input";
+import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
   Button,
@@ -28,7 +22,6 @@ import { IDataType } from "@/service/material/type/entities";
 import { TypeService } from "@/service/material/type/service";
 import InventoriesType from "../inventories-type/inventoriesType";
 import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
-// import Information from "../information/information";
 
 const { Title } = Typography;
 

@@ -4,7 +4,6 @@ import { Col, Input, Row, Space, Tabs, Typography } from "antd";
 import SavePrice from "./save-price";
 import CommandList from "./command-list";
 import PriceList from "./price-list";
-import { MaterialType } from "@/service/material/entities";
 import { CommandType } from "@/service/command/entities";
 
 interface IProps {

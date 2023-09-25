@@ -23,15 +23,15 @@ import {
   ComponentType,
   DataIndexType,
   FilteredColumns,
-  IFilters,
   Meta,
 } from "@/service/entities";
 import {
   IDataMaterial,
-  IDataUnitCode,
   IFilterMaterial,
   IParamMaterial,
 } from "@/service/material/entities";
+
+import { IDataUnitCode } from "@/service/reference/unit-code/entities";
 import { MaterialService } from "@/service/material/service";
 import {
   Button,

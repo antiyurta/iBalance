@@ -1,6 +1,6 @@
 "use client";
 
-import { Col, Row } from "antd";
+import { Badge, Col, Row } from "antd";
 import { NewInput } from "@/components/input";
 import {
   BarsOutlined,
@@ -32,11 +32,13 @@ const PosSales = () => {
           />
           <div className="segment">
             <div className="segment-item">
-              <ShoppingCartOutlined
-                style={{
-                  fontSize: 20,
-                }}
-              />
+              <Badge count={3}>
+                <ShoppingCartOutlined
+                  style={{
+                    fontSize: 20,
+                  }}
+                />
+              </Badge>
             </div>
             <div
               onClick={() => setIsActiveSegment("list")}

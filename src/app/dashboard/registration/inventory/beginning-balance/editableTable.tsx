@@ -6,22 +6,17 @@ import {
 } from "@ant-design/icons";
 import {
   Button,
-  DatePicker,
   Form,
   FormInstance,
   FormListFieldData,
-  Input,
   InputNumber,
   Popconfirm,
   Select,
-  Switch,
   Table,
   message,
 } from "antd";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import mnMN from "antd/es/calendar/locale/mn_MN";
+import React, { useState } from "react";
 import "dayjs/locale/mn";
 import { IDataStorage } from "@/service/material/storage/entities";
 

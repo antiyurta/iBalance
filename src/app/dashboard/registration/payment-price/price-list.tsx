@@ -1,12 +1,7 @@
-import NewCard from "@/components/Card";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   FilteredColumnsPrice,
@@ -283,7 +278,7 @@ const PriceList = (props: IProps) => {
         <SavePrice
           isEdit
           selectedCommand={selectedCommand}
-          materialType={type}
+          type={type}
         />
       </NewModal>
     </div>

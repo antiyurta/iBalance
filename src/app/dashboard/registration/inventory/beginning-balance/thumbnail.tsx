@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
@@ -15,7 +13,7 @@ import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
-import { DataIndexType, IFilters, Meta } from "@/service/entities";
+import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { Col, Row, Space } from "antd";
 import { TreeSectionService } from "@/service/reference/tree-section/service";

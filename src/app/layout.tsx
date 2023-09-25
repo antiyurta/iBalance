@@ -14,6 +14,7 @@ import mn_MN from "antd/locale/mn_MN";
 
 //
 import { Layout } from "antd";
+import { Metadata } from "next";
 const { Sider, Content } = Layout;
 //
 
@@ -26,7 +27,7 @@ const ubuntu = Ubuntu({
 
 Interceptor(api, store);
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "iBalance",
   description: "iBalance",
 };

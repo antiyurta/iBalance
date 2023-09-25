@@ -1,5 +1,3 @@
-"use client";
-
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewInput, NewSearch } from "@/components/input";

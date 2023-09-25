@@ -1,4 +1,3 @@
-import NewCard from "@/components/Card";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";

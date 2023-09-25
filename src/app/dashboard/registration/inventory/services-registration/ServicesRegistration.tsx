@@ -20,7 +20,6 @@ import {
 } from "antd";
 import {
   NewInput,
-  NewInputNumber,
   NewSelect,
   NewSwitch,
   NewTextArea,
@@ -320,8 +319,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   const onDelete = async (id: number) => {
     blockContext.block();
-    await MaterialService
-      .remove(id)
+    await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
           openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
