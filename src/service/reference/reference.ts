@@ -1,10 +1,9 @@
 import { api } from "../../feature/interceptor/interceptor";
-import { ICountryResponse } from "./brand/entities";
+import { IResponseCountry } from "./country/entities";
 import {
   IDataReference,
   IParamReference,
   IResponseReference,
-  IType,
   IUserResponse,
 } from "./entity";
 
@@ -14,7 +13,7 @@ function getUsers(params: { ids: number[] }): Promise<IUserResponse> {
   });
 }
 
-function getCountries(): Promise<ICountryResponse> {
+function getCountries(): Promise<IResponseCountry> {
   return api.get("reference/country", {
     params: {
       type: 1,
