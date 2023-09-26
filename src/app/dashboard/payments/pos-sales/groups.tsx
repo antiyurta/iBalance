@@ -1,12 +1,51 @@
 import { Col, Row, Typography } from "antd";
 import { VerticalRightOutlined, VerticalLeftOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import { MaterialSectionService } from "@/service/material/section/service";
+import { ReferenceService } from "@/service/reference/reference";
+import Image from "next/image";
+import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { getFile } from "@/feature/common";
 const { Title } = Typography;
+
+interface IGroup {
+  name: string;
+  src: string;
+  sectionId: number;
+}
+
 const Groups = () => {
-  const [groups, setGroups] = useState<any>([]);
-  const getGroups = () => {};
+  const { value, set } = usePaymentGroupContext();
+  const [sections, setSections] = useState<IGroup[]>([]);
+  const getMaterialSections = async () => {
+    await MaterialSectionService.get({
+      isExpand: false,
+      isSale: [true],
+    }).then(async (response) => {
+      const result: IGroup[] = [];
+      await Promise.all(
+        response.response.data.map(async (section) => {
+          if (section.fileId) {
+            const src = await getFile(section.fileId);
+            result.push({
+              name: section.name,
+              src: src,
+              sectionId: section.id,
+            });
+          } else {
+            result.push({
+              name: section.name,
+              src: "",
+              sectionId: section.id,
+            });
+          }
+        })
+      );
+      setSections(result);
+    });
+  };
   useEffect(() => {
-    getGroups();
+    getMaterialSections();
   }, []);
   return (
     <div>
@@ -16,7 +55,18 @@ const Groups = () => {
         </Col>
         <Col span={24}>
           <div className="group">
-            <div className="box">asdsasd</div>
+            <div
+              onClick={() => set("all")}
+              className={value != "all" ? "box" : "box-active"}
+            >
+              <Image
+                src="/images/groupAll.png"
+                alt="all"
+                width={30}
+                height={30}
+              />
+              <p className="text">Бүгд</p>
+            </div>
             <div className="box-prev">
               <VerticalRightOutlined
                 style={{
@@ -25,19 +75,21 @@ const Groups = () => {
               />
             </div>
             <div className="content">
-              <div className="box">1</div>
-              <div className="box">2</div>
-              <div className="box">3</div>
-              <div className="box">4</div>
-              <div className="box">5</div>
-              <div className="box">6</div>
-              <div className="box">7</div>
-              <div className="box">8</div>
-              <div className="box">9</div>
-              <div className="box">10</div>
-              <div className="box">11</div>
-              <div className="box">12</div>
-              <div className="box">13</div>
+              {sections?.map((section, index) => (
+                <div
+                  key={index}
+                  onClick={() => set(section.sectionId)}
+                  className={section.sectionId === value ? "box-active" : "box"}
+                >
+                  <Image
+                    src={section.src}
+                    alt={`${section.name + index}`}
+                    width={30}
+                    height={30}
+                  />
+                  <p className="text">{section.name}</p>
+                </div>
+              ))}
             </div>
             <div className="box-next">
               <VerticalLeftOutlined

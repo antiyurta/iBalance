@@ -34,6 +34,12 @@ function remove(id: number): Promise<IResponseReference> {
   return api.delete("reference-section/" + id);
 }
 
+function getImage(id: number): Promise<any> {
+  return api.get("local-files/" + id, {
+    responseType: "blob",
+  });
+}
+
 function removeUploadImage(id: number): Promise<any> {
   return api.delete("local-files/" + id);
 }
@@ -42,6 +48,7 @@ export const ReferenceService = {
   get,
   getCountries,
   getUsers,
+  getImage,
   post,
   patch,
   remove,

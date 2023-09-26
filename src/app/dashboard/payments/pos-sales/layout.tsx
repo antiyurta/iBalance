@@ -8,6 +8,7 @@ import PayController from "./payController";
 import { useContext, useEffect, useState } from "react";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { OpenerService } from "@/service/pos/opener/service";
+import { PaymentGroupProvider } from "@/feature/context/PaymentGroupContext";
 
 type OPEN = "LOADING" | "DONE" | "FAILED";
 
@@ -34,7 +35,7 @@ const PosSalesLayouts = ({ children }: { children: React.ReactNode }) => {
   }, []);
   if (isOpen === "DONE") {
     return (
-      <>
+      <PaymentGroupProvider>
         <Row
           style={{
             height: "100%",
@@ -58,7 +59,7 @@ const PosSalesLayouts = ({ children }: { children: React.ReactNode }) => {
             <PayController />
           </Col>
         </Row>
-      </>
+      </PaymentGroupProvider>
     );
   } else if (isOpen === "FAILED") {
     router.push("/dashboard/payments/open-close");

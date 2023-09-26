@@ -2,6 +2,7 @@ import { IDataPrice } from "../command/price/entities";
 import {
   ColumnType,
   GenericResponse,
+  IDataFile,
   IFilter,
   IParam,
   Meta,
@@ -20,18 +21,13 @@ export enum MaterialType {
   Service = "SERVICE", // Үйлчилгээ
   Package = "PACKAGE", // Багц
 }
-// Багцын материал
-export interface IDataPackageMaterial {
-  id: number;
-  materialId: number;
-  material: IDataMaterial;
-  quantity: number;
-}
-// Материал дата
+
 export interface IDataMaterial {
   id: number;
   type: MaterialType; // төрөл
   code: string;
+  materialId: number;
+  material: IDataMaterial;
   measurementId: number;
   measurement: IDataUnitOfMeasure;
   materialSectionId: number;
@@ -52,7 +48,7 @@ export interface IDataMaterial {
   isTax: boolean;
   createdAt: string;
   updatedAt: string;
-  packageMaterials: IDataPackageMaterial[];
+  materials: IDataMaterial[];
   balances: IDataBalance[];
   // TODO resourceSizes: ResourceSize[];
   prices: IDataPrice[];
@@ -64,13 +60,15 @@ export interface IDataMaterial {
   // TODO transactions: Transaction[];
   memberships: IDataMembership[]; // бэлгийн карт
   fileIds: number[];
+  files: IDataFile[];
   price: IDataPrice;
 }
 export interface IFilterMaterial extends IFilter {
   type?: MaterialType; // төрөл
   code?: string;
+  materialId?: number;
   measurementId?: number;
-  materialSectionId?: number;
+  materialSectionId?: number[];
   countPackage?: number;
   brandId?: number;
   rankId?: number;

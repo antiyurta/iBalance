@@ -6,16 +6,20 @@ import {
   SwapOutlined,
   CloseOutlined,
   FileTextOutlined,
+  LeftOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
-import { NewInput } from "@/components/input";
+import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import Item from "./component/Item";
-import { Badge, Button, Table, Typography } from "antd";
+import { Badge, Button, Form, Table, Typography } from "antd";
 import StepIndex from "./steps/StepIndex";
 import OpenClose from "../open-close/openClose";
 
 const { Title } = Typography;
 const PayController = () => {
+  const [isOpenModalTransfer, setIsOpenModalTransfer] =
+    useState<boolean>(false);
   const [isOpenModalClose, setIsOpenModalClose] = useState<boolean>(false);
   const [isOpenModalSave, setIsOpenModalSave] = useState<boolean>(false);
   const [isOpenModalExtra, setIsOpenModalExtra] = useState<boolean>(false);
@@ -341,6 +345,29 @@ const PayController = () => {
               Кассчины эрх
             </Title>
             <div className="form-grid-2">
+              <div
+                onClick={() => {
+                  setIsOpenModalTransfer(true);
+                  setIsOpenModalExtra(false);
+                }}
+                className="payment-type-box"
+              >
+                <CreditCardOutlined
+                  style={{
+                    color: "#86909C",
+                    fontSize: 24,
+                  }}
+                />
+                <Title
+                  level={4}
+                  style={{
+                    fontWeight: 700,
+                    color: "#86909C",
+                  }}
+                >
+                  Мөнгө нэмэх, хасах, шилжүүлэг
+                </Title>
+              </div>
               <div className="payment-type-box">
                 <CreditCardOutlined
                   style={{
@@ -402,6 +429,113 @@ const PayController = () => {
         footer={null}
       >
         <OpenClose type="close" />
+      </NewModal>
+      <NewModal
+        title=" "
+        open={isOpenModalTransfer}
+        onCancel={() => setIsOpenModalTransfer(false)}
+        width={300}
+        bodyStyle={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          paddingTop: 12,
+        }}
+        footer={null}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 12,
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Title level={2}>Мөнгө нэмэх, хасах, шилжүүлэх</Title>
+
+          <Button
+            type="text"
+            style={{
+              height: 48,
+            }}
+          >
+            <Badge count={3}>
+              <BellOutlined
+                style={{
+                  color: "#198754",
+                  fontSize: 24,
+                }}
+              />
+            </Badge>
+          </Button>
+        </div>
+        <Form layout="vertical">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            <Form.Item label="Бэлэн/Бэлэн бусын хэлбэр">
+              <NewSelect
+                options={[
+                  {
+                    label: "Бэлэн",
+                    value: 0,
+                  },
+                  {
+                    label: "Бэлэн бус",
+                    value: 2,
+                  },
+                ]}
+              />
+            </Form.Item>
+            <Form.Item label="Нэмэх/Хасах/Шилжүүлэг">
+              <NewSelect
+                options={[
+                  {
+                    label: "Нэмэх",
+                    value: 0,
+                  },
+                  {
+                    label: "Хасах",
+                    value: 1,
+                  },
+                  {
+                    label: "Шилжүүлэг",
+                    value: 2,
+                  },
+                ]}
+              />
+            </Form.Item>
+            <Form.Item label="Дүн">
+              <NewInputNumber />
+            </Form.Item>
+            <Form.Item label="Гүйлгээний утга">
+              <NewInput />
+            </Form.Item>
+          </div>
+        </Form>
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            gap: 12,
+          }}
+        >
+          <Button icon={<LeftOutlined />} />
+          <Button
+            type="primary"
+            style={{
+              width: "100%",
+            }}
+          >
+            Үргэлжлүүлэх
+          </Button>
+        </div>
       </NewModal>
     </>
   );

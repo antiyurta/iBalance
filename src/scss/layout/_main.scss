@@ -617,14 +617,55 @@ html {
   .box-prev,
   .box-next,
   .content > .box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     width: 90px;
     max-width: 90px;
     min-width: 90px;
     height: 70px;
-    padding: 16px 12px;
-    border: 1px solid $color-primary;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.02);
+    align-items: center;
+    padding: 10px 12px;
+    // border: 1px solid $color-primary;
+    background: white;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
     border-radius: 4px;
+    > p.text {
+      margin: 0px;
+      font-size: 10px;
+      font-weight: 400;
+      color: #adb5bd;
+    }
+    &:hover {
+      cursor: pointer;
+      box-shadow: 0px 2px 4px 4px rgba(0, 0, 0, 0.08);
+    }
+  }
+  .box-active,
+  .content > .box-active {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 90px;
+    max-width: 90px;
+    min-width: 90px;
+    height: 70px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid $color-primary;
+    background: white;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+    > p.text {
+      margin: 0px;
+      font-size: 10px;
+      font-weight: 400;
+      color: $color-primary;
+    }
+    &:hover {
+      cursor: pointer;
+      box-shadow: 0px 2px 4px 4px rgba(0, 0, 0, 0.08);
+    }
   }
   > .content {
     display: flex;

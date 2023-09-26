@@ -408,7 +408,7 @@ const InventoriesRegistration = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    materialSectionId: key,
+                    materialSectionId: [key],
                   });
                 }
               }}

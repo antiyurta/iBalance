@@ -142,3 +142,10 @@ export type DescMode = "NORMAL" | "PICTURE";
 export type TreeMode = "NORMAL" | "STORAGE" | "UNIT" | "MATERIAL" | "CONSUMER";
 
 export type ComponentType = "FULL" | "MODAL" | "MIDDLE" | "LITTLE";
+
+export interface IDataFile {
+  id: number;
+  filename: string;
+  path: string;
+  mimetype: string;
+}

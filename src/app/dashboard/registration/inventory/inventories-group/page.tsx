@@ -1,5 +1,5 @@
 "use client";
-import { SignalFilled } from "@ant-design/icons";
+import { SignalFilled, PlusOutlined } from "@ant-design/icons";
 import NewDirectoryTree from "@/components/directoryTree";
 import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
@@ -13,6 +13,7 @@ import {
   Row,
   Space,
   Typography,
+  Upload,
 } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -22,11 +23,34 @@ import { IDataType } from "@/service/material/type/entities";
 import { TypeService } from "@/service/material/type/service";
 import InventoriesType from "../inventories-type/inventoriesType";
 import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
+import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { ReferenceService } from "@/service/reference/reference";
+import { openNofi } from "@/feature/common";
+import type { UploadProps } from "antd";
+import type { UploadFile } from "antd/es/upload/interface";
 
 const { Title } = Typography;
 
+interface MyUploadFile extends UploadFile {
+  response?: {
+    message: string;
+    response: {
+      filename: string;
+      id: number;
+      mimetype: string;
+      path: string;
+    };
+    success: true;
+  };
+}
+
 const InventoriesGroup = () => {
   const [addForm] = Form.useForm();
+  const {
+    login_data: {
+      response: { accessToken },
+    },
+  } = useTypedSelector((state: RootState) => state.core);
   const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
@@ -35,9 +59,34 @@ const InventoriesGroup = () => {
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
   const [type, setType] = useState<IDataType[]>([]);
   const [isOpenModalType, setIsOpenModalType] = useState<boolean>(false);
+  const [fileList, setFileList] = useState<MyUploadFile>();
   //
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+  };
+  const beforeUpload: UploadProps["beforeUpload"] = (info) => {
+    if (fileList) {
+      handleRemove(fileList);
+    }
+  };
+  const onChange: UploadProps["onChange"] = (info) => {
+    setFileList(info.fileList[0]);
+  };
+  const handleRemove = async (info: MyUploadFile) => {
+    setFileList(undefined);
+    if (info.response?.response.id) {
+      const id = info.response?.response.id;
+      await ReferenceService.removeUploadImage(id).then((response) => {
+        if (response.success) {
+          openNofi("success", "Амжиллтай", "Устгагдав");
+        }
+      });
+    }
+  };
   const onFinish = async (values: IDataMaterialSection) => {
     values.isExpand = !values.isExpand;
+    values.fileId = fileList?.response?.response.id;
     setIsOpenTree(false);
     await MaterialSectionService.post(values).then((response) => {
       if (response.success) {
@@ -333,6 +382,25 @@ const InventoriesGroup = () => {
                   />
                 </Form.Item>
               </Space.Compact>
+            </Form.Item>
+            <Form.Item label="Зураг оруулах" valuePropName="fileList">
+              <Upload
+                maxCount={1}
+                headers={headers}
+                action={`${process.env.NEXT_PUBLIC_BASEURL}/local-files/fileUpload`}
+                fileList={fileList ? [fileList] : []}
+                listType="picture-card"
+                beforeUpload={beforeUpload}
+                onChange={onChange}
+                onRemove={handleRemove}
+              >
+                <PlusOutlined
+                  style={{
+                    fontSize: 24,
+                    color: "#6c757d",
+                  }}
+                />
+              </Upload>
             </Form.Item>
           </div>
         </Form>

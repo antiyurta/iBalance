@@ -7,14 +7,32 @@ import {
   ShoppingCartOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GroupItem from "./component/GroupItem";
 import ListItem from "./component/ListItem";
+import {
+  TypeValue,
+  usePaymentGroupContext,
+} from "@/feature/context/PaymentGroupContext";
+import { MaterialService } from "@/service/material/service";
+import { IDataMaterial } from "@/service/material/entities";
 
 type TypeSegment = "list" | "group";
 
 const PosSales = () => {
+  const { value } = usePaymentGroupContext();
+  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
   const [isActiveSegment, setIsActiveSegment] = useState<TypeSegment>("group");
+  const getMaterials = async (value: TypeValue) => {
+    await MaterialService.get({
+      materialSectionId: value === "all" ? undefined : [value],
+    }).then((response) => {
+      setMaterials(response.response.data);
+    });
+  };
+  useEffect(() => {
+    getMaterials(value);
+  }, [value]);
   return (
     <Row gutter={[12, 12]}>
       <Col span={24}>
@@ -82,42 +100,13 @@ const PosSales = () => {
         span={24}
       >
         <div className={`material-${isActiveSegment}`}>
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "group" ? <GroupItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
-          {isActiveSegment === "list" ? <ListItem /> : null}
+          {materials?.map((material, index) =>
+            isActiveSegment === "group" ? (
+              <GroupItem key={index} data={material} />
+            ) : (
+              <ListItem key={index} data={material} />
+            )
+          )}
         </div>
       </Col>
     </Row>

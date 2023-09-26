@@ -7,7 +7,7 @@ import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Queries } from "@/service/entities";
 import { referenceAccountService } from "@/service/reference/account/service";
-import { IDataReference, IDataUser, IType } from "@/service/reference/entity";
+import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import { message, notification } from "antd";
 import type { DefaultOptionType } from "antd/es/cascader";
@@ -498,6 +498,14 @@ const getReceivableAccountByCode = async (code: string) => {
   }
 };
 
+const getFile = async (id: number) => {
+  return await ReferenceService.getImage(id).then((response) => {
+    const file = new Blob([response], { type: response.type });
+    const fileUrl = URL.createObjectURL(file);
+    return fileUrl;
+  });
+};
+
 export {
   getConsumerByCode,
   getReceivableAccountByCode,
@@ -512,4 +520,5 @@ export {
   onCloseFilterTag,
   displayRender,
   filterCascader,
+  getFile,
 };
