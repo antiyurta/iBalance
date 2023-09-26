@@ -1,8 +1,11 @@
 import { Col, Row, Typography } from "antd";
-import { VerticalRightOutlined, VerticalLeftOutlined } from "@ant-design/icons";
+import {
+  VerticalRightOutlined,
+  VerticalLeftOutlined,
+  ShoppingOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { MaterialSectionService } from "@/service/material/section/service";
-import { ReferenceService } from "@/service/reference/reference";
 import Image from "next/image";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { getFile } from "@/feature/common";
@@ -59,11 +62,10 @@ const Groups = () => {
               onClick={() => set("all")}
               className={value != "all" ? "box" : "box-active"}
             >
-              <Image
-                src="/images/groupAll.png"
-                alt="all"
-                width={30}
-                height={30}
+              <ShoppingOutlined
+                style={{
+                  fontSize: 30,
+                }}
               />
               <p className="text">Бүгд</p>
             </div>

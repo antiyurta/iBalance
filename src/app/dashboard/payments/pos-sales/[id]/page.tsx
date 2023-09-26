@@ -13,9 +13,21 @@ import {
 import { Badge, Breadcrumb, Button, Col, Row, Space, Typography } from "antd";
 import { useParams } from "next/navigation";
 import { NewInputNumber } from "@/components/input";
+import { useEffect, useState } from "react";
+import { MaterialService } from "@/service/material/service";
+import { IDataMaterial } from "@/service/material/entities";
 const { Title } = Typography;
 const MaterialDetail = () => {
   const params = useParams();
+  const [material, setMaterial] = useState<IDataMaterial>();
+  const getMaterial = async (id: number) => {
+    await MaterialService.getById(id).then((response) => {
+      setMaterial(response.response);
+    });
+  };
+  useEffect(() => {
+    getMaterial(Number(params.id));
+  }, []);
   return (
     <div>
       <Row
@@ -78,7 +90,7 @@ const MaterialDetail = () => {
                         color: "black",
                       }}
                     >
-                      Мульти Витамин
+                      {material?.name}
                     </Title>
                   </Space>
                 </Col>

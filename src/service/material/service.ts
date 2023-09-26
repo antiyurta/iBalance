@@ -11,6 +11,10 @@ function get(params: IParamMaterial): Promise<IResponseMaterial> {
   return api.get("material", { params });
 }
 
+function getById(id: number): Promise<IResponseOneMaterial> {
+  return api.get("material/" + id);
+}
+
 function post(body: IDataMaterial): Promise<IResponseOneMaterial> {
   return api.post("material", body);
 }
@@ -23,7 +27,10 @@ function postPackage(body: IDataMaterial): Promise<IResponseOneMaterial> {
 function patch(id: number, body: IDataMaterial): Promise<IResponseOneMaterial> {
   return api.patch(`material/${id}`, body);
 }
-function patchPackage(id: number, body: IDataMaterial): Promise<IResponseOneMaterial> {
+function patchPackage(
+  id: number,
+  body: IDataMaterial
+): Promise<IResponseOneMaterial> {
   return api.patch(`material/package/${id}`, body);
 }
 function remove(id: number): Promise<GenericResponse> {
@@ -32,6 +39,7 @@ function remove(id: number): Promise<GenericResponse> {
 
 export const MaterialService = {
   get,
+  getById,
   post,
   postService,
   postPackage,

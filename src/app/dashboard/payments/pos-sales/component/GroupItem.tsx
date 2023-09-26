@@ -11,6 +11,7 @@ interface IProps {
 }
 
 interface IItem {
+  id: number;
   name: string;
   src: string;
 }
@@ -20,6 +21,7 @@ const GroupItem = (props: IProps) => {
   const { data } = props;
   const configureData = async () => {
     setItem({
+      id: data.id,
       name: data.name,
       src:
         data.files?.length > 0
@@ -35,7 +37,7 @@ const GroupItem = (props: IProps) => {
       {item ? (
         <div className="item-group">
           <div className="image">
-            <Link href={"/dashboard/payments/pos-sales/1"}>
+            <Link href={"/dashboard/payments/pos-sales/" + item.id}>
               <Image src={item?.src} width={120} height={120} alt="dd" />
             </Link>
             <div className="extra">

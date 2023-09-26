@@ -11,6 +11,7 @@ interface IProps {
 }
 
 interface IItem {
+  id: number;
   name: string;
   src: string;
 }
@@ -20,6 +21,7 @@ const ListItem = (props: IProps) => {
   const { data } = props;
   const configureData = async () => {
     setItem({
+      id: data.id,
       name: data.name,
       src:
         data.files?.length > 0
@@ -35,7 +37,7 @@ const ListItem = (props: IProps) => {
       {item ? (
         <div className="item-list">
           <div className="left">
-            <Link href={"/dashboard/payments/pos-sales/1"}>
+            <Link href={"/dashboard/payments/pos-sales/" + item.id}>
               <Image src={item.src} width={50} height={50} alt="dd" />
             </Link>
             <div className="title">
