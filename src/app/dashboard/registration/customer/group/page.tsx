@@ -8,22 +8,14 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import {
-  Button,
-  Col,
-  Form,
-  Modal,
-  Popover,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { Button, Col, Form, Popover, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import Information from "../information/information";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
+import { modal } from "@/components/antV5apps";
 
 const { Title } = Typography;
 
@@ -61,7 +53,7 @@ const Group = () => {
   };
   const onFinishAdd = (values: IDataTreeSection) => {
     if (isLeafAdd) {
-      Modal.warning({
+      modal.warning({
         title: "Анхааруулга",
         content: (
           <div>
@@ -91,7 +83,7 @@ const Group = () => {
     await TreeSectionService.getById(id)
       .then((response) => {
         if (response.response.sections.length > 0) {
-          Modal.error({
+          modal.error({
             maskClosable: true,
             title: "Алдаа",
             content: (
@@ -105,7 +97,7 @@ const Group = () => {
             footer: null,
           });
         } else {
-          Modal.info({
+          modal.info({
             maskClosable: true,
             title: "Устгах",
             content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
@@ -351,7 +343,7 @@ const Group = () => {
                             (e) => e.id === selectedGroupId
                           );
                           if (section?.id === key) {
-                            Modal.error({
+                            modal.error({
                               title: "Алдаа",
                               content: (
                                 <>

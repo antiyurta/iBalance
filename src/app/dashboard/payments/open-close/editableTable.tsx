@@ -1,4 +1,4 @@
-import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
+import { NewInputNumber } from "@/components/input";
 import { IDataReference } from "@/service/reference/entity";
 import { Form, FormListFieldData, Table } from "antd";
 import { FormInstance } from "antd/lib";

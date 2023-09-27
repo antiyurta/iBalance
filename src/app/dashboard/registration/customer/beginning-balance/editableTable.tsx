@@ -5,7 +5,6 @@ import {
   Popconfirm,
   Space,
   Table,
-  message,
 } from "antd";
 import {
   SaveOutlined,
@@ -27,6 +26,7 @@ import { IParamReferenceAccount } from "@/service/reference/account/entities";
 import { referenceAccountService } from "@/service/reference/account/service";
 import NewModal from "@/components/modal";
 import ReceivableAccount from "../receivable-account/receivableAccount";
+import { message } from "@/components/antV5apps";
 
 interface IProps {
   data: FormListFieldData[];

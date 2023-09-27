@@ -1,13 +1,5 @@
 import Image from "next/image";
-import {
-  Button,
-  Form,
-  FormInstance,
-  Popconfirm,
-  Space,
-  Table,
-  message,
-} from "antd";
+import { Button, Form, FormInstance, Popconfirm, Space, Table } from "antd";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useEffect, useState } from "react";
 import {
@@ -25,6 +17,7 @@ import {
   MaterialType,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
+import { message } from "@/components/antV5apps";
 const { Column } = Table;
 
 interface IProps {
@@ -129,8 +122,8 @@ const EditableTablePackage = (props: IProps) => {
         expandable={{
           expandedRowRender: (render) => {
             if (editingIndex === render.key) {
-              form.getFieldValue('materialId')
-              console.log('expandedRowRender', render);
+              form.getFieldValue("materialId");
+              console.log("expandedRowRender", render);
             }
             return "миний контент";
           },

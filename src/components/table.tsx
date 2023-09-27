@@ -1,5 +1,5 @@
 import React from "react";
-import { ConfigProvider, Dropdown, Modal, Table } from "antd";
+import { ConfigProvider, Dropdown, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
@@ -7,6 +7,7 @@ import { Meta, ColumnType, ComponentType } from "@/service/entities";
 import DropDown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
+import { modal } from "./antV5apps";
 
 const { Column } = Table;
 
@@ -71,7 +72,7 @@ function NewTable(props: ITable) {
   };
   console.log("asdasd", isDelete);
   const warning = (key: number) => {
-    Modal.error({
+    modal.error({
       title: "Устгах",
       content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
       maskClosable: true,

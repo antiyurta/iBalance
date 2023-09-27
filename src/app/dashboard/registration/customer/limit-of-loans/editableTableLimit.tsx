@@ -4,7 +4,7 @@ import {
   SaveOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Popconfirm, Space, Table, message } from "antd";
+import { Button, Form, Popconfirm, Space, Table } from "antd";
 import type { FormListFieldData } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ import {
   IParamReferenceAccount,
 } from "@/service/reference/account/entities";
 import { IDataLimitOfLoansAccount } from "@/service/limit-of-loans/account/entities";
+import { message } from "@/components/antV5apps";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
