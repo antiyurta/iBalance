@@ -5,6 +5,7 @@ import SavePrice from "./save-price";
 import CommandList from "./command-list";
 import PriceList from "./price-list";
 import { CommandType } from "@/service/command/entities";
+import DiscountList from "./discount/discount-list";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -16,6 +17,13 @@ const { Title } = Typography;
 
 const Price = (props: IProps) => {
   const { ComponentType, name, type } = props;
+  const getDetailList = (): JSX.Element => {
+    if (type == CommandType.Discount) {
+      return <DiscountList type={type} />;
+    } else {
+      return <PriceList type={type} />;
+    }
+  };
   const items = [
     {
       label: (
@@ -35,7 +43,7 @@ const Price = (props: IProps) => {
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <PriceList type={type} />,
+      children: getDetailList(),
     },
   ];
   return (

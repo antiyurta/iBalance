@@ -16,6 +16,9 @@ function getById(id: number): Promise<IResponseOneCommand> {
 function postPrice(body: IDataCommand): Promise<IResponseOneCommand> {
   return api.post("material-command/price", body);
 }
+function postDiscount(body: IDataCommand): Promise<IResponseOneCommand> {
+  return api.post("material-command/discount", body);
+}
 
 function patchPrice(id: number, body: IDataCommand): Promise<IResponseOneCommand> {
   return api.patch(`material-command/price/${id}`, body);
@@ -28,6 +31,7 @@ export const MaterialCommandService = {
   get,
   getById,
   postPrice,
+  postDiscount,
   patchPrice,
   remove,
 };

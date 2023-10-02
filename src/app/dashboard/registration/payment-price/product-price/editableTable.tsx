@@ -118,7 +118,7 @@ const EditableTableProduct = (props: IProps) => {
     );
   }, [materials]);
   useEffect(() => {
-    getMaterials({ type: MaterialType.Material });
+    getMaterials({ types: [MaterialType.Material] });
   }, []);
   return (
     <>

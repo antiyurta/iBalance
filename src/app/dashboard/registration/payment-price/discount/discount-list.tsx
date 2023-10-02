@@ -1,39 +1,43 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
-  CommandType,
-  FilteredColumnsCommand,
-  IDataCommand,
-  IFilterCommand,
-  IParamCommand,
-} from "@/service/command/entities";
-import { MaterialCommandService } from "@/service/command/service";
+  FilteredColumnsPrice,
+  IDataPrice,
+  IFilterPrice,
+  IParamPrice,
+} from "@/service/command/price/entities";
+import { MaterialPriceService } from "@/service/command/price/service";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row } from "antd";
 import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
-import SavePrice from "./save-price";
 import NewModal from "@/components/modal";
+import { MaterialCommandService } from "@/service/command/service";
+import { CommandType, IDataCommand } from "@/service/command/entities";
+import SavePrice from "../save-price";
+import {
+  FilteredColumnsDiscount,
+  IDataDiscount,
+  IFilterDiscount,
+  IParamDiscount,
+} from "@/service/command/discount/entities";
+import { MaterialDiscountService } from "@/service/command/discount/service";
 interface IProps {
   type: CommandType;
 }
-const CommandList = (props: IProps) => {
+const DiscountList = (props: IProps) => {
   const { type } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [data, setData] = useState<IDataCommand[]>([]);
-  const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
+  const [data, setData] = useState<IDataDiscount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterCommand>();
-  const [params, setParams] = useState<IParamCommand>({ type });
-  const [columns, setColumns] = useState<FilteredColumnsCommand>({
+  const [filters, setFilters] = useState<IFilterDiscount>();
+  const [params, setParams] = useState<IParamDiscount>({});
+  const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
+  const [columns, setColumns] = useState<FilteredColumnsDiscount>({
     id: {
       label: "ID",
       isView: true,
@@ -45,47 +49,117 @@ const CommandList = (props: IProps) => {
       label: "Тушаалын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandAt",
+      dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
     commandNo: {
       label: "Тушаалын дугаар",
-      isView: true,
+      isView: false,
       isFiltered: false,
-      dataIndex: "commandNo",
+      dataIndex: ["command", "commandNo"],
       type: DataIndexType.MULTI,
     },
     ruleAt: {
       label: "Мөрдөж эхлэх огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "ruleAt",
+      dataIndex: ["command", "ruleAt"],
       type: DataIndexType.DATE,
     },
     branchName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["branch", "name"],
+      dataIndex: ["command", "branch", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
       label: "Харилцагчийн код",
       isView: false,
       isFiltered: false,
-      dataIndex: ["consumer", "name"],
+      dataIndex: ["command", "consumer", "code"],
       type: DataIndexType.MULTI,
     },
     consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "consumerId",
+      dataIndex: ["command", "consumer", "name"],
       type: DataIndexType.MULTI,
+    },
+    materialCode: {
+      label: "Дотоод код",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["material", "code"],
+      type: DataIndexType.MULTI,
+    },
+    materialName: {
+      label: "Бараа/Үйлчилгээний нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["material", "name"],
+      type: DataIndexType.MULTI,
+    },
+    materialSectionName: {
+      label: "Бараа/Үйлчилгээний бүлэг",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["material", "section", "name"],
+      type: DataIndexType.MULTI,
+    },
+    measurementName: {
+      label: "Хэмжих нэгж",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["material", "measurement", "name"],
+      type: DataIndexType.MULTI,
+    },
+    unitAmount: {
+      label: "Нэг үнэ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "unitAmount",
+      type: DataIndexType.MULTI,
+    },
+    endAt: {
+      label: "Хөнгөлөлт дуусах огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "endAt",
+      type: DataIndexType.DATE,
+    },
+    percent: {
+      label: "Хөнгөлөлтийн хувь",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "percent",
+      type: DataIndexType.MULTI,
+    },
+    amount: {
+      label: "Хөнгөлөлт хассан /Хямдарсан/ үнэ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "amount",
+      type: DataIndexType.MULTI,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
-      isView: true,
+      isView: false,
       isFiltered: false,
       dataIndex: "createdAt",
       type: DataIndexType.DATE,
@@ -97,24 +171,10 @@ const CommandList = (props: IProps) => {
       dataIndex: ["createdUser", "firstName"],
       type: DataIndexType.USER,
     },
-    updatedAt: {
-      label: "Өөрчлөлт хийсэн огноо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "updatedAt",
-      type: DataIndexType.DATE,
-    },
-    updatedBy: {
-      label: "Өөрчлөлт хийсэн хэрэглэгч",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["updatedUser", "firstName"],
-      type: DataIndexType.USER,
-    },
   });
-  const getData = async (params: IParamCommand) => {
+  const getData = async (params: IParamDiscount) => {
     blockContext.block();
-    await MaterialCommandService.get(params)
+    await MaterialDiscountService.get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -126,17 +186,9 @@ const CommandList = (props: IProps) => {
         blockContext.unblock();
       });
   };
-  const onDelete = async (id: number) => {
-    await MaterialCommandService.remove(id).then((response) => {
-      if (response.success) {
-        openNofi("success", "Амжиллтай", "Үнэ амжиллттай устгагдлаа");
-        getData(params);
-      }
-    });
-  };
-  const editCommand = async (id: number) => {
+  const editCommand = async (price: IDataPrice) => {
     blockContext.block();
-    await MaterialCommandService.getById(id)
+    await MaterialCommandService.getById(price.commandId)
       .then((response) => {
         if (response.success) {
           setIsOpenModal(true);
@@ -147,20 +199,6 @@ const CommandList = (props: IProps) => {
         blockContext.unblock();
       });
   };
-  const getTitle = (): string => {
-    if (type == CommandType.Package) {
-      return "Багцын үнэ";
-    } else if (type == CommandType.Service) {
-      return "Үйлчилгээний үнэ";
-    } else if (type == CommandType.Material) {
-      return "Бараа материалын үнэ"
-    } else if (type == CommandType.Coupon) {
-      return "Урамшуулал"
-    } else if (type == CommandType.Discount) {
-      return "Хөнгөлөлт"
-    } else 
-    return "Төрөл тодорхойгүй";
-  }
   useEffect(() => {
     getData(params);
   }, []);
@@ -194,7 +232,7 @@ const CommandList = (props: IProps) => {
                       columns,
                       onColumns: setColumns,
                       params,
-                      onParams: (params) => setParams(params),
+                      onParams: setParams,
                       getData,
                     })
                   }
@@ -232,30 +270,21 @@ const CommandList = (props: IProps) => {
               onParams={setParams}
               incomeFilters={filters}
               isEdit
-              isDelete
-              onEdit={(row) => editCommand(row.id)}
-              onDelete={(id) => onDelete(id)}
+              onEdit={(row) => editCommand(row)}
             />
           </div>
         </Col>
       </Row>
       <NewModal
-        title={getTitle()}
+        title="Бараа материал үнэ"
         width={1779}
         open={isOpenModal}
         footer={false}
         onCancel={() => setIsOpenModal(false)}
       >
-        <SavePrice
-          isSucess={(state) => {
-            setIsOpenModal(!state);
-          }}
-          type={type}
-          isEdit
-          selectedCommand={selectedCommand}
-        />
+        <SavePrice isEdit selectedCommand={selectedCommand} type={type} />
       </NewModal>
     </div>
   );
 };
-export default CommandList;
+export default DiscountList;

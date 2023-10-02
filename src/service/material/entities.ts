@@ -64,7 +64,6 @@ export interface IDataMaterial {
   price: IDataPrice;
 }
 export interface IFilterMaterial extends IFilter {
-  type?: MaterialType; // төрөл
   code?: string;
   materialId?: number;
   measurementId?: number;
@@ -87,7 +86,10 @@ export type FilteredColumnsMaterial = {
   [T in keyof IFilterMaterial]?: ColumnType;
 };
 
-export interface IParamMaterial extends Meta, IParam, IFilterMaterial {}
+export interface IParamMaterial extends Meta, IParam, IFilterMaterial {
+  types?: MaterialType[]; // төрөл
+  ids?: number[];
+}
 
 export interface IResponseMaterial extends GenericResponse {
   response: {

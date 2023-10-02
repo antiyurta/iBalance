@@ -116,7 +116,7 @@ const EditableTableService = (props: IProps) => {
     );
   }, [materials]);
   useEffect(() => {
-    getMaterials({ type: MaterialType.Service });
+    getMaterials({ types: [MaterialType.Service] });
   }, []);
   return (
     <>

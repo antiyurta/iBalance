@@ -20,6 +20,7 @@ import mnMN from "antd/es/calendar/locale/mn_MN";
 import EditableTableProduct from "./product-price/editableTable";
 import EditableTableService from "./service-price/editableTable";
 import EditableTablePackage from "./package-price/editableTable";
+import EditableTableDiscount from "./discount/editableTable";
 
 interface IProps {
   selectedCommand?: IDataCommand;
@@ -53,22 +54,32 @@ const SavePrice = (props: IProps) => {
     blockContext.block();
     values.type = type;
     if (isEdit && selectedCommand) {
-      await MaterialCommandService.patchPrice(selectedCommand.id, values).then(
-        (response) => {
-          success(response);
-          isSucess?.(true);
-        }
-      );
+      if (type == CommandType.Discount) {
+        
+      } else {
+        await MaterialCommandService.patchPrice(selectedCommand.id, values).then(
+          (response) => {
+            success('Үнэ', response);
+            isSucess?.(true);
+          }
+        );
+      }
     } else {
-      await MaterialCommandService.postPrice(values).then((response) => {
-        success(response);
-      });
+      if (type == CommandType.Discount) {
+        await MaterialCommandService.postDiscount(values).then((response) => {
+          success('Хөнгөлөлт', response);
+        });
+      } else {
+        await MaterialCommandService.postPrice(values).then((response) => {
+          success('Үнэ', response);
+        });
+      }
     }
     blockContext.unblock();
   };
-  const success = (response: IResponseOneCommand) => {
+  const success = (name: string, response: IResponseOneCommand) => {
     if (response.success) {
-      openNofi("success", "Амжилттай", "Үнэ амжилттай хадгаллаа.");
+      openNofi("success", "Амжилттай", `${name} амжилттай хадгаллаа.`);
       setIsReloadList(!isReloadList);
       form.resetFields();
     }
@@ -255,6 +266,20 @@ const SavePrice = (props: IProps) => {
                 } else if (type === CommandType.Package) {
                   return (
                     <EditableTablePackage
+                      data={items}
+                      form={form}
+                      add={add}
+                      remove={remove}
+                    />
+                  );
+                }
+              }}
+            </Form.List>
+            <Form.List name="discounts">
+              {(items, { add, remove }) => {
+                if (type === CommandType.Discount) {
+                  return (
+                    <EditableTableDiscount
                       data={items}
                       form={form}
                       add={add}

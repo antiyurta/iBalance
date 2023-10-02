@@ -9,7 +9,7 @@ import {
   message,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
@@ -17,6 +17,7 @@ import {
   DeleteOutlined,
   DownOutlined,
   UpOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import {
@@ -25,6 +26,8 @@ import {
   MaterialType,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import NewModal from "@/components/modal";
 const { Column } = Table;
 
 interface IProps {
@@ -36,13 +39,16 @@ interface IProps {
 
 const EditableTablePackage = (props: IProps) => {
   const { data, form, add, remove } = props;
-  const [materialDictionary, setMaterialDictionary] =
-    useState<Map<number, IDataMaterial>>();
+  const blockContext: BlockView = useContext(BlockContext);
   const [isNewService, setNewService] = useState<boolean>(false);
   const [materials, setMaterials] = useState<IDataMaterial[]>([]);
+  const [materialDictionary, setMaterialDictionary] =
+    useState<Map<number, IDataMaterial>>();
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
 
   const [editingIndex, setEditingIndex] = useState<number>();
+  const [isInfo, setIsInfo] = useState<boolean>(false);
+  const [infoMaterials, setInfoMaterials] = useState<IDataMaterial[]>([]);
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -111,6 +117,24 @@ const EditableTablePackage = (props: IProps) => {
       });
     }
   };
+  const showInfo = (index: number) => {
+    blockContext.block();
+    const materialId = form.getFieldValue(["prices", index, "materialId"]);
+    const material = materialDictionary?.get(materialId);
+    const materialIds = material?.packageMaterials.map(
+      (packageMaterial) => packageMaterial.materialId
+    );
+    MaterialService.get({ ids: materialIds })
+      .then((response) => {
+        if (response.success) {
+          setInfoMaterials(response.response.data);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+        setIsInfo(true);
+      });
+  };
   useEffect(() => {
     setMaterialDictionary(
       materials.reduce((dict, material) => {
@@ -120,7 +144,7 @@ const EditableTablePackage = (props: IProps) => {
     );
   }, [materials]);
   useEffect(() => {
-    getMaterials({ type: MaterialType.Package });
+    getMaterials({ types: [MaterialType.Package] });
   }, []);
   return (
     <>
@@ -128,11 +152,41 @@ const EditableTablePackage = (props: IProps) => {
         dataSource={data}
         expandable={{
           expandedRowRender: (render) => {
-            if (editingIndex === render.key) {
-              form.getFieldValue('materialId')
-              console.log('expandedRowRender', render);
+            const materialId = form.getFieldValue([
+              "prices",
+              render.key,
+              "materialId",
+            ]);
+            if (materialId) {
+              const material = materialDictionary?.get(materialId);
+              return (
+                <Table
+                  dataSource={material?.packageMaterials}
+                  columns={[
+                    {
+                      title: "Дотоод код",
+                      dataIndex: ["material", "code"],
+                      key: "materialCode",
+                    },
+                    {
+                      title: "Бараа/Үйлчилгээний нэр",
+                      dataIndex: ["material", "name"],
+                      key: "materialName",
+                    },
+                    {
+                      title: "Хэмжих нэгж",
+                      dataIndex: ["material", "measurement", "name"],
+                      key: "materialMeasurementName",
+                    },
+                    {
+                      title: "Нэгж үнэ",
+                      dataIndex: ["material", "price"],
+                      key: "materialPrice",
+                    },
+                  ]}
+                />
+              );
             }
-            return "миний контент";
           },
           expandIcon: ({ expanded, onExpand, record }) =>
             expanded ? (
@@ -307,7 +361,7 @@ const EditableTablePackage = (props: IProps) => {
         {/* Засах устгах хэсэг */}
         <Column
           title={" "}
-          width={110}
+          width={160}
           render={(value, row, index) => {
             if (index === editingIndex) {
               return (
@@ -336,6 +390,13 @@ const EditableTablePackage = (props: IProps) => {
             } else {
               return (
                 <Fragment>
+                  <Button
+                    type="primary"
+                    icon={<InfoCircleOutlined />}
+                    shape={"circle"}
+                    style={{ marginRight: 8 }}
+                    onClick={() => showInfo(index)}
+                  />
                   <Button
                     icon={<EditOutlined />}
                     shape={"circle"}
@@ -366,6 +427,49 @@ const EditableTablePackage = (props: IProps) => {
           }}
         />
       </Table>
+      <NewModal
+        title="Багц доторх материалууд"
+        width={600}
+        open={isInfo}
+        footer={[
+          <Button
+            key="cancel"
+            style={{
+              width: "20%",
+            }}
+            onClick={() => setIsInfo(false)}
+          >
+            Хаах
+          </Button>,
+        ]}
+        maskClosable={false}
+      >
+        <Table
+          dataSource={infoMaterials}
+          columns={[
+            {
+              title: "Дотоод код",
+              dataIndex: "code",
+              key: "code",
+            },
+            {
+              title: "Бараа/Үйлчилгээний нэр",
+              dataIndex: "name",
+              key: "name",
+            },
+            {
+              title: "Хэмжих нэгж",
+              dataIndex: ["measurement", "name"],
+              key: "measurementName",
+            },
+            {
+              title: "Нэгж үнэ",
+              dataIndex: ["price", "unitAmount"],
+              key: "price",
+            },
+          ]}
+        />
+      </NewModal>
     </>
   );
 };
