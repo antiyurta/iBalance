@@ -295,7 +295,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   useEffect(() => {
     getMaterialSection({});
-    getData({ page: 1, limit: 10, type: MaterialType.Service });
+    getData({ page: 1, limit: 10, types: [MaterialType.Service] });
   }, []);
   useEffect(() => {
     if (isOpenModal) {
@@ -400,7 +400,7 @@ const ServicesRegistration = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    materialSectionId: key,
+                    materialSectionId: [key],
                   });
                 }
               }}

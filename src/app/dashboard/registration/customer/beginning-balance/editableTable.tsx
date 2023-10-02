@@ -1,4 +1,5 @@
 import {
+  App,
   Button,
   Form,
   FormListFieldData,
@@ -26,7 +27,6 @@ import { IParamReferenceAccount } from "@/service/reference/account/entities";
 import { referenceAccountService } from "@/service/reference/account/service";
 import NewModal from "@/components/modal";
 import ReceivableAccount from "../receivable-account/receivableAccount";
-import { message } from "@/components/antV5apps";
 
 interface IProps {
   data: FormListFieldData[];
@@ -39,6 +39,7 @@ interface IProps {
 const { Column } = Table;
 
 function EditableTable(props: IProps) {
+  const { message } = App.useApp();
   const { data, form, editMode, add, remove } = props;
   const [accounts, setAccounts] = useState<IDataReferenceAccount[]>([]);
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);

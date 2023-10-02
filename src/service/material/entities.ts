@@ -22,6 +22,12 @@ export enum MaterialType {
   Package = "PACKAGE", // Багц
 }
 
+interface IDataPackageMaterial {
+  materialId: number;
+  material: any;
+  quantity: number;
+}
+
 export interface IDataMaterial {
   id: number;
   type: MaterialType; // төрөл
@@ -50,6 +56,7 @@ export interface IDataMaterial {
   updatedAt: string;
   materials: IDataMaterial[];
   balances: IDataBalance[];
+  packageMaterials: IDataPackageMaterial[];
   // TODO resourceSizes: ResourceSize[];
   prices: IDataPrice[];
   // TODO discounts: Discount[];

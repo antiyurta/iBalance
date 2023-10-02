@@ -1,5 +1,5 @@
 import React from "react";
-import { ConfigProvider, Dropdown, Table } from "antd";
+import { App, ConfigProvider, Dropdown, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
@@ -7,7 +7,6 @@ import { Meta, ColumnType, ComponentType } from "@/service/entities";
 import DropDown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
-import { modal } from "./antV5apps";
 
 const { Column } = Table;
 
@@ -40,6 +39,7 @@ interface ITable {
 }
 
 function NewTable(props: ITable) {
+  const { modal } = App.useApp();
   const {
     componentType,
     scroll,

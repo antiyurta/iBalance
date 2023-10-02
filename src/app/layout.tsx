@@ -9,7 +9,7 @@ import { store, persistor } from "@/feature/store/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Sidebar from "./layout/sidebar";
 import { Interceptor, api } from "@/feature/interceptor/interceptor";
-import { ConfigProvider, Spin, theme } from "antd";
+import { App, ConfigProvider, Spin, theme } from "antd";
 import mn_MN from "antd/locale/mn_MN";
 
 //
@@ -110,7 +110,7 @@ export default function RootLayout({
                 </Sider>
                 <Layout>
                   <Content>
-                    <main className="app-main">{children}</main>
+                    <App className="app-main">{children}</App>
                   </Content>
                 </Layout>
               </Layout>

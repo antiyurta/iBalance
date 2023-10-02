@@ -3,12 +3,19 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { CoreActions } from "@/feature/core/actions/CoreAction";
 import withAuth from "@/feature/hoc/withAuth";
 import { authService } from "@/service/authentication/service";
-import { notification } from "antd";
+import { Upload, notification } from "antd";
+import { CameraOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { useDispatch } from "react-redux";
+import {
+  AuthContext,
+  AuthContextProvider,
+  useAuthContext,
+} from "@/feature/context/AuthContext";
+import Header from "./header";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -33,47 +40,32 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
       });
   };
   return (
-    <div className="profile">
-      <div className="header">
-        <div className="top"></div>
-        <div className="bottom">
-          <Image
-            src={"/images/sidebar/famale.jpeg"}
-            width={180}
-            height={180}
-            loading="eager"
-            alt="profile"
-          />
-          <div className="info">
-            <div className="name">
-              <p>asdas</p>
-            </div>
-            <div className="position">
-              <p>asdas</p>
-            </div>
+    <AuthContextProvider>
+      <div className="profile">
+        <Header />
+        <div className="body">
+          <div className="menu">
+            <Link className="app-button" href={"/profile/general"}>
+              Ерөнхий мэдээлэл
+            </Link>
+            <Link className="app-button" href={"/profile/change-password"}>
+              Нууц үг солих
+            </Link>
+            <button className="app-button" onClick={() => onFinish()}>
+              Гарах
+            </button>
           </div>
+          <div
+            style={{
+              width: 2,
+              height: "100%",
+              background: " rgba(232, 234, 238, 0.40)",
+            }}
+          ></div>
+          <div className="content">{children}</div>
         </div>
       </div>
-      <div className="body">
-        <div className="menu">
-          <Link href={"/profile/general"}>Ерөнхий мэдээлэл</Link>
-          <button className="app-button">Ерөнхий мэдээлэл</button>
-          <button className="app-button">asdas</button>
-          <button className="app-button">asdas</button>
-          <button className="app-button" onClick={() => onFinish()}>
-            Гарах
-          </button>
-        </div>
-        <div
-          style={{
-            width: 2,
-            height: "100%",
-            background: " rgba(232, 234, 238, 0.40)",
-          }}
-        ></div>
-        <div className="content">{children}</div>
-      </div>
-    </div>
+    </AuthContextProvider>
   );
 };
 export default withAuth(ProfileLayout);

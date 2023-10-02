@@ -1,6 +1,6 @@
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
-import { Button, Form, FormInstance, Popconfirm, Table } from "antd";
+import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { FormListFieldData } from "antd/lib";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -12,7 +12,6 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { openNofi } from "@/feature/common";
-import { message } from "./antV5apps";
 
 interface IProps {
   type: IType;
@@ -29,6 +28,7 @@ interface IPropsTable {
 const { Column } = Table;
 
 const Reference = (props: IProps) => {
+  const { message } = App.useApp();
   const { type, onClickModal } = props;
   const [form] = Form.useForm();
   const getData = async () => {

@@ -5,6 +5,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import {
+  App,
   Button,
   DatePicker,
   Form,
@@ -14,7 +15,6 @@ import {
   Popconfirm,
   Switch,
   Table,
-  message,
 } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -38,6 +38,7 @@ interface IProps {
 const { Column } = Table;
 
 const EditableTableCard: React.FC<IProps> = (props) => {
+  const { message } = App.useApp();
   const { data, branchs, memberships, form, editMode, add, remove } = props;
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined

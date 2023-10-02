@@ -5,6 +5,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import {
+  App,
   Button,
   Form,
   FormInstance,
@@ -18,7 +19,6 @@ import Image from "next/image";
 import React, { useState } from "react";
 import "dayjs/locale/mn";
 import { IDataStorage } from "@/service/material/storage/entities";
-import { message } from "@/components/antV5apps";
 
 interface IProps {
   data: FormListFieldData[];
@@ -33,6 +33,7 @@ const { Column } = Table;
 const { Option } = Select;
 
 const EditableTableBalance: React.FC<IProps> = (props) => {
+  const { message } = App.useApp();
   const { data, storages, form, editMode, add, remove } = props;
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined

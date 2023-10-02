@@ -4,6 +4,7 @@ import NewDirectoryTree from "@/components/directoryTree";
 import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
+  App,
   Button,
   Col,
   Form,
@@ -27,7 +28,6 @@ import { ReferenceService } from "@/service/reference/reference";
 import { openNofi } from "@/feature/common";
 import type { UploadProps } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
-import { modal } from "@/components/antV5apps";
 
 const { Title } = Typography;
 
@@ -45,6 +45,7 @@ interface MyUploadFile extends UploadFile {
 }
 
 const InventoriesGroup = () => {
+  const { modal } = App.useApp();
   const [addForm] = Form.useForm();
   const {
     login_data: {

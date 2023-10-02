@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { SignalFilled, PlusOutlined } from "@ant-design/icons";
+import { SignalFilled } from "@ant-design/icons";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
@@ -16,14 +16,12 @@ import {
   Row,
   Space,
   Typography,
-  Upload,
 } from "antd";
 import {
   NewInput,
   NewInputNumber,
   NewSelect,
   NewSwitch,
-  NewTextArea,
 } from "@/components/input";
 import {
   findIndexInColumnSettings,
@@ -278,7 +276,7 @@ const PackageRegistration = (props: IProps) => {
   };
   useEffect(() => {
     getMaterialSection({});
-    getData({ page: 1, limit: 10, type: MaterialType.Package });
+    getData({ page: 1, limit: 10, types: [MaterialType.Package] });
   }, []);
   useEffect(() => {
     if (isOpenModal) {
@@ -383,7 +381,7 @@ const PackageRegistration = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    materialSectionId: key,
+                    materialSectionId: [key],
                   });
                 }
               }}

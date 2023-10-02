@@ -4,7 +4,7 @@ import {
   SaveOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Popconfirm, Table } from "antd";
+import { App, Button, Form, Popconfirm, Table } from "antd";
 import type { FormListFieldData } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -12,7 +12,6 @@ import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import { FormInstance } from "antd/lib";
 import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
-import { message } from "@/components/antV5apps";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
@@ -23,6 +22,7 @@ interface IProps {
 const { Column } = Table;
 
 function EditableTableMaterial(props: IProps) {
+  const { message } = App.useApp();
   const { data, form, add, remove } = props;
   const [materials, setMaterials] = useState<IDataMaterial[]>([]);
   const [isNewService, setNewService] = useState<boolean>(false);

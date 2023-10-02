@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext, useState } from "react";
-import { Button, Checkbox, Form, Input, notification } from "antd";
+import { Button, Form, App } from "antd";
 import Link from "next/link";
 import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -9,6 +9,7 @@ import { authService } from "@/service/authentication/service";
 import { useDispatch } from "react-redux";
 import { CoreActions } from "@/feature/core/actions/CoreAction";
 import { useRouter } from "next/navigation";
+import { NewCheckbox, NewInput, NewInputPassword } from "@/components/input";
 
 export interface ILoginData {
   email: string;
@@ -16,6 +17,7 @@ export interface ILoginData {
 }
 
 const Login = () => {
+  const { notification } = App.useApp();
   const dispatch = useDispatch();
   const router = useRouter();
   const [loginForm] = Form.useForm();
@@ -27,13 +29,15 @@ const Login = () => {
     await authService
       .authLogin(values)
       .then((response) => {
-        dispatch(CoreActions.setLoginData(response));
-        dispatch(CoreActions.setRememberMe(values.email));
-        dispatch(CoreActions.setLoggedIn(true));
-        notification.success({
-          message: "Амжилттай нэвтэрлээ",
-        });
-        setTimeout(() => router.push("/profile/general"), 1000);
+        if (response.success) {
+          dispatch(CoreActions.setLoginData(response));
+          dispatch(CoreActions.setRememberMe(values.email));
+          dispatch(CoreActions.setLoggedIn(true));
+          notification.success({
+            message: "Амжилттай нэвтэрлээ",
+          });
+          setTimeout(() => router.push("/profile/general"), 1000);
+        }
       })
       .finally(() => blockContext.unblock());
   };
@@ -54,11 +58,11 @@ const Login = () => {
             <div className="login-control">
               <label>И-мэйл</label>
               <Form.Item noStyle name="email">
-                <Input placeholder="example@gmail.com" />
+                <NewInput placeholder="example@gmail.com" />
               </Form.Item>
               <label>Нууц үг</label>
               <Form.Item noStyle name="password">
-                <Input.Password placeholder="********" />
+                <NewInputPassword placeholder="*********" />
               </Form.Item>
               <div
                 style={{
@@ -68,13 +72,12 @@ const Login = () => {
                 }}
               >
                 <div className="add-ons">
-                  {/* <Form.Item noStyle name="remember"></Form.Item> */}
-                  <Checkbox
+                  <NewCheckbox
                     checked={isRememberMe}
                     onChange={(e) => setIsRememberMe(e.target.checked)}
                   >
                     Намайг сана
-                  </Checkbox>
+                  </NewCheckbox>
                   <Link href="#">Нууц үг мартсан ?</Link>
                 </div>
                 <Form.Item noStyle>

@@ -35,9 +35,29 @@
       align-items: flex-end;
       gap: 40px;
       align-self: stretch;
-      img {
-        border-radius: 50%;
+      > .image {
+        position: relative;
+        img {
+          border-radius: 50%;
+          border: 8px solid $color-primary;
+        }
+        .upload {
+          position: absolute;
+          bottom: 5px;
+          right: 5px;
+          width: 40px;
+          height: 40px;
+          background: $color-primary;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &:hover {
+            cursor: pointer;
+          }
+        }
       }
+
       > .info {
         display: flex;
         flex-direction: column;
@@ -79,6 +99,11 @@
       flex-direction: column;
       gap: 24px;
       align-items: flex-start;
+      > a,
+      button {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
     > .content {
       width: 100%;

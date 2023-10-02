@@ -4,7 +4,7 @@ import {
   SaveOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Popconfirm, Space, Table } from "antd";
+import { App, Button, Form, Popconfirm, Space, Table } from "antd";
 import type { FormListFieldData } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -18,7 +18,6 @@ import {
   IParamReferenceAccount,
 } from "@/service/reference/account/entities";
 import { IDataLimitOfLoansAccount } from "@/service/limit-of-loans/account/entities";
-import { message } from "@/components/antV5apps";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
@@ -30,6 +29,7 @@ interface IProps {
 const { Column } = Table;
 
 function EditableTableLimit(props: IProps) {
+  const { message } = App.useApp();
   const { data, form, editMode, add, remove } = props;
   const [accounts, setAccounts] = useState<IDataReferenceAccount[]>([]);
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);

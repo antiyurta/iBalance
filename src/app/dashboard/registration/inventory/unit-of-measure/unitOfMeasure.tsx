@@ -220,7 +220,7 @@ const UnitOfMeasure = (props: IProps) => {
                 width={24}
                 height={24}
                 alt="uploadIcon"
-              />
+              /> 
               <Image
                 src={"/images/DownloadIcon.svg"}
                 width={24}

@@ -14,8 +14,11 @@ import {
 import type { DatePickerProps } from "antd/es/date-picker";
 import type { SelectProps } from "antd/es/select";
 import type { InputProps } from "antd/es/input";
+import type { PasswordProps } from "antd/es/input/Password";
 import type { InputNumberProps } from "antd/es/input-number";
 import type { TextAreaProps } from "antd/es/input/TextArea";
+import type { CheckboxProps } from "antd/es/checkbox/Checkbox";
+
 // shalguur
 const checkNumber = (event: any) => {
   var charCode = event.charCode;
@@ -64,6 +67,10 @@ function NewInput(props: InputProps) {
   return <Input {...props} />;
 }
 
+function NewInputPassword(props: PasswordProps) {
+  return <Input.Password {...props} />;
+}
+
 function NewInputNumber(props: InputNumberProps) {
   return (
     <InputNumber
@@ -98,7 +105,7 @@ function NewRadio(props: any) {
   return <Radio {...props} />;
 }
 
-function NewCheckbox(props: any) {
+function NewCheckbox(props: CheckboxProps) {
   return <Checkbox {...props} />;
 }
 
@@ -111,6 +118,7 @@ export {
   NewDatePicker,
   NewSelect,
   NewInput,
+  NewInputPassword,
   NewTextArea,
   NewSearch,
   NewSwitch,

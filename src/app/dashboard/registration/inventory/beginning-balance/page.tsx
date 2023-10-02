@@ -4,7 +4,6 @@ import {
   Button,
   Col,
   Form,
-  Input,
   InputNumber,
   Row,
   Space,
@@ -34,7 +33,7 @@ import {
   IParamsStorage,
 } from "@/service/material/storage/entities";
 import { StorageSerivce } from "@/service/material/storage/service";
-import { NewSelect } from "@/components/input";
+import { NewInput, NewSelect } from "@/components/input";
 import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
 import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
@@ -254,7 +253,7 @@ const BeginningBalancePage = () => {
                 </Space.Compact>
               </Form.Item>
               <Form.Item label="Бараа материалын нэр" name="name">
-                <Input disabled />
+                <NewInput disabled />
               </Form.Item>
               <Form.Item label="Хэмжих нэгж" name="measurementId">
                 <NewSelect

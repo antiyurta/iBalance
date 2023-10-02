@@ -1,7 +1,7 @@
 import { DataIndexType, DescMode } from "@/service/entities";
 import AntImage from "antd/es/image/index";
 import Image from "next/image";
-import { modal } from "./antV5apps";
+import { App } from "antd";
 
 interface IDescription {
   mode?: DescMode;
@@ -15,6 +15,7 @@ interface IDescription {
 }
 
 const Description = (props: IDescription) => {
+  const { modal } = App.useApp();
   const {
     mode,
     title,

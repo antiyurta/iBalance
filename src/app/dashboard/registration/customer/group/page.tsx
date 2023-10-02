@@ -8,18 +8,18 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import { Button, Col, Form, Popover, Row, Space, Typography } from "antd";
+import { App, Button, Col, Form, Popover, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import Information from "../information/information";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
-import { modal } from "@/components/antV5apps";
 
 const { Title } = Typography;
 
 const Group = () => {
+  const { modal } = App.useApp();
   const [addForm] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [editMode, setEditMode] = useState<boolean>(false);
