@@ -8,7 +8,6 @@ import {
   Col,
   Form,
   Input,
-  Modal,
   Popover,
   Row,
   Space,
@@ -28,6 +27,7 @@ import { ReferenceService } from "@/service/reference/reference";
 import { openNofi } from "@/feature/common";
 import type { UploadProps } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
+import { modal } from "@/components/antV5apps";
 
 const { Title } = Typography;
 
@@ -98,7 +98,7 @@ const InventoriesGroup = () => {
   };
   const onFinishAdd = (values: IDataMaterialSection) => {
     if (isLeafAdd) {
-      Modal.warning({
+      modal.warning({
         title: "Анхааруулга",
         content: (
           <div>

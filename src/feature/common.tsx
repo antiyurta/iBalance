@@ -436,68 +436,6 @@ const filterCascader = (inputValue: string, path: DefaultOptionType[]) => {
   );
 };
 
-const getConsumerByCode = async (code: number | string) => {
-  if (!code) {
-    message.error("Код заавал оруулж хайх");
-  } else {
-    return await ConsumerService.get({
-      queries: [
-        {
-          param: "code",
-          operator: "CONTAINS",
-          value: code.toString(),
-        },
-      ],
-      page: 1,
-      limit: 10,
-    }).then((response) => {
-      if (response.success) {
-        if (response.response.data.length === 0) {
-          message.warning("Хайсан утгаар дата алга");
-          return {
-            state: false,
-            data: [],
-          };
-        } else {
-          return {
-            state: true,
-            data: response.response.data,
-          };
-        }
-      }
-    });
-  }
-};
-
-const getReceivableAccountByCode = async (code: string) => {
-  if (!code) {
-    message.error("Код заавал оруулж хайх");
-  } else {
-    return await referenceAccountService
-      .get({
-        queries: [
-          {
-            param: "code",
-            operator: "CONTAINS",
-            value: code,
-          },
-        ],
-        page: 1,
-        limit: 10,
-      })
-      .then((response) => {
-        if (response.success) {
-          if (response.response.data.length === 0) {
-            message.warning("Хайсан утгаар дата алга");
-            return [];
-          } else {
-            return response.response.data;
-          }
-        }
-      });
-  }
-};
-
 const getFile = async (id: number) => {
   return await ReferenceService.getImage(id).then((response) => {
     const file = new Blob([response], { type: response.type });
@@ -507,8 +445,6 @@ const getFile = async (id: number) => {
 };
 
 export {
-  getConsumerByCode,
-  getReceivableAccountByCode,
   parseNumber,
   isChecked,
   renderCheck,

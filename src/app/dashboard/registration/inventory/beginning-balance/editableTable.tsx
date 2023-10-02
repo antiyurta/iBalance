@@ -13,12 +13,12 @@ import {
   Popconfirm,
   Select,
   Table,
-  message,
 } from "antd";
 import Image from "next/image";
 import React, { useState } from "react";
 import "dayjs/locale/mn";
 import { IDataStorage } from "@/service/material/storage/entities";
+import { message } from "@/components/antV5apps";
 
 interface IProps {
   data: FormListFieldData[];

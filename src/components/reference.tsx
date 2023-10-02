@@ -1,6 +1,6 @@
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
-import { Button, Form, FormInstance, Popconfirm, Table, message } from "antd";
+import { Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { FormListFieldData } from "antd/lib";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { openNofi } from "@/feature/common";
+import { message } from "./antV5apps";
 
 interface IProps {
   type: IType;

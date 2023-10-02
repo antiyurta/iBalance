@@ -1,5 +1,4 @@
 import { Modal } from "antd";
-import { ReactNode } from "react";
 import type { ModalProps } from "antd/es/modal";
 interface IProps extends ModalProps {
   positionTitle?: "left" | "center" | "right";

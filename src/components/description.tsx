@@ -1,7 +1,7 @@
 import { DataIndexType, DescMode } from "@/service/entities";
-import { Modal } from "antd";
 import AntImage from "antd/es/image/index";
 import Image from "next/image";
+import { modal } from "./antV5apps";
 
 interface IDescription {
   mode?: DescMode;
@@ -26,7 +26,7 @@ const Description = (props: IDescription) => {
     onCancel,
   } = props;
   const warning = () => {
-    Modal.error({
+    modal.error({
       title: "Устгах",
       content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
       maskClosable: true,

@@ -4,7 +4,7 @@ import {
   SaveOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Popconfirm, Table, message } from "antd";
+import { Button, Form, Popconfirm, Table } from "antd";
 import type { FormListFieldData } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import { FormInstance } from "antd/lib";
 import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
+import { message } from "@/components/antV5apps";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
@@ -271,7 +272,7 @@ function EditableTableMaterial(props: IProps) {
                   icon={<EditOutlined />}
                   shape={"circle"}
                   style={{ marginRight: 8 }}
-                  disabled={editingIndex ? true : false }
+                  disabled={editingIndex ? true : false}
                   onClick={() => setEditingIndex(index)}
                 />
                 <Popconfirm
