@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { App, ConfigProvider, Dropdown, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
@@ -36,6 +36,7 @@ interface ITable {
   onEdit?: (row: any) => void;
   isDelete?: boolean;
   onDelete?: (id: number) => void;
+  children?: ReactNode;
 }
 
 function NewTable(props: ITable) {
@@ -216,35 +217,38 @@ function NewTable(props: ITable) {
               );
             }
           })}
-          <Column
-            title=" "
-            dataIndex={"id"}
-            fixed="right"
-            width={40}
-            render={(text, row) => {
-              return (
-                <Dropdown
-                  menu={{
-                    items,
-                    onClick: ({ key }) => {
-                      if (key === "delete") {
-                        warning(text);
-                      } else if (key === "edit") {
-                        onEdit?.(row);
-                      }
-                    },
-                  }}
-                  trigger={["click"]}
-                >
-                  <MoreOutlined
-                    style={{
-                      fontSize: 22,
+          {props.children}
+          {isEdit || isDelete ? (
+            <Column
+              title=" "
+              dataIndex={"id"}
+              fixed="right"
+              width={40}
+              render={(text, row) => {
+                return (
+                  <Dropdown
+                    menu={{
+                      items,
+                      onClick: ({ key }) => {
+                        if (key === "delete") {
+                          warning(text);
+                        } else if (key === "edit") {
+                          onEdit?.(row);
+                        }
+                      },
                     }}
-                  />
-                </Dropdown>
-              );
-            }}
-          />
+                    trigger={["click"]}
+                  >
+                    <MoreOutlined
+                      style={{
+                        fontSize: 22,
+                      }}
+                    />
+                  </Dropdown>
+                );
+              }}
+            />
+          ) : null}
         </Table>
       </DragListView.DragColumn>
     </ConfigProvider>

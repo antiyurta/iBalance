@@ -16,6 +16,7 @@ import {
   useAuthContext,
 } from "@/feature/context/AuthContext";
 import Header from "./header";
+import { PathActions } from "@/feature/core/actions/PathAction";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -29,6 +30,12 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
         if (response.success) {
           setTimeout(() => router.push("/auth/login"), 1000);
           dispatch(CoreActions.setLoginData(Object.create({})));
+          dispatch(
+            PathActions.setPathData({
+              label: "",
+              path: [""],
+            })
+          );
           dispatch(CoreActions.setLoggedIn(false));
           notification.success({
             message: "Амжилттай гарлаа",

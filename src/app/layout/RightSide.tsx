@@ -9,6 +9,8 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   WindowsOutlined,
+  LockOutlined,
+  SnippetsOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { PathActions } from "@/feature/core/actions/PathAction";
@@ -66,7 +68,14 @@ const DashboardLayout = () => {
     ]),
     getItem("Төлбөр тооцоо", "/payments", <WindowsOutlined />, [
       getItem("Поссын борлуулалт", "/pos-sales"),
+      getItem("Баримтын жагсаалт", "/list-of-receipt"),
     ]),
+    getItem(
+      "Тайлан үеийн хаалт",
+      "/dashboard/current-period-close-off",
+      <LockOutlined />
+    ),
+    getItem("Тайлан", "/dashboard/reports", <SnippetsOutlined />),
   ];
   // fuctions
   const fillter = (array: any, key: string) => {

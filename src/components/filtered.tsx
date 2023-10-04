@@ -20,7 +20,7 @@ const Filtered = (props: IProps) => {
       }}
     >
       <Space size={[6, 6]} wrap>
-        {Object.entries(columns)?.map(([key, value]) => {
+        {Object?.entries(columns)?.map(([key, value]) => {
           if (value.isFiltered) {
             return (
               <Tag closable onClose={() => isActive(key, false)} key={key}>
