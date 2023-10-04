@@ -14,6 +14,7 @@ import { IDataBalance } from "./balance/entities";
 import { IDataBrand } from "../reference/brand/entities";
 import { IDataMaterialSection } from "./section/entities";
 import { IDataUnitOfMeasure } from "./unitOfMeasure/entities";
+import { IDataViewMaterial } from "./view-material/entities";
 
 // Материалын төрөл
 export enum MaterialType {
@@ -24,7 +25,7 @@ export enum MaterialType {
 
 interface IDataPackageMaterial {
   materialId: number;
-  material: any;
+  material: IDataMaterial;
   quantity: number;
 }
 
@@ -54,7 +55,7 @@ export interface IDataMaterial {
   isTax: boolean;
   createdAt: string;
   updatedAt: string;
-  materials: IDataMaterial[];
+  materials: IDataViewMaterial[]; // Багцад орох материалуудыг сетлэх
   balances: IDataBalance[];
   packageMaterials: IDataPackageMaterial[];
   // TODO resourceSizes: ResourceSize[];

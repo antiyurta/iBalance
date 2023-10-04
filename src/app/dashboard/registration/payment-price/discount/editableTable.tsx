@@ -9,15 +9,12 @@ import {
   message,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
-  DownOutlined,
-  UpOutlined,
-  InfoCircleOutlined,
 } from "@ant-design/icons";
 import {
   NewDatePicker,
@@ -25,14 +22,12 @@ import {
   NewInputNumber,
   NewSelect,
 } from "@/components/input";
+import { MaterialType } from "@/service/material/entities";
 import {
-  IDataMaterial,
-  IParamMaterial,
-  MaterialType,
-} from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import NewModal from "@/components/modal";
+  IDataViewMaterial,
+  IParamViewMaterial,
+} from "@/service/material/view-material/entities";
+import { ViewMaterialService } from "@/service/material/view-material/service";
 const { Column } = Table;
 
 interface IProps {
@@ -45,9 +40,9 @@ interface IProps {
 const EditableTableDiscount = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
-  const [materialDictionary, setMaterialDictionary] =
-    useState<Map<number, IDataMaterial>>();
+  const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
+  const [viewMaterialDictionary, setViewMaterialDictionary] =
+    useState<Map<number, IDataViewMaterial>>();
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
 
   const [editingIndex, setEditingIndex] = useState<number>();
@@ -97,37 +92,39 @@ const EditableTableDiscount = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
-  const getMaterials = async (params: IParamMaterial) => {
-    await MaterialService.get(params).then((response) => {
+  const getViewMaterials = async (params: IParamViewMaterial) => {
+    await ViewMaterialService.get(params).then((response) => {
       if (response.success) {
-        setMaterials(response.response.data);
+        setViewMaterials(response.response.data);
       }
     });
   };
   const materialFormField = (id: number) => {
-    const material = materialDictionary?.get(id);
+    const material = viewMaterialDictionary?.get(id);
     if (material) {
       form.setFieldsValue({
         ["discounts"]: {
           [`${editingIndex}`]: {
             name: material.name,
-            measurement: material.measurement?.name,
-            section: material.section?.name,
+            measurement: material.measurementName,
+            section: material.sectionName,
+            unitAmount: material.unitAmount,
           },
         },
       });
     }
   };
   useEffect(() => {
-    setMaterialDictionary(
-      materials.reduce((dict, material) => {
+    setViewMaterialDictionary(
+      viewMaterials.reduce((dict, material) => {
         dict.set(material.id, material);
         return dict;
-      }, new Map<number, IDataMaterial>())
+      }, new Map<number, IDataViewMaterial>())
     );
-  }, [materials]);
+  }, [viewMaterials]);
+
   useEffect(() => {
-    getMaterials({ types: [MaterialType.Material, MaterialType.Service] });
+    getViewMaterials({ types: [MaterialType.Material, MaterialType.Service] });
   }, []);
   return (
     <Table
@@ -209,7 +206,7 @@ const EditableTableDiscount = (props: IProps) => {
                       ["prices", index, "section"],
                     ]);
                   }}
-                  options={materials?.map((material) => ({
+                  options={viewMaterials?.map((material) => ({
                     value: material.id,
                     label: material.code,
                   }))}
