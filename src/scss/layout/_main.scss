@@ -362,7 +362,6 @@ body {
     }
   }
 }
-
 .ant-tabs.ant-tabs-top.lineTop {
   .ant-tabs-tab {
     // font-family: "Ubuntu";
@@ -380,6 +379,11 @@ body {
     .ant-tabs-tab-btn {
       color: black;
     }
+  }
+  .ant-tabs-tab.ant-tabs-tab-active {
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    // border-top: 2px solid $color-primary !important;
   }
   .ant-tabs-ink-bar.ant-tabs-ink-bar-animated {
     background: $color-primary;
@@ -1000,6 +1004,10 @@ html {
 
 //*multi date picker
 
+.rmdp-container {
+  display: block !important;
+}
+
 button.rmdp-arrow-container {
   &:hover {
     background: $color-primary;
@@ -1041,6 +1049,41 @@ i.rmdp-arrow {
   border-width: 0 2px 2px 0;
   &:hover {
     background: $color-primary;
+  }
+}
+
+.report-document {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1 0 0;
+  align-self: stretch;
+  .report-filter {
+    display: flex;
+    width: 170px;
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    background: #fff;
+  }
+  .report-body {
+    width: 100%;
+    padding: 12px;
+    background-color: white;
+    table.report {
+      th,
+      td {
+        font-size: 9px;
+        border: 1px solid gray;
+        padding: 8px;
+      }
+      th {
+        background: #d9d9d9;
+      }
+    }
   }
 }
 

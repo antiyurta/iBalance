@@ -1,22 +1,15 @@
 "use client";
 import "antd/dist/reset.css";
 import "../app/globals.scss";
-import React, { useState } from "react";
+import React from "react";
 import { Ubuntu } from "next/font/google";
 import { AppBlock } from "@/feature/context/BlockContext";
 import { Provider } from "react-redux";
 import { store, persistor } from "@/feature/store/store";
 import { PersistGate } from "redux-persist/integration/react";
-import Sidebar from "./layout/sidebar";
 import { Interceptor, api } from "@/feature/interceptor/interceptor";
 import { App, ConfigProvider, Spin, theme } from "antd";
 import mn_MN from "antd/locale/mn_MN";
-
-//
-import { Layout } from "antd";
-import { Metadata } from "next";
-const { Sider, Content } = Layout;
-//
 
 const ubuntu = Ubuntu({
   weight: ["400", "500", "700"],
@@ -27,17 +20,11 @@ const ubuntu = Ubuntu({
 
 Interceptor(api, store);
 
-export const metadata: Metadata = {
-  title: "iBalance",
-  description: "iBalance",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isView, setIsView] = useState<boolean>(false);
   return (
     <html lang="en">
       <body className={ubuntu.className}>
@@ -99,21 +86,7 @@ export default function RootLayout({
               }}
             >
               <AppBlock />
-              <Layout>
-                <Sider
-                  style={{
-                    display: isView ? "block" : "none",
-                  }}
-                  theme="light"
-                >
-                  <Sidebar isView={(state) => setIsView(state)} />
-                </Sider>
-                <Layout>
-                  <Content>
-                    <App className="app-main">{children}</App>
-                  </Content>
-                </Layout>
-              </Layout>
+              <App className="app-main">{children}</App>
             </ConfigProvider>
           </PersistGate>
         </Provider>

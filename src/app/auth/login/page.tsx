@@ -36,7 +36,7 @@ const Login = () => {
           notification.success({
             message: "Амжилттай нэвтэрлээ",
           });
-          setTimeout(() => router.push("/profile/general"), 1000);
+          setTimeout(() => router.push("/main/profile/general"), 1000);
         }
       })
       .finally(() => blockContext.unblock());
@@ -56,11 +56,14 @@ const Login = () => {
             }}
           >
             <div className="login-control">
-              <label>И-мэйл</label>
+              <label htmlFor="email">И-мэйл</label>
               <Form.Item noStyle name="email">
-                <NewInput placeholder="example@gmail.com" />
+                <NewInput
+                  placeholder="example@gmail.com"
+                  autoComplete="email"
+                />
               </Form.Item>
-              <label>Нууц үг</label>
+              <label htmlFor="password">Нууц үг</label>
               <Form.Item noStyle name="password">
                 <NewInputPassword placeholder="*********" />
               </Form.Item>
@@ -73,6 +76,7 @@ const Login = () => {
               >
                 <div className="add-ons">
                   <NewCheckbox
+                    name="remember_me"
                     checked={isRememberMe}
                     onChange={(e) => setIsRememberMe(e.target.checked)}
                   >

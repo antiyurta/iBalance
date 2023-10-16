@@ -11,13 +11,15 @@ import {
   Select,
   Switch,
 } from "antd";
-import type { DatePickerProps } from "antd/es/date-picker";
+import type { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import type { SelectProps } from "antd/es/select";
 import type { InputProps } from "antd/es/input";
 import type { PasswordProps } from "antd/es/input/Password";
 import type { InputNumberProps } from "antd/es/input-number";
 import type { TextAreaProps } from "antd/es/input/TextArea";
 import type { CheckboxProps } from "antd/es/checkbox/Checkbox";
+
+const { RangePicker } = DatePicker;
 
 // shalguur
 const checkNumber = (event: any) => {
@@ -43,6 +45,10 @@ function NewAvatar(props: IAvatar) {
 
 function NewDatePicker(props: DatePickerProps) {
   return <DatePicker {...props} />;
+}
+
+function NewRangePicker(props: RangePickerProps) {
+  return <RangePicker {...props} />;
 }
 
 function NewSelect(props: SelectProps) {
@@ -116,6 +122,7 @@ function NewCheckboxGroup(props: any) {
 export {
   NewAvatar,
   NewDatePicker,
+  NewRangePicker,
   NewSelect,
   NewInput,
   NewInputPassword,

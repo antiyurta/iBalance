@@ -7,8 +7,12 @@ import { Meta, ColumnType, ComponentType } from "@/service/entities";
 import DropDown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
+import type { TableProps } from "antd/lib";
 
-const { Column } = Table;
+export const { Column } = Table;
+export const AntTable = (props: TableProps<any>) => {
+  return <Table {...props} />;
+};
 
 type columns = {
   [T in keyof any]: ColumnType;

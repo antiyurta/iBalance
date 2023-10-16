@@ -149,3 +149,14 @@ export interface IDataFile {
   path: string;
   mimetype: string;
 }
+//**report uud */
+export interface IFiltersReport {
+  RStorage1: string;
+}
+
+export type FilterType = {
+  interval: string;
+  date?: string;
+};
+
+export type FilteredReport = { [T in keyof IFiltersReport]?: FilterType };

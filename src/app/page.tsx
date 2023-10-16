@@ -2,13 +2,18 @@
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useRouter } from "next/navigation";
 
-const HomePage = () => {
+import { useEffect } from "react";
+
+const Page = () => {
   const router = useRouter();
   const { isLoggedIn } = useTypedSelector((state: RootState) => state.core);
-  if (isLoggedIn) {
-    router.push("/profile/general");
-  } else {
-    router.push("/auth/login");
-  }
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push("/main/profile/general");
+    } else {
+      router.push("/auth/login");
+    }
+  }, [isLoggedIn]);
+  return <p>Redirecting...</p>;
 };
-export default HomePage;
+export default Page;

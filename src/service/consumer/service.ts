@@ -5,7 +5,7 @@ import {
   IParamConsumer,
   IConsumerResponseUpdate,
 } from "./entities";
-function get(params: IParamConsumer): Promise<IResponseConsumer> {
+function get(params?: IParamConsumer): Promise<IResponseConsumer> {
   return api.get("consumer", { params: params });
 }
 function post(body: IDataConsumer): Promise<IResponseConsumer> {

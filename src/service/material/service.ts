@@ -7,7 +7,7 @@ import {
   IResponseOneMaterial,
 } from "./entities";
 
-function get(params: IParamMaterial): Promise<IResponseMaterial> {
+function get(params?: IParamMaterial): Promise<IResponseMaterial> {
   return api.get("material", { params });
 }
 

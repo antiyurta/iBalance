@@ -53,14 +53,14 @@ export const Interceptor = (api: AxiosInstance, store: any) => {
                 api.request(error.config).then(resolve).catch(reject);
               }
             })
-            .catch(() => {
+            .catch((error) => {
+              console.log(error);
               store.dispatch(CoreActions.setLoggedIn(false));
               reject;
             })
             .finally(() => (isRetry = false));
         });
       }
-      console.log(response);
       const message =
         (response?.data?.message instanceof Array
           ? response?.data?.message[0]

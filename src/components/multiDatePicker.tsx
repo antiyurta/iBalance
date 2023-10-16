@@ -12,9 +12,10 @@ export const NewMultipleDatePicker = (
     <DatePicker
       style={{
         height: 36,
+        width: "100%",
       }}
       {...props}
-      render={<NewInput suffix={<CalendarOutlined />} />}
+      highlightToday={false}
       weekDays={["Ня", "Да", "Мя", "Лх", "Пү", "Ба", "Бя"]}
       months={[
         "1 сар",
