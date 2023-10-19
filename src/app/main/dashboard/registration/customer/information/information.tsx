@@ -52,6 +52,7 @@ import {
   unDuplicate,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
+import Export from "@/components/Export";
 
 const { Title } = Typography;
 
@@ -383,7 +384,7 @@ const Information = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>Үндсэн бүртгэл / Харилцагч / Бүртгэл</Title>
+                <Title level={3}>Үндсэн бүртгэл / Харилцагч / Бүртгэл</Title>
                 <Button
                   type="primary"
                   onClick={() => openModal(false)}
@@ -585,11 +586,85 @@ const Information = (props: IProps) => {
                       height={24}
                       alt="printIcon"
                     />
-                    <Image
-                      src={"/images/UploadIcon.svg"}
-                      width={24}
-                      height={24}
-                      alt="uploadIcon"
+                    <Export
+                      pdfConfig={{
+                        orientation: "l",
+                        unit: "px",
+                        format: "A4",
+                      }}
+                      userOptions={{
+                        columns: [
+                          {
+                            header: "Харилцагч код",
+                            dataKey: "code",
+                          },
+                          {
+                            header: "Хувь хүн эсэх",
+                            dataKey: "isIndividual",
+                          },
+                          {
+                            header: "Ажилтан эсэх",
+                            dataKey: "isEmployee",
+                          },
+                          {
+                            header: "Харилцагчийн овог",
+                            dataKey: "lastName",
+                          },
+                          {
+                            header: "Харилцагчийн нэр",
+                            dataKey: "name",
+                          },
+                          {
+                            header: "Харилцагчийн бүлэг",
+                            dataKey: "sectionName",
+                          },
+                          {
+                            header: "Регистр №",
+                            dataKey: "regno",
+                          },
+                          {
+                            header: "Төлөв",
+                            dataKey: "isActive",
+                          },
+                          {
+                            header: "Утасны дугаар",
+                            dataKey: "phone",
+                          },
+                          {
+                            header: "Банкны нэр",
+                            dataKey: "bankName",
+                          },
+                          {
+                            header: "Дансны дугаар",
+                            dataKey: "bankAccountNo",
+                          },
+                          {
+                            header: "И-мэйл хаяг",
+                            dataKey: "email",
+                          },
+                          {
+                            header: "Хаяг",
+                            dataKey: "address",
+                          },
+                        ],
+                        body: data?.map((item) => ({
+                          code: item.code,
+                          isIndividual: item.isIndividual ? "Тийм" : "Үгүй",
+                          isEmployee: item.isEmployee ? "Тийм" : "Үгүй",
+                          lastName: item.lastName,
+                          name: item.name,
+                          sectionName: item.section.name,
+                          regno: item.regno,
+                          isActive: item.isActive ? "Идэвхтэй" : "Идэвхгүй",
+                          phone: item.phone,
+                          bankName: item.bank?.name,
+                          bankAccountNo: item.bankAccountNo,
+                          email: item.email,
+                          address: item.address,
+                        })),
+                      }}
+                      columnLength={10}
+                      docName="Үндсэн бүртгэл / Харилцагч / Бүртгэл"
                     />
                     <Image
                       src={"/images/DownloadIcon.svg"}

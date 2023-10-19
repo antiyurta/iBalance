@@ -5,11 +5,11 @@ import { Tabs, TabsProps } from "antd";
 import { useRouter } from "next/navigation";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
-import { PathActions } from "@/feature/core/actions/PathAction";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 //components
 import { NewAvatar, NewDatePicker, NewSelect } from "@/components/input";
 import Sidebar from "./Sidebar";
+import { TabsActions } from "@/feature/core/actions/TabsActions";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -18,17 +18,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const title = useTypedSelector((state: RootState) => state.title);
   const blockContext: BlockView = useContext(BlockContext);
-  const { label, path } = useTypedSelector(
-    (state: RootState) => state.currentPath
+  const { activeKey, tabItems } = useTypedSelector(
+    (state: RootState) => state.tabs
   );
-  const [activeKey, setActiveKey] = useState<string>("/main/dashboard");
-  const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([
-    {
-      key: "/main/dashboard",
-      label: "Хянах самбар",
-      closable: false,
-    },
-  ]);
+  const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([]);
   const remove = (targetKey: TargetKey) => {
     blockContext.block();
     let newActiveKey = activeKey;
@@ -42,24 +35,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     if (newPanes?.length && newActiveKey === targetKey) {
       if (lastIndex >= 0) {
         newActiveKey = newPanes[lastIndex].key;
-        dispatch(
-          PathActions.setPathData({
-            label: newPanes[lastIndex].label,
-            path: newActiveKey.split(","),
-          })
-        );
       } else {
         newActiveKey = newPanes[0].key;
-        dispatch(
-          PathActions.setPathData({
-            label: newPanes[0].label,
-            path: newActiveKey.split(","),
-          })
-        );
       }
     }
-    setTabsItems(newPanes);
-    setActiveKey(newActiveKey);
+    dispatch(TabsActions.removeTab(newPanes || []));
+    dispatch(TabsActions.setTabActiveKey(newActiveKey));
     blockContext.unblock();
   };
   const onEdit = (targetKey: TargetKey, action: "add" | "remove") => {
@@ -68,49 +49,18 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   };
   const onChange = (key: string) => {
-    const selectedMenuKeys: string[] = key.split(",");
-    if (selectedMenuKeys.length === 0) {
-      dispatch(
-        PathActions.setPathData({
-          label: "Хянах самбар",
-          path: ["/main/dashboard"],
-        })
-      );
-    } else {
-      dispatch(
-        PathActions.setPathData({
-          label: tabsItems?.find((e) => e.key === key)?.label?.toString(),
-          path: key.split(","),
-        })
-      );
-    }
+    dispatch(TabsActions.setTabActiveKey(key));
   };
   useEffect(() => {
-    blockContext.block();
-    if (!tabsItems?.find((item) => item.key === path.toString())) {
-      setTabsItems((tabsItems: TabsProps["items"]) => {
-        if (tabsItems != undefined) {
-          return [
-            ...tabsItems,
-            {
-              key: path.toString(),
-              label: label,
-            },
-          ];
-        }
-      });
-    }
-    if (path.length > 1) {
-      router.push("/main/dashboard" + path.join(""));
+    setTabsItems(tabItems);
+  }, [tabItems]);
+  useEffect(() => {
+    if (!activeKey.includes("/main/")) {
+      router.push("/main/dashboard" + activeKey);
     } else {
-      router.push(path.join(""));
+      router.push(activeKey);
     }
-    setTimeout(() => {
-      setActiveKey(path.toString());
-    }, 100);
-    blockContext.unblock();
-  }, [path]);
-
+  }, [activeKey]);
   return (
     <div
       style={{

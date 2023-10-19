@@ -9,7 +9,6 @@ import { useContext } from "react";
 import { useDispatch } from "react-redux";
 import { AuthContextProvider } from "@/feature/context/AuthContext";
 import Header from "./header";
-import { PathActions } from "@/feature/core/actions/PathAction";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
@@ -22,12 +21,6 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
       .then((response) => {
         if (response.success) {
           dispatch(CoreActions.setLoginData(Object.create({})));
-          dispatch(
-            PathActions.setPathData({
-              label: "asdasdsad",
-              path: ["/main/dashboard"],
-            })
-          );
           dispatch(CoreActions.setLoggedIn(false));
           notification.success({
             message: "Амжилттай гарлаа",

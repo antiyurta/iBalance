@@ -13,9 +13,10 @@ import {
   SnippetsOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { PathActions } from "@/feature/core/actions/PathAction";
+// import { PathActions } from "@/feature/core/actions/PathAction";
 import { TitleActions } from "@/feature/core/actions/TitleAction";
 import { useState } from "react";
+import { TabsActions } from "@/feature/core/actions/TabsActions";
 
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
@@ -109,9 +110,9 @@ const Sidebar = () => {
         clonedMenuItems = data.children;
       } else {
         dispatch(
-          PathActions.setPathData({
+          TabsActions.setTabsData({
             label: data.label,
-            path: keyPath,
+            key: keyPath.toString().replaceAll(",", ""),
           })
         );
       }
@@ -144,6 +145,9 @@ const Sidebar = () => {
         style={{
           background: "transparent",
           border: "none",
+          overflow: "auto",
+          height: 570,
+          minWidth: collapsed ? "" : 240,
         }}
         onClick={(e) => menuClick(e.keyPath)}
         mode={"inline"}

@@ -1126,3 +1126,9 @@ i.rmdp-arrow {
     }
   }
 }
+
+.export img {
+  &:hover {
+    cursor: pointer;
+  }
+}

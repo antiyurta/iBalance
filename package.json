@@ -19,6 +19,8 @@
     "dayjs": "^1.11.9",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.7.0",
     "jwt-decode": "^3.1.2",
     "next": "^13.5.4",
     "next-redux-wrapper": "^8.1.0",

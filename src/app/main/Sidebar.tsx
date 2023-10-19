@@ -59,7 +59,7 @@ const Sidebar = () => {
           setSelectedMenu(item.id);
         }
       });
-      if (pathname === "/profile/general") {
+      if (pathname.includes("/main/profile/general")) {
         setSelectedMenu(7);
       }
     }
@@ -81,7 +81,6 @@ const Sidebar = () => {
                 key={index}
                 href={item.to}
                 className={selectedMenu === item.id ? "active" : ""}
-                onClick={() => setSelectedMenu(item.id)}
               >
                 <div className="content">
                   <span
@@ -105,7 +104,6 @@ const Sidebar = () => {
                 key={index}
                 href={item.to}
                 className={selectedMenu === item.id ? "active" : ""}
-                onClick={() => setSelectedMenu(item.id)}
               >
                 <div className="content">
                   <span
@@ -122,7 +120,6 @@ const Sidebar = () => {
           <Link
             href={"/main/profile/general"}
             className={selectedMenu === 7 ? "active" : ""}
-            onClick={() => setSelectedMenu(7)}
           >
             <div className="content-profile">
               <span
