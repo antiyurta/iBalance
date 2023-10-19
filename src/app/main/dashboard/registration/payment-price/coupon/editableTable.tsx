@@ -1,9 +1,14 @@
 import Image from "next/image";
 import {
   Button,
+  Checkbox,
+  Col,
   Form,
   FormInstance,
+  Modal,
   Popconfirm,
+  Row,
+  Select,
   Space,
   Table,
   message,
@@ -37,14 +42,13 @@ interface IProps {
   remove: (index: number) => void;
 }
 
-const EditableTableDiscount = (props: IProps) => {
+const EditableTableCoupon = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
   const [viewMaterialDictionary, setViewMaterialDictionary] =
     useState<Map<number, IDataViewMaterial>>();
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
-
   const [editingIndex, setEditingIndex] = useState<number>();
   const addService = () => {
     onSave().then((state) => {
@@ -103,7 +107,7 @@ const EditableTableDiscount = (props: IProps) => {
     const material = viewMaterialDictionary?.get(id);
     if (material) {
       form.setFieldsValue({
-        ["discounts"]: {
+        ["coupons"]: {
           [`${editingIndex}`]: {
             name: material.name,
             measurement: material.measurementName,
@@ -200,10 +204,10 @@ const EditableTableDiscount = (props: IProps) => {
                   disabled={!(index === editingIndex)}
                   onClear={() => {
                     form.resetFields([
-                      ["discounts", index, "name"],
-                      ["discounts", index, "measurement"],
-                      ["discounts", index, "countPackage"],
-                      ["discounts", index, "section"],
+                      ["coupons", index, "name"],
+                      ["coupons", index, "measurement"],
+                      ["coupons", index, "countPackage"],
+                      ["coupons", index, "section"],
                     ]);
                   }}
                   options={viewMaterials?.map((material) => ({
@@ -236,6 +240,15 @@ const EditableTableDiscount = (props: IProps) => {
         )}
       />
       <Column
+        dataIndex={"sectionName"}
+        title="Бараа үйлчилгээний бүлэг"
+        render={(value, row, index) => (
+          <Form.Item name={[index, "measurement"]}>
+            <NewInput disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
         dataIndex={"measurement"}
         title="Хэмжих нэгж"
         render={(value, row, index) => (
@@ -262,7 +275,7 @@ const EditableTableDiscount = (props: IProps) => {
       />
       <Column
         dataIndex={"endAt"}
-        title="Хөнгөлөлт дуусах огноо"
+        title="Урамшуулал дуусах огноо"
         render={(value, row, index) => (
           <Form.Item
             name={[index, "endAt"]}
@@ -278,29 +291,52 @@ const EditableTableDiscount = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"percent"}
-        title="Хөнгөлөлтийн хувь"
+        dataIndex={"condition"}
+        title="Урамшуулал авах нөхцөл"
         render={(value, row, index) => (
-          <Form.Item name={[index, "percent"]}>
+          <Row>
+            <Col span={12}>
+              <Form.Item name={[index, "condition"]}>
+                <Select
+                  disabled={!(index === editingIndex)}
+                  options={[
+                    { value: "EQUALS", label: "=" },
+                    { value: "IS_GREATER", label: ">" },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name={[index, "conditionValue"]}>
+                <NewInputNumber
+                  disabled={!(index === editingIndex)}
+                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
+      />
+      <Column
+        dataIndex={"quantity"}
+        title="Урамшуулалын тоо"
+        render={(value, row, index) => (
+          <Form.Item name={[index, "quantity"]}>
             <NewInputNumber
               disabled={!(index === editingIndex)}
-              prefix={"₮"}
-              formatter={(value: any) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
               parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
             />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"amount"}
-        title="Хөнгөлөлт хассан /Хямдарсан/ үнэ"
+        dataIndex={"percent"}
+        title="Урамшуулалын хувь"
         render={(value, row, index) => (
-          <Form.Item name={[index, "amount"]}>
+          <Form.Item name={[index, "percent"]}>
             <NewInputNumber
               disabled={!(index === editingIndex)}
-              prefix={"%"}
+              suffix={"%"}
               parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
             />
           </Form.Item>
@@ -370,4 +406,4 @@ const EditableTableDiscount = (props: IProps) => {
     </Table>
   );
 };
-export default EditableTableDiscount;
+export default EditableTableCoupon;

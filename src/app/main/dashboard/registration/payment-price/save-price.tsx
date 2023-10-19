@@ -21,6 +21,7 @@ import EditableTableProduct from "./product-price/editableTable";
 import EditableTableService from "./service-price/editableTable";
 import EditableTablePackage from "./package-price/editableTable";
 import EditableTableDiscount from "./discount/editableTable";
+import EditableTableCoupon from "./coupon/editableTable";
 
 interface IProps {
   selectedCommand?: IDataCommand;
@@ -68,14 +69,17 @@ const SavePrice = (props: IProps) => {
       if (type == CommandType.Discount) {
         await MaterialCommandService.postDiscount(values).then((response) => {
           success("Хөнгөлөлт", response);
-        });
+        }).finally(() => blockContext.unblock());
+      } else if (type == CommandType.Coupon) {
+        await MaterialCommandService.postCoupon(values).then((response) => {
+          success("Урамшуулал", response);
+        }).finally(() => blockContext.unblock());;
       } else {
         await MaterialCommandService.postPrice(values).then((response) => {
           success("Үнэ", response);
-        });
+        }).finally(() => blockContext.unblock());;
       }
     }
-    blockContext.unblock();
   };
   const success = (name: string, response: IResponseOneCommand) => {
     if (response.success) {
@@ -280,6 +284,20 @@ const SavePrice = (props: IProps) => {
                 if (type === CommandType.Discount) {
                   return (
                     <EditableTableDiscount
+                      data={items}
+                      form={form}
+                      add={add}
+                      remove={remove}
+                    />
+                  );
+                }
+              }}
+            </Form.List>
+            <Form.List name="coupons">
+              {(items, { add, remove }) => {
+                if (type === CommandType.Coupon) {
+                  return (
+                    <EditableTableCoupon
                       data={items}
                       form={form}
                       add={add}

@@ -8,7 +8,16 @@ export enum ToolsIcons {
   IS_LESS = "/icons/tools/isLessThan.png",
   IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
 }
-
+export enum Operator {
+  Equals = 'EQUALS',
+  NotEqual = 'NOT_EQUAL',
+  Contains = 'CONTAINS',
+  NotContains = 'NOT_CONTAINS',
+  IsGreater = 'IS_GREATER',
+  IsGreatorOrEqual = 'IS_GREATOR_OR_EQUAL',
+  IsLess = 'IS_LESS',
+  IsLessOrEqual = 'IS_LESS_OR_EQUAL',
+}
 export interface GenericResponse {
   success: boolean;
   message: string;
