@@ -9,6 +9,7 @@ import { useContext } from "react";
 import { useDispatch } from "react-redux";
 import { AuthContextProvider } from "@/feature/context/AuthContext";
 import Header from "./header";
+import { TabsActions } from "@/feature/core/actions/TabsActions";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
         if (response.success) {
           dispatch(CoreActions.setLoginData(Object.create({})));
           dispatch(CoreActions.setLoggedIn(false));
+          dispatch(TabsActions.setDefaultTab());
           notification.success({
             message: "Амжилттай гарлаа",
           });

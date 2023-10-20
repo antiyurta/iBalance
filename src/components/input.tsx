@@ -17,6 +17,7 @@ import type { InputProps } from "antd/es/input";
 import type { PasswordProps } from "antd/es/input/Password";
 import type { InputNumberProps } from "antd/es/input-number";
 import type { TextAreaProps } from "antd/es/input/TextArea";
+import type { SearchProps } from "antd/es/input/Search";
 import type { CheckboxProps } from "antd/es/checkbox/Checkbox";
 
 const { RangePicker } = DatePicker;
@@ -96,7 +97,7 @@ function NewTextArea(props: TextAreaProps) {
   return <TextArea {...props} />;
 }
 
-function NewSearch(props: any) {
+function NewSearch(props: SearchProps) {
   return <Search {...props}>{props.children}</Search>;
 }
 function NewSwitch(props: any) {

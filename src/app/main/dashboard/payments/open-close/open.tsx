@@ -1,4 +1,4 @@
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
+import { NewDatePicker, NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import { Button, Col, Form, Row, Space } from "antd";
 import dayjs from "dayjs";
@@ -10,6 +10,7 @@ import { IDataPosOpener } from "@/service/pos/opener/entities";
 import { OpenerService } from "@/service/pos/opener/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { useRouter } from "next/navigation";
+import { NumericFormat } from "react-number-format";
 
 const OpenState = () => {
   const [form] = Form.useForm();
@@ -121,17 +122,12 @@ const OpenState = () => {
                   }}
                 >
                   <Form.Item name="amount">
-                    <NewInputNumber
-                      style={{
-                        alignItems: "center",
-                        width: "100%",
-                        height: 39,
-                      }}
-                      prefix="₮"
-                      formatter={(value: any) =>
-                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      }
-                      parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                    <NumericFormat
+                      thousandSeparator=","
+                      decimalScale={2}
+                      fixedDecimalScale
+                      displayType="input"
+                      customInput={NewInput}
                     />
                   </Form.Item>
                   <Button onClick={() => setIsOpenMoneyListModal(true)}>

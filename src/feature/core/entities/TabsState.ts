@@ -12,6 +12,7 @@ export interface TabState {
 }
 
 export enum TabActionType {
+  SET_DEFAULT = "SET_DEFAULT",
   SET_DATA = "SET_DATA",
   SET_ACTIVE_KEY = "SET_ACTIVE_KEY",
   REMOVE_DATA = "REMOVE_DATA",

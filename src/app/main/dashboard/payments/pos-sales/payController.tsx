@@ -1,10 +1,7 @@
-import Image from "next/image";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   PlusCircleOutlined,
   CreditCardOutlined,
-  SwapOutlined,
-  CloseOutlined,
   FileTextOutlined,
   LeftOutlined,
   BellOutlined,
@@ -12,18 +9,51 @@ import {
 import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import Item from "./component/Item";
-import { Badge, Button, Form, Table, Typography } from "antd";
+import { Badge, Button, Form, Typography } from "antd";
 import StepIndex from "./steps/StepIndex";
 import OpenClose from "../open-close/openClose";
+import ShoppingGoods from "./component/ShoppingGoods";
+import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { ShoppingGoodsService } from "@/service/pos/shopping-goods/service";
 
 const { Title } = Typography;
 const PayController = () => {
+  const blockContext: BlockView = useContext(BlockContext);
+  const { isReload, setReload } = usePaymentGroupContext();
   const [isOpenModalTransfer, setIsOpenModalTransfer] =
     useState<boolean>(false);
   const [isOpenModalClose, setIsOpenModalClose] = useState<boolean>(false);
-  const [isOpenModalSave, setIsOpenModalSave] = useState<boolean>(false);
   const [isOpenModalExtra, setIsOpenModalExtra] = useState<boolean>(false);
   const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
+  const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
+  const getShoppingCarts = async () => {
+    await ShoppingCartService.get()
+      .then((response) => {
+        if (response.success) {
+          setShoppingCarts(response.response);
+          setReload(false);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const createShoppingGoods = async () => {
+    await ShoppingGoodsService.post({
+      shoppingCartIds: shoppingCarts.map((cart) => cart.id),
+    }).then((response) => {
+      if (response.success) {
+        getShoppingCarts();
+        setReload(true);
+      }
+    });
+  };
+  useEffect(() => {
+    isReload && getShoppingCarts();
+  }, [isReload]);
   return (
     <>
       <div
@@ -39,7 +69,7 @@ const PayController = () => {
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 20,
+            gap: 12,
             height: 86,
           }}
         >
@@ -54,47 +84,41 @@ const PayController = () => {
             Нэмэлт үйлдэл
           </button>
           <NewInput placeholder="Хайх" />
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              justifyContent: "space-between",
+            }}
+          >
+            <Title level={3}>Сонгосон бараа</Title>
+            <Title
+              level={4}
+              type="secondary"
+              style={{
+                margin: 0,
+              }}
+            >
+              №:2023032701001
+            </Title>
+          </div>
         </div>
         <div
           style={{
             position: "absolute",
-            top: 106,
+            top: 110,
             display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
+            flexDirection: "column",
             gap: 12,
             paddingRight: 20,
+            width: "100%",
             height: "calc(100% - 280px)",
             overflowY: "auto",
           }}
         >
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
-          <Item />
+          {shoppingCarts?.map((material) => (
+            <Item key={material.id} data={material} />
+          ))}
         </div>
         <div
           style={{
@@ -200,28 +224,14 @@ const PayController = () => {
               gap: 8,
             }}
           >
-            <button
-              className="app-button-regular"
-              style={{
-                height: 38,
-              }}
-              onClick={() => setIsOpenModalSave(true)}
-            >
-              <Badge count={3}>
-                <Image
-                  src="/images/save.png"
-                  width={24}
-                  height={24}
-                  alt="save"
-                />
-              </Badge>
-            </button>
+            <ShoppingGoods />
             <button
               className="app-button-regular"
               style={{
                 height: 38,
                 minWidth: 120,
               }}
+              onClick={createShoppingGoods}
             >
               Түр хадгалах
             </button>
@@ -237,59 +247,6 @@ const PayController = () => {
           </div>
         </div>
       </div>
-      <NewModal
-        title="Түр хадгалах"
-        open={isOpenModalSave}
-        onCancel={() => setIsOpenModalSave(false)}
-        footer={null}
-      >
-        <Table
-          columns={[
-            {
-              title: "№",
-              dataIndex: "id",
-              render: (text) => {
-                return <Button type="dashed" icon={<SwapOutlined />}></Button>;
-              },
-            },
-            {
-              title: "Баримтын дугаар",
-            },
-            {
-              title: "Огноо",
-            },
-            {
-              title: "Төлөх дүн",
-            },
-            {
-              title: " ",
-              render: () => {
-                return (
-                  <Button
-                    style={{
-                      padding: 0,
-                    }}
-                    type="text"
-                    icon={
-                      <CloseOutlined
-                        style={{
-                          fontSize: 24,
-                          color: "red",
-                        }}
-                      />
-                    }
-                  />
-                );
-              },
-            },
-          ]}
-          dataSource={[
-            {
-              id: 1,
-            },
-          ]}
-        />
-      </NewModal>
       <NewModal
         title=" "
         width={500}

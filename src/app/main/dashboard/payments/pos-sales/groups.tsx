@@ -4,11 +4,17 @@ import {
   VerticalLeftOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { MaterialSectionService } from "@/service/material/section/service";
 import Image from "next/image";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { getFile } from "@/feature/common";
+
+import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
+import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+
 const { Title } = Typography;
 
 interface IGroup {
@@ -18,6 +24,24 @@ interface IGroup {
 }
 
 const Groups = () => {
+  const SwiperButtonNext = ({ children }: { children: ReactNode }) => {
+    const swiper = useSwiper();
+    return (
+      <div className="box-next" onClick={() => swiper.slideNext()}>
+        {children}
+      </div>
+    );
+  };
+  const SwiperButtonPrev = ({ children }: { children: ReactNode }) => {
+    const swiper = useSwiper();
+    return (
+      <div className="box-prev" onClick={() => swiper.slidePrev()}>
+        {children}
+      </div>
+    );
+  };
+
+  const swiper = useSwiper();
   const { value, set } = usePaymentGroupContext();
   const [sections, setSections] = useState<IGroup[]>([]);
   const getMaterialSections = async () => {
@@ -48,6 +72,7 @@ const Groups = () => {
     });
   };
   useEffect(() => {
+    console.log("end22");
     getMaterialSections();
   }, []);
   return (
@@ -69,37 +94,78 @@ const Groups = () => {
               />
               <p className="text">Бүгд</p>
             </div>
-            <div className="box-prev">
-              <VerticalRightOutlined
-                style={{
-                  fontSize: 20,
-                }}
-              />
-            </div>
-            <div className="content">
-              {sections?.map((section, index) => (
-                <div
-                  key={index}
-                  onClick={() => set(section.sectionId)}
-                  className={section.sectionId === value ? "box-active" : "box"}
-                >
-                  <Image
-                    src={section.src}
-                    alt={`${section.name + index}`}
-                    width={30}
-                    height={30}
-                  />
-                  <p className="text">{section.name}</p>
-                </div>
-              ))}
-            </div>
-            <div className="box-next">
-              <VerticalLeftOutlined
-                style={{
-                  fontSize: 20,
-                }}
-              />
-            </div>
+            <Swiper
+              modules={[Navigation, Pagination, Scrollbar, A11y]}
+              navigation
+              spaceBetween={20}
+              slidesPerView={1}
+              breakpoints={{
+                640: {
+                  slidesPerView: 2,
+                  spaceBetween: 10,
+                },
+                768: {
+                  slidesPerView: 3,
+                  spaceBetween: 10,
+                },
+                1024: {
+                  slidesPerView: 5,
+                  spaceBetween: 10,
+                },
+                1441: {
+                  slidesPerView: 5,
+                  spaceBetween: 10,
+                },
+                1562: {
+                  slidesPerView: 6,
+                  spaceBetween: 10,
+                },
+                1797: {
+                  slidesPerView: 7,
+                  spaceBetween: 10,
+                },
+                2560: {
+                  slidesPerView: 10,
+                  spaceBetween: 10,
+                },
+              }}
+            >
+              <SwiperButtonPrev>
+                <VerticalRightOutlined
+                  style={{
+                    fontSize: 20,
+                  }}
+                />
+              </SwiperButtonPrev>
+              <div className="content">
+                {sections?.map((section, index) => (
+                  <SwiperSlide key={index}>
+                    <div
+                      key={index}
+                      onClick={() => set(section.sectionId)}
+                      className={
+                        section.sectionId === value ? "box-active" : "box"
+                      }
+                    >
+                      <Image
+                        src={section.src}
+                        alt={`${section.name + index}`}
+                        width={30}
+                        height={30}
+                      />
+                      <p className="text">{section.name}</p>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </div>
+              <SwiperButtonNext>
+                <VerticalLeftOutlined
+                  style={{
+                    fontSize: 20,
+                  }}
+                />
+              </SwiperButtonNext>
+            </Swiper>
           </div>
         </Col>
       </Row>
