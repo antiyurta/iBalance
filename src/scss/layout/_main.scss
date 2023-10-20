@@ -620,7 +620,7 @@ html {
   > .box,
   .box-prev,
   .box-next,
-  .content > .box {
+  .swiper-slide > .box {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -646,7 +646,7 @@ html {
     }
   }
   .box-active,
-  .content > .box-active {
+  .swiper-slide > .box-active {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -1132,3 +1132,39 @@ i.rmdp-arrow {
     cursor: pointer;
   }
 }
+
+//
+.swiper {
+  width: 100%;
+  padding-left: 45px !important;
+  padding-right: 45px !important;
+  height: 100%;
+  > .box-prev {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 35px !important;
+    min-width: 35px !important;
+    justify-content: center !important;
+    z-index: 3;
+  }
+  > .box-next {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 35px !important;
+    min-width: 35px !important;
+    justify-content: center !important;
+    z-index: 3;
+  }
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+//

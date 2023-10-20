@@ -74,7 +74,7 @@ const MaterialDetail = () => {
                 <Col span={24}>
                   <Space size={24} wrap>
                     <Link
-                      href={"/dashboard/payments/pos-sales"}
+                      href={"/main/dashboard/payments/pos-sales"}
                       className="app-button-regular"
                     >
                       <LeftOutlined
@@ -254,7 +254,7 @@ const MaterialDetail = () => {
             <div className="material-group">
               <div className="item-group">
                 <div className="image">
-                  <Link href={"/dashboard/payments/pos-sales/1"}>
+                  <Link href={"/main/dashboard/payments/pos-sales/1"}>
                     <Image
                       src="/images/vera.png"
                       width={120}

@@ -27,8 +27,16 @@ function removeTab(data: ITabItems[]): any {
     });
   };
 }
+function setDefaultTab(): any {
+  return (dispatch: (action: AnyAction) => void) => {
+    dispatch({
+      type: TabActionType.SET_DEFAULT,
+    });
+  };
+}
 
 export const TabsActions = {
+  setDefaultTab,
   setTabsData,
   setTabActiveKey,
   removeTab,

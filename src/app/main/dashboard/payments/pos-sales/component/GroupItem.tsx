@@ -3,8 +3,13 @@ import Image from "next/image";
 import { Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { IDataMaterial } from "@/service/material/entities";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getFile } from "@/feature/common";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
+import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
+import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 
 interface IProps {
   data: IDataMaterial;
@@ -17,18 +22,31 @@ interface IItem {
 }
 
 const GroupItem = (props: IProps) => {
+  const { setReload } = usePaymentGroupContext();
+  const blockContext: BlockView = useContext(BlockContext);
   const [item, setItem] = useState<IItem>();
   const { data } = props;
   const configureData = async () => {
     setItem({
       id: data.id,
       name: data.name,
-      src:
-        data.files?.length > 0
-          ? await getFile(data.files[0].id)
-          : "/images/groupAll.png",
+      src: "/images/groupAll.png",
+      // src:
+      //   data.files?.length > 0
+      //     ? await getFile(data.files[0].id)
+      //     : "/images/groupAll.png",
     });
   };
+
+  const onFinish = async (data: IDataShoppingCartPost) => {
+    blockContext.block();
+    await ShoppingCartService.post(data).then((response) => {
+      if (response.success) {
+        setReload(true);
+      }
+    });
+  };
+
   useEffect(() => {
     configureData();
   }, [data]);
@@ -37,7 +55,7 @@ const GroupItem = (props: IProps) => {
       {item ? (
         <div className="item-group">
           <div className="image">
-            <Link href={"/dashboard/payments/pos-sales/" + item.id}>
+            <Link href={"/main/dashboard/payments/pos-sales/" + item.id}>
               <Image src={item?.src} width={120} height={120} alt="dd" />
             </Link>
             <div className="extra">
@@ -67,6 +85,12 @@ const GroupItem = (props: IProps) => {
               width: "100%",
             }}
             icon={<ShoppingCartOutlined />}
+            onClick={() =>
+              onFinish({
+                materialId: data.id,
+                quantity: 0,
+              })
+            }
           >
             Сагслах
           </Button>

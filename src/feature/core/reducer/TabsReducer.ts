@@ -7,6 +7,7 @@ const initialValues: TabState = {
     {
       label: "Хянах самбар",
       key: "/main/dashboard",
+      closable: false,
     },
   ],
 };
@@ -14,6 +15,17 @@ const initialValues: TabState = {
 export function tabReducer(state: TabState = initialValues, action: AnyAction) {
   const { type, data } = action;
   switch (type) {
+    case TabActionType.SET_DEFAULT:
+      return {
+        activeKey: "/main/dashboard",
+        tabItems: [
+          {
+            label: "Хянах самбар",
+            key: "/main/dashboard",
+            closable: false,
+          },
+        ],
+      };
     case TabActionType.SET_DATA:
       var isHave: boolean = state.tabItems.some((item) =>
         item.key.includes(data.key)

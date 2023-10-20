@@ -342,6 +342,15 @@ const InventoriesGroup = () => {
                 <NewSwitch />
               </Form.Item>
             </div>
+            <div className="switches-col">
+              <Form.Item
+                label="Зарах эсэх"
+                name="isSale"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+            </div>
             <Form.Item label="Холбох код">
               <Space.Compact>
                 <div className="extraButton">

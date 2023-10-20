@@ -1,37 +1,66 @@
 "use client";
 
-import { Badge, Col, Row } from "antd";
-import { NewInput } from "@/components/input";
-import {
-  BarsOutlined,
-  ShoppingCartOutlined,
-  AppstoreOutlined,
-} from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { Col, Divider, Row } from "antd";
+import { NewSearch } from "@/components/input";
+import { BarsOutlined, AppstoreOutlined } from "@ant-design/icons";
+import { useContext, useEffect, useState } from "react";
 import GroupItem from "./component/GroupItem";
 import ListItem from "./component/ListItem";
-import {
-  TypeValue,
-  usePaymentGroupContext,
-} from "@/feature/context/PaymentGroupContext";
+import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { IDataMaterial, MaterialType } from "@/service/material/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { Meta } from "@/service/entities";
 import { MaterialService } from "@/service/material/service";
-import { IDataMaterial } from "@/service/material/entities";
 
 type TypeSegment = "list" | "group";
 
 const PosSales = () => {
   const { value } = usePaymentGroupContext();
+  const blockContext: BlockView = useContext(BlockContext);
   const [materials, setMaterials] = useState<IDataMaterial[]>([]);
+  const [meta, setMeta] = useState<Meta>({
+    page: 1,
+    limit: 10,
+  });
   const [isActiveSegment, setIsActiveSegment] = useState<TypeSegment>("group");
-  const getMaterials = async (value: TypeValue) => {
+  const getMaterials = async (page: number) => {
     await MaterialService.get({
+      types: [MaterialType.Material],
       materialSectionId: value === "all" ? undefined : [value],
+      page: page,
+      limit: meta.limit,
     }).then((response) => {
-      setMaterials(response.response.data);
+      if (page === 1) {
+        setMaterials(response.response.data);
+      } else {
+        setMaterials([...materials, ...response.response.data]);
+      }
+      setMeta(response.response.meta);
     });
   };
+  const onSearchMaterial = async (searchValue: string) => {
+    blockContext.block();
+    await MaterialService.get({
+      types: [MaterialType.Material],
+      queries: [
+        {
+          param: "name",
+          operator: "CONTAINS",
+          value: searchValue,
+        },
+      ],
+      materialSectionId: value === "all" ? undefined : [value],
+    })
+      .then((response) => {
+        setMaterials(response.response.data);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
   useEffect(() => {
-    getMaterials(value);
+    getMaterials(1);
   }, [value]);
   return (
     <Row gutter={[12, 12]}>
@@ -42,22 +71,15 @@ const PosSales = () => {
             justifyContent: "space-between",
           }}
         >
-          <NewInput
+          <NewSearch
             style={{
               width: 400,
             }}
             placeholder="Бараанаас хайх"
+            enterButton
+            onSearch={onSearchMaterial}
           />
           <div className="segment">
-            <div className="segment-item">
-              <Badge count={3}>
-                <ShoppingCartOutlined
-                  style={{
-                    fontSize: 20,
-                  }}
-                />
-              </Badge>
-            </div>
             <div
               onClick={() => setIsActiveSegment("list")}
               className={
@@ -90,6 +112,7 @@ const PosSales = () => {
         </div>
       </Col>
       <Col
+        id="scrollableDiv"
         style={{
           width: "100%",
           position: "absolute",
@@ -99,15 +122,24 @@ const PosSales = () => {
         }}
         span={24}
       >
-        <div className={`material-${isActiveSegment}`}>
-          {materials?.map((material, index) =>
-            isActiveSegment === "group" ? (
-              <GroupItem key={index} data={material} />
-            ) : (
-              <ListItem key={index} data={material} />
-            )
-          )}
-        </div>
+        <InfiniteScroll
+          dataLength={materials.length}
+          next={() => getMaterials(meta.page ? meta.page + 1 : 1)}
+          endMessage={<Divider plain>Энэ бүгд нь өөр байхгүй🤐</Divider>}
+          scrollableTarget="scrollableDiv"
+          hasMore={meta.hasNextPage ? meta.hasNextPage : false}
+          loader={false}
+        >
+          <div className={`material-${isActiveSegment}`}>
+            {materials?.map((material, index) =>
+              isActiveSegment === "group" ? (
+                <GroupItem key={index} data={material} />
+              ) : (
+                <ListItem key={index} data={material} />
+              )
+            )}
+          </div>
+        </InfiniteScroll>
       </Col>
     </Row>
   );

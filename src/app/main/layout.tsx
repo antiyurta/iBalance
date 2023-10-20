@@ -5,7 +5,6 @@ import Sidebar from "./Sidebar";
 const { Sider, Content } = Layout;
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  console.log("end bn");
   return (
     <Layout>
       <Sider theme="light">

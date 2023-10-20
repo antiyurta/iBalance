@@ -28,6 +28,7 @@ export interface Meta {
   limit?: number;
   itemCount?: number;
   pageCount?: number;
+  hasNextPage?: boolean;
 }
 
 export interface IFilters {

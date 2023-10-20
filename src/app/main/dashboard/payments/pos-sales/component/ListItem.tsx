@@ -2,9 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { IDataMaterial } from "@/service/material/entities";
 import { useEffect, useState } from "react";
 import { getFile } from "@/feature/common";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
+import { IDataMaterial } from "@/service/material/entities";
 
 interface IProps {
   data: IDataMaterial;
@@ -23,10 +24,11 @@ const ListItem = (props: IProps) => {
     setItem({
       id: data.id,
       name: data.name,
-      src:
-        data.files?.length > 0
-          ? await getFile(data.files[0].id)
-          : "/images/groupAll.png",
+      src: "/images/groupAll.png",
+      // src:
+      //   data.files?.length > 0
+      //     ? await getFile(data.files[0].id)
+      //     : "/images/groupAll.png",
     });
   };
   useEffect(() => {
@@ -37,7 +39,7 @@ const ListItem = (props: IProps) => {
       {item ? (
         <div className="item-list">
           <div className="left">
-            <Link href={"/dashboard/payments/pos-sales/" + item.id}>
+            <Link href={"/main/dashboard/payments/pos-sales/" + item.id}>
               <Image src={item.src} width={50} height={50} alt="dd" />
             </Link>
             <div className="title">
