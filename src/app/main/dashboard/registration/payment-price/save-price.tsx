@@ -22,6 +22,8 @@ import EditableTableService from "./service-price/editableTable";
 import EditableTablePackage from "./package-price/editableTable";
 import EditableTableDiscount from "./discount/editableTable";
 import EditableTableCoupon from "./coupon/editableTable";
+import NewModal from "@/components/modal";
+import Information from "../customer/information/information";
 
 interface IProps {
   selectedCommand?: IDataCommand;
@@ -67,17 +69,23 @@ const SavePrice = (props: IProps) => {
       }
     } else {
       if (type == CommandType.Discount) {
-        await MaterialCommandService.postDiscount(values).then((response) => {
-          success("Хөнгөлөлт", response);
-        }).finally(() => blockContext.unblock());
+        await MaterialCommandService.postDiscount(values)
+          .then((response) => {
+            success("Хөнгөлөлт", response);
+          })
+          .finally(() => blockContext.unblock());
       } else if (type == CommandType.Coupon) {
-        await MaterialCommandService.postCoupon(values).then((response) => {
-          success("Урамшуулал", response);
-        }).finally(() => blockContext.unblock());;
+        await MaterialCommandService.postCoupon(values)
+          .then((response) => {
+            success("Урамшуулал", response);
+          })
+          .finally(() => blockContext.unblock());
       } else {
-        await MaterialCommandService.postPrice(values).then((response) => {
-          success("Үнэ", response);
-        }).finally(() => blockContext.unblock());;
+        await MaterialCommandService.postPrice(values)
+          .then((response) => {
+            success("Үнэ", response);
+          })
+          .finally(() => blockContext.unblock());
       }
     }
   };
@@ -342,6 +350,22 @@ const SavePrice = (props: IProps) => {
           </div>
         </NewCard>
       </Col>
+      <NewModal
+        width={1300}
+        title="Харилцагчын жагсаалт"
+        open={isOpenPopOver}
+        onCancel={() => setIsOpenPopOver(false)}
+      >
+        <Information
+          ComponentType="MIDDLE"
+          onClickModal={(row: IDataConsumer) => {
+            form.setFieldsValue({
+              consumerId: row.id,
+            });
+            setIsOpenPopOver(false);
+          }}
+        />
+      </NewModal>
     </Row>
   );
 };

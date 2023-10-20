@@ -15,13 +15,17 @@ function post(
 ): Promise<IResponseConsumerMembership> {
   return api.post("consumer-member-ship", body);
 }
-function remove(
-  consumerId: number,
+function patch(
+  body: IInputConsumerMembership
 ): Promise<IResponseConsumerMembership> {
+  return api.patch("consumer-member-ship", body);
+}
+function remove(consumerId: number): Promise<IResponseConsumerMembership> {
   return api.delete(`consumer-member-ship/${consumerId}`);
 }
 export const ConsumerMembershipService = {
   get,
   post,
+  patch,
   remove,
 };

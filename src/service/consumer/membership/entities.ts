@@ -35,6 +35,8 @@ export interface IFilterConsumerMembership extends IFilter {
   consumerEmail?: string[];
   consumerAddress?: string[];
   consumerRegno?: string[];
+  consumerBank?: string[];
+  consumerBankAccountNo?: string[];
   cardno?: string[];
   membershipName?: string[];
   createdAt?: string;

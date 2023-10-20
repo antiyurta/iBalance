@@ -178,8 +178,10 @@ const CustomerList = (props: IProps) => {
             data={sections}
             isLeaf={true}
             onClick={(key) => {
-              if (key) {
-                getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+              if (key && column.sectionId) {
+                column.sectionId.isFiltered = true;
+                setParams({ sectionId: [key.toString()] });
+                getData({ page: 1, limit: 10, ...params });
               }
             }}
           />

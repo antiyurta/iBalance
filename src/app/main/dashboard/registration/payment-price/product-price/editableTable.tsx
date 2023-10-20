@@ -23,6 +23,8 @@ import {
   MaterialType,
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
+import NewModal from "@/components/modal";
+import InventoriesRegistration from "../../inventory/inventories-registration/inventoriesRegistration";
 
 const { Column } = Table;
 
@@ -40,7 +42,7 @@ const EditableTableProduct = (props: IProps) => {
     useState<Map<number, IDataMaterial>>();
   const [isNewService, setNewService] = useState<boolean>(false);
   const [materials, setMaterials] = useState<IDataMaterial[]>([]);
-  const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
+  const [isOpenPopover, setIsOpenPopover] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
   const addService = () => {
     onSave().then((state) => {
@@ -170,7 +172,7 @@ const EditableTableProduct = (props: IProps) => {
                   {index === editingIndex ? (
                     <div className="extraButton">
                       <Image
-                        onClick={() => setIsOpenPopOver(true)}
+                        onClick={() => setIsOpenPopover(true)}
                         src="/icons/clipboardBlack.svg"
                         width={16}
                         height={16}
@@ -386,6 +388,27 @@ const EditableTableProduct = (props: IProps) => {
           }}
         />
       </Table>
+      <NewModal
+        width={1300}
+        title="Барааны жагсаалт"
+        open={isOpenPopover}
+        onCancel={() => setIsOpenPopover(false)}
+      >
+        <InventoriesRegistration
+          ComponentType="MIDDLE"
+          onClickModal={(row: IDataMaterial) => {
+            form.setFieldsValue({
+              prices: {
+                [`${editingIndex}`]: {
+                  materialId: row.id,
+                },
+              },
+            });
+            materialFormField(row.id);
+            setIsOpenPopover(false);
+          }}
+        />
+      </NewModal>
     </>
   );
 };

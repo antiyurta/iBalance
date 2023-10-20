@@ -307,7 +307,10 @@ const InventoriesRegistration = (props: IProps) => {
     values.fileIds = imageIds;
     await MaterialService.post(values).then((response) => {
       setImageIds([]);
-      console.log(response);
+      if (response.success) {
+        openNofi("success", "Амжиллтай", "Бараа материал үүсгэлээ");
+        setIsOpenModal(false);
+      }
     });
   };
   //

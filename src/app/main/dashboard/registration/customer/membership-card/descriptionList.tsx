@@ -2,11 +2,7 @@ import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import {
-  DataIndexType,
-  FilteredColumns,
-  Meta,
-} from "@/service/entities";
+import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsConsumerMembership,
   IDataConsumerMembership,
@@ -16,9 +12,19 @@ import {
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { IDataConsumer } from "@/service/consumer/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { ConsumerService } from "@/service/consumer/service";
 
-const DescriptionList = () => {
+interface IProps {
+  onReload: boolean;
+  onEdit: (row: IDataConsumer) => void;
+}
+
+const DescriptionList = (props: IProps) => {
+  const { onReload, onEdit } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [newParams, setNewParams] = useState<IParamConsumerMembership>({});
   const [data, setData] = useState<IDataConsumerMembership[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
@@ -30,6 +36,20 @@ const DescriptionList = () => {
       isFiltered: false,
       dataIndex: ["consumer", "code"],
       type: DataIndexType.MULTI,
+    },
+    consumerIsIndividual: {
+      label: "Хувь хүн эсэх",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "isIndividual"],
+      type: DataIndexType.BOOLEAN,
+    },
+    consumerIsEmployee: {
+      label: "Ажилтан эсэх",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "isEmployee"],
+      type: DataIndexType.BOOLEAN,
     },
     consumerLastname: {
       label: "Харилцагчийн овог",
@@ -45,18 +65,53 @@ const DescriptionList = () => {
       dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
-    consumerIsIndividual: {
-      label: "Хувь хүн эсэх",
+    consumerSectionId: {
+      label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumer", "isIndividual"],
-      type: DataIndexType.BOOLEAN,
+      dataIndex: ["consumer", "section", "name"],
+      type: DataIndexType.STRING_SECTION,
+    },
+    consumerRegno: {
+      label: "Регистр №",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "regno"],
+      type: DataIndexType.MULTI,
     },
     consumerPhone: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "phone"],
+      type: DataIndexType.MULTI,
+    },
+    consumerAddress: {
+      label: "Хаяг",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "address"],
+      type: DataIndexType.MULTI,
+    },
+    consumerBank: {
+      label: "Банк",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "bank", "name"],
+      type: DataIndexType.MULTI,
+    },
+    consumerBankAccountNo: {
+      label: "Дансны дугаар",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "bankAccountNo"],
+      type: DataIndexType.MULTI,
+    },
+    consumerEmail: {
+      label: "И-мэйл хаяг",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["consumer", "email"],
       type: DataIndexType.MULTI,
     },
     consumerIsActive: {
@@ -66,41 +121,6 @@ const DescriptionList = () => {
       dataIndex: ["consumer", "isActive"],
       type: DataIndexType.BOOLEAN,
     },
-    consumerIsEmployee: {
-      label: "Ажилтан эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "isEmployee"],
-      type: DataIndexType.BOOLEAN,
-    },
-    consumerSectionId: {
-      label: "Бүлэг",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "section", "name"],
-      type: DataIndexType.STRING_SECTION,
-    },
-    consumerEmail: {
-      label: "И-мэйл хаяг",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "email"],
-      type: DataIndexType.MULTI,
-    },
-    consumerAddress: {
-      label: "Хаяг",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "address"],
-      type: DataIndexType.MULTI,
-    },
-    consumerRegno: {
-      label: "Харилцагчийн РД",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "regno"],
-      type: DataIndexType.MULTI,
-    },
     cardno: {
       label: "Картын дугаар",
       isView: true,
@@ -109,7 +129,7 @@ const DescriptionList = () => {
       type: DataIndexType.MULTI,
     },
     membershipName: {
-      label: "Картын нэр",
+      label: "Карт, эрхийн бичгийн нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["membership", "name"],
@@ -117,24 +137,10 @@ const DescriptionList = () => {
     },
     createdAt: {
       label: "Нээсэн огноо",
-      isView: true,
+      isView: false,
       isFiltered: false,
       dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
-    },
-    branch: {
-      label: "Нээлгэсэн төв, салбар",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["branch", "name"],
-      type: DataIndexType.MULTI,
-    },
-    isClose: {
-      label: "Хаасан эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["isClose"],
-      type: DataIndexType.BOOLEAN,
     },
     endAt: {
       label: "Дуусах огноо",
@@ -142,6 +148,20 @@ const DescriptionList = () => {
       isFiltered: false,
       dataIndex: ["endAt"],
       type: DataIndexType.DATE,
+    },
+    branch: {
+      label: "Нээлгэсэн салбар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["branch", "name"],
+      type: DataIndexType.MULTI,
+    },
+    isClose: {
+      label: "Хаасан эсэх",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["isClose"],
+      type: DataIndexType.BOOLEAN,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
@@ -168,9 +188,21 @@ const DescriptionList = () => {
       }
     });
   };
+  const editCommand = async (consumerMembership: IDataConsumerMembership) => {
+    blockContext.block();
+    await ConsumerService.getById(consumerMembership.consumerId)
+      .then((response) => {
+        if (response.success) {
+          onEdit(response.response);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
-  }, []);
+  }, [onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -248,8 +280,8 @@ const DescriptionList = () => {
                 newParams={newParams}
                 onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
-                onEdit={(row) => console.log(true, row)}
-                onDelete={(id) => console.log(id)}
+                isEdit
+                onEdit={(row) => editCommand(row)}
               />
             </Col>
           </Row>

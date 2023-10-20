@@ -190,6 +190,8 @@ const CardList = (props: IProps) => {
                 newParams={params}
                 onParams={setParams}
                 incomeFilters={filters}
+                isEdit
+                isDelete
                 onEdit={onEdit}
                 onDelete={onDelete}
               />
