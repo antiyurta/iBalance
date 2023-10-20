@@ -27,7 +27,7 @@ import {
 import EditableTableCard from "./editableTableCard";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
-import { IInputConsumerMembership } from "@/service/consumer/membership/entities";
+import { IInputConsumerMembership, IResponseConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { BranchService } from "@/service/reference/branch/service";
 import { IDataBranch } from "@/service/reference/branch/entities";
@@ -35,12 +35,14 @@ import { MembershipService } from "@/service/reference/membership/service";
 import {
   IDataMembership,
   IInputMembership,
+  IResponseMembership,
 } from "@/service/reference/membership/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { openNofi } from "@/feature/common";
 import dayjs from "dayjs";
 import Information from "../information/information";
 import CardList from "./cardList";
+import { NumericFormat } from "react-number-format";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -49,6 +51,7 @@ const MembershipCard = () => {
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [isReloadCardList, setIsReloadCardList] = useState<boolean>(false);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isEditMembership, setIsEditMembership] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
@@ -71,7 +74,7 @@ const MembershipCard = () => {
           onReload={isReloadList}
           onEdit={(row) => openModal(true, row)}
           onDelete={(id) => {
-            console.log(id);
+            onDeleteConsumer(id);
           }}
         />
       ),
@@ -79,7 +82,12 @@ const MembershipCard = () => {
     {
       label: "Дэлгэрэнгүй жагсаалт",
       key: "item-2",
-      children: <DescriptionList />,
+      children: (
+        <DescriptionList
+          onReload={isReloadList}
+          onEdit={(row) => openModal(true, row)}
+        />
+      ),
     },
     {
       label: "Карт эрхийн бичгийн жагсаалт",
@@ -110,9 +118,9 @@ const MembershipCard = () => {
       };
       consumerFormField(consumer.id);
       form.setFieldsValue(data);
+      setIsEdit(true);
     }
     setIsOpenModal(true);
-    // setSelectedRow(row);
   };
   const openModalCard = (state: boolean, membership?: IDataMembership) => {
     formMembership.resetFields();
@@ -161,18 +169,37 @@ const MembershipCard = () => {
   };
   const onFinish = async (consumerMemberships: IInputConsumerMembership) => {
     blockContext.block();
-    await ConsumerMembershipService.post(consumerMemberships)
-      .then((response) => {
-        if (response.success) {
-          openNofi("success", "Амжилттай", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
-          setIsOpenModal(false);
-          setIsReloadCardList(!isReloadCardList);
-        }
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
+    if (isEdit) {
+      await ConsumerMembershipService.patch(consumerMemberships)
+        .then((response) => {
+          success(response);
+          if (response.success) {
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    } else {
+      await ConsumerMembershipService.post(consumerMemberships)
+        .then((response) => {
+          success(response);
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    }
   };
+  const success =(response: IResponseConsumerMembership) => {
+    if (response.success) {
+      openNofi(
+        "success",
+        "Амжилттай",
+        "Гишүүнчлэлийн бүртгэл хадгаллаа."
+      );
+      setIsOpenModal(false);
+      setIsReloadList(!isReloadList);
+    }
+  }
   const onFinishMembership = async (data: IInputMembership) => {
     if (isEditMembership && membership) {
       await MembershipService.patch(membership.id, data).then((response) => {
@@ -190,6 +217,14 @@ const MembershipCard = () => {
       });
     }
     openNofi("success", "Амжилттай", "Амжиллтай хадгаллаа.");
+  };
+  const onDeleteConsumer = async (id: number) => {
+    await ConsumerMembershipService.remove(id).then((response) => {
+      if (response.success) {
+        setIsReloadList(!isReloadList);
+        openNofi("success", "Амжилттай", "Амжиллтай устгалаа.");
+      }
+    });
   };
   const onDeleteMembership = async (id: number) => {
     await MembershipService.remove(id).then((response) => {
@@ -411,6 +446,7 @@ const MembershipCard = () => {
             onFinishMembership(values);
           })
         }
+        maskClosable={false}
       >
         <Form
           form={formMembership}
@@ -468,7 +504,7 @@ const MembershipCard = () => {
                         style={{
                           width: "100%",
                         }}
-                        prefix={"% "}
+                        suffix={"% "}
                       />
                     </Form.Item>
                   ) : (
@@ -485,7 +521,7 @@ const MembershipCard = () => {
                         style={{
                           width: "100%",
                         }}
-                        prefix={"₮ "}
+                        suffix={"₮ "}
                         formatter={(value: any) =>
                           `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                         }
@@ -497,8 +533,13 @@ const MembershipCard = () => {
               <Form.Item label="Онооны дээд хязгаар" shouldUpdate>
                 {() => (
                   <Form.Item name="limitDiscount">
-                    <NewInputNumber
-                      disabled={!formMembership.getFieldValue("isSave")}
+                    <NumericFormat
+                      thousandSeparator=","
+                      decimalScale={2}
+                      fixedDecimalScale
+                      displayType="input"
+                      customInput={NewInput}
+                      suffix="₮"
                     />
                   </Form.Item>
                 )}

@@ -3,10 +3,13 @@ import {
   IResponseConsumer,
   IDataConsumer,
   IParamConsumer,
-  IConsumerResponseUpdate,
+  IResponseOneConsumer,
 } from "./entities";
 function get(params?: IParamConsumer): Promise<IResponseConsumer> {
   return api.get("consumer", { params: params });
+}
+function getById(id: number): Promise<IResponseOneConsumer> {
+  return api.get(`consumer/${id}`);
 }
 function post(body: IDataConsumer): Promise<IResponseConsumer> {
   return api.post("consumer", body);
@@ -14,7 +17,7 @@ function post(body: IDataConsumer): Promise<IResponseConsumer> {
 function patch(
   id: number,
   body: IDataConsumer
-): Promise<IConsumerResponseUpdate> {
+): Promise<IResponseOneConsumer> {
   return api.patch("consumer/" + id, body);
 }
 
@@ -26,10 +29,11 @@ function switchPatch(body: {
 }
 
 function remove(id: number): Promise<IResponseConsumer> {
-  return api.delete("consumer/" + id);
+  return api.delete(`consumer/${id}`);
 }
 export const ConsumerService = {
   get,
+  getById,
   post,
   patch,
   switchPatch,

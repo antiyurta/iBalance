@@ -6,6 +6,7 @@ import CommandList from "./command-list";
 import PriceList from "./price-list";
 import { CommandType } from "@/service/command/entities";
 import DiscountList from "./discount/discount-list";
+import CouponList from "./coupon/coupon-list";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -20,6 +21,8 @@ const Price = (props: IProps) => {
   const getDetailList = (): JSX.Element => {
     if (type == CommandType.Discount) {
       return <DiscountList type={type} />;
+    } else if (type == CommandType.Coupon) {
+      return <CouponList type={type} />;
     } else {
       return <PriceList type={type} />;
     }

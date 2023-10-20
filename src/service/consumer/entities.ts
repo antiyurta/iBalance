@@ -58,6 +58,6 @@ export interface IResponseConsumer extends GenericResponse {
   };
 }
 
-export interface IConsumerResponseUpdate extends GenericResponse {
+export interface IResponseOneConsumer extends GenericResponse {
   response: IDataConsumer;
 }

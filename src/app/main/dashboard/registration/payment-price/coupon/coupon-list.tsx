@@ -25,10 +25,11 @@ import {
   IParamDiscount,
 } from "@/service/command/discount/entities";
 import { MaterialDiscountService } from "@/service/command/discount/service";
+import { FilteredColumnsCoupon } from "@/service/command/coupon/entities";
 interface IProps {
   type: CommandType;
 }
-const DiscountList = (props: IProps) => {
+const CouponList = (props: IProps) => {
   const { type } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -37,7 +38,7 @@ const DiscountList = (props: IProps) => {
   const [filters, setFilters] = useState<IFilterDiscount>();
   const [params, setParams] = useState<IParamDiscount>({});
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
-  const [columns, setColumns] = useState<FilteredColumnsDiscount>({
+  const [columns, setColumns] = useState<FilteredColumnsCoupon>({
     id: {
       label: "ID",
       isView: true,
@@ -123,21 +124,35 @@ const DiscountList = (props: IProps) => {
       type: DataIndexType.MULTI,
     },
     endAt: {
-      label: "Хөнгөлөлт дуусах огноо",
+      label: "Урамшуулал дуусах огноо",
       isView: true,
       isFiltered: false,
       dataIndex: "endAt",
       type: DataIndexType.DATE,
     },
-    percent: {
-      label: "Хөнгөлөлтийн хувь",
+    condition: {
+      label: "Урамшуулал авах нөхцөл",
       isView: true,
       isFiltered: false,
       dataIndex: "percent",
       type: DataIndexType.MULTI,
     },
-    amount: {
-      label: "Хөнгөлөлт хассан /Хямдарсан/ үнэ",
+    conditionValue: {
+      label: "Урамшуулалын авах хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "amount",
+      type: DataIndexType.MULTI,
+    },
+    couponQuantity: {
+      label: "Урамшуулалын тоо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "amount",
+      type: DataIndexType.MULTI,
+    },
+    couponPercent: {
+      label: "Урамшуулалын хувь",
       isView: true,
       isFiltered: false,
       dataIndex: "amount",
@@ -287,4 +302,4 @@ const DiscountList = (props: IProps) => {
     </div>
   );
 };
-export default DiscountList;
+export default CouponList;
