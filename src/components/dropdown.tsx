@@ -537,7 +537,7 @@ const DropDown = (props: IProps) => {
             color: "#198754",
           }}
         >
-          Цэрэвлэх
+          Цэвэрлэх
         </button>
         <button
           onClick={() => configureSearch(SearchType.CHECKBOX)}

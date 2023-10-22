@@ -73,14 +73,14 @@ const CommandList = (props: IProps) => {
       label: "Харилцагчийн код",
       isView: false,
       isFiltered: false,
-      dataIndex: ["consumer", "name"],
+      dataIndex: ["consumer", "code"],
       type: DataIndexType.MULTI,
     },
     consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "consumerId",
+      dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
@@ -204,12 +204,6 @@ const CommandList = (props: IProps) => {
                   width={24}
                   height={24}
                   alt="printIcon"
-                />
-                <Image
-                  src={"/images/UploadIcon.svg"}
-                  width={24}
-                  height={24}
-                  alt="uploadIcon"
                 />
                 <Image
                   src={"/images/DownloadIcon.svg"}

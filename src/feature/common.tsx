@@ -111,8 +111,19 @@ function unDuplicate(text: string, newParams: any) {
   });
   return newQueries;
 }
-//
+/** Давхардал шалгах давхартай бол => false үгүй бол => true */
+function hasUniqueValues(arr: any[]): boolean {
+  const valueSet = new Set();
 
+  for (const item of arr) {
+    if (valueSet.has(item)) {
+      return false; // Duplicate value found
+    }
+    valueSet.add(item);
+  }
+
+  return true; // All values are unique
+}
 interface IFindIndexInColumnSettins {
   newRowIndexes: string[];
   unSelectedRow: string[];
@@ -450,6 +461,7 @@ export {
   renderCheck,
   removeDuplicates,
   unDuplicate,
+  hasUniqueValues,
   listToTree,
   findIndexInColumnSettings,
   typeOfFilters,

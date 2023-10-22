@@ -94,7 +94,7 @@ const DescriptionList = (props: IProps) => {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedBy",
+      dataIndex: ["updatedUser", "firstName"],
       type: DataIndexType.USER,
     },
   });

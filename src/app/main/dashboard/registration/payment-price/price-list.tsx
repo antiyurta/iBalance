@@ -35,7 +35,7 @@ const PriceList = (props: IProps) => {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["command", "id"],
       type: DataIndexType.STRING,
     },
     commandAt: {
@@ -235,12 +235,6 @@ const PriceList = (props: IProps) => {
                   width={24}
                   height={24}
                   alt="printIcon"
-                />
-                <Image
-                  src={"/images/UploadIcon.svg"}
-                  width={24}
-                  height={24}
-                  alt="uploadIcon"
                 />
                 <Image
                   src={"/images/DownloadIcon.svg"}

@@ -5,12 +5,17 @@ import {
   Col,
   Form,
   Input,
+  Modal,
   Popover,
   Row,
   Space,
   Typography,
 } from "antd";
-import { SignalFilled, SwapOutlined } from "@ant-design/icons";
+import {
+  SignalFilled,
+  SwapOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -176,6 +181,8 @@ const Information = (props: IProps) => {
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
     []
   );
+  const [regnoAlertModal, regnoAlertContextHolder] = Modal.useModal();
+  const [isRegno, setIsRegno] = useState<boolean>(false);
   //functions
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataConsumer) => {
@@ -267,30 +274,51 @@ const Information = (props: IProps) => {
   };
   // hadgalah
   const onFinish = async (values: IDataConsumer) => {
-    blockContext.block();
-    if (editMode && selectedRow) {
-      await ConsumerService.patch(selectedRow.id, values)
-        .then((response) => {
-          if (response.success) {
-            setSelectedRow(response.response);
-            setIsOpenModal(false);
-            getData({ page: 1, limit: 10 });
+    if (!isRegno) {
+      await ConsumerService.get({ registerNumber: values.regno }).then(
+        (response) => {
+          if (response.success && response.response.data.length > 0) {
+            setIsRegno(false);
+            regnoAlertModal.confirm({
+              title: "Харицагчийн шалгуур",
+              icon: <ExclamationCircleOutlined />,
+              content:
+                "Өмнө нь ийм регистрийн дугаар дээр харилцагч үүссэн байна. Дахин үүсгэхдээ итгэлтэй байна уу?",
+              okText: "Тийм",
+              cancelText: "Үгүй",
+              onOk: () => setIsRegno(true)
+            });
+          } else {
+            setIsRegno(true)
           }
-        })
-        .finally(() => {
-          blockContext.unblock();
-        });
-    } else {
-      await ConsumerService.post(values)
-        .then((response) => {
-          if (response.success) {
-            setIsOpenModal(false);
-            getData({ page: 1, limit: 10 });
-          }
-        })
-        .finally(() => {
-          blockContext.unblock();
-        });
+        }
+      );
+    }
+    if (isRegno) {
+      if (editMode && selectedRow) {
+        await ConsumerService.patch(selectedRow.id, values)
+          .then((response) => {
+            if (response.success) {
+              setSelectedRow(response.response);
+              setIsOpenModal(false);
+              getData({ page: 1, limit: 10 });
+            }
+          })
+          .finally(() => {
+            blockContext.unblock();
+          });
+      } else {
+        await ConsumerService.post(values)
+          .then((response) => {
+            if (response.success) {
+              setIsOpenModal(false);
+              getData({ page: 1, limit: 10 });
+            }
+          })
+          .finally(() => {
+            blockContext.unblock();
+          });
+      }
     }
   };
   // ustgah
@@ -308,7 +336,7 @@ const Information = (props: IProps) => {
       });
   };
   // ajiltan bwal bas huwi hun bolnoo
-  const isisIndividual = (checked: boolean) => {
+  const getIsIndividual = (checked: boolean) => {
     if (checked) {
       form.setFieldsValue({
         isIndividual: checked,
@@ -751,7 +779,7 @@ const Information = (props: IProps) => {
                 name="isIndividual"
                 valuePropName="checked"
               >
-                <NewSwitch />
+                <NewSwitch onChange={getIsIndividual} />
               </Form.Item>
               <Form.Item
                 label="Ажилтан эсэх"
@@ -759,7 +787,7 @@ const Information = (props: IProps) => {
                 valuePropName="checked"
               >
                 <NewSwitch
-                  onChange={(checked: boolean) => isisIndividual(checked)}
+                  onChange={(checked: boolean) => getIsIndividual(checked)}
                 />
               </Form.Item>
               <Form.Item
@@ -969,6 +997,7 @@ const Information = (props: IProps) => {
           </div>
         </Form>
       </NewModal>
+      {regnoAlertContextHolder}
     </>
   );
 };
