@@ -68,7 +68,7 @@ const CardList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "limitDiscount",
-      type: DataIndexType.NUMBER,
+      type: DataIndexType.VALUE,
     },
     isSale: {
       label: "Борлуулдаг эсэх",

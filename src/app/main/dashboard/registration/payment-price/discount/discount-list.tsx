@@ -42,7 +42,7 @@ const DiscountList = (props: IProps) => {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["command", "id"],
       type: DataIndexType.STRING,
     },
     commandAt: {
