@@ -62,6 +62,7 @@ const EditableTablePackage = (props: IProps) => {
   const onSave = async () => {
     return form
       .validateFields([
+        ["prices"],
         ["prices", editingIndex, "materialId"],
         ["prices", editingIndex, "unitAmount"],
       ])

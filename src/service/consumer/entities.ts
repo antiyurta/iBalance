@@ -41,6 +41,7 @@ export interface IFilterConsumer extends IFilter {
   bankAccountNo?: string[];
   email?: string[];
   isActive?: boolean[];
+  registerNumber?: string;
 }
 export type FilteredColumnsConsumer = {
   [T in keyof IFilterConsumer]?: ColumnType;

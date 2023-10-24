@@ -538,7 +538,7 @@ const MembershipCard = () => {
                       decimalScale={2}
                       fixedDecimalScale
                       displayType="input"
-                      customInput={NewInput}
+                      customInput={NewInputNumber}
                       suffix="₮"
                     />
                   </Form.Item>

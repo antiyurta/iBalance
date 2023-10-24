@@ -68,7 +68,7 @@ const CardList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "limitDiscount",
-      type: DataIndexType.NUMBER,
+      type: DataIndexType.VALUE,
     },
     isSale: {
       label: "Борлуулдаг эсэх",
@@ -172,6 +172,12 @@ const CardList = (props: IProps) => {
                     width={24}
                     height={24}
                     alt="downloadIcon"
+                  />
+                  <Image
+                    src={"/images/UploadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="uploadIcon"
                   />
                 </Space>
               </Space>

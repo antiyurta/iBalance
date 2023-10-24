@@ -9,7 +9,7 @@ import {
   Table,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, ReactNode, useEffect, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
@@ -33,11 +33,12 @@ interface IProps {
   form: FormInstance;
   add: () => void;
   remove: (index: number) => void;
+  errors: ReactNode[];
 }
 
 const EditableTableProduct = (props: IProps) => {
   const { message } = App.useApp();
-  const { data, form, add, remove } = props;
+  const { data, form, add, remove, errors } = props;
   const [materialDictionary, setMaterialDictionary] =
     useState<Map<number, IDataMaterial>>();
   const [isNewService, setNewService] = useState<boolean>(false);
@@ -56,6 +57,7 @@ const EditableTableProduct = (props: IProps) => {
   const onSave = async () => {
     return form
       .validateFields([
+        ["prices"],
         ["prices", editingIndex, "materialId"],
         ["prices", editingIndex, "unitAmount"],
       ])

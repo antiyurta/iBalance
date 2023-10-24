@@ -59,7 +59,7 @@ const Sidebar = () => {
         getItem("Буцаалтын шалтгаан", "/refund-reason"),
       ]),
       getItem("Төлбөр, үнэ", "/payment-price", <AppstoreOutlined />, [
-        getItem("Бүртгэл", "/product-price"),
+        getItem("Үндсэн үнэ", "/product-price"),
         getItem("Үйлчилгээний үнэ", "/service-price"),
         getItem("Багц үнэ", "/package-price"),
         getItem("Хөнгөлөлт", "/discount"),

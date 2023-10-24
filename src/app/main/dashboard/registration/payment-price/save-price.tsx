@@ -13,7 +13,7 @@ import {
   IResponseOneCommand,
 } from "@/service/command/entities";
 import { MaterialCommandService } from "@/service/command/service";
-import { openNofi } from "@/feature/common";
+import { hasUniqueValues, openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import mnMN from "antd/es/calendar/locale/mn_MN";
@@ -24,6 +24,7 @@ import EditableTableDiscount from "./discount/editableTable";
 import EditableTableCoupon from "./coupon/editableTable";
 import NewModal from "@/components/modal";
 import Information from "../customer/information/information";
+import { IDataPrice } from "@/service/command/price/entities";
 
 interface IProps {
   selectedCommand?: IDataCommand;
@@ -136,6 +137,16 @@ const SavePrice = (props: IProps) => {
             height={24}
             alt="printIcon"
           />
+          {!isEdit ? (
+            <Image
+              src={"/images/UploadIcon.svg"}
+              width={24}
+              height={24}
+              alt="uploadIcon"
+            />
+          ) : (
+            ""
+          )}
           <Image
             src={"/images/DownloadIcon.svg"}
             width={24}
@@ -238,7 +249,7 @@ const SavePrice = (props: IProps) => {
                         }
                         options={consumers.map((consumer) => ({
                           value: consumer.id,
-                          label: consumer.name,
+                          label: `${consumer.code} - ${consumer.name}`,
                         }))}
                       />
                     </Form.Item>
@@ -255,8 +266,24 @@ const SavePrice = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="prices">
-              {(items, { add, remove }) => {
+            <Form.List
+              name="prices"
+              rules={[
+                {
+                  validator: async (_, prices) => {
+                    const arr = Array.isArray(prices)
+                      ? prices.map((price: IDataPrice) => price.materialId)
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Барааны код давхардсан байна.")
+                      );
+                    }
+                  },
+                },
+              ]}
+            >
+              {(items, { add, remove }, { errors }) => {
                 if (type === CommandType.Material) {
                   return (
                     <EditableTableProduct
@@ -264,6 +291,7 @@ const SavePrice = (props: IProps) => {
                       form={form}
                       add={add}
                       remove={remove}
+                      errors={errors}
                     />
                   );
                 } else if (type === CommandType.Service) {
