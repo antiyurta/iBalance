@@ -59,6 +59,13 @@ const PriceList = (props: IProps) => {
       dataIndex: ["command", "ruleAt"],
       type: DataIndexType.DATE,
     },
+    isAll: {
+      label: "Нийтэд мөрдөх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["command", "isAll"],
+      type: DataIndexType.BOOLEAN,
+    },
     branchName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,

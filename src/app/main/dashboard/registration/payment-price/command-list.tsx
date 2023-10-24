@@ -62,6 +62,13 @@ const CommandList = (props: IProps) => {
       dataIndex: "ruleAt",
       type: DataIndexType.DATE,
     },
+    isAll: {
+      label: "Нийтэд мөрдөх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isAll",
+      type: DataIndexType.BOOLEAN,
+    },
     branchName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,

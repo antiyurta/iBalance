@@ -19,7 +19,7 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { IDataMembership } from "@/service/reference/membership/entities";
-import { IDataBranch } from "@/service/reference/branch/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import dayjs from "dayjs";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import "dayjs/locale/mn";
@@ -27,7 +27,7 @@ import { NewInput, NewSelect } from "@/components/input";
 
 interface IProps {
   data: FormListFieldData[];
-  branchs: IDataBranch[];
+  warehouses: IDataWarehouse[];
   memberships: IDataMembership[];
   form: FormInstance;
   editMode: boolean;
@@ -39,7 +39,7 @@ const { Column } = Table;
 
 const EditableTableCard: React.FC<IProps> = (props) => {
   const { message } = App.useApp();
-  const { data, branchs, memberships, form, editMode, add, remove } = props;
+  const { data, warehouses, memberships, form, editMode, add, remove } = props;
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
@@ -234,9 +234,9 @@ const EditableTableCard: React.FC<IProps> = (props) => {
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={branchs?.map((branch) => ({
-                value: branch.id,
-                label: branch.name,
+              options={warehouses.map((warehouse) => ({
+                value: warehouse.id,
+                label: warehouse.name,
               }))}
               disabled={!(index === editingIndex)}
             />
