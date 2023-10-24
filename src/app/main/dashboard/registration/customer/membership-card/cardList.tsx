@@ -173,6 +173,12 @@ const CardList = (props: IProps) => {
                     height={24}
                     alt="downloadIcon"
                   />
+                  <Image
+                    src={"/images/UploadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="uploadIcon"
+                  />
                 </Space>
               </Space>
             </Col>
