@@ -29,8 +29,8 @@ import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { IInputConsumerMembership, IResponseConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
-import { BranchService } from "@/service/reference/branch/service";
-import { IDataBranch } from "@/service/reference/branch/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { MembershipService } from "@/service/reference/membership/service";
 import {
   IDataMembership,
@@ -58,7 +58,7 @@ const MembershipCard = () => {
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-  const [branchs, setBranchs] = useState<IDataBranch[]>([]);
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [consumerDictionary, setConsumerDictionary] =
     useState<Map<number, IDataConsumer>>();
   const [memberships, setMemberships] = useState<IDataMembership[]>([]);
@@ -139,10 +139,10 @@ const MembershipCard = () => {
       }
     });
   };
-  const getBranchs = async () => {
-    await BranchService.get({}).then((response) => {
+  const getWarehouses = async () => {
+    await WarehouseService.get({}).then((response) => {
       if (response.success) {
-        setBranchs(response.response.data);
+        setWarehouses(response.response.data);
       }
     });
   };
@@ -236,7 +236,7 @@ const MembershipCard = () => {
   };
   useEffect(() => {
     getConsumers({});
-    getBranchs();
+    getWarehouses();
   }, []);
   useEffect(() => {
     setConsumerDictionary(
@@ -406,7 +406,7 @@ const MembershipCard = () => {
                 <EditableTableCard
                   data={cards}
                   memberships={memberships}
-                  branchs={branchs}
+                  warehouses={warehouses}
                   form={form}
                   add={add}
                   remove={remove}

@@ -1,11 +1,14 @@
 import Image from "next/image";
-import { Button, Col, Form, Row, Space } from "antd";
+import { Button, Checkbox, Col, Form, Row, Space } from "antd";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewInput, NewSelect } from "@/components/input";
 import { useContext, useEffect, useState } from "react";
-import { IDataBranch, IParamBranch } from "@/service/reference/branch/entities";
+import {
+  IDataWarehouse,
+  IParamWarehouse,
+} from "@/service/reference/warehouse/entities";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
-import { BranchService } from "@/service/reference/branch/service";
+import { WarehouseService } from "@/service/reference/warehouse/service";
 import { ConsumerService } from "@/service/consumer/service";
 import {
   CommandType,
@@ -38,12 +41,14 @@ const SavePrice = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
-  const [branchs, setBranchs] = useState<IDataBranch[]>([]);
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-  const getBranchs = async (params: IParamBranch) => {
-    await BranchService.get(params).then((response) => {
+  const [isSelectAllWarehouse, setIsSelectAllWarehouse] =
+    useState<boolean>(false);
+  const getWarehouses = async (params: IParamWarehouse) => {
+    await WarehouseService.get(params).then((response) => {
       if (response.success) {
-        setBranchs(response.response.data);
+        setWarehouses(response.response.data);
       }
     });
   };
@@ -97,12 +102,17 @@ const SavePrice = (props: IProps) => {
       form.resetFields();
     }
   };
+  const handleWarehouseSelectAll = () => {
+    setIsSelectAllWarehouse(!isSelectAllWarehouse);
+    form.setFieldValue("isAll", !isSelectAllWarehouse);
+  };
   useEffect(() => {
-    getBranchs({});
+    getWarehouses({});
     getConsumers({});
   }, []);
   useEffect(() => {
     if (selectedCommand) {
+      setIsSelectAllWarehouse(selectedCommand.isAll);
       form.setFieldsValue({
         ...selectedCommand,
         commandAt: dayjs(selectedCommand.commandAt, "YYYY-MM-DD"),
@@ -165,7 +175,16 @@ const SavePrice = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Тушаалын огноо" name="commandAt">
+                <Form.Item
+                  label="Тушаалын огноо"
+                  name="commandAt"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Тушаалын огноо оруулна уу.",
+                    },
+                  ]}
+                >
                   <NewDatePicker
                     style={{
                       width: "100%",
@@ -176,7 +195,16 @@ const SavePrice = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Тушаалын дугаар" name="commandNo">
+                <Form.Item
+                  label="Тушаалын дугаар"
+                  name="commandNo"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Тушаалын дугаар оруулна уу.",
+                    },
+                  ]}
+                >
                   <NewInput />
                 </Form.Item>
               </Col>
@@ -201,22 +229,79 @@ const SavePrice = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Мөрдөх төв, салбарын нэр" name="branchId">
-                  <NewSelect
-                    allowClear
-                    showSearch
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
+                {isEdit ? (
+                  <Form.Item
+                    label="Мөрдөх төв, салбарын нэр"
+                    name="warehouseId"
+                    rules={
+                      !isSelectAllWarehouse
+                        ? [
+                            {
+                              required: true,
+                              message: "Мөрдөх салбар оруулна уу.",
+                            },
+                          ]
+                        : []
                     }
-                    options={branchs.map((branch) => ({
-                      value: branch.id,
-                      label: branch.name,
-                    }))}
-                  />
+                  >
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={warehouses.map((warehouse) => ({
+                        value: warehouse.id,
+                        label: warehouse.name,
+                      }))}
+                      disabled={isSelectAllWarehouse}
+                    />
+                  </Form.Item>
+                ) : (
+                  <Form.Item
+                    label="Мөрдөх төв, салбарын нэр"
+                    name="warehouseIds"
+                    rules={
+                      !isSelectAllWarehouse
+                        ? [
+                            {
+                              required: true,
+                              message: "Мөрдөх салбар оруулна уу.",
+                            },
+                          ]
+                        : []
+                    }
+                  >
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      mode="multiple"
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={warehouses.map((warehouse) => ({
+                        value: warehouse.id,
+                        label: warehouse.name,
+                      }))}
+                      disabled={isSelectAllWarehouse}
+                    />
+                  </Form.Item>
+                )}
+                <Form.Item name="isAll">
+                  <Checkbox
+                    checked={isSelectAllWarehouse}
+                    onChange={handleWarehouseSelectAll}
+                  >
+                    бүх салбар сонгох
+                  </Checkbox>
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>

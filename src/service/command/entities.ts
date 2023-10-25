@@ -7,7 +7,7 @@ import {
   IParam,
   Meta,
 } from "../entities";
-import { IDataBranch } from "../reference/branch/entities";
+import { IDataWarehouse } from "../reference/warehouse/entities";
 import { IDataPrice } from "./price/entities";
 // Үнийн тушаалын төрөл
 export enum CommandType {
@@ -23,11 +23,12 @@ export interface IDataCommand extends IData {
   commandNo: string; // Тушаалын дугаар
   commandAt: string; // Тушаалын огноо
   ruleAt: string; // Мөрдөж эхлэх огноо
-  branchId: number; // Салбар
-  branch: IDataBranch;
+  warehouseId: number; // Салбар, Байршил
+  warehouse: IDataWarehouse;
   consumerId: number; // Харилцагч
   consumer: IDataConsumer;
   quantity: number; // Тоо ширхэг
+  isAll: boolean; // Бүгд мөрдөх эсэх
   prices: IDataPrice[];
   // TODO discounts: Discount[];
   // TODO coupons: Coupon[];
@@ -37,6 +38,7 @@ export interface IFilterCommand extends IFilter {
   commandNo?: string[]; // Тушаалын дугаар
   commandAt?: string[]; // Тушаалын огноо
   ruleAt?: string[]; // Мөрдөж эхлэх огноо
+  isAll?: boolean; // Бүгд мөрдөх эсэх
   branchName?: number[]; // Салбар
   consumerName?: string[]; // Харилцагчийн нэр
   consumerCode?: string[]; // Харилцагчийн код
