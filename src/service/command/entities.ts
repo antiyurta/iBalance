@@ -35,7 +35,7 @@ export interface IDataCommand extends IData {
 }
 export interface IFilterCommand extends IFilter {
   id?: number[];
-  commandNo?: string[]; // Тушаалын дугаар
+  commandNumbers?: string[]; // Тушаалын дугаар
   commandAt?: string[]; // Тушаалын огноо
   ruleAt?: string[]; // Мөрдөж эхлэх огноо
   isAll?: boolean; // Бүгд мөрдөх эсэх
@@ -47,6 +47,10 @@ export interface IFilterCommand extends IFilter {
 }
 export interface IParamCommand extends Meta, IParam, IFilterCommand {
   type: CommandType;
+  commandNo?: string;
+  consumerSectionId?: number;
+  createdUserId?: string;
+  updatedUserId?: number;
 }
 
 export type FilteredColumnsCommand = {

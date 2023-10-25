@@ -70,3 +70,9 @@ export interface LogoutResponse extends GenericResponse {
 export interface AuthenticationResponse extends GenericResponse {
   response: IUser;
 }
+export interface IResponseUser extends GenericResponse {
+  response: IUser[];
+}
+export interface IParamUser {
+  ids?: number[];
+}

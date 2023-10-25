@@ -216,13 +216,13 @@ const MembershipCard = () => {
         }
       });
     }
-    openNofi("success", "Амжилттай", "Амжиллтай хадгаллаа.");
+    openNofi("success", "Гишүүнчлэл", "Амжилттай хадгаллаа.");
   };
   const onDeleteConsumer = async (id: number) => {
     await ConsumerMembershipService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadList(!isReloadList);
-        openNofi("success", "Амжилттай", "Амжиллтай устгалаа.");
+        openNofi("success", "Гишүүнчлэл", "Амжилттай устгалаа.");
       }
     });
   };
@@ -230,7 +230,7 @@ const MembershipCard = () => {
     await MembershipService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadCardList(!isReloadCardList);
-        openNofi("success", "Амжилттай", "Амжиллтай устгалаа.");
+        openNofi("success", "Гишүүнчлэл карт", "Амжилттай устгалаа.");
       }
     });
   };

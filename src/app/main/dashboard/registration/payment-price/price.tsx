@@ -56,7 +56,7 @@ const Price = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>Үндсэн бүртгэл / Төлбөр, үнэ / {name}</Title>
+                <Title level={3}>Үндсэн бүртгэл / Төлбөр, үнэ / {name}</Title>
               </Space>
             </Col>
             <Col md={24} lg={8} xl={5}>

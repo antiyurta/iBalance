@@ -52,7 +52,7 @@ const DiscountList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNo: {
+    commandNumbers: {
       label: "Тушаалын дугаар",
       isView: false,
       isFiltered: false,

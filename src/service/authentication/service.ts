@@ -1,6 +1,8 @@
 import { api } from "../../feature/interceptor/interceptor";
 import {
   AuthenticationResponse,
+  IParamUser,
+  IResponseUser,
   LoginBody,
   LoginResponse,
   LogoutResponse,
@@ -14,7 +16,7 @@ function authLogout(): Promise<LogoutResponse> {
   return api.post("/authentication/logout");
 }
 function authGet(): Promise<AuthenticationResponse> {
-  return api.get(`/authentication`);
+  return api.get("/authentication");
 }
 function updateToken(tokens: Tokens): Promise<LoginResponse> {
   return api.get("/authentication/refresh/token", {
@@ -24,9 +26,13 @@ function updateToken(tokens: Tokens): Promise<LoginResponse> {
     },
   });
 }
+function getAllUsers(params: IParamUser): Promise<IResponseUser> {
+  return api.get("user", { params });
+}
 export const authService = {
   authGet,
   authLogin,
   authLogout,
   updateToken,
+  getAllUsers,
 };

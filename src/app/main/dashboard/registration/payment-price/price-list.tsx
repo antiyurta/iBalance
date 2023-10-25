@@ -45,7 +45,7 @@ const PriceList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNo: {
+    commandNumbers: {
       label: "Тушаалын дугаар",
       isView: true,
       isFiltered: false,

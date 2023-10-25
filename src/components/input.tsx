@@ -69,6 +69,34 @@ function NewSelect(props: SelectProps) {
     </ConfigProvider>
   );
 }
+function NewFilterSelect(props: SelectProps) {
+  return (
+    <ConfigProvider
+      renderEmpty={() => (
+        <div
+          style={{
+            margin: "6px 12px",
+          }}
+        >
+          Дата байхгүй
+        </div>
+      )}
+    >
+      <Select
+        {...props}
+        allowClear
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          (option?.label ?? "")
+            .toString()
+            .toLowerCase()
+            .includes(input.toLowerCase())
+        }
+      />
+    </ConfigProvider>
+  );
+}
 
 function NewInput(props: InputProps) {
   return <Input {...props} />;
@@ -125,6 +153,7 @@ export {
   NewDatePicker,
   NewRangePicker,
   NewSelect,
+  NewFilterSelect,
   NewInput,
   NewInputPassword,
   NewTextArea,

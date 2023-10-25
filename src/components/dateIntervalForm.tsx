@@ -10,6 +10,8 @@ interface IProps {
     dateStyle?: CSSProperties;
   };
   form: FormInstance;
+  itemname: string;
+  label?: string;
 }
 
 type ISelectValueType =
@@ -26,8 +28,10 @@ const DateIntervalForm = (props: IProps) => {
   const {
     form,
     customStyle: { intervalStyle, dateStyle },
+    itemname,
+    label,
   } = props;
-  const [selectedValue, setSelectedValue] = useState<ISelectValueType>("that");
+  const [selectedValue, setSelectedValue] = useState<ISelectValueType>();
   const RenderDateFormItem = () => {
     if (
       selectedValue === "that" ||
@@ -35,7 +39,11 @@ const DateIntervalForm = (props: IProps) => {
       selectedValue === "late"
     ) {
       return (
-        <Form.Item style={dateStyle} label="Огноо сонгох" name="date">
+        <Form.Item
+          style={dateStyle}
+          label="Огноо сонгох"
+          name={[itemname, "date"]}
+        >
           <NewDatePicker
             style={{
               width: "100%",
@@ -46,23 +54,27 @@ const DateIntervalForm = (props: IProps) => {
       );
     } else if (selectedValue === "between") {
       return (
-        <Form.Item style={dateStyle} label="Огноо сонгох" name="dates">
+        <Form.Item
+          style={dateStyle}
+          label="Огноо сонгох"
+          name={[itemname, "dates"]}
+        >
           <NewRangePicker locale={locale} />
         </Form.Item>
       );
-    } else if (
-      selectedValue === "month" ||
-      selectedValue === "quarter" ||
-      selectedValue === "year"
-    ) {
+    } else if (selectedValue === "month" || selectedValue === "quarter" || selectedValue === "year") {
       return (
-        <Form.Item style={dateStyle} label="Огноо сонгох" name="dates">
+        <Form.Item
+          style={dateStyle}
+          label="Огноо сонгох"
+          name={[itemname, "date"]}
+        >
           <NewDatePicker picker={selectedValue} locale={locale} />
         </Form.Item>
       );
     } else if (selectedValue === "selection") {
       return (
-        <Form.Item style={dateStyle} label="Огноо сонгох" name="multiDates">
+        <Form.Item style={dateStyle} label="Огноо сонгох" name={[itemname, "dates"]}>
           <NewMultipleDatePicker multiple />
         </Form.Item>
       );
@@ -70,14 +82,19 @@ const DateIntervalForm = (props: IProps) => {
   };
   return (
     <>
-      <Form.Item style={intervalStyle} label={"Интерваль"} name="interval">
+      <Form.Item
+        style={intervalStyle}
+        label={label ? label : "Интерваль"}
+        name={[itemname, "interval"]}
+      >
         <NewSelect
           style={{
             width: "100%",
           }}
+          allowClear
           onChange={(value) => {
             setSelectedValue(value);
-            form.resetFields(["date", "dates", "multiDates"]);
+            form.resetFields(["date", "dates"]);
           }}
           options={[
             {

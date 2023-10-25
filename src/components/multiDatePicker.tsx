@@ -1,13 +1,8 @@
 import type { CalendarProps, DatePickerProps } from "react-multi-date-picker";
 import DatePicker from "react-multi-date-picker";
-import { CalendarOutlined } from "@ant-design/icons";
-import { NewInput } from "./input";
 export const NewMultipleDatePicker = (
   props: Omit<CalendarProps, "onChange"> & DatePickerProps
 ) => {
-  function CustomInput({ onFocus, value, onChange }: any) {
-    return <input onFocus={onFocus} value={value} onChange={onChange} />;
-  }
   return (
     <DatePicker
       style={{

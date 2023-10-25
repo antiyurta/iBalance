@@ -28,6 +28,7 @@ import EditableTableCoupon from "./coupon/editableTable";
 import NewModal from "@/components/modal";
 import Information from "../customer/information/information";
 import { IDataPrice } from "@/service/command/price/entities";
+import { ConsumerSelect } from "@/components/consumer-select";
 
 interface IProps {
   selectedCommand?: IDataCommand;
@@ -39,23 +40,14 @@ const SavePrice = (props: IProps) => {
   const { selectedCommand, isEdit, isSucess, type } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [isSelectAllWarehouse, setIsSelectAllWarehouse] =
     useState<boolean>(false);
   const getWarehouses = async (params: IParamWarehouse) => {
     await WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
-      }
-    });
-  };
-  const getConsumers = async (params: IParamConsumer) => {
-    await ConsumerService.get(params).then((response) => {
-      if (response.success) {
-        setConsumers(response.response.data);
       }
     });
   };
@@ -108,7 +100,6 @@ const SavePrice = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses({});
-    getConsumers({});
   }, []);
   useEffect(() => {
     if (selectedCommand) {
@@ -306,39 +297,10 @@ const SavePrice = (props: IProps) => {
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item label="Харилцагчын код, нэр">
-                  <Space.Compact>
-                    <div
-                      className="extraButton"
-                      onClick={() => setIsOpenPopOver(true)}
-                    >
-                      <Image
-                        src="/icons/clipboardBlack.svg"
-                        width={16}
-                        height={16}
-                        alt="clipboard"
-                      />
-                    </div>
-                    <Form.Item name="consumerId">
-                      <NewSelect
-                        style={{
-                          width: "100%",
-                        }}
-                        allowClear
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toString()
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={consumers.map((consumer) => ({
-                          value: consumer.id,
-                          label: `${consumer.code} - ${consumer.name}`,
-                        }))}
-                      />
-                    </Form.Item>
-                  </Space.Compact>
+                  <ConsumerSelect
+                    form={form}
+                    rules={[]}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -463,22 +425,6 @@ const SavePrice = (props: IProps) => {
           </div>
         </NewCard>
       </Col>
-      <NewModal
-        width={1300}
-        title="Харилцагчын жагсаалт"
-        open={isOpenPopOver}
-        onCancel={() => setIsOpenPopOver(false)}
-      >
-        <Information
-          ComponentType="MIDDLE"
-          onClickModal={(row: IDataConsumer) => {
-            form.setFieldsValue({
-              consumerId: row.id,
-            });
-            setIsOpenPopOver(false);
-          }}
-        />
-      </NewModal>
     </Row>
   );
 };
