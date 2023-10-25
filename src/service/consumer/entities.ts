@@ -1,5 +1,11 @@
-import { ColumnType, GenericResponse, IFilter, IParam, Meta } from "../entities";
-import { IDataReference } from "../reference/entity";
+import {
+  ColumnType,
+  GenericResponse,
+  IFilter,
+  IParam,
+  Meta,
+} from "../entities";
+import { IDataReference, IDataUser } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
 import { IDataConsumerMembership } from "./membership/entities";
 
@@ -26,6 +32,7 @@ export interface IDataConsumer {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  updatedUser: IDataUser;
 }
 export interface IFilterConsumer extends IFilter {
   code?: number[];
@@ -41,13 +48,14 @@ export interface IFilterConsumer extends IFilter {
   bankAccountNo?: string[];
   email?: string[];
   isActive?: boolean[];
-  registerNumber?: string;
 }
 export type FilteredColumnsConsumer = {
   [T in keyof IFilterConsumer]?: ColumnType;
 };
 
 export interface IParamConsumer extends Meta, IParam, IFilterConsumer {
+  ids?: number[];
+  lendLimits?: boolean;
   memberships?: boolean;
   isSupplier?: boolean;
 }

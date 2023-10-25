@@ -93,14 +93,34 @@ function EditableTableLimit(props: IProps) {
   const accountFormField = (id: number) => {
     const account = accountsDictionary?.get(id);
     if (account) {
-      form.setFieldsValue({
-        ["accounts"]: {
-          [`${editingIndex}`]: {
-            accountId: account.id,
-            name: account.name,
+      const formAccounts = form.getFieldValue("accounts");
+      var isHave: IDataReferenceAccount[] = formAccounts.filter(
+        (formAccount: { accountId: number }) => {
+          return formAccount.accountId === account.id;
+        }
+      );
+      if (isHave.length > 1) {
+        message.error({
+          content: `${account.code} дансны дугаар давхцаж байна`,
+        });
+        form.setFieldsValue({
+          ["accounts"]: {
+            [`${editingIndex}`]: {
+              accountId: "",
+              name: "",
+            },
           },
-        },
-      });
+        });
+      } else {
+        form.setFieldsValue({
+          ["accounts"]: {
+            [`${editingIndex}`]: {
+              accountId: account.id,
+              name: account.name,
+            },
+          },
+        });
+      }
     }
   };
   const getAccounts = async (params: IParamReferenceAccount) => {

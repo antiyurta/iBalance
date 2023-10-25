@@ -1,9 +1,11 @@
-import { GenericResponse, IFilters, Meta } from "../../entities";
-
-export interface IParams {
-  page?: number | undefined;
-  limit?: number | undefined;
-}
+import {
+  GenericResponse,
+  IFilter,
+  IFilters,
+  IParam,
+  Meta,
+  ColumnType,
+} from "../../entities";
 
 export interface IDataType {
   accountNo: string;
@@ -12,6 +14,17 @@ export interface IDataType {
   name: string;
   updatedAt: string;
 }
+
+export interface IFilterMaterialType extends IFilter {
+  accountNo?: string;
+  name?: string;
+}
+
+export type FilteredColumnsMaterialType = {
+  [T in keyof IFilterMaterialType]?: ColumnType;
+};
+
+export interface IParamMaterialType extends Meta, IParam, IFilterMaterialType {}
 
 export interface ITypeResponse extends GenericResponse {
   response: {

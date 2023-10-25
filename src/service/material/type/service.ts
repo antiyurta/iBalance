@@ -1,7 +1,7 @@
 import { api } from "@/feature/interceptor/interceptor";
-import { IDataType, IParams, ITypeResponse } from "./entities";
+import { IDataType, IParamMaterialType, ITypeResponse } from "./entities";
 
-function get(params?: IParams): Promise<ITypeResponse> {
+function get(params?: IParamMaterialType): Promise<ITypeResponse> {
   return api.get("material-type", { params: params });
 }
 

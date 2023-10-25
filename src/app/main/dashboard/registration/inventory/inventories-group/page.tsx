@@ -16,7 +16,7 @@ import {
   Upload,
 } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IDataMaterialSection } from "@/service/material/section/entities";
 import { MaterialSectionService } from "@/service/material/section/service";
 import { IDataType } from "@/service/material/type/entities";
@@ -28,6 +28,8 @@ import { ReferenceService } from "@/service/reference/reference";
 import { openNofi } from "@/feature/common";
 import type { UploadProps } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
+import { MaterialService } from "@/service/material/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 
 const { Title } = Typography;
 
@@ -47,11 +49,13 @@ interface MyUploadFile extends UploadFile {
 const InventoriesGroup = () => {
   const { modal } = App.useApp();
   const [addForm] = Form.useForm();
+  const isExpand = Form.useWatch("isExpand", addForm);
   const {
     login_data: {
       response: { accessToken },
     },
   } = useTypedSelector((state: RootState) => state.core);
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
@@ -61,6 +65,10 @@ const InventoriesGroup = () => {
   const [type, setType] = useState<IDataType[]>([]);
   const [isOpenModalType, setIsOpenModalType] = useState<boolean>(false);
   const [fileList, setFileList] = useState<MyUploadFile>();
+  //
+  const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<number>();
+  const [editMode, setEditMode] = useState<boolean>(false);
   //
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -124,6 +132,46 @@ const InventoriesGroup = () => {
       onFinish(values);
     }
   };
+  const checkSectionInMaterial = async (sectionId: number) => {
+    await MaterialService.get({ materialSectionId: [sectionId] }).then(
+      (response) => {
+        if (response.response.data.length > 0) {
+          setIsHaveChild(true);
+        } else {
+          setIsHaveChild(false);
+        }
+      }
+    );
+  };
+  const checkTreeIn = async (sectionId: number) => {
+    await MaterialSectionService.get({
+      sectionId: [sectionId],
+    }).then((response) => {
+      if (response.response.data.length > 0) {
+        setIsHaveChild(true);
+      } else {
+        setIsHaveChild(false);
+      }
+    });
+  };
+  const checkEdit = (row: IDataMaterialSection) => {
+    console.log(row);
+    if (!row.isExpand) {
+      checkSectionInMaterial(row.id);
+    } else {
+      checkTreeIn(row.id);
+    }
+    setSelectedGroupId(row.id);
+    addForm.setFieldsValue({
+      name: row.name,
+      sectionId: row.sectionId,
+      isExpand: !row.isExpand,
+      isSale: row.isSale,
+      materialTypeId: row.materialTypeId,
+    });
+    setEditMode(true);
+    setIsOpenAddModal(true);
+  };
   // section awchirah
   const getMaterialSections = async () => {
     await MaterialSectionService.get({}).then((response) => {
@@ -135,26 +183,68 @@ const InventoriesGroup = () => {
       setType(response.response.data);
     });
   };
+
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await MaterialSectionService.getById(id)
+      .then((response) => {
+        if (response.response.sections?.length > 0) {
+          modal.error({
+            maskClosable: true,
+            title: "Алдаа",
+            content: (
+              <>
+                <p>
+                  Бараа материал бүртгэгдсэн тул &ldquo;{response.response.name}
+                  &ldquo; бүлгийг устгах боломжгүй байна.
+                </p>
+              </>
+            ),
+            footer: null,
+          });
+        } else {
+          modal.info({
+            maskClosable: true,
+            title: "Устгах",
+            content: "Та бүртгэлийг устгахдаа итгэлтэй байна уу ?",
+            onOk: async () => {
+              await MaterialSectionService.remove(id)
+                .then((response) => {
+                  if (response.success) {
+                    openNofi("success", "Амжилттай", "Амжилттай устгагдлаа");
+                    getMaterialSections();
+                  }
+                })
+                .finally(() => {
+                  return;
+                });
+            },
+          });
+        }
+        console.log(response);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+
   useEffect(() => {
     getMaterialSections();
+    getInventoriesType();
   }, []);
-  useEffect(() => {
-    addForm.setFieldsValue({
-      isExpand: isLeafAdd,
-    });
-  }, [isLeafAdd]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>Үндсэн бүртгэл / Бараа материал / Бүлэг</Title>
+            <Title level={3}>Үндсэн бүртгэл / Бараа материал / Бүлэг</Title>
             <Button
               type="primary"
               onClick={() => {
+                setEditMode(false);
+                setSelectedGroupId(undefined);
                 setIsOpenAddModal(true);
                 addForm.resetFields();
-                getInventoriesType();
               }}
               icon={
                 <Image
@@ -210,11 +300,11 @@ const InventoriesGroup = () => {
         </Col>
         <Col span={24}>
           <NewDirectoryTree
-            mode="CONSUMER"
             extra="FULL"
             data={sections}
             isLeaf={true}
-            width={"100%"}
+            onEdit={checkEdit}
+            onDelete={onDelete}
           />
         </Col>
       </Row>
@@ -281,16 +371,16 @@ const InventoriesGroup = () => {
                     onOpenChange={(state) => setIsOpenPopOverAdd(state)}
                     content={
                       <NewDirectoryTree
-                        mode="CONSUMER"
                         extra="HALF"
                         data={sections}
                         isLeaf={true}
-                        onClick={(key, isLeaf) => {
-                          setIsLeafAdd(isLeaf);
-                          setIsOpenPopOverAdd(false);
+                        onClick={(keys, isLeaf) => {
+                          checkSectionInMaterial(keys[0]);
                           addForm.setFieldsValue({
-                            sectionId: key,
+                            sectionId: keys![0],
+                            isExpand: !isLeaf,
                           });
+                          setIsOpenPopOverAdd(false);
                         }}
                       />
                     }
@@ -330,88 +420,83 @@ const InventoriesGroup = () => {
                 name="isExpand"
                 valuePropName="checked"
               >
-                <NewSwitch />
+                <NewSwitch disabled={isHaveChild} />
               </Form.Item>
             </div>
-            <div className="switches-col">
-              <Form.Item
-                label="Борлуулах бараа, үйлчилгээ эсэх"
-                name="isExpand"
-                valuePropName="checked"
-              >
-                <NewSwitch />
-              </Form.Item>
-            </div>
-            <div className="switches-col">
-              <Form.Item
-                label="Зарах эсэх"
-                name="isSale"
-                valuePropName="checked"
-              >
-                <NewSwitch />
-              </Form.Item>
-            </div>
-            <Form.Item label="Холбох код">
-              <Space.Compact>
-                <div className="extraButton">
-                  <Image
-                    onClick={() => setIsOpenModalType(true)}
-                    src="/icons/clipboardBlack.svg"
-                    width={16}
-                    height={16}
-                    alt="clipboard"
-                  />
+            {isExpand ? (
+              <>
+                <div className="switches-col">
+                  <Form.Item
+                    label="Борлуулах бараа, үйлчилгээ эсэх"
+                    name="isSale"
+                    valuePropName="checked"
+                  >
+                    <NewSwitch />
+                  </Form.Item>
                 </div>
-                <Form.Item
-                  name="materialTypeId"
-                  rules={[
-                    {
-                      required: false,
-                      message: "Холбох код",
-                    },
-                    {
-                      pattern: /^\d*(?:\.\d+)?$/,
-                      message: "Зөвхөн тоо оруулах",
-                    },
-                  ]}
-                >
-                  <NewSelect
-                    allowClear
-                    showSearch
-                    optionFilterProp="children"
-                    filterOption={(input, label) =>
-                      (label?.label ?? "")
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={type?.map((type) => ({
-                      label: type.name,
-                      value: type.id,
-                    }))}
-                  />
+                <Form.Item label="Холбох код">
+                  <Space.Compact>
+                    <div className="extraButton">
+                      <Image
+                        onClick={() => setIsOpenModalType(true)}
+                        src="/icons/clipboardBlack.svg"
+                        width={16}
+                        height={16}
+                        alt="clipboard"
+                      />
+                    </div>
+                    <Form.Item
+                      name="materialTypeId"
+                      rules={[
+                        {
+                          required: false,
+                          message: "Холбох код",
+                        },
+                        {
+                          pattern: /^\d*(?:\.\d+)?$/,
+                          message: "Зөвхөн тоо оруулах",
+                        },
+                      ]}
+                    >
+                      <NewSelect
+                        allowClear
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, label) =>
+                          (label?.label ?? "")
+                            .toString()
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={type?.map((type) => ({
+                          label: type.name,
+                          value: type.id,
+                        }))}
+                      />
+                    </Form.Item>
+                  </Space.Compact>
                 </Form.Item>
-              </Space.Compact>
-            </Form.Item>
-            <Form.Item label="Зураг оруулах" valuePropName="fileList">
-              <Upload
-                maxCount={1}
-                headers={headers}
-                action={`${process.env.NEXT_PUBLIC_BASEURL}/local-files/fileUpload`}
-                fileList={fileList ? [fileList] : []}
-                listType="picture-card"
-                beforeUpload={beforeUpload}
-                onChange={onChange}
-                onRemove={handleRemove}
-              >
-                <PlusOutlined
-                  style={{
-                    fontSize: 24,
-                    color: "#6c757d",
-                  }}
-                />
-              </Upload>
-            </Form.Item>
+                <Form.Item label="Зураг оруулах" valuePropName="fileList">
+                  <Upload
+                    maxCount={1}
+                    headers={headers}
+                    action={`${process.env.NEXT_PUBLIC_BASEURL}/local-files/fileUpload`}
+                    fileList={fileList ? [fileList] : []}
+                    listType="picture-card"
+                    beforeUpload={beforeUpload}
+                    onChange={onChange}
+                    onRemove={handleRemove}
+                  >
+                    <PlusOutlined
+                      style={{
+                        fontSize: 24,
+                        color: "#6c757d",
+                      }}
+                    />
+                  </Upload>
+                </Form.Item>
+              </>
+            ) : null}
           </div>
         </Form>
       </NewModal>

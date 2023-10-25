@@ -22,7 +22,7 @@ import {
 import { IDataCountry } from "@/service/reference/country/entities";
 import { BrandService } from "@/service/reference/brand/service";
 import { ReferenceService } from "@/service/reference/reference";
-import { Form } from "antd";
+import { Form, Typography } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -30,6 +30,8 @@ interface IProps {
   ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
+
+const { Title } = Typography;
 
 const InventoriesBrand = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
@@ -118,9 +120,9 @@ const InventoriesBrand = (props: IProps) => {
         <div className="header">
           <div className="left">
             {ComponentType === "FULL" ? (
-              <p>Үндсэн бүртгэл / Бараа материал / Бренд</p>
+              <Title level={3}>Үндсэн бүртгэл / Бараа материал / Бренд</Title>
             ) : (
-              <p>Бренд</p>
+              <Title level={3}>Бренд</Title>
             )}
             <button
               className="app-button"

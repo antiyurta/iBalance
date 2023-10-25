@@ -1,112 +1,211 @@
 import { Tooltip, Tree } from "antd";
 import Image from "next/image";
 import type { DataNode, DirectoryTreeProps } from "antd/es/tree";
-import { NewSearch } from "./input";
-import { useEffect, useState } from "react";
-const { DirectoryTree } = Tree;
+import { NewInput } from "./input";
+import { useEffect, useMemo, useState } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-//service
-import { TreeMode } from "@/service/entities";
-import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
-import { listToTree } from "@/feature/common";
-import { TreeSectionService } from "@/service/reference/tree-section/service";
-import { TreeSectionType } from "@/service/reference/tree-section/entities";
+import { IDataTreeSection } from "@/service/reference/tree-section/entities";
+import { IDataMaterialSection } from "@/service/material/section/entities";
+import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
 
 type TreeExtra = "FULL" | "HALF";
 
 interface IProps {
-  mode: TreeMode;
-  extra: TreeExtra;
-  data: any[];
-  width?: string;
+  data: IDataTreeSection[] | IDataMaterialSection[];
   isLeaf: boolean;
-  onClick?: (key: number, isLeaf: boolean | undefined) => void;
+  extra: TreeExtra;
+  // mode: TreeMode;
+  // data: any[];
+  // width?: string;
+  onClick?: (keys: number[], isLeaf?: boolean) => void;
   onEdit?: (row: any) => void;
   onDelete?: (id: any) => void;
 }
 
+interface xDataNote extends DataNode {
+  parentId?: number;
+}
+
+let defaultData: DataNode[] = [];
+
+interface Node {
+  id: number;
+  parentId: number | null;
+}
+
 const NewDirectoryTree = (props: IProps) => {
-  const { mode, extra, data, isLeaf, onClick, onEdit, onDelete } = props;
-  const [newData, setNewData] = useState<any[]>(data);
-  const defaultData: DataNode[] = [];
-  const [newTreeData, setNewTreeData] = useState<DataNode[]>([]);
-  const unitTree: DataNode[] = [
-    {
-      title: "Хэмжих нэгжийн бүлэг",
-      key: "0-0",
-      children: [
-        {
-          title: "Тооны хэмжих нэгж",
-          key: MeasurementType.Quantity,
-          isLeaf: true,
-        },
-        {
-          title: "Уртын хэмжих нэгж",
-          key: MeasurementType.Length,
-          isLeaf: true,
-        },
-        {
-          title: "Шингэний хэмжих нэгж",
-          key: MeasurementType.Volume,
-          isLeaf: true,
-        },
-        {
-          title: "Талбайн хэмжих нэгж",
-          key: MeasurementType.Area,
-          isLeaf: true,
-        },
-        {
-          title: "Цаг хугацааны хэмжих нэгж",
-          key: MeasurementType.Time,
-          isLeaf: true,
-        },
-        {
-          title: "Хүндийн хэмжих нэгж",
-          key: MeasurementType.Weight,
-          isLeaf: true,
-        },
-      ],
-    },
-  ];
+  const { data, isLeaf, extra, onClick, onDelete, onEdit } = props;
+  // shiner bichew
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
+  const dataList: { key: React.Key; title: string }[] = [];
+  const generateList = (data: DataNode[]) => {
+    for (let i = 0; i < data.length; i++) {
+      const node = data[i];
+      const { key } = node;
+      dataList.push({ key, title: key as string });
+      if (node.children) {
+        generateList(node.children);
+      }
+    }
+  };
+  generateList(defaultData);
   const onSelect: DirectoryTreeProps["onSelect"] = async (keys, info) => {
-    if (isLeaf && info.node.isLeaf) {
-      onClick?.(Number(info.node.key), isLeaf);
+    if (!isLeaf) {
+      const childrenIds = getChildrenIds(
+        info.node.key as number,
+        data.map((item) => ({
+          id: item.id,
+          parentId: item.sectionId,
+        }))
+      );
+      if (childrenIds.length === 0) {
+        onClick?.([Number(info.node.key)]);
+      } else {
+        onClick?.(childrenIds);
+      }
     } else {
-      onClick?.(Number(info.node.key), info.node.isLeaf);
+      const selectedNode = data.find((item) => item.id === info.node.key);
+      onClick?.([info.node.key as number], selectedNode?.isExpand);
     }
   };
-  const getTreeData = async (data: any[]) => {
-    setNewTreeData(listToTree(data));
+  function getChildrenIds(parentId: number | null, nodes: Node[]): number[] {
+    const childrenIds: number[] = [];
+    for (const node of nodes) {
+      if (node.parentId === parentId) {
+        const nodeChildrenIds = getChildrenIds(node.id, nodes);
+        childrenIds.push(node.id, ...nodeChildrenIds);
+      }
+    }
+    return childrenIds;
+  }
+  const getParentKey = (key: React.Key, tree: xDataNote[]): React.Key => {
+    let parentKey: React.Key;
+    for (let i = 0; i < tree.length; i++) {
+      const node = tree[i];
+      if (node.children) {
+        if (node.children.some((item: xDataNote) => item.parentId === key)) {
+          parentKey = node.key;
+        } else if (getParentKey(key, node.children)) {
+          parentKey = getParentKey(key, node.children);
+        }
+      }
+    }
+    return parentKey!;
   };
-  const setMaterialToTree = async (data: any[]) => {
-    setNewTreeData(listToTree(data));
+  const getExpandKeys = (value: string) => {
+    return data
+      .map((item) => {
+        if (item.name.toLocaleLowerCase().includes(value.toLocaleLowerCase())) {
+          return getParentKey(item.sectionId, defaultData);
+        }
+        return null;
+      })
+      .filter(
+        (item, i, self): item is React.Key =>
+          !!(item && self.indexOf(item) === i)
+      );
   };
+  const onSearch = (value: string) => {
+    const newExpandedKeys = getExpandKeys(value);
+    setExpandedKeys(newExpandedKeys);
+    setSearchValue(value);
+    setAutoExpandParent(true);
+  };
+  const onExpand = (newExpandedKeys: React.Key[]) => {
+    setExpandedKeys(newExpandedKeys);
+    setAutoExpandParent(false);
+  };
+  const generateData = () => {
+    let root: DataNode[] = [];
+    const cloneData: xDataNote[] = data?.map((el) => {
+      return {
+        title: el.name as string,
+        key: el.id,
+        parentId: el.sectionId,
+        isLeaf: !el.isExpand ? !el.isExpand : undefined,
+      };
+    });
+    const idMapping = data?.reduce(
+      (acc: { [key: number]: number }, el, i: number) => {
+        acc[el.id] = i;
+        return acc;
+      },
+      {}
+    );
+    cloneData?.forEach((el) => {
+      if (el.parentId === null) {
+        root.push(el);
+        return;
+      }
+      const parentEl = cloneData?.[idMapping[el.parentId as number]];
+      parentEl!.children = [...(parentEl?.children || []), el];
+    });
+    defaultData = root;
+  };
+  generateData();
+  const treeData = useMemo(() => {
+    const loop = (data: DataNode[]): DataNode[] =>
+      data.map((item) => {
+        const strTitle = item.title as string;
+        const index = strTitle.toLowerCase().indexOf(searchValue.toLowerCase());
+        const beforeStr = strTitle.substring(0, index);
+        const afterStr = strTitle.slice(index + searchValue.length);
+        const title =
+          index > -1 ? (
+            <span>
+              {beforeStr}
+              <span className="site-tree-search-value">{searchValue}</span>
+              {afterStr}
+            </span>
+          ) : (
+            <span>{strTitle}</span>
+          );
+        if (item.children) {
+          return { title, key: item.key, children: loop(item.children) };
+        }
+        return {
+          title,
+          key: item.key,
+        };
+      });
+    return loop(defaultData);
+  }, [searchValue, data]);
+  useEffect(() => {
+    if (searchValue != "") {
+      onSearch(searchValue);
+    }
+  }, [searchValue]);
   //
-  useEffect(() => {
-    setNewData(data);
-  }, [data]);
-  useEffect(() => {
-    if (mode === "CONSUMER" || mode === "MATERIAL" || mode === "STORAGE") {
-      getTreeData(newData);
-    }
-  }, [newData]);
   return (
     <div className="directory-tree">
       <div className="header">
         <Tooltip title="Бүгдийг хаах">
           <Image
+            onClick={() => {
+              setExpandedKeys([]);
+              setSearchValue("");
+            }}
             src={"/images/folder.svg"}
             width={24}
             height={24}
             alt="folder"
           />
         </Tooltip>
-        <Image
-          src={"/images/openFolder.svg"}
-          width={24}
-          height={24}
-          alt="openfolder"
-        />
+        <Tooltip title="Бүгдийг нээх">
+          <Image
+            onClick={() => {
+              const keys = getExpandKeys("");
+              setExpandedKeys(keys);
+            }}
+            src={"/images/openFolder.svg"}
+            width={24}
+            height={24}
+            alt="openfolder"
+          />
+        </Tooltip>
+
         <p>Бүлгийн нэр</p>
       </div>
       <div className="content">
@@ -115,43 +214,92 @@ const NewDirectoryTree = (props: IProps) => {
             padding: "0 12px",
           }}
         >
-          <NewSearch placeholder="Бүлэгийн нэрээр хайх" />
+          <NewInput
+            value={searchValue}
+            onChange={(e) => {
+              setSearchValue(e.target.value);
+            }}
+            placeholder="Бүлэгийн нэрээр хайх"
+          />
         </div>
-        {newTreeData?.length > 0 ? (
-          <DirectoryTree
-            titleRender={(nodeData) => {
-              if (extra === "FULL") {
-                return (
+        <Tree
+          rootClassName="dd"
+          rootStyle={{
+            padding: "0 12px",
+          }}
+          showLine
+          onExpand={onExpand}
+          expandedKeys={expandedKeys}
+          autoExpandParent={autoExpandParent}
+          titleRender={(nodeData) => {
+            const title: string = nodeData.title as string;
+            if (extra === "FULL") {
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      justifyContent: "space-between",
+                      gap: 12,
                     }}
                   >
-                    <span>{nodeData.title?.toString()}</span>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: 8,
-                      }}
-                    >
-                      <EditOutlined onClick={() => onEdit?.(nodeData)} />
-                      <DeleteOutlined
-                        onClick={() => onDelete?.(nodeData.key)}
-                      />
+                    <div>
+                      {data.find((item) => item.id === nodeData.key)
+                        ?.isExpand ? (
+                        <FolderOpenOutlined />
+                      ) : (
+                        <FileOutlined />
+                      )}
                     </div>
+                    <span>{title}</span>
                   </div>
-                );
-              } else if (extra === "HALF") {
-                return nodeData.title?.toString();
-              }
-            }}
-            onSelect={onSelect}
-            treeData={mode === "UNIT" ? unitTree : newTreeData}
-          />
-        ) : null}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 8,
+                    }}
+                  >
+                    <EditOutlined
+                      onClick={() => {
+                        onEdit?.(data.find((item) => item.id === nodeData.key));
+                      }}
+                    />
+                    <DeleteOutlined onClick={() => onDelete?.(nodeData.key)} />
+                  </div>
+                </div>
+              );
+            } else if (extra === "HALF") {
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 12,
+                  }}
+                >
+                  <div>
+                    {data.find((item) => item.id === nodeData.key)?.isExpand ? (
+                      <FolderOpenOutlined />
+                    ) : (
+                      <FileOutlined />
+                    )}
+                  </div>
+                  <span>{title}</span>
+                </div>
+              );
+            }
+          }}
+          onSelect={onSelect}
+          // treeData={mode === "UNIT" ? unitTree : newTreeData}
+          treeData={treeData}
+        />
       </div>
     </div>
   );

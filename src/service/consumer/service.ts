@@ -14,10 +14,7 @@ function getById(id: number): Promise<IResponseOneConsumer> {
 function post(body: IDataConsumer): Promise<IResponseConsumer> {
   return api.post("consumer", body);
 }
-function patch(
-  id: number,
-  body: IDataConsumer
-): Promise<IResponseOneConsumer> {
+function patch(id: number, body: IDataConsumer): Promise<IResponseOneConsumer> {
   return api.patch("consumer/" + id, body);
 }
 

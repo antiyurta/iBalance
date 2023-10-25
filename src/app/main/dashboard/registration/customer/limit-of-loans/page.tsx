@@ -6,7 +6,17 @@ import {
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
+import {
+  App,
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Space,
+  Tabs,
+  Typography,
+} from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 //hariltsagchin jagsaalt
@@ -33,6 +43,7 @@ import { openNofi } from "@/feature/common";
 const { Title } = Typography;
 
 const LimitOfLoans = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
@@ -64,6 +75,7 @@ const LimitOfLoans = () => {
     setEditMode(state);
     form.resetFields();
     if (state && row) {
+      console.log(row);
       setIsAccounts(row.isAccount);
       const data: IInputLimitOfLoans = {
         consumerId: row.consumerId,
@@ -105,22 +117,38 @@ const LimitOfLoans = () => {
       }
     });
   };
-  const consumerFormField = (id: number) => {
-    const consumer = consumerDictionary?.get(id);
-    if (consumer) {
-      form.setFieldsValue({
-        name: consumer.name,
-        sectionId: consumer.sectionId,
-        isActive: consumer.isActive,
+  const consumerFormField = async (id: number) => {
+    blockContext.block();
+    await ConsumerService.get({ ids: [id], lendLimits: true })
+      .then((response) => {
+        if (response.response.data.length > 0) {
+          message.error({
+            content: `${response.response.data[0].code} кодтой хэрэглэгч бүтгэсэн байна`,
+          });
+          form.setFieldsValue({
+            consumerId: "",
+          });
+        } else {
+          const consumer = consumerDictionary?.get(id);
+          if (consumer) {
+            form.setFieldsValue({
+              consumerId: consumer.id,
+              name: consumer.name,
+              sectionId: consumer.sectionId,
+              isActive: consumer.isActive,
+            });
+          }
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
       });
-    }
   };
   const onFinish = async (values: IInputLimitOfLoans) => {
     if (editMode && selectedRow) {
       await limitOfLoansService
         .patch(selectedRow?.id, values)
         .then((response) => {
-          console.log(response);
           if (response.success) {
             setIsOpenModal(false);
             setIsReloadList(true);
@@ -157,6 +185,7 @@ const LimitOfLoans = () => {
             await limitOfLoansService
               .getById(row.lendLimitId)
               .then((response) => {
+                console.log(response);
                 openModal(true, response.response);
               });
           }}
@@ -175,10 +204,15 @@ const LimitOfLoans = () => {
   }, [isAccounts]);
   return (
     <div>
-      <Row gutter={[12, 24]}>
+      <Row
+        style={{
+          paddingTop: 16,
+        }}
+        gutter={[12, 24]}
+      >
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Зээлийн лимит</Title>
+            <Title level={3}>Үндсэн бүртгэл / Харилцагч / Зээлийн лимит</Title>
             <Button
               type="primary"
               onClick={() => openModal(false)}
@@ -396,12 +430,7 @@ const LimitOfLoans = () => {
         <Information
           ComponentType="MIDDLE"
           onClickModal={(row: IDataConsumer) => {
-            form.setFieldsValue({
-              consumerId: row.id,
-              name: row.name,
-              sectionId: row.sectionId,
-              isActive: row.isActive,
-            });
+            consumerFormField(row.id);
             setIsOpenPopOver(false);
           }}
         />

@@ -8,9 +8,7 @@ export interface Params {
 
 export enum TreeSectionType {
   Consumer = "CONSUMER",
-  Branch = "BRANCH",
-  Storage = "STORAGE",
-  Department = "DEPARTMENT",
+  Warehouse = "WAREHOUSE",
 }
 
 export interface IDataTreeSection {

@@ -561,6 +561,13 @@ html {
   }
 }
 
+.ant-tree-treenode {
+  width: 100% !important;
+  span.ant-tree-node-content-wrapper {
+    width: 100% !important;
+  }
+}
+
 .ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-normal,
 .ant-tree-treenode.ant-tree-treenode-switcher-close.ant-tree-treenode-leaf-last,
 .ant-tree-node-content-wrapper.ant-tree-node-content-wrapper-close,
@@ -1166,5 +1173,40 @@ i.rmdp-arrow {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.site-tree-search-value {
+  color: #f50;
+}
+//
+#treeview {
+  height: 400px;
+}
+
+.options {
+  padding: 20px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 260px;
+  top: 0;
+  background-color: #f5f5f5;
+}
+
+.caption {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.option {
+  margin-top: 10px;
+}
+
+.option > .dx-selectbox {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 350px;
+  width: 100%;
+  margin-top: 5px;
 }
 //

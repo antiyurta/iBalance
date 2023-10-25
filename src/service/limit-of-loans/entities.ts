@@ -52,7 +52,9 @@ export type FilteredColumnsLimitOfLoans = {
   [T in keyof IFilterLimitOfLoans]?: ColumnType;
 };
 
-export interface IParamLimitOfLoans extends IFilterLimitOfLoans, Meta, IParam {}
+export interface IParamLimitOfLoans extends IFilterLimitOfLoans, Meta, IParam {
+  consumerId?: number;
+}
 
 export interface ILimitOfLoansResponse extends GenericResponse {
   response: {

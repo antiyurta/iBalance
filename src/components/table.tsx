@@ -75,7 +75,6 @@ function NewTable(props: ITable) {
     },
     nodeSelector: "th",
   };
-  console.log("asdasd", isDelete);
   const warning = (key: number) => {
     modal.error({
       title: "Устгах",

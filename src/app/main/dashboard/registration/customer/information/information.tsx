@@ -5,17 +5,12 @@ import {
   Col,
   Form,
   Input,
-  Modal,
   Popover,
   Row,
   Space,
   Typography,
 } from "antd";
-import {
-  SignalFilled,
-  SwapOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
+import { SignalFilled, SwapOutlined } from "@ant-design/icons";
 
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -164,6 +159,20 @@ const Information = (props: IProps) => {
       dataIndex: "address",
       type: DataIndexType.MULTI,
     },
+    updatedAt: {
+      label: "Өөрчлөлт оруулсан огноо",
+      isView: ComponentType === "FULL" ? true : false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт оруулсан хэрэглэгч",
+      isView: ComponentType === "FULL" ? true : false,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
+    },
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
@@ -181,8 +190,6 @@ const Information = (props: IProps) => {
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
     []
   );
-  const [regnoAlertModal, regnoAlertContextHolder] = Modal.useModal();
-  const [isRegno, setIsRegno] = useState<boolean>(false);
   //functions
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataConsumer) => {
@@ -198,10 +205,9 @@ const Information = (props: IProps) => {
   //data awcirah
   const getData = async (param: IParamConsumer) => {
     blockContext.block();
-
     var prm: IParamConsumer = {
-      ...param,
       ...params,
+      ...param,
       queries: params.queries,
     };
     if (param.queries?.length) {
@@ -247,6 +253,12 @@ const Information = (props: IProps) => {
     if (param.isActive) {
       prm.queries = [...unDuplicate("isActive", params)];
     }
+    if (params.updatedAt) {
+      prm.queries = [...unDuplicate("updatedAt", params)];
+    }
+    if (params.updatedBy) {
+      prm.queries = [...unDuplicate("updatedBy", params)];
+    }
     setParams(prm);
     await ConsumerService.get(prm)
       .then((response) => {
@@ -274,51 +286,30 @@ const Information = (props: IProps) => {
   };
   // hadgalah
   const onFinish = async (values: IDataConsumer) => {
-    if (!isRegno) {
-      await ConsumerService.get({ registerNumber: values.regno }).then(
-        (response) => {
-          if (response.success && response.response.data.length > 0) {
-            setIsRegno(false);
-            regnoAlertModal.confirm({
-              title: "Харицагчийн шалгуур",
-              icon: <ExclamationCircleOutlined />,
-              content:
-                "Өмнө нь ийм регистрийн дугаар дээр харилцагч үүссэн байна. Дахин үүсгэхдээ итгэлтэй байна уу?",
-              okText: "Тийм",
-              cancelText: "Үгүй",
-              onOk: () => setIsRegno(true)
-            });
-          } else {
-            setIsRegno(true)
+    blockContext.block();
+    if (editMode && selectedRow) {
+      await ConsumerService.patch(selectedRow.id, values)
+        .then((response) => {
+          if (response.success) {
+            setSelectedRow(response.response);
+            setIsOpenModal(false);
+            getData({ page: 1, limit: 10 });
           }
-        }
-      );
-    }
-    if (isRegno) {
-      if (editMode && selectedRow) {
-        await ConsumerService.patch(selectedRow.id, values)
-          .then((response) => {
-            if (response.success) {
-              setSelectedRow(response.response);
-              setIsOpenModal(false);
-              getData({ page: 1, limit: 10 });
-            }
-          })
-          .finally(() => {
-            blockContext.unblock();
-          });
-      } else {
-        await ConsumerService.post(values)
-          .then((response) => {
-            if (response.success) {
-              setIsOpenModal(false);
-              getData({ page: 1, limit: 10 });
-            }
-          })
-          .finally(() => {
-            blockContext.unblock();
-          });
-      }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    } else {
+      await ConsumerService.post(values)
+        .then((response) => {
+          if (response.success) {
+            setIsOpenModal(false);
+            getData({ page: 1, limit: 10 });
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     }
   };
   // ustgah
@@ -336,7 +327,7 @@ const Information = (props: IProps) => {
       });
   };
   // ajiltan bwal bas huwi hun bolnoo
-  const getIsIndividual = (checked: boolean) => {
+  const isisIndividual = (checked: boolean) => {
     if (checked) {
       form.setFieldsValue({
         isIndividual: checked,
@@ -346,10 +337,8 @@ const Information = (props: IProps) => {
   // row selection GROUP UED
   const rowSelection = {
     onSelectAll: (state: boolean, allRow: any, changeRow: any) => {
-      console.log("select all", state, allRow, changeRow);
       if (state) {
         const clone = [...tableSelectedRows, ...changeRow];
-        console.log(clone);
         setTableSelectedRows(clone);
       } else {
         const clone = [...tableSelectedRows];
@@ -437,26 +426,23 @@ const Information = (props: IProps) => {
         {isOpenTree && sections?.length > 0 ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
-              mode="CONSUMER"
-              extra="HALF"
               data={sections}
-              isLeaf={true}
-              onClick={(key, isLeaf) => {
-                if (isLeaf) {
-                  onCloseFilterTag({
-                    key: "sectionId",
-                    state: true,
-                    column: columns,
-                    onColumn: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                  });
-                  getData({
-                    page: 1,
-                    limit: 10,
-                    sectionId: [key],
-                  });
-                }
+              isLeaf={false}
+              extra="HALF"
+              onClick={(keys) => {
+                onCloseFilterTag({
+                  key: "sectionId",
+                  state: true,
+                  column: columns,
+                  onColumn: (columns) => setColumns(columns),
+                  params: params,
+                  onParams: (params) => setParams(params),
+                });
+                getData({
+                  page: 1,
+                  limit: 10,
+                  sectionId: keys,
+                });
               }}
             />
           </Col>
@@ -505,15 +491,14 @@ const Information = (props: IProps) => {
                             }
                             content={
                               <NewDirectoryTree
-                                mode="CONSUMER"
-                                extra="HALF"
+                                isLeaf={true}
                                 data={sections}
-                                isLeaf={false}
-                                onClick={(key, isLeaf) => {
-                                  if (isLeaf) {
+                                extra="HALF"
+                                onClick={(keys, isLeaf) => {
+                                  if (!isLeaf) {
                                     setIsOpenPopOverLittle(false);
                                     switchForm.setFieldsValue({
-                                      sectionId: key,
+                                      sectionId: keys![0],
                                     });
                                   }
                                 }}
@@ -728,7 +713,9 @@ const Information = (props: IProps) => {
                 newParams={params}
                 onParams={(params) => setParams(params)}
                 incomeFilters={filters}
+                isEdit={true}
                 onEdit={(row) => openModal(true, row)}
+                isDelete={true}
                 onDelete={(id) => onDelete(id)}
               />
             </Col>
@@ -779,7 +766,7 @@ const Information = (props: IProps) => {
                 name="isIndividual"
                 valuePropName="checked"
               >
-                <NewSwitch onChange={getIsIndividual} />
+                <NewSwitch />
               </Form.Item>
               <Form.Item
                 label="Ажилтан эсэх"
@@ -787,7 +774,7 @@ const Information = (props: IProps) => {
                 valuePropName="checked"
               >
                 <NewSwitch
-                  onChange={(checked: boolean) => getIsIndividual(checked)}
+                  onChange={(checked: boolean) => isisIndividual(checked)}
                 />
               </Form.Item>
               <Form.Item
@@ -912,15 +899,14 @@ const Information = (props: IProps) => {
                       onOpenChange={(state) => setIsOpenPopOver(state)}
                       content={
                         <NewDirectoryTree
-                          mode={"CONSUMER"}
                           data={sections}
-                          extra="HALF"
                           isLeaf={true}
-                          onClick={(key, isLeaf) => {
-                            if (isLeaf) {
+                          extra="HALF"
+                          onClick={(keys, isLeaf) => {
+                            if (!isLeaf) {
                               setIsOpenPopOver(false);
                               form.setFieldsValue({
-                                sectionId: key,
+                                sectionId: keys![0],
                               });
                             }
                           }}
@@ -997,7 +983,6 @@ const Information = (props: IProps) => {
           </div>
         </Form>
       </NewModal>
-      {regnoAlertContextHolder}
     </>
   );
 };

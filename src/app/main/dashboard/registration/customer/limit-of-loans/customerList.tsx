@@ -64,7 +64,7 @@ const CustomerList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "section", "name"],
-      type: DataIndexType.STRING_CONSUMER_SECTION,
+      type: DataIndexType.STRING_SECTION,
     },
     isAccount: {
       label: "Дансаар тохируулсан эсэх",
@@ -105,15 +105,15 @@ const CustomerList = (props: IProps) => {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedBy",
+      dataIndex: ["updatedUser", "firstName"],
       type: DataIndexType.USER,
     },
   });
   const getData = async (param: IParamLimitOfLoans) => {
     blockContext.block();
     var prm: IParamLimitOfLoans = {
-      ...param,
       ...params,
+      ...param,
       queries: params.queries,
     };
     if (param.queries?.length) {
@@ -177,18 +177,23 @@ const CustomerList = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            mode="CONSUMER"
             extra="HALF"
             data={sections}
-            isLeaf={true}
-            onClick={(key, isLeaf) => {
-              if (isLeaf) {
-                getData({
-                  page: 1,
-                  limit: 10,
-                  sectionId: [key],
-                });
-              }
+            isLeaf={false}
+            onClick={(keys) => {
+              onCloseFilterTag({
+                key: "sectionId",
+                state: true,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: params,
+                onParams: (params) => setParams(params),
+              });
+              getData({
+                page: 1,
+                limit: 10,
+                sectionId: keys,
+              });
             }}
           />
         </Col>
@@ -255,7 +260,7 @@ const CustomerList = (props: IProps) => {
             <Col span={24}>
               <NewTable
                 scroll={{
-                  x: 1700,
+                  x: 1100,
                 }}
                 rowKey="id"
                 data={data}

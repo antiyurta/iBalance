@@ -37,6 +37,10 @@ function remove(id: number): Promise<GenericResponse> {
   return api.delete(`material/${id}`);
 }
 
+function switchPatch(): Promise<any> {
+  return api.patch("");
+}
+
 export const MaterialService = {
   get,
   getById,
@@ -46,4 +50,5 @@ export const MaterialService = {
   patch,
   patchPackage,
   remove,
+  switchPatch,
 };

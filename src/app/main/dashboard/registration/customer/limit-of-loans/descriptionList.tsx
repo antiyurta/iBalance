@@ -23,6 +23,7 @@ import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
 import { Col, Row, Space } from "antd";
+import Export from "@/components/Export";
 
 interface IProps {
   onReload: boolean;
@@ -43,21 +44,21 @@ const DescriptionList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["lendLimit", "consumer", "code"],
-      type: DataIndexType.STRING_CONSUMER_CODE,
+      type: DataIndexType.MULTI,
     },
     name: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["lendLimit", "consumer", "name"],
-      type: DataIndexType.STRING_CONSUMER_NAME,
+      type: DataIndexType.MULTI,
     },
     sectionId: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["lendLimit", "consumer", "section", "name"],
-      type: DataIndexType.STRING_CONSUMER_SECTION,
+      type: DataIndexType.STRING_SECTION,
     },
     isAccount: {
       label: "Дансаар тохируулсан эсэх",
@@ -182,6 +183,7 @@ const DescriptionList = (props: IProps) => {
                 height={24}
                 alt="printIcon"
               />
+              <Export docName="dsad" />
               <Image
                 src={"/images/DownloadIcon.svg"}
                 width={24}

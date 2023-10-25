@@ -1,3 +1,5 @@
+import { Breakpoint } from "antd";
+
 export enum ToolsIcons {
   EQUALS = "/icons/tools/Equals.png",
   NOT_EQUAL = "/icons/tools/notEquals.png",
@@ -9,14 +11,14 @@ export enum ToolsIcons {
   IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
 }
 export enum Operator {
-  Equals = 'EQUALS',
-  NotEqual = 'NOT_EQUAL',
-  Contains = 'CONTAINS',
-  NotContains = 'NOT_CONTAINS',
-  IsGreater = 'IS_GREATER',
-  IsGreatorOrEqual = 'IS_GREATOR_OR_EQUAL',
-  IsLess = 'IS_LESS',
-  IsLessOrEqual = 'IS_LESS_OR_EQUAL',
+  Equals = "EQUALS",
+  NotEqual = "NOT_EQUAL",
+  Contains = "CONTAINS",
+  NotContains = "NOT_CONTAINS",
+  IsGreater = "IS_GREATER",
+  IsGreatorOrEqual = "IS_GREATOR_OR_EQUAL",
+  IsLess = "IS_LESS",
+  IsLessOrEqual = "IS_LESS_OR_EQUAL",
 }
 export interface GenericResponse {
   success: boolean;
@@ -89,6 +91,7 @@ export interface IFilter {
   updatedBy?: string[];
 }
 export type ColumnType = {
+  responsive?: Breakpoint[];
   width?: number;
   label: string; // ner mongol
   isView: boolean; // mor haragdah eseh

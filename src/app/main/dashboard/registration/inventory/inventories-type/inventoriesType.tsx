@@ -3,19 +3,29 @@ import Filtered from "@/components/filtered";
 import { NewInput, NewSearch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  unDuplicate,
+} from "@/feature/common";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   ComponentType,
   DataIndexType,
-  FilteredColumns,
   IFilters,
   Meta,
 } from "@/service/entities";
-import { IDataType, IParams } from "@/service/material/type/entities";
+import {
+  FilteredColumnsMaterialType,
+  IDataType,
+  IParamMaterialType,
+} from "@/service/material/type/entities";
 import { TypeService } from "@/service/material/type/service";
-import { Form } from "antd";
+import { Form, Typography } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+
+const { Title } = Typography;
 
 interface IProps {
   ComponentType: ComponentType;
@@ -25,7 +35,8 @@ interface IProps {
 const InventoriesType = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
-  const [newParams, setNewParams] = useState<IParams>({});
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [params, setParams] = useState<IParamMaterialType>({});
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataType[]>([]);
@@ -34,7 +45,7 @@ const InventoriesType = (props: IProps) => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   //
   const [selectedRow, setSelectedRow] = useState<IDataType>();
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [columns, setColumns] = useState<FilteredColumnsMaterialType>({
     accountNo: {
       label: "Дансны код",
       isView: true,
@@ -75,14 +86,35 @@ const InventoriesType = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParams) => {
-    await TypeService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
+  const getData = async (param: IParamMaterialType) => {
+    blockContext.block();
+    var prm: IParamMaterialType = {
+      ...params,
+      ...param,
+      queries: params.queries,
+    };
+    if (param.queries?.length) {
+      const incomeParam = param.queries[0].param;
+      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
+    }
+    if (param.accountNo) {
+      prm.queries = [...unDuplicate("accountNo", params)];
+    }
+    if (param.name) {
+      prm.queries = [...unDuplicate("name", params)];
+    }
+    setParams(prm);
+    await TypeService.get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   const onFinish = async (values: IDataType) => {
     if (editMode) {
@@ -116,9 +148,9 @@ const InventoriesType = (props: IProps) => {
         <div className="header">
           <div className="left">
             {ComponentType === "FULL" ? (
-              <p>Үндсэн бүртгэл / Бараа материал / Данс</p>
+              <Title level={3}>Үндсэн бүртгэл / Бараа материал / Данс</Title>
             ) : null}
-            {ComponentType === "MODAL" ? <p>Данс</p> : null}
+            {ComponentType === "MODAL" ? <Title level={3}>Данс</Title> : null}
             <button
               className="app-button"
               onClick={() => {
@@ -159,10 +191,10 @@ const InventoriesType = (props: IProps) => {
                 state: state,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: newParams,
-                onParams: (params) => setNewParams(params),
+                params: params,
+                onParams: (params) => setParams(params),
               });
-              getData(newParams);
+              getData(params);
             }}
           />
           <div className="extra">
@@ -174,8 +206,8 @@ const InventoriesType = (props: IProps) => {
                   unSelectedRow: arg2,
                   columns: columns,
                   onColumns: (columns) => setColumns(columns),
-                  params: newParams,
-                  onParams: (params) => setNewParams(params),
+                  params: params,
+                  onParams: (params) => setParams(params),
                   getData: (params) => getData(params),
                 })
               }
@@ -207,7 +239,7 @@ const InventoriesType = (props: IProps) => {
             }}
           >
             <NewTable
-              scroll={{ x: ComponentType === "FULL" ? 1400 : 400 }}
+              scroll={{ x: ComponentType === "FULL" ? 1200 : 400 }}
               rowKey="id"
               data={data}
               meta={meta}
@@ -220,10 +252,12 @@ const InventoriesType = (props: IProps) => {
               }}
               onChange={(params) => getData(params)}
               onColumns={(columns) => setColumns(columns)}
-              newParams={newParams}
-              onParams={(params) => setNewParams(params)}
+              newParams={params}
+              onParams={(params) => setParams(params)}
               incomeFilters={filters}
+              isEdit={true}
               onEdit={(row) => openModal(true, row)}
+              isDelete={true}
               onDelete={(id) => onDelete(id)}
             />
           </div>

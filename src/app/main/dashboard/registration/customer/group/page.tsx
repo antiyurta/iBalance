@@ -15,6 +15,7 @@ import Information from "../information/information";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
+import Export from "@/components/Export";
 
 const { Title } = Typography;
 
@@ -25,7 +26,6 @@ const Group = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number>();
-  const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
@@ -50,9 +50,10 @@ const Group = () => {
         }
       });
     }
+    setIsHaveChild(false);
   };
   const onFinishAdd = (values: IDataTreeSection) => {
-    if (isLeafAdd) {
+    if (isHaveChild) {
       modal.warning({
         title: "Анхааруулга",
         content: (
@@ -63,7 +64,6 @@ const Group = () => {
               бүлэг үүсгэх боломжтой!
             </p>
             <p>
-              {" "}
               Та бүртгэлтэй харилцагчдыг шинээр үүсгэж буй бүлэг рүү
               шилжүүлэхдээ итгэлтэй байна уу?
             </p>
@@ -121,24 +121,18 @@ const Group = () => {
       });
   };
   //
-  const checkEdit = (row: {
-    title: string;
-    key: number;
-    parentId: number;
-    isLeaf: boolean;
-    children: any[];
-  }) => {
-    console.log("row", row);
-    if (row.isLeaf) {
-      checkSectionInConsumer(row.key);
+  const checkEdit = (row: IDataTreeSection) => {
+    console.log(row);
+    if (!row.isExpand) {
+      checkSectionInConsumer(row.id);
     } else {
-      checkTreeIn(row.key);
+      checkTreeIn(row.id);
     }
-    setSelectedGroupId(row.key);
+    setSelectedGroupId(row.id);
     addForm.setFieldsValue({
-      name: row.title,
-      sectionId: row.parentId,
-      isExpand: row.isLeaf,
+      name: row.name,
+      sectionId: row.sectionId,
+      isExpand: !row.isExpand,
     });
     setEditMode(true);
     setIsOpenAddModal(true);
@@ -180,21 +174,22 @@ const Group = () => {
   useEffect(() => {
     getConsumerSection(TreeSectionType.Consumer);
   }, []);
-  useEffect(() => {
-    addForm.setFieldsValue({
-      isExpand: isLeafAdd,
-    });
-  }, [isLeafAdd]);
   return (
     <div>
-      <Row gutter={[12, 24]}>
+      <Row
+        style={{
+          paddingTop: 16,
+        }}
+        gutter={[12, 24]}
+      >
         <Col span={24}>
           <Space size={24}>
-            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Бүлэг</Title>
+            <Title level={3}>Үндсэн бүртгэл / Харилцагч / Бүлэг</Title>
             <Button
               type="primary"
               onClick={() => {
                 setEditMode(false);
+                setSelectedGroupId(undefined);
                 setIsOpenAddModal(true);
                 addForm.resetFields();
               }}
@@ -240,6 +235,7 @@ const Group = () => {
               height={24}
               alt="printIcon"
             />
+            <Export docName="TESt" />
             <Image
               src={"/images/DownloadIcon.svg"}
               width={24}
@@ -249,19 +245,13 @@ const Group = () => {
           </Space>
         </Col>
         <Col sm={24}>
-          {sections.length > 0 ? (
-            <NewDirectoryTree
-              mode="CONSUMER"
-              extra="FULL"
-              data={sections}
-              isLeaf={true}
-              width={"100%"}
-              onEdit={checkEdit}
-              onDelete={(id) => {
-                onDelete(id);
-              }}
-            />
-          ) : null}
+          <NewDirectoryTree
+            extra="FULL"
+            data={sections}
+            isLeaf={true}
+            onEdit={checkEdit}
+            onDelete={onDelete}
+          />
         </Col>
       </Row>
       <NewModal
@@ -282,7 +272,10 @@ const Group = () => {
         width={400}
         title="Харилцагчийн бүлэг"
         open={isOpenAddModal}
-        onCancel={() => setIsOpenAddModal(false)}
+        onCancel={() => {
+          setIsOpenAddModal(false);
+          setIsHaveChild(false);
+        }}
         onOk={() =>
           addForm.validateFields().then((values) => {
             onFinishAdd(values);
@@ -330,34 +323,16 @@ const Group = () => {
                     onOpenChange={(state) => setIsOpenPopOverAdd(state)}
                     content={
                       <NewDirectoryTree
-                        mode="CONSUMER"
                         extra="HALF"
                         data={sections}
                         isLeaf={true}
-                        onClick={(key, isLeaf) => {
-                          if (!editMode) {
-                            setIsLeafAdd(isLeaf);
-                          }
+                        onClick={(keys, isLeaf) => {
+                          checkSectionInConsumer(keys[0]);
+                          addForm.setFieldsValue({
+                            sectionId: keys![0],
+                            isExpand: !isLeaf,
+                          });
                           setIsOpenPopOverAdd(false);
-                          const section = sections.find(
-                            (e) => e.id === selectedGroupId
-                          );
-                          if (section?.id === key) {
-                            modal.error({
-                              title: "Алдаа",
-                              content: (
-                                <>
-                                  <p>
-                                    {section.name} бүлэгт байгаа тул боломжгүй
-                                  </p>
-                                </>
-                              ),
-                            });
-                          } else {
-                            addForm.setFieldsValue({
-                              sectionId: key,
-                            });
-                          }
                         }}
                       />
                     }
@@ -371,12 +346,12 @@ const Group = () => {
                     width: "100%",
                   }}
                   name="sectionId"
-                  // rules={[
-                  //   {
-                  //     required: addForm.getFieldValue("isExpand"),
-                  //     message: "Харилцагчийн бүлэг заавал",
-                  //   },
-                  // ]}
+                  rules={[
+                    {
+                      required: addForm.getFieldValue("isExpand"),
+                      message: "Харилцагчийн бүлэг заавал",
+                    },
+                  ]}
                 >
                   <NewSelect
                     disabled={true}

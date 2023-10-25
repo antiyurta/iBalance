@@ -45,7 +45,7 @@ import {
   Upload,
 } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
 import UnitOfMeasure from "../unit-of-measure/unitOfMeasure";
@@ -62,6 +62,10 @@ import { IDataMaterialSection } from "@/service/material/section/entities";
 import { MaterialSectionService } from "@/service/material/section/service";
 import InventoriesBrand from "../inventories-brand/inventoriesBrand";
 import { UnitCodeService } from "@/service/reference/unit-code/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { TypeService } from "@/service/material/type/service";
+import { IDataType } from "@/service/material/type/entities";
+import InventoriesType from "../inventories-type/inventoriesType";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -79,7 +83,8 @@ const InventoriesRegistration = (props: IProps) => {
       response: { accessToken },
     },
   } = useTypedSelector((state: RootState) => state.core);
-  const [newParams, setNewParams] = useState<IParamMaterial>({});
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [params, setParams] = useState<IParamMaterial>({});
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterial[]>([]);
@@ -100,6 +105,9 @@ const InventoriesRegistration = (props: IProps) => {
   const [isOpenModalBrand, setIsOpenModalBrand] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  //
+  const [materialTypes, setMaterialTypes] = useState<IDataType[]>([]);
+  const [isOpenMaterialType, setIsOpenMaterialType] = useState<boolean>(false);
   //
   const [filters, setFilters] = useState<IFilterMaterial>();
   const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
@@ -215,6 +223,9 @@ const InventoriesRegistration = (props: IProps) => {
       type: DataIndexType.MULTI,
     },
   });
+  const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
+    []
+  );
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataMaterial) => {
     setEditMode(state);
@@ -226,14 +237,25 @@ const InventoriesRegistration = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParamMaterial) => {
-    await MaterialService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
+  const getData = async (param: IParamMaterial) => {
+    blockContext.block();
+    var prm: IParamMaterial = {
+      ...params,
+      ...param,
+      queries: params.queries,
+    };
+    setParams(prm);
+    await MaterialService.get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   const getMeasurements = async () => {
     await UnitOfMeasureService.get({}).then((response) => {
@@ -243,6 +265,11 @@ const InventoriesRegistration = (props: IProps) => {
   const getMaterialSections = async () => {
     await MaterialSectionService.get({}).then((response) => {
       setMaterialSections(response.response.data);
+    });
+  };
+  const getMaterialType = async () => {
+    await TypeService.get({}).then((response) => {
+      setMaterialTypes(response.response.data);
     });
   };
   const getMaterialRanks = async (type: IType) => {
@@ -313,50 +340,65 @@ const InventoriesRegistration = (props: IProps) => {
       }
     });
   };
+  const switchGroup = async (values: { sectionId: number }) => {
+    if (tableSelectedRows.length > 0) {
+      // await MaterialService.switchPatch({
+      //   sectionId: values.sectionId,
+      //   ids: tableSelectedRows.map((row) => row.id),
+      // }).then((response) => {
+      //   if (response.success) {
+      //     openNofi("success", "Амжилттай", "Амилттай солигдлоо");
+      //     onClickModal?.(false);
+      //   }
+      // });
+    } else {
+      openNofi("error", "Алдаа", "Харилцагч сонгоно уу");
+    }
+  };
   //
   const rowSelection = {
     onSelectAll: (state: boolean, allRow: any, changeRow: any) => {
-      console.log("select all", state, allRow, changeRow);
-      // if (state) {
-      //   const clone = [...tableSelectedRows, ...changeRow];
-      //   console.log(clone);
-      //   setTableSelectedRows(clone);
-      // } else {
-      //   const clone = [...tableSelectedRows];
-      //   changeRow?.map((row: any) => {
-      //     clone.splice(
-      //       clone.findIndex((clo) => {
-      //         return clo.id === row.id;
-      //       }),
-      //       1
-      //     );
-      //   });
-      //   setTableSelectedRows(clone);
-      // }
+      if (state) {
+        const clone = [...tableSelectedRows, ...changeRow];
+        console.log(clone);
+        setTableSelectedRows(clone);
+      } else {
+        const clone = [...tableSelectedRows];
+        changeRow?.map((row: any) => {
+          clone.splice(
+            clone.findIndex((clo) => {
+              return clo.id === row.id;
+            }),
+            1
+          );
+        });
+        setTableSelectedRows(clone);
+      }
     },
-    onSelect: (selectedRow: IDataConsumer, selected: boolean) => {
-      // if (selected) {
-      //   if (!tableSelectedRows.find((e) => e.id === selectedRow.id)) {
-      //     setTableSelectedRows([...tableSelectedRows, selectedRow]);
-      //   }
-      // } else {
-      //   var clone = [...tableSelectedRows];
-      //   clone.splice(
-      //     tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
-      //     1
-      //   );
-      //   setTableSelectedRows(clone);
-      // }
+    onSelect: (selectedRow: IDataMaterial, selected: boolean) => {
+      if (selected) {
+        if (!tableSelectedRows.find((e) => e.id === selectedRow.id)) {
+          setTableSelectedRows([...tableSelectedRows, selectedRow]);
+        }
+      } else {
+        var clone = [...tableSelectedRows];
+        clone.splice(
+          tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
+          1
+        );
+        setTableSelectedRows(clone);
+      }
     },
     onChange: (
       selectedRowKeys: React.Key[],
       selectedRows: IDataConsumer[]
     ) => {},
-    // selectedRowKeys: tableSelectedRows.map((e) => e.id),
+    selectedRowKeys: tableSelectedRows.map((e) => e.id),
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
     getMaterialSections();
+    getMaterialType();
     getUnitCode();
   }, []);
   return (
@@ -366,7 +408,7 @@ const InventoriesRegistration = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>
+                <Title level={3}>
                   Үндсэн бүртгэл / Бараа материал / Бүртгэл
                 </Title>
                 <Button
@@ -399,25 +441,35 @@ const InventoriesRegistration = (props: IProps) => {
             </Col>
           </>
         ) : null}
-        {isOpenTree && materialSections?.length > 0 ? (
-          <Col md={24} lg={10} xl={6}>
-            <NewDirectoryTree
-              data={materialSections}
-              mode="MATERIAL"
-              extra="HALF"
-              isLeaf={true}
-              onClick={(key, isLeaf) => {
-                if (isLeaf) {
-                  getData({
-                    page: 1,
-                    limit: 10,
-                    materialSectionId: [key],
-                  });
-                }
-              }}
-            />
-          </Col>
-        ) : null}
+        <Col md={24} lg={10} xl={6}>
+          <NewDirectoryTree
+            data={materialSections}
+            extra="HALF"
+            isLeaf={false}
+            onClick={(keys, isLeaf) => {
+              onCloseFilterTag({
+                key: "materialSectionId",
+                state: true,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: params,
+                onParams: (params) => setParams(params),
+              });
+              getData({
+                page: 1,
+                limit: 10,
+                materialSectionId: keys,
+              });
+              if (isLeaf) {
+                getData({
+                  page: 1,
+                  limit: 10,
+                  materialSectionId: keys,
+                });
+              }
+            }}
+          />
+        </Col>
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>
             {ComponentType === "LITTLE" ? (
@@ -461,15 +513,18 @@ const InventoriesRegistration = (props: IProps) => {
                                 }
                                 content={
                                   <NewDirectoryTree
-                                    mode="MATERIAL"
                                     extra="HALF"
                                     data={materialSections}
-                                    isLeaf={false}
-                                    onClick={(key, isLeaf) => {
-                                      if (isLeaf) {
+                                    isLeaf={true}
+                                    onClick={(keys, isLeaf) => {
+                                      console.log(keys);
+                                      if (!isLeaf) {
                                         setIsOpenPopoverLittle(false);
                                         switchForm.setFieldsValue({
-                                          sectionId: key,
+                                          sectionId: keys![0],
+                                          materialTypeId: materialSections.find(
+                                            (item) => item.id === keys[0]
+                                          )?.materialTypeId,
                                         });
                                       }
                                     }}
@@ -510,7 +565,7 @@ const InventoriesRegistration = (props: IProps) => {
                           <Space.Compact>
                             <div className="extraButton">
                               <Image
-                                onClick={() => setIsOpenModalConsumer(true)}
+                                onClick={() => setIsOpenMaterialType(true)}
                                 src="/icons/clipboardBlack.svg"
                                 width={16}
                                 height={16}
@@ -518,7 +573,7 @@ const InventoriesRegistration = (props: IProps) => {
                               />
                             </div>
                             <Form.Item
-                              name="consumerId"
+                              name="materialTypeId"
                               rules={[
                                 {
                                   required: true,
@@ -538,9 +593,9 @@ const InventoriesRegistration = (props: IProps) => {
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                                 }
-                                options={consumers?.map((consumer) => ({
-                                  label: consumer.code + "-" + consumer.name,
-                                  value: consumer.id,
+                                options={materialTypes?.map((type) => ({
+                                  label: type.accountNo,
+                                  value: type.id,
                                 }))}
                               />
                             </Form.Item>
@@ -554,7 +609,7 @@ const InventoriesRegistration = (props: IProps) => {
                     icon={<SwapOutlined />}
                     onClick={() => {
                       switchForm.validateFields().then((value) => {
-                        console.log(value);
+                        switchGroup(value);
                       });
                     }}
                   >
@@ -579,10 +634,10 @@ const InventoriesRegistration = (props: IProps) => {
                       state: state,
                       column: columns,
                       onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      params: params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(newParams);
+                    getData(params);
                   }}
                 />
                 <Space
@@ -600,8 +655,8 @@ const InventoriesRegistration = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
+                        params: params,
+                        onParams: (params) => setParams(params),
                         getData: (params) => getData(params),
                       })
                     }
@@ -647,8 +702,8 @@ const InventoriesRegistration = (props: IProps) => {
                 columns={columns}
                 onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 onEdit={(row) => openModal(true, row)}
                 onDelete={(id) => console.log(id)}
@@ -688,11 +743,21 @@ const InventoriesRegistration = (props: IProps) => {
             onFinish(values);
           })
         }
+        bodyStyle={{
+          paddingTop: 10,
+        }}
       >
         <Form form={form} layout="vertical">
           <div className="form-grid-3">
             <div className="box-1">
-              <p className="title">Үндсэн мэдээлэл</p>
+              <Title
+                level={4}
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                Үндсэн мэдээлэл
+              </Title>
               <Form.Item label="Бараа материалын нэр" name="name">
                 <NewInput />
               </Form.Item>
@@ -712,13 +777,13 @@ const InventoriesRegistration = (props: IProps) => {
                         <NewDirectoryTree
                           data={materialSections}
                           extra="HALF"
-                          mode="MATERIAL"
                           isLeaf={true}
-                          onClick={(key, isLeaf) => {
-                            if (isLeaf) {
+                          onClick={(keys, isLeaf) => {
+                            console.log(keys);
+                            if (!isLeaf) {
                               setIsOpenPopOver(false);
                               form.setFieldsValue({
-                                materialSectionId: key,
+                                materialSectionId: keys![0],
                               });
                             }
                           }}
@@ -831,7 +896,14 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
             </div>
             <div className="box-1">
-              <p className="title">Кодын мэдээлэл</p>
+              <Title
+                level={4}
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                Кодын мэдээлэл
+              </Title>
               <Form.Item label="Дотоод код" name="code">
                 <NewInput />
               </Form.Item>
@@ -860,7 +932,14 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
             </div>
             <div className="box">
-              <p className="title">Нэмэлт мэдээлэл</p>
+              <Title
+                level={4}
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                Нэмэлт мэдээлэл
+              </Title>
               <Form.Item label="Зураг оруулах" valuePropName="fileList">
                 <Upload
                   headers={headers}
@@ -1045,6 +1124,21 @@ const InventoriesRegistration = (props: IProps) => {
         <InventoriesBrand
           ComponentType="MODAL"
           onClickModal={(row) => console.log(row)}
+        />
+      </NewModal>
+      <NewModal
+        title="Данс"
+        open={isOpenMaterialType}
+        onCancel={() => setIsOpenMaterialType(false)}
+      >
+        <InventoriesType
+          ComponentType="MODAL"
+          onClickModal={(row: IDataType) => {
+            switchForm.setFieldsValue({
+              materialTypeId: row.id,
+            });
+            setIsOpenMaterialType(false);
+          }}
         />
       </NewModal>
     </div>
