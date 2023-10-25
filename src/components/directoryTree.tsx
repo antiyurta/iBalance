@@ -7,23 +7,21 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { IDataTreeSection } from "@/service/reference/tree-section/entities";
 import { IDataMaterialSection } from "@/service/material/section/entities";
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
+import { IDataUnit } from "@/app/main/dashboard/registration/inventory/unit-of-measure/unitOfMeasure";
 
 type TreeExtra = "FULL" | "HALF";
 
 interface IProps {
-  data: IDataTreeSection[] | IDataMaterialSection[];
+  data: IDataTreeSection[] | IDataMaterialSection[] | IDataUnit[];
   isLeaf: boolean;
   extra: TreeExtra;
-  // mode: TreeMode;
-  // data: any[];
-  // width?: string;
   onClick?: (keys: number[], isLeaf?: boolean) => void;
   onEdit?: (row: any) => void;
   onDelete?: (id: any) => void;
 }
 
 interface xDataNote extends DataNode {
-  parentId?: number;
+  parentId?: number | null;
 }
 
 let defaultData: DataNode[] = [];
@@ -80,7 +78,10 @@ const NewDirectoryTree = (props: IProps) => {
     }
     return childrenIds;
   }
-  const getParentKey = (key: React.Key, tree: xDataNote[]): React.Key => {
+  const getParentKey = (
+    key: React.Key | null,
+    tree: xDataNote[]
+  ): React.Key => {
     let parentKey: React.Key;
     for (let i = 0; i < tree.length; i++) {
       const node = tree[i];
@@ -123,7 +124,7 @@ const NewDirectoryTree = (props: IProps) => {
       return {
         title: el.name as string,
         key: el.id,
-        parentId: el.sectionId,
+        parentId: el.sectionId ? el.sectionId : null,
         isLeaf: !el.isExpand ? !el.isExpand : undefined,
       };
     });

@@ -22,14 +22,25 @@ import {
   MeasurementType,
 } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
-import { Form } from "antd";
+import { Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+
+import { unitSwitch, units } from "./unit";
+
+export interface IDataUnit {
+  id: number;
+  sectionId: number | null;
+  name: string;
+  isExpand: boolean;
+}
 
 interface IProps {
   ComponentsType: string;
   onClickModal?: (row: IDataUnitOfMeasure) => void;
 }
+
+const { Title } = Typography;
 
 const UnitOfMeasure = (props: IProps) => {
   const { ComponentsType, onClickModal } = props;
@@ -145,135 +156,143 @@ const UnitOfMeasure = (props: IProps) => {
     getData({ page: 1, limit: 10 });
   }, []);
   return (
-    <div>
-      <div className="information">
-        <div className="header">
-          <div className="left">
+    <>
+      <Row
+        style={{
+          paddingTop: 12,
+        }}
+        gutter={[12, 24]}
+      >
+        <Col md={24} lg={16} xl={19}>
+          <Space size={24}>
             {ComponentsType === "FULL" ? (
-              <p>Үндсэн бүртгэл / Бараа материал / Хэмжих нэгж</p>
-            ) : null}
-            {ComponentsType === "MODAL" ? <p>Хэмжих нэгж</p> : null}
-            <button className="app-button" onClick={() => openModal(false)}>
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Шинээр бүртгэх
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
-                <Image
-                  src={"/images/SearchIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="searchIcon"
-                />
-              }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
-          </div>
-        </div>
-        <div className="second-header">
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key: key,
-                state: state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params: newParams,
-                onParams: (params) => setNewParams(params),
-              });
-              getData(newParams);
-            }}
-          />
-          {ComponentsType === "FULL" ? (
-            <div className="extra">
-              <ColumnSettings
-                columns={columns}
-                columnIndexes={(arg1, arg2) =>
-                  findIndexInColumnSettings({
-                    newRowIndexes: arg1,
-                    unSelectedRow: arg2,
-                    columns: columns,
-                    onColumns: (columns) => setColumns(columns),
-                    params: newParams,
-                    onParams: (params) => setNewParams(params),
-                    getData: (params) => getData(params),
-                  })
-                }
-              />
-              <Image
-                src={"/images/PrintIcon.svg"}
-                width={24}
-                height={24}
-                alt="printIcon"
-              />
-              <Image
-                src={"/images/UploadIcon.svg"}
-                width={24}
-                height={24}
-                alt="uploadIcon"
-              /> 
-              <Image
-                src={"/images/DownloadIcon.svg"}
-                width={24}
-                height={24}
-                alt="downloadIcon"
-              />
-            </div>
-          ) : null}
-        </div>
-        <div className="body">
+              <>
+                <Title level={3}>
+                  Үндсэн бүртгэл / Бараа материал / Хэмжих нэгж
+                </Title>
+                <button className="app-button" onClick={() => openModal(false)}>
+                  <Image
+                    src={"/images/AddIcon.svg"}
+                    width={12}
+                    height={12}
+                    alt="addicon"
+                  />
+                  Шинээр бүртгэх
+                </button>
+              </>
+            ) : (
+              <Title level={3}>Хэмжих нэгж</Title>
+            )}
+          </Space>
+        </Col>
+        <Col md={24} lg={8} xl={5}>
+          <NewSearch />
+        </Col>
+        <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            data={[]}
-            mode="UNIT"
+            data={units}
             extra="HALF"
             isLeaf={true}
-            onClick={(key, isLeaf) => {
-              if (isLeaf) {
-                getData({
-                  page: 1,
-                  limit: 10,
-                  type: [`${key}`],
-                });
-              }
+            onClick={(keys) => {
+              getData({
+                page: 1,
+                limit: 10,
+                type: unitSwitch(keys[0]),
+              });
             }}
           />
-          <div
-            style={{
-              width: ComponentsType === "FULL" ? tableWidth : "100%",
-            }}
-          >
-            <NewTable
-              scroll={{ x: ComponentsType === "FULL" ? 1000 : 400 }}
-              rowKey="id"
-              doubleClick={true}
-              onDClick={(value) => {
-                if (ComponentsType === "MODAL") {
-                  onClickModal?.(value);
-                }
-              }}
-              data={data}
-              meta={meta}
-              columns={columns}
-              onChange={(params) => getData(params)}
-              onColumns={(columns) => setColumns(columns)}
-              newParams={newParams}
-              onParams={(params) => setNewParams(params)}
-              incomeFilters={filters}
-              onEdit={(row) => openModal(true, row)}
-              onDelete={(id) => onDelete(id)}
-            />
-          </div>
-        </div>
-      </div>
+        </Col>
+        <Col md={24} lg={14} xl={18}>
+          <Row gutter={[0, 12]}>
+            <Col span={24}>
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "flex-end",
+                }}
+                size={12}
+              >
+                <Filtered
+                  columns={columns}
+                  isActive={(key, state) => {
+                    onCloseFilterTag({
+                      key: key,
+                      state: state,
+                      column: columns,
+                      onColumn: (columns) => setColumns(columns),
+                      params: newParams,
+                      onParams: (params) => setNewParams(params),
+                    });
+                    getData(newParams);
+                  }}
+                />
+                <Space
+                  style={{
+                    width: "100%",
+                    justifyContent: "flex-end",
+                  }}
+                  size={12}
+                >
+                  <ColumnSettings
+                    columns={columns}
+                    columnIndexes={(arg1, arg2) =>
+                      findIndexInColumnSettings({
+                        newRowIndexes: arg1,
+                        unSelectedRow: arg2,
+                        columns: columns,
+                        onColumns: (columns) => setColumns(columns),
+                        params: newParams,
+                        onParams: (params) => setNewParams(params),
+                        getData: (params) => getData(params),
+                      })
+                    }
+                  />
+                  <Image
+                    src={"/images/PrintIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="printIcon"
+                  />
+                  <Image
+                    src={"/images/UploadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="uploadIcon"
+                  />
+                  <Image
+                    src={"/images/DownloadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="downloadIcon"
+                  />
+                </Space>
+              </Space>
+            </Col>
+            <Col span={24}>
+              <NewTable
+                scroll={{ x: ComponentsType === "FULL" ? 1000 : 400 }}
+                rowKey="id"
+                doubleClick={true}
+                onDClick={(value) => {
+                  if (ComponentsType === "MODAL") {
+                    onClickModal?.(value);
+                  }
+                }}
+                data={data}
+                meta={meta}
+                columns={columns}
+                onChange={(params) => getData(params)}
+                onColumns={(columns) => setColumns(columns)}
+                newParams={newParams}
+                onParams={(params) => setNewParams(params)}
+                incomeFilters={filters}
+                onEdit={(row) => openModal(true, row)}
+                onDelete={(id) => onDelete(id)}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
       <NewModal
         title="Хэмжих нэгж"
         width={300}
@@ -348,7 +367,7 @@ const UnitOfMeasure = (props: IProps) => {
           </Form.Item>
         </Form>
       </NewModal>
-    </div>
+    </>
   );
 };
 export default UnitOfMeasure;

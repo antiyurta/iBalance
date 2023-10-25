@@ -1,12 +1,12 @@
 import { GenericResponse, IFilters, Meta } from "../../entities";
 
 export enum MeasurementType {
-  Area = "AREA",
-  Length = "LENGTH",
-  Quantity = "Quantity",
-  Time = "TIME",
-  Volume = "VOLUME",
-  Weight = "WEIGTH",
+  Area = "AREA", //тайлбай
+  Length = "LENGTH", // urt
+  Quantity = "Quantity", // too
+  Time = "TIME", // hugtsaa
+  Volume = "VOLUME", // shingen
+  Weight = "WEIGTH", // jin
 }
 
 export interface IParamUnitOfMeasure {

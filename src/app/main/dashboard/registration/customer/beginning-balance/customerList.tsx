@@ -155,13 +155,12 @@ const CustomerList = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            mode="CONSUMER"
             extra="HALF"
             data={sections}
             isLeaf={true}
             onClick={(key, isLeaf) => {
               if (isLeaf) {
-                getData({ page: 1, limit: 10, sectionId: [key] });
+                getData({ page: 1, limit: 10, sectionId: key });
               }
             }}
           />
