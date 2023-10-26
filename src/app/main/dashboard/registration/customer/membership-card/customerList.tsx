@@ -125,6 +125,13 @@ const CustomerList = (props: IProps) => {
       dataIndex: "isActive",
       type: DataIndexType.BOOLEAN,
     },
+    createdAt: {
+      label: "Карт нээсэн огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "createdAt",
+      type: DataIndexType.DATE,
+    },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
@@ -173,7 +180,6 @@ const CustomerList = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            mode="CONSUMER"
             extra="HALF"
             data={sections}
             isLeaf={true}

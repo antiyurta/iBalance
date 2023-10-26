@@ -27,7 +27,10 @@ import {
 import EditableTableCard from "./editableTableCard";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
-import { IInputConsumerMembership, IResponseConsumerMembership } from "@/service/consumer/membership/entities";
+import {
+  IInputConsumerMembership,
+  IResponseConsumerMembership,
+} from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
@@ -35,7 +38,6 @@ import { MembershipService } from "@/service/reference/membership/service";
 import {
   IDataMembership,
   IInputMembership,
-  IResponseMembership,
 } from "@/service/reference/membership/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { openNofi } from "@/feature/common";
@@ -189,17 +191,13 @@ const MembershipCard = () => {
         });
     }
   };
-  const success =(response: IResponseConsumerMembership) => {
+  const success = (response: IResponseConsumerMembership) => {
     if (response.success) {
-      openNofi(
-        "success",
-        "Амжилттай",
-        "Гишүүнчлэлийн бүртгэл хадгаллаа."
-      );
+      openNofi("success", "Амжилттай", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
       setIsOpenModal(false);
       setIsReloadList(!isReloadList);
     }
-  }
+  };
   const onFinishMembership = async (data: IInputMembership) => {
     if (isEditMembership && membership) {
       await MembershipService.patch(membership.id, data).then((response) => {
@@ -550,15 +548,6 @@ const MembershipCard = () => {
                 valuePropName="checked"
               >
                 <NewSwitch />
-              </Form.Item>
-              <Form.Item label="Барааны материалын код үүсгэх" shouldUpdate>
-                {() => (
-                  <Form.Item name="materialCode">
-                    <NewInput
-                      disabled={!formMembership.getFieldValue("isSale")}
-                    />
-                  </Form.Item>
-                )}
               </Form.Item>
             </div>
             <Form.Item label="Тайлбар" name="description">

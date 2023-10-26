@@ -72,7 +72,7 @@ const InventoriesType = (props: IProps) => {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedBy",
+      dataIndex: ["updatedUser", "firstName"],
       type: DataIndexType.MULTI,
     },
   });
