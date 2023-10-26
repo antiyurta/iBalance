@@ -18,14 +18,13 @@ import NewModal from "@/components/modal";
 import { MaterialCommandService } from "@/service/command/service";
 import { CommandType, IDataCommand } from "@/service/command/entities";
 import SavePrice from "../save-price";
+import { IFilterDiscount } from "@/service/command/discount/entities";
 import {
-  FilteredColumnsDiscount,
-  IDataDiscount,
-  IFilterDiscount,
-  IParamDiscount,
-} from "@/service/command/discount/entities";
-import { MaterialDiscountService } from "@/service/command/discount/service";
-import { FilteredColumnsCoupon } from "@/service/command/coupon/entities";
+  FilteredColumnsCoupon,
+  IDataCoupon,
+  IParamCoupon,
+} from "@/service/command/coupon/entities";
+import { MaterialCouponService } from "@/service/command/coupon/service";
 interface IProps {
   type: CommandType;
 }
@@ -33,17 +32,17 @@ const CouponList = (props: IProps) => {
   const { type } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [data, setData] = useState<IDataDiscount[]>([]);
+  const [data, setData] = useState<IDataCoupon[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDiscount>();
-  const [params, setParams] = useState<IParamDiscount>({});
+  const [params, setParams] = useState<IParamCoupon>({ page: 1, limit: 10 });
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
   const [columns, setColumns] = useState<FilteredColumnsCoupon>({
     id: {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: ["command", "id"],
+      dataIndex: "commandId",
       type: DataIndexType.STRING,
     },
     commandAt: {
@@ -53,7 +52,7 @@ const CouponList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNo: {
+    commandNumbers: {
       label: "Тушаалын дугаар",
       isView: false,
       isFiltered: false,
@@ -187,9 +186,9 @@ const CouponList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamDiscount) => {
+  const getData = async (params: IParamCoupon) => {
     blockContext.block();
-    await MaterialDiscountService.get(params)
+    await MaterialCouponService.get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -201,9 +200,9 @@ const CouponList = (props: IProps) => {
         blockContext.unblock();
       });
   };
-  const editCommand = async (price: IDataPrice) => {
+  const editCommand = async (coupon: IDataCoupon) => {
     blockContext.block();
-    await MaterialCommandService.getById(price.commandId)
+    await MaterialCommandService.getById(coupon.commandId)
       .then((response) => {
         if (response.success) {
           setIsOpenModal(true);
@@ -285,13 +284,18 @@ const CouponList = (props: IProps) => {
         </Col>
       </Row>
       <NewModal
-        title="Бараа материал үнэ"
+        title="Урамшуулал"
         width={1779}
         open={isOpenModal}
         footer={false}
         onCancel={() => setIsOpenModal(false)}
       >
-        <SavePrice isEdit selectedCommand={selectedCommand} type={type} />
+        <SavePrice
+          isEdit
+          selectedCommand={selectedCommand}
+          type={type}
+          onSavePriceModal={(state) => setIsOpenModal(state)}
+        />
       </NewModal>
     </div>
   );

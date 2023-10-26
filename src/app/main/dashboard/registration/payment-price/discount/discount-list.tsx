@@ -3,13 +3,7 @@ import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  FilteredColumnsPrice,
-  IDataPrice,
-  IFilterPrice,
-  IParamPrice,
-} from "@/service/command/price/entities";
-import { MaterialPriceService } from "@/service/command/price/service";
+import { IDataPrice } from "@/service/command/price/entities";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row } from "antd";
 import { useContext, useEffect, useState } from "react";
@@ -42,7 +36,7 @@ const DiscountList = (props: IProps) => {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: ["command", "id"],
+      dataIndex: "commandId",
       type: DataIndexType.STRING,
     },
     commandAt: {
@@ -52,7 +46,7 @@ const DiscountList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNo: {
+    commandNumbers: {
       label: "Тушаалын дугаар",
       isView: false,
       isFiltered: false,
@@ -186,9 +180,9 @@ const DiscountList = (props: IProps) => {
         blockContext.unblock();
       });
   };
-  const editCommand = async (price: IDataPrice) => {
+  const editCommand = async (discount: IDataDiscount) => {
     blockContext.block();
-    await MaterialCommandService.getById(price.commandId)
+    await MaterialCommandService.getById(discount.commandId)
       .then((response) => {
         if (response.success) {
           setIsOpenModal(true);
@@ -270,13 +264,18 @@ const DiscountList = (props: IProps) => {
         </Col>
       </Row>
       <NewModal
-        title="Бараа материал үнэ"
+        title="Хөнгөлөлт"
         width={1779}
         open={isOpenModal}
         footer={false}
         onCancel={() => setIsOpenModal(false)}
       >
-        <SavePrice isEdit selectedCommand={selectedCommand} type={type} />
+        <SavePrice
+          isEdit
+          selectedCommand={selectedCommand}
+          type={type}
+          onSavePriceModal={(state) => setIsOpenModal(state)}
+        />
       </NewModal>
     </div>
   );

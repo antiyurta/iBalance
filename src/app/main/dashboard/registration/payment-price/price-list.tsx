@@ -18,6 +18,7 @@ import NewModal from "@/components/modal";
 import SavePrice from "./save-price";
 import { MaterialCommandService } from "@/service/command/service";
 import { CommandType, IDataCommand } from "@/service/command/entities";
+import { PriceFilterForm } from "./price-filter-form";
 interface IProps {
   type: CommandType;
 }
@@ -28,8 +29,9 @@ const PriceList = (props: IProps) => {
   const [data, setData] = useState<IDataPrice[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterPrice>();
-  const [params, setParams] = useState<IParamPrice>({ type });
+  const [params, setParams] = useState<IParamPrice>({ type, page: 1, limit: 10 });
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
+  const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsPrice>({
     id: {
       label: "ID",
@@ -45,7 +47,7 @@ const PriceList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNo: {
+    commandNumbers: {
       label: "Тушаалын дугаар",
       isView: true,
       isFiltered: false,
@@ -205,7 +207,7 @@ const PriceList = (props: IProps) => {
   return (
     <div>
       <Row gutter={[12, 24]}>
-        <Col span={24}>
+        <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
               <Filtered
@@ -249,6 +251,17 @@ const PriceList = (props: IProps) => {
                   height={24}
                   alt="downloadIcon"
                 />
+                <Image
+                  onClick={() => setIsFilterToggle(!isFilterToggle)}
+                  src={
+                    isFilterToggle
+                      ? "/images/filterTrue.svg"
+                      : "/images/filterFalse.svg"
+                  }
+                  width={24}
+                  height={24}
+                  alt="filter"
+                />
               </div>
             </div>
             <NewTable
@@ -268,6 +281,12 @@ const PriceList = (props: IProps) => {
             />
           </div>
         </Col>
+        <Col span={isFilterToggle ? 4 : 0}>
+          <PriceFilterForm
+            onToggle={() => setIsFilterToggle(!isFilterToggle)}
+            getData={getData}
+          />
+        </Col>
       </Row>
       <NewModal
         title="Бараа материал үнэ"
@@ -280,6 +299,7 @@ const PriceList = (props: IProps) => {
           isEdit
           selectedCommand={selectedCommand}
           type={type}
+          onSavePriceModal={(state) => (setIsOpenModal(state))}
         />
       </NewModal>
     </div>

@@ -217,11 +217,11 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         )}
       />
       <Column
-        dataIndex="branchId"
+        dataIndex="warehouseId"
         title="Нээсэн салбар"
         render={(value, row, index) => (
           <Form.Item
-            name={[index, "branchId"]}
+            name={[index, "warehouseId"]}
             rules={[{ required: true, message: "Нээсэн салбар заавал" }]}
           >
             <NewSelect

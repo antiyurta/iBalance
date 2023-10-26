@@ -232,18 +232,9 @@ const EditableTableCoupon = (props: IProps) => {
       />
       <Column
         dataIndex={"section"}
-        title="Бараа/Үйлчилгээний нэр"
+        title="Бараа/Үйлчилгээний бүлэг"
         render={(value, row, index) => (
           <Form.Item name={[index, "section"]}>
-            <NewInput disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"sectionName"}
-        title="Бараа үйлчилгээний бүлэг"
-        render={(value, row, index) => (
-          <Form.Item name={[index, "measurement"]}>
             <NewInput disabled />
           </Form.Item>
         )}

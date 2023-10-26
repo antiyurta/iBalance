@@ -21,6 +21,7 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import SavePrice from "./save-price";
 import NewModal from "@/components/modal";
+import { CommandFilterForm } from "./command-filter-form";
 interface IProps {
   type: CommandType;
 }
@@ -32,7 +33,13 @@ const CommandList = (props: IProps) => {
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterCommand>();
-  const [params, setParams] = useState<IParamCommand>({ type });
+  const [params, setParams] = useState<IParamCommand>({
+    type,
+    page: 1,
+    limit: 10,
+  });
+  const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
+
   const [columns, setColumns] = useState<FilteredColumnsCommand>({
     id: {
       label: "ID",
@@ -48,7 +55,7 @@ const CommandList = (props: IProps) => {
       dataIndex: "commandAt",
       type: DataIndexType.DATE,
     },
-    commandNo: {
+    commandNumbers: {
       label: "Тушаалын дугаар",
       isView: true,
       isFiltered: false,
@@ -160,21 +167,20 @@ const CommandList = (props: IProps) => {
     } else if (type == CommandType.Service) {
       return "Үйлчилгээний үнэ";
     } else if (type == CommandType.Material) {
-      return "Бараа материалын үнэ"
+      return "Бараа материалын үнэ";
     } else if (type == CommandType.Coupon) {
-      return "Урамшуулал"
+      return "Урамшуулал";
     } else if (type == CommandType.Discount) {
-      return "Хөнгөлөлт"
-    } else 
-    return "Төрөл тодорхойгүй";
-  }
+      return "Хөнгөлөлт";
+    } else return "Төрөл тодорхойгүй";
+  };
   useEffect(() => {
     getData(params);
   }, []);
   return (
     <div>
       <Row gutter={[12, 24]}>
-        <Col span={24}>
+        <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
               <Filtered
@@ -218,6 +224,17 @@ const CommandList = (props: IProps) => {
                   height={24}
                   alt="downloadIcon"
                 />
+                <Image
+                  onClick={() => setIsFilterToggle(!isFilterToggle)}
+                  src={
+                    isFilterToggle
+                      ? "/images/filterTrue.svg"
+                      : "/images/filterFalse.svg"
+                  }
+                  width={24}
+                  height={24}
+                  alt="filter"
+                />
               </div>
             </div>
             <NewTable
@@ -239,6 +256,12 @@ const CommandList = (props: IProps) => {
             />
           </div>
         </Col>
+        <Col span={isFilterToggle ? 4 : 0}>
+          <CommandFilterForm
+            onToggle={() => setIsFilterToggle(!isFilterToggle)}
+            getData={getData}
+          />
+        </Col>
       </Row>
       <NewModal
         title={getTitle()}
@@ -248,12 +271,10 @@ const CommandList = (props: IProps) => {
         onCancel={() => setIsOpenModal(false)}
       >
         <SavePrice
-          isSucess={(state) => {
-            setIsOpenModal(!state);
-          }}
-          type={type}
-          isEdit
           selectedCommand={selectedCommand}
+          isEdit
+          type={type}
+          onSavePriceModal={(state) => setIsOpenModal(state)}
         />
       </NewModal>
     </div>

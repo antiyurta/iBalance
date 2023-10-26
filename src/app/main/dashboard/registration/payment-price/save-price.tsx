@@ -7,9 +7,7 @@ import {
   IDataWarehouse,
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
-import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { ConsumerService } from "@/service/consumer/service";
 import {
   CommandType,
   IDataCommand,
@@ -25,24 +23,21 @@ import EditableTableService from "./service-price/editableTable";
 import EditableTablePackage from "./package-price/editableTable";
 import EditableTableDiscount from "./discount/editableTable";
 import EditableTableCoupon from "./coupon/editableTable";
-import NewModal from "@/components/modal";
-import Information from "../customer/information/information";
 import { IDataPrice } from "@/service/command/price/entities";
+import { ConsumerSelect } from "@/components/consumer-select";
 
 interface IProps {
   selectedCommand?: IDataCommand;
   isEdit?: boolean;
-  isSucess?: (state: boolean) => void;
+  onSavePriceModal?: (state: boolean) => void;
   type: CommandType;
 }
 const SavePrice = (props: IProps) => {
-  const { selectedCommand, isEdit, isSucess, type } = props;
+  const { selectedCommand, isEdit, onSavePriceModal, type } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [isSelectAllWarehouse, setIsSelectAllWarehouse] =
     useState<boolean>(false);
   const getWarehouses = async (params: IParamWarehouse) => {
@@ -52,26 +47,31 @@ const SavePrice = (props: IProps) => {
       }
     });
   };
-  const getConsumers = async (params: IParamConsumer) => {
-    await ConsumerService.get(params).then((response) => {
-      if (response.success) {
-        setConsumers(response.response.data);
-      }
-    });
-  };
   const onFinish = async (values: IDataCommand) => {
     blockContext.block();
     values.type = type;
     if (isEdit && selectedCommand) {
       if (type == CommandType.Discount) {
+        await MaterialCommandService.patchDiscount(selectedCommand.id, values)
+          .then((response) => {
+            success("Хөнгөлөлт", response);
+            onSavePriceModal?.(false);
+          })
+          .finally(() => blockContext.unblock());
+      } else if (type == CommandType.Coupon) {
+        await MaterialCommandService.patchCoupon(selectedCommand.id, values)
+          .then((response) => {
+            success("Урамшуулал", response);
+            onSavePriceModal?.(false);
+          })
+          .finally(() => blockContext.unblock());
       } else {
-        await MaterialCommandService.patchPrice(
-          selectedCommand.id,
-          values
-        ).then((response) => {
-          success("Үнэ", response);
-          isSucess?.(true);
-        });
+        await MaterialCommandService.patchPrice(selectedCommand.id, values)
+          .then((response) => {
+            success("Үнэ", response);
+            onSavePriceModal?.(false);
+          })
+          .finally(() => blockContext.unblock());
       }
     } else {
       if (type == CommandType.Discount) {
@@ -108,7 +108,6 @@ const SavePrice = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses({});
-    getConsumers({});
   }, []);
   useEffect(() => {
     if (selectedCommand) {
@@ -126,6 +125,28 @@ const SavePrice = (props: IProps) => {
           unitAmount: price.unitAmount,
           lumpQuantity: price.lumpQuantity,
           lumpAmount: price.lumpAmount,
+        })),
+        coupons: selectedCommand?.coupons.map((coupon) => ({
+          materialId: coupon.materialId,
+          name: coupon.material.name,
+          measurement: coupon.material.measurement?.name,
+          countPackage: coupon.material.countPackage,
+          section: coupon.material.section?.name,
+          unitAmount: coupon.unitAmount,
+          endAt: dayjs(coupon.endAt, "YYYY-MM-DD"),
+          condition: coupon.condition,
+          conditionValue: coupon.conditionValue,
+          quantity: coupon.quantity,
+          percent: coupon.percent,
+        })),
+        discounts: selectedCommand?.discounts.map((discount) => ({
+          materialId: discount.materialId,
+          name: discount.material.name,
+          measurement: discount.material?.measurement?.name,
+          section: discount.material.section?.name,
+          endAt: dayjs(discount.endAt, "YYYY-MM-DD"),
+          percent: discount.percent,
+          amount: discount.amount,
         })),
       });
     }
@@ -306,39 +327,7 @@ const SavePrice = (props: IProps) => {
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item label="Харилцагчын код, нэр">
-                  <Space.Compact>
-                    <div
-                      className="extraButton"
-                      onClick={() => setIsOpenPopOver(true)}
-                    >
-                      <Image
-                        src="/icons/clipboardBlack.svg"
-                        width={16}
-                        height={16}
-                        alt="clipboard"
-                      />
-                    </div>
-                    <Form.Item name="consumerId">
-                      <NewSelect
-                        style={{
-                          width: "100%",
-                        }}
-                        allowClear
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toString()
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={consumers.map((consumer) => ({
-                          value: consumer.id,
-                          label: `${consumer.code} - ${consumer.name}`,
-                        }))}
-                      />
-                    </Form.Item>
-                  </Space.Compact>
+                  <ConsumerSelect form={form} rules={[]} />
                 </Form.Item>
               </Col>
             </Row>
@@ -463,22 +452,6 @@ const SavePrice = (props: IProps) => {
           </div>
         </NewCard>
       </Col>
-      <NewModal
-        width={1300}
-        title="Харилцагчын жагсаалт"
-        open={isOpenPopOver}
-        onCancel={() => setIsOpenPopOver(false)}
-      >
-        <Information
-          ComponentType="MIDDLE"
-          onClickModal={(row: IDataConsumer) => {
-            form.setFieldsValue({
-              consumerId: row.id,
-            });
-            setIsOpenPopOver(false);
-          }}
-        />
-      </NewModal>
     </Row>
   );
 };
