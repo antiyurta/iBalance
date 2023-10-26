@@ -21,9 +21,9 @@ import {
   IParamMaterialType,
 } from "@/service/material/type/entities";
 import { TypeService } from "@/service/material/type/service";
-import { Form, Typography } from "antd";
+import { App, Form, Typography } from "antd";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 const { Title } = Typography;
 
@@ -35,6 +35,7 @@ interface IProps {
 const InventoriesType = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
+  const { message } = App.useApp();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [params, setParams] = useState<IParamMaterialType>({});
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -117,18 +118,29 @@ const InventoriesType = (props: IProps) => {
       });
   };
   const onFinish = async (values: IDataType) => {
+    blockContext.block();
     if (editMode) {
-      await TypeService.patch(selectedRow?.id, values).then((response) => {
-        if (response.success) {
-          getData({ page: 1, limit: 10 });
-          setIsOpenModal(false);
-        }
-      });
+      await TypeService.patch(selectedRow?.id, values)
+        .then((response) => {
+          if (response.success) {
+            getData(params);
+            setIsOpenModal(false);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     } else {
-      await TypeService.post(values).then((response) => {
-        if (response.success) {
-        }
-      });
+      await TypeService.post(values)
+        .then((response) => {
+          if (response.success) {
+            getData(params);
+            setIsOpenModal(false);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     }
   };
   const onDelete = async (id: number) => {
@@ -138,6 +150,19 @@ const InventoriesType = (props: IProps) => {
         setIsOpenModal(false);
       }
     });
+  };
+  const checkDuplicate = (e: ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = e;
+    if (data.find((item) => item.accountNo === value)) {
+      message.error({
+        content: <p>Данс код давхцаж байна</p>,
+      });
+      form.setFieldsValue({
+        accountNo: "",
+      });
+    }
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
@@ -285,7 +310,7 @@ const InventoriesType = (props: IProps) => {
               },
             ]}
           >
-            <NewInput />
+            <NewInput onChange={checkDuplicate} />
           </Form.Item>
           <Form.Item
             label="Бараа материалын дансны нэр"

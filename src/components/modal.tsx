@@ -5,7 +5,10 @@ interface IProps extends ModalProps {
 }
 
 const NewModal = (props: IProps) => {
-  const { positionTitle } = props;
-  return <Modal {...props}>{props.children}</Modal>;
+  return (
+    <Modal cancelText="Болих" {...props}>
+      {props.children}
+    </Modal>
+  );
 };
 export default NewModal;

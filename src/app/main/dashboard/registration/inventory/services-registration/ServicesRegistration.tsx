@@ -351,7 +351,7 @@ const ServicesRegistration = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>
+                <Title level={3}>
                   Үндсэн бүртгэл / Бараа материал / Үйлчилгээний бүртгэл
                 </Title>
                 <Button
@@ -378,11 +378,10 @@ const ServicesRegistration = (props: IProps) => {
         {isOpenTree && materialSections?.length > 0 ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
-              mode="MATERIAL"
               extra="HALF"
               data={materialSections}
               isLeaf={true}
-              onClick={(key, isLeaf) => {
+              onClick={(keys, isLeaf) => {
                 if (isLeaf) {
                   // getData({
                   //   page: 1,
@@ -400,7 +399,7 @@ const ServicesRegistration = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    materialSectionId: [key],
+                    materialSectionId: keys,
                   });
                 }
               }}
@@ -451,7 +450,6 @@ const ServicesRegistration = (props: IProps) => {
                             }
                             content={
                               <NewDirectoryTree
-                                mode="MATERIAL"
                                 extra="HALF"
                                 data={materialSections}
                                 isLeaf={false}
@@ -692,7 +690,6 @@ const ServicesRegistration = (props: IProps) => {
                       onOpenChange={(state) => setIsOpenPopOver(state)}
                       content={
                         <NewDirectoryTree
-                          mode={"MATERIAL"}
                           data={materialSections}
                           extra="HALF"
                           isLeaf={true}

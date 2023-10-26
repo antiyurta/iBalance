@@ -4,7 +4,11 @@ import Filtered from "@/components/filtered";
 import { NewInputNumber, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  unDuplicate,
+} from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -30,8 +34,15 @@ import {
   Typography,
 } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SignalFilled } from "@ant-design/icons";
+import {
+  FilteredColumnsWarehouse,
+  IFilterWarehouse,
+  IParamWarehouse,
+} from "@/service/reference/warehouse/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { WarehouseService } from "@/service/reference/warehouse/service";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -42,20 +53,28 @@ const { Title } = Typography;
 const StoragiesRegistration = (props: IProps) => {
   const { ComponentType } = props;
   const [form] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [newParams, setNewParams] = useState<IParamsStorage>({});
+  const [params, setParams] = useState<IParamWarehouse>({});
   const [data, setData] = useState<any[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
+  const [filters, setFilters] = useState<IFilterWarehouse>();
   const [editMode, setIsEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [columns, setColumns] = useState<FilteredColumns>({
+  const [columns, setColumns] = useState<FilteredColumnsWarehouse>({
     code: {
-      label: "Харилцагчийн код",
+      label: "Байршилын код",
       isView: true,
       isFiltered: false,
       dataIndex: "code",
+      type: DataIndexType.MULTI,
+    },
+    name: {
+      label: "Байршилын нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "name",
       type: DataIndexType.MULTI,
     },
   });
@@ -76,14 +95,29 @@ const StoragiesRegistration = (props: IProps) => {
     }
     setIsOpenModal(true);
   };
-  const getData = async (params: IParamsStorage) => {
-    await StorageSerivce.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
+  const getData = async (param: IParamWarehouse) => {
+    blockContext.block();
+    var prm: IParamWarehouse = {
+      ...params,
+      ...param,
+      queries: params.queries,
+    };
+    if (param.queries?.length) {
+      const incomeParam = param.queries[0].param;
+      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
+    }
+    setParams(prm);
+    await WarehouseService.get(prm)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   const getSections = async (type: TreeSectionType) => {
     await TreeSectionService.get(type).then((response) => {
@@ -95,7 +129,7 @@ const StoragiesRegistration = (props: IProps) => {
   const onDelete = (id: number) => {};
   useEffect(() => {
     getData({ page: 1, limit: 10 });
-    getSections(TreeSectionType.Storage);
+    getSections(TreeSectionType.Warehouse);
   }, []);
   return (
     <div>
@@ -104,7 +138,7 @@ const StoragiesRegistration = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>
+                <Title level={3}>
                   Үндсэн бүртгэл / Бараа материал / Байршлын бүртгэл
                 </Title>
                 <Button
@@ -130,7 +164,6 @@ const StoragiesRegistration = (props: IProps) => {
         ) : null}
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            mode="STORAGE"
             extra="HALF"
             data={sections}
             isLeaf={true}
@@ -157,10 +190,10 @@ const StoragiesRegistration = (props: IProps) => {
                       state: state,
                       column: columns,
                       onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      params: params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(newParams);
+                    getData(params);
                   }}
                 />
                 <Space
@@ -178,8 +211,8 @@ const StoragiesRegistration = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
+                        params: params,
+                        onParams: (params) => setParams(params),
                         getData: (params) => getData(params),
                       })
                     }
@@ -202,7 +235,7 @@ const StoragiesRegistration = (props: IProps) => {
             <Col span={24}>
               <NewTable
                 scroll={{
-                  x: 1700,
+                  x: 800,
                 }}
                 rowKey="id"
                 data={data}
@@ -210,8 +243,8 @@ const StoragiesRegistration = (props: IProps) => {
                 columns={columns}
                 onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 onEdit={(row) => openModal(true, row)}
                 onDelete={(id) => onDelete(id)}
@@ -249,7 +282,6 @@ const StoragiesRegistration = (props: IProps) => {
                     onOpenChange={(state) => setIsOpenPopOver(state)}
                     content={
                       <NewDirectoryTree
-                        mode={"STORAGE"}
                         data={sections}
                         extra="HALF"
                         isLeaf={true}

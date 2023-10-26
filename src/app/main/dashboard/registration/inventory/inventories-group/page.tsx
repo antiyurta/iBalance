@@ -56,9 +56,7 @@ const InventoriesGroup = () => {
     },
   } = useTypedSelector((state: RootState) => state.core);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [isLeafAdd, setIsLeafAdd] = useState<boolean | undefined>(false);
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
-  const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
@@ -68,6 +66,7 @@ const InventoriesGroup = () => {
   //
   const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number>();
+  const [selectedSectionId, setSelectedSectionId] = useState<number>();
   const [editMode, setEditMode] = useState<boolean>(false);
   //
   const headers = {
@@ -96,17 +95,27 @@ const InventoriesGroup = () => {
   const onFinish = async (values: IDataMaterialSection) => {
     values.isExpand = !values.isExpand;
     values.fileId = fileList?.response?.response.id;
-    setIsOpenTree(false);
-    await MaterialSectionService.post(values).then((response) => {
-      if (response.success) {
-        getMaterialSections();
-        setIsOpenAddModal(false);
-      }
-    });
-    setIsOpenTree(true);
+    if (editMode) {
+      await MaterialSectionService.patch(selectedGroupId, values).then(
+        (response) => {
+          if (response.success) {
+            getMaterialSections();
+            setIsOpenAddModal(false);
+          }
+        }
+      );
+    } else {
+      await MaterialSectionService.post(values).then((response) => {
+        if (response.success) {
+          getMaterialSections();
+          setIsOpenAddModal(false);
+        }
+      });
+    }
+    setIsHaveChild(false);
   };
   const onFinishAdd = (values: IDataMaterialSection) => {
-    if (isLeafAdd) {
+    if (values.sectionId != selectedSectionId && isHaveChild) {
       modal.warning({
         title: "Анхааруулга",
         content: (
@@ -117,7 +126,6 @@ const InventoriesGroup = () => {
               бүлэг үүсгэх боломжтой!
             </p>
             <p>
-              {" "}
               Та бүртгэлтэй харилцагчдыг шинээр үүсгэж буй бүлэг рүү
               шилжүүлэхдээ итгэлтэй байна уу?
             </p>
@@ -155,13 +163,14 @@ const InventoriesGroup = () => {
     });
   };
   const checkEdit = (row: IDataMaterialSection) => {
-    console.log(row);
     if (!row.isExpand) {
       checkSectionInMaterial(row.id);
     } else {
       checkTreeIn(row.id);
     }
     setSelectedGroupId(row.id);
+    setSelectedSectionId(row.sectionId);
+    console.log(row.id);
     addForm.setFieldsValue({
       name: row.name,
       sectionId: row.sectionId,
@@ -378,7 +387,9 @@ const InventoriesGroup = () => {
                           checkSectionInMaterial(keys[0]);
                           addForm.setFieldsValue({
                             sectionId: keys![0],
-                            isExpand: !isLeaf,
+                            isExpand: editMode
+                              ? addForm.getFieldValue("isExpand")
+                              : !isLeaf,
                           });
                           setIsOpenPopOverAdd(false);
                         }}
@@ -434,7 +445,7 @@ const InventoriesGroup = () => {
                     <NewSwitch />
                   </Form.Item>
                 </div>
-                <Form.Item label="Холбох код">
+                <Form.Item label="Бараа материалын дансын код холбох">
                   <Space.Compact>
                     <div className="extraButton">
                       <Image
@@ -450,7 +461,7 @@ const InventoriesGroup = () => {
                       rules={[
                         {
                           required: false,
-                          message: "Холбох код",
+                          message: "Бараа материалын дансын код холбох заавал",
                         },
                         {
                           pattern: /^\d*(?:\.\d+)?$/,
@@ -469,7 +480,7 @@ const InventoriesGroup = () => {
                             .includes(input.toLowerCase())
                         }
                         options={type?.map((type) => ({
-                          label: type.name,
+                          label: type.accountNo + " - " + type.name,
                           value: type.id,
                         }))}
                       />

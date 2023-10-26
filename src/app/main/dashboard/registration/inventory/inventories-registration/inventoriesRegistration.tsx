@@ -229,6 +229,12 @@ const InventoriesRegistration = (props: IProps) => {
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataMaterial) => {
     setEditMode(state);
+    setFileList([]);
+    getMeasurements();
+    getMaterialRanks(IType.MATERIAL_RANK); // zereglel
+    getMaterialSections();
+    getConsumers();
+    getBrands();
     if (!state) {
       form.resetFields();
     } else {
@@ -331,14 +337,34 @@ const InventoriesRegistration = (props: IProps) => {
   };
   //
   const onFinish = async (values: IDataMaterial) => {
+    blockContext.block();
     values.fileIds = imageIds;
-    await MaterialService.post(values).then((response) => {
-      setImageIds([]);
-      if (response.success) {
-        openNofi("success", "Амжиллтай", "Бараа материал үүсгэлээ");
-        setIsOpenModal(false);
-      }
-    });
+    if (editMode && selectedRow) {
+      await MaterialService.patch(selectedRow.id, values)
+        .then((response) => {
+          if (response.success) {
+            setSelectedRow(response.response);
+            setIsOpenModal(false);
+            getData(params);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    } else {
+      await MaterialService.post(values)
+        .then((response) => {
+          setImageIds([]);
+          if (response.success) {
+            openNofi("success", "Амжиллтай", "Бараа материал үүсгэлээ");
+            setIsOpenModal(false);
+            getData(params);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    }
   };
   const switchGroup = async (values: { sectionId: number }) => {
     if (tableSelectedRows.length > 0) {
@@ -414,14 +440,7 @@ const InventoriesRegistration = (props: IProps) => {
                 <Button
                   type="primary"
                   onClick={() => {
-                    form.resetFields();
-                    setFileList([]);
                     openModal(false);
-                    getMeasurements(); // hemjih neg awcirah
-                    getMaterialRanks(IType.MATERIAL_RANK); // zereglel
-                    getMaterialSections();
-                    getConsumers();
-                    getBrands();
                   }}
                   icon={
                     <Image
@@ -441,35 +460,37 @@ const InventoriesRegistration = (props: IProps) => {
             </Col>
           </>
         ) : null}
-        <Col md={24} lg={10} xl={6}>
-          <NewDirectoryTree
-            data={materialSections}
-            extra="HALF"
-            isLeaf={false}
-            onClick={(keys, isLeaf) => {
-              onCloseFilterTag({
-                key: "materialSectionId",
-                state: true,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
-              });
-              getData({
-                page: 1,
-                limit: 10,
-                materialSectionId: keys,
-              });
-              if (isLeaf) {
+        {isOpenTree ? (
+          <Col md={24} lg={10} xl={6}>
+            <NewDirectoryTree
+              data={materialSections}
+              extra="HALF"
+              isLeaf={false}
+              onClick={(keys, isLeaf) => {
+                onCloseFilterTag({
+                  key: "materialSectionId",
+                  state: true,
+                  column: columns,
+                  onColumn: (columns) => setColumns(columns),
+                  params: params,
+                  onParams: (params) => setParams(params),
+                });
                 getData({
                   page: 1,
                   limit: 10,
                   materialSectionId: keys,
                 });
-              }
-            }}
-          />
-        </Col>
+                if (isLeaf) {
+                  getData({
+                    page: 1,
+                    limit: 10,
+                    materialSectionId: keys,
+                  });
+                }
+              }}
+            />
+          </Col>
+        ) : null}
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>
             {ComponentType === "LITTLE" ? (
@@ -705,7 +726,9 @@ const InventoriesRegistration = (props: IProps) => {
                 newParams={params}
                 onParams={(params) => setParams(params)}
                 incomeFilters={filters}
+                isEdit={true}
                 onEdit={(row) => openModal(true, row)}
+                isDelete={true}
                 onDelete={(id) => console.log(id)}
               />
             </Col>
@@ -1005,7 +1028,7 @@ const InventoriesRegistration = (props: IProps) => {
                     />
                   </div>
                   <Form.Item
-                    name="consumerId"
+                    name="consumerSupplierId"
                     rules={[
                       {
                         required: true,
@@ -1067,6 +1090,7 @@ const InventoriesRegistration = (props: IProps) => {
       </NewModal>
       <NewModal
         title="Хэмжих нэгж"
+        width={1000}
         open={isOpenMeasure}
         footer={false}
         onCancel={() => setIsOpenMeasure(false)}
@@ -1110,7 +1134,7 @@ const InventoriesRegistration = (props: IProps) => {
           ComponentType="MIDDLE"
           onClickModal={(row: IDataConsumer) => {
             form.setFieldsValue({
-              consumerId: row.id,
+              consumerSupplierId: row.id,
             });
             setIsOpenModalConsumer(false);
           }}
