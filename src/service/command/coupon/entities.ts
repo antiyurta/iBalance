@@ -9,6 +9,7 @@ export interface IDataCoupon extends IData {
   unitAmount: number; // Нэгжийн үнэ
   materialId: number; // Бараа
   material: IDataMaterial;
+  endAt: string; // дуусах огноо
   condition: Operator; // авах нөхцөл
   conditionValue: number; // авах нөхцөл утга
   percent: number; // хувиар
@@ -25,8 +26,8 @@ export interface IFilterCoupon extends IFilterCommand {
   endAt?: string; // урамшуулал дуусах огноо
   couponPercent?: number; // урамшуулалын хувь
   couponQuantity?: number; // урамшуулалын тоо
-  condition: Operator; // авах нөхцөл
-  conditionValue: number; // авах нөхцөл утга
+  condition?: Operator; // авах нөхцөл
+  conditionValue?: number; // авах нөхцөл утга
 }
 export interface IParamCoupon extends Meta, IParam, IFilterCoupon {}
 

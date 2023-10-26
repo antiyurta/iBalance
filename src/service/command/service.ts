@@ -26,6 +26,12 @@ function postCoupon(body: IDataCommand): Promise<IResponseOneCommand> {
 function patchPrice(id: number, body: IDataCommand): Promise<IResponseOneCommand> {
   return api.patch(`material-command/price/${id}`, body);
 }
+function patchCoupon(id: number, body: IDataCommand): Promise<IResponseOneCommand> {
+  return api.patch(`material-command/coupon/${id}`, body);
+}
+function patchDiscount(id: number, body: IDataCommand): Promise<IResponseOneCommand> {
+  return api.patch(`material-command/discount/${id}`, body);
+}
 function remove(id: number): Promise<GenericResponse> {
   return api.delete(`material-command/${id}`);
 }
@@ -37,5 +43,7 @@ export const MaterialCommandService = {
   postDiscount,
   postCoupon,
   patchPrice,
+  patchCoupon,
+  patchDiscount,
   remove,
 };

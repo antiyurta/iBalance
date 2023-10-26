@@ -21,7 +21,7 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import SavePrice from "./save-price";
 import NewModal from "@/components/modal";
-import { PriceFilterForm } from "./filter-form";
+import { CommandFilterForm } from "./command-filter-form";
 interface IProps {
   type: CommandType;
 }
@@ -257,7 +257,7 @@ const CommandList = (props: IProps) => {
           </div>
         </Col>
         <Col span={isFilterToggle ? 4 : 0}>
-          <PriceFilterForm
+          <CommandFilterForm
             onToggle={() => setIsFilterToggle(!isFilterToggle)}
             getData={getData}
           />
@@ -271,12 +271,10 @@ const CommandList = (props: IProps) => {
         onCancel={() => setIsOpenModal(false)}
       >
         <SavePrice
-          isSucess={(state) => {
-            setIsOpenModal(!state);
-          }}
-          type={type}
-          isEdit
           selectedCommand={selectedCommand}
+          isEdit
+          type={type}
+          onSavePriceModal={(state) => setIsOpenModal(state)}
         />
       </NewModal>
     </div>

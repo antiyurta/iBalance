@@ -8,6 +8,8 @@ import {
   Meta,
 } from "../entities";
 import { IDataWarehouse } from "../reference/warehouse/entities";
+import { IDataCoupon } from "./coupon/entities";
+import { IDataDiscount } from "./discount/entities";
 import { IDataPrice } from "./price/entities";
 // Үнийн тушаалын төрөл
 export enum CommandType {
@@ -30,8 +32,8 @@ export interface IDataCommand extends IData {
   quantity: number; // Тоо ширхэг
   isAll: boolean; // Бүгд мөрдөх эсэх
   prices: IDataPrice[];
-  // TODO discounts: Discount[];
-  // TODO coupons: Coupon[];
+  discounts: IDataDiscount[];
+  coupons: IDataCoupon[];
 }
 export interface IFilterCommand extends IFilter {
   id?: number[];

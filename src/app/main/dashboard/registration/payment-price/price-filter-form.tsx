@@ -13,6 +13,8 @@ import { ConsumerSectionSelect } from "@/components/consumer-section-select";
 import { IParamUser, IUser } from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
 import { IParamCommand } from "@/service/command/entities";
+import { MaterialSelect } from "@/components/material-select";
+import { MaterialSectionSelect } from "@/components/material-section-select";
 interface IProps {
   onToggle(): void;
   getData(params: IParamCommand): void;
@@ -104,6 +106,18 @@ export const PriceFilterForm = (props: IProps) => {
             rules={[]}
             name="consumerSectionId"
           />
+        </Form.Item>
+        <Form.Item label="Бараа үйлчилгээний код, нэр">
+          <MaterialSelect form={form} rules={[]} />
+        </Form.Item>
+        <Form.Item label="Бараа үйлчилгээний бүлэг">
+          <MaterialSectionSelect form={form} rules={[]} />
+        </Form.Item>
+        <Form.Item label="Нэгж үнэ">
+          <ConsumerSelect form={form} rules={[]} />
+        </Form.Item>
+        <Form.Item label="Бөөний нэгж үнэ">
+          <ConsumerSelect form={form} rules={[]} />
         </Form.Item>
         <Form.Item label="Үүсгэсэн хэрэглэгч" name="createdUserId">
           <NewFilterSelect

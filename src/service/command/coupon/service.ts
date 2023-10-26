@@ -1,9 +1,9 @@
 
 import { api } from "@/feature/interceptor/interceptor";
-import { IParamDiscount, IResponseDiscount } from "./entities";
+import { IParamCoupon, IResponseCoupon } from "./entities";
 
-function get(params: IParamDiscount): Promise<IResponseDiscount> {
-  return api.get("material-discount", { params });
+function get(params: IParamCoupon): Promise<IResponseCoupon> {
+  return api.get("material-coupon", { params });
 }
 
-export const MaterialDiscountService = { get };
+export const MaterialCouponService = { get };

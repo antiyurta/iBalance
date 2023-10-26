@@ -6,12 +6,11 @@ export interface IDataDiscount extends IData {
   id: number;
   commandId: number;
   command: IDataCommand;
-  unitAmount: number; // Нэгжийн үнэ
   materialId: number; // Бараа
   material: IDataMaterial;
-  branchId: number; // Салбар
   endAt: string; // Хөнгөлөлт дуусах огноо
-  lumpAmount: number; // Бөөний үнэ
+  percent: number; // Хөнгөлтийн хувь
+  amount: number; // Хөнгөлтийн дүн
   createdBy: number;
   createdAt: string;
 }
