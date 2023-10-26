@@ -423,7 +423,7 @@ const Information = (props: IProps) => {
             </Col>
           </>
         ) : null}
-        {isOpenTree && sections?.length > 0 ? (
+        {isOpenTree ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
               data={sections}

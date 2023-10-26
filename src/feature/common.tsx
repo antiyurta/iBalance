@@ -6,7 +6,6 @@ import {
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Queries } from "@/service/entities";
-import { referenceAccountService } from "@/service/reference/account/service";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import { message, notification } from "antd";
@@ -17,8 +16,7 @@ import dayjs from "dayjs";
 import Image from "next/image";
 import React from "react";
 import { NumericFormat } from "react-number-format";
-import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
-import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
+import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { IDataCountry } from "@/service/reference/country/entities";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
@@ -65,6 +63,23 @@ function renderCheck(text: any, type: DataIndexType) {
   switch (type) {
     case DataIndexType.BOOLEAN:
       return isChecked(text);
+    case DataIndexType.MEASUREMENT:
+      switch (text) {
+        case MeasurementType.Area:
+          return "Талбайн хэмжих нэгж";
+        case MeasurementType.Length:
+          return "Уртын хэмжих нэгж";
+        case MeasurementType.Quantity:
+          return "Тооны хэмжих нэгж";
+        case MeasurementType.Time:
+          return "Цаг хугацааны хэмжих нэгж";
+        case MeasurementType.Volume:
+          return "Шингэний хэмжих нэгж";
+        case MeasurementType.Weight:
+          return "Хүндийн хэмжих нэгж";
+        default:
+          return;
+      }
     case DataIndexType.BOOLEAN_STRING:
       if (text) {
         return (
@@ -209,39 +224,49 @@ async function typeOfFilters(props: ITypeOfFilters) {
   const { type, filters } = props;
   switch (type) {
     case DataIndexType.MEASUREMENT:
-      if (filters) {
-        return await measurementToFilter(filters);
-      }
-    // return [
-    //   {
-    //     text: "Талбайн хэмжих нэгж",
-    //     value: "AREA",
-    //   },
-    //   {
-    //     text: "Уртын хэмжих нэгж",
-    //     value: "LENGTH",
-    //   },
-    //   {
-    //     text: "Тооны хэмжих нэгж",
-    //     value: "Quantity",
-    //   },
-    //   {
-    //     text: "Цаг хугацааны хэмжих нэгж",
-    //     value: "TIME",
-    //   },
-    //   {
-    //     text: "Цаг хугацааны хэмжих нэгж",
-    //     value: "TIME",
-    //   },
-    //   {
-    //     text: "Шингэний хэмжих нэгж",
-    //     value: "VOLUME",
-    //   },
-    //   {
-    //     text: "Хүндийн хэмжих нэгж",
-    //     value: "WEIGTH",
-    //   },
-    // ];
+      var data: any = [];
+      filters.map((filter: MeasurementType) => {
+        switch (filter) {
+          case MeasurementType.Area:
+            data.push({
+              text: "Талбайн хэмжих нэгж",
+              value: MeasurementType.Area,
+            });
+            break;
+          case MeasurementType.Length:
+            data.push({
+              text: "Уртын хэмжих нэгж",
+              value: MeasurementType.Length,
+            });
+            break;
+          case MeasurementType.Quantity:
+            data.push({
+              text: "Тооны хэмжих нэгж",
+              value: MeasurementType.Quantity,
+            });
+            break;
+          case MeasurementType.Time:
+            data.push({
+              text: "Цаг хугацааны хэмжих нэгж",
+              value: MeasurementType.Time,
+            });
+            break;
+          case MeasurementType.Volume:
+            data.push({
+              text: "Эзлэхүүн хэмжих нэгж",
+              value: MeasurementType.Volume,
+            });
+            break;
+          case MeasurementType.Weight:
+            data.push({
+              text: "Хүндийн хэмжих нэгж",
+              value: MeasurementType.Weight,
+            });
+          default:
+            break;
+        }
+      });
+      return data;
     case DataIndexType.BOOLEAN:
       if (filters) {
         return filters?.map((filter: any) => {
@@ -317,22 +342,6 @@ async function typeOfFilters(props: ITypeOfFilters) {
     default:
       break;
   }
-}
-
-async function measurementToFilter(filters: any) {
-  const outFilters: ColumnFilterItem[] = [];
-  const { response } = await UnitOfMeasureService.get({});
-  filters?.map((filterSection: any) => {
-    response.data?.map((unit: IDataUnitOfMeasure) => {
-      if (unit.id === filterSection) {
-        outFilters.push({
-          text: unit.name,
-          value: filterSection,
-        });
-      }
-    });
-  });
-  return outFilters;
 }
 
 async function userToFilter(ids: number[]) {

@@ -22,9 +22,9 @@ import {
   MeasurementType,
 } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
-import { Col, Form, Row, Space, Typography } from "antd";
+import { App, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 import { unitSwitch, units } from "./unit";
 
@@ -43,9 +43,9 @@ interface IProps {
 const { Title } = Typography;
 
 const UnitOfMeasure = (props: IProps) => {
+  const { message } = App.useApp();
   const { ComponentsType, onClickModal } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const tableWidth = "calc(100% - 262px)";
   const [form] = Form.useForm();
   const [data, setData] = useState<IDataUnitOfMeasure[]>([]);
   const [newParams, setNewParams] = useState<IParamUnitOfMeasure>({});
@@ -151,6 +151,19 @@ const UnitOfMeasure = (props: IProps) => {
         getData({ page: 1, limit: 10 });
       }
     });
+  };
+  const checkDuplicate = (e: ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = e;
+    if (data.find((item) => item.shortName === value)) {
+      message.error({
+        content: <p>Богино нэр давхцаж байна</p>,
+      });
+      form.setFieldsValue({
+        shortName: "",
+      });
+    }
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
@@ -270,7 +283,7 @@ const UnitOfMeasure = (props: IProps) => {
             </Col>
             <Col span={24}>
               <NewTable
-                scroll={{ x: ComponentsType === "FULL" ? 1000 : 400 }}
+                scroll={{ x: ComponentsType === "FULL" ? 700 : 400 }}
                 rowKey="id"
                 doubleClick={true}
                 onDClick={(value) => {
@@ -286,7 +299,9 @@ const UnitOfMeasure = (props: IProps) => {
                 newParams={newParams}
                 onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
+                isEdit={true}
                 onEdit={(row) => openModal(true, row)}
+                isDelete={true}
                 onDelete={(id) => onDelete(id)}
               />
             </Col>
@@ -323,7 +338,7 @@ const UnitOfMeasure = (props: IProps) => {
               },
             ]}
           >
-            <NewInput placeholder="Богино нэр" />
+            <NewInput onChange={checkDuplicate} placeholder="Богино нэр" />
           </Form.Item>
           <Form.Item
             label="Бүлэг"
@@ -347,7 +362,7 @@ const UnitOfMeasure = (props: IProps) => {
                   value: MeasurementType.Length,
                 },
                 {
-                  label: "Шингэний хэмжих нэгж",
+                  label: "Эзлэхүүн хэмжих нэгж",
                   value: MeasurementType.Volume,
                 },
                 {
@@ -355,7 +370,7 @@ const UnitOfMeasure = (props: IProps) => {
                   value: MeasurementType.Area,
                 },
                 {
-                  label: " Цаг хугацааны хэмжих нэгж",
+                  label: "Цаг хугацааны хэмжих нэгж",
                   value: MeasurementType.Time,
                 },
                 {

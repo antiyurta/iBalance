@@ -26,6 +26,7 @@ const Group = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number>();
+  const [selectedSectionId, setSelectedSectionId] = useState<number>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
@@ -53,7 +54,7 @@ const Group = () => {
     setIsHaveChild(false);
   };
   const onFinishAdd = (values: IDataTreeSection) => {
-    if (isHaveChild) {
+    if (values.sectionId != selectedSectionId && isHaveChild) {
       modal.warning({
         title: "Анхааруулга",
         content: (
@@ -122,13 +123,13 @@ const Group = () => {
   };
   //
   const checkEdit = (row: IDataTreeSection) => {
-    console.log(row);
     if (!row.isExpand) {
       checkSectionInConsumer(row.id);
     } else {
       checkTreeIn(row.id);
     }
     setSelectedGroupId(row.id);
+    setSelectedSectionId(row.sectionId);
     addForm.setFieldsValue({
       name: row.name,
       sectionId: row.sectionId,

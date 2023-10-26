@@ -359,11 +359,10 @@ const PackageRegistration = (props: IProps) => {
         {isOpenTree && materialSections?.length > 0 ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
-              mode="MATERIAL"
               extra="HALF"
               data={materialSections}
               isLeaf={true}
-              onClick={(key, isLeaf) => {
+              onClick={(keys, isLeaf) => {
                 if (isLeaf) {
                   // getData({
                   //   page: 1,
@@ -381,7 +380,7 @@ const PackageRegistration = (props: IProps) => {
                   getData({
                     page: 1,
                     limit: 10,
-                    materialSectionId: [key],
+                    materialSectionId: keys,
                   });
                 }
               }}
@@ -432,7 +431,6 @@ const PackageRegistration = (props: IProps) => {
                             }
                             content={
                               <NewDirectoryTree
-                                mode="MATERIAL"
                                 extra="HALF"
                                 data={materialSections}
                                 isLeaf={false}
@@ -714,7 +712,6 @@ const PackageRegistration = (props: IProps) => {
                     onOpenChange={(state) => setIsOpenPopOver(state)}
                     content={
                       <NewDirectoryTree
-                        mode={"MATERIAL"}
                         data={materialSections}
                         extra="HALF"
                         isLeaf={true}

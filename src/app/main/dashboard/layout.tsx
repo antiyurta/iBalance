@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import withAuth from "@/feature/hoc/withAuth";
-import { Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
@@ -138,6 +138,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             type="editable-card"
             onEdit={onEdit}
             items={tabsItems}
+            tabBarExtraContent={{
+              right: (
+                <Tooltip
+                  placement="bottomLeft"
+                  title="Лайтай бавал бусдыг гарга"
+                >
+                  <button>Таб гаргах</button>
+                </Tooltip>
+              ),
+            }}
           />
           {children}
         </main>

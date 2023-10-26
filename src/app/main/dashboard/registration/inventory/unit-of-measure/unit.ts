@@ -22,7 +22,7 @@ export const units: IDataUnit[] = [
   },
   {
     id: 4,
-    name: "Шингэний хэмжих нэгж",
+    name: "Эзлэхүүн хэмжих нэгж",
     sectionId: 1,
     isExpand: false,
   },
