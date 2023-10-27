@@ -4,30 +4,30 @@ import { Col, Divider, Row } from "antd";
 import { NewSearch } from "@/components/input";
 import { BarsOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { useContext, useEffect, useState } from "react";
-import GroupItem from "./component/GroupItem";
-import ListItem from "./component/ListItem";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { IDataMaterial, MaterialType } from "@/service/material/entities";
+import { MaterialType } from "@/service/material/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Meta } from "@/service/entities";
-import { MaterialService } from "@/service/material/service";
+import { ViewMaterialService } from "@/service/material/view-material/service";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
+import DisplayItem from "./component/DisplayItem";
 
-type TypeSegment = "list" | "group";
+export type TypeSegment = "list" | "group";
 
 const PosSales = () => {
   const { value } = usePaymentGroupContext();
   const blockContext: BlockView = useContext(BlockContext);
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
+  const [materials, setMaterials] = useState<IDataViewMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({
     page: 1,
-    limit: 10,
+    limit: 12,
   });
   const [isActiveSegment, setIsActiveSegment] = useState<TypeSegment>("group");
   const getMaterials = async (page: number) => {
-    await MaterialService.get({
+    await ViewMaterialService.get({
       types: [MaterialType.Material],
-      materialSectionId: value === "all" ? undefined : [value],
+      sectionId: value === "all" ? undefined : value,
       page: page,
       limit: meta.limit,
     }).then((response) => {
@@ -41,16 +41,10 @@ const PosSales = () => {
   };
   const onSearchMaterial = async (searchValue: string) => {
     blockContext.block();
-    await MaterialService.get({
+    await ViewMaterialService.get({
       types: [MaterialType.Material],
-      queries: [
-        {
-          param: "name",
-          operator: "CONTAINS",
-          value: searchValue,
-        },
-      ],
-      materialSectionId: value === "all" ? undefined : [value],
+      name: searchValue,
+      sectionId: value === "all" ? undefined : value,
     })
       .then((response) => {
         setMaterials(response.response.data);
@@ -131,13 +125,13 @@ const PosSales = () => {
           loader={false}
         >
           <div className={`material-${isActiveSegment}`}>
-            {materials?.map((material, index) =>
-              isActiveSegment === "group" ? (
-                <GroupItem key={index} data={material} />
-              ) : (
-                <ListItem key={index} data={material} />
-              )
-            )}
+            {materials?.map((material, index) => (
+              <DisplayItem
+                key={index}
+                type={isActiveSegment}
+                material={material}
+              />
+            ))}
           </div>
         </InfiniteScroll>
       </Col>

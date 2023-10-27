@@ -41,7 +41,6 @@ const Groups = () => {
     );
   };
 
-  const swiper = useSwiper();
   const { value, set } = usePaymentGroupContext();
   const [sections, setSections] = useState<IGroup[]>([]);
   const getMaterialSections = async () => {
@@ -72,7 +71,6 @@ const Groups = () => {
     });
   };
   useEffect(() => {
-    console.log("end22");
     getMaterialSections();
   }, []);
   return (

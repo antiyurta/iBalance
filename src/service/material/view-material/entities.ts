@@ -1,5 +1,7 @@
+import { IDataCoupon } from "@/service/command/coupon/entities";
 import { MaterialType } from "../entities";
 import { ColumnType, GenericResponse, IParam, Meta } from "@/service/entities";
+import { IDataDiscount } from "@/service/command/discount/entities";
 
 export interface IDataViewMaterial {
   id: number;
@@ -8,10 +10,13 @@ export interface IDataViewMaterial {
   name: string; // Бараа материалын нэр
   barCode: string; // Баркод
   serial: string; // Сериал
+  fileId: number; //zurag id
   unitCodeName: string; // Нэгдсэн ангиллалын кодын нэр
   measurementName: string; // Хэмжих нэгж нэр
   countPackage: number; // Багц доторх тоо
   sectionName: string; // Бараа материалын бүлэг
+  coupon: IDataCoupon; // urushuulal
+  discount: IDataDiscount; // hongololt
   unitAmount: number; // Нэгжийн үнэ
 }
 export interface IFilterViewMaterial {
@@ -33,6 +38,7 @@ export type FilteredColumnsViewMaterial = {
 export interface IParamViewMaterial extends Meta, IParam, IFilterViewMaterial {
   ids?: number[];
   types: MaterialType[]; // Төрөл
+  sectionId?: number;
 }
 
 export interface IResponseViewMaterial extends GenericResponse {

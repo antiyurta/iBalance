@@ -787,6 +787,33 @@ html {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      > .extra {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        .discount {
+          padding: 7px 4px;
+          border-radius: 6px;
+          background: red;
+          p {
+            margin: 0px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+          }
+        }
+        .coupon {
+          padding: 7px 4px;
+          border-radius: 6px;
+          background: $color-warning;
+          p {
+            margin: 0px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+          }
+        }
+      }
       > button {
         > .span.ant-btn-icon {
           font-size: 16px;
@@ -821,7 +848,7 @@ html {
     }
     > .image {
       position: relative;
-      > .extra {
+      > .extra-bottom {
         position: absolute;
         bottom: 0px;
         display: flex;
@@ -830,6 +857,22 @@ html {
         height: 28px;
         border-radius: 6px;
         background: $color-warning;
+        p {
+          font-size: 12px;
+          font-weight: 500;
+          color: white;
+        }
+      }
+      > .extra-top {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        display: flex;
+        padding: 7px 4px;
+        align-items: flex-start;
+        height: 28px;
+        border-radius: 6px;
+        background: red;
         p {
           font-size: 12px;
           font-weight: 500;
@@ -863,6 +906,11 @@ html {
         display: flex;
         justify-content: space-between;
         gap: 8px;
+        > p {
+          font-size: 12px;
+          font-weight: 500;
+          line-height: normal;
+        }
       }
     }
   }
@@ -1210,3 +1258,7 @@ i.rmdp-arrow {
   margin-top: 5px;
 }
 //
+
+.text-line-through {
+  text-decoration: line-through;
+}

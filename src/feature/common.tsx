@@ -422,31 +422,6 @@ async function sectionToFilterName(filters: any) {
   return outFilters;
 }
 
-function listToTree(data: any) {
-  let root: DataNode[] = [];
-  const cloneData: DataNode[] = data?.map((el: any, index: number) => {
-    return {
-      title: el.name,
-      key: el.id,
-      parentId: el.sectionId,
-      isLeaf: !el.isExpand ? !el.isExpand : undefined,
-    };
-  });
-  const idMapping = data?.reduce((acc: any, el: any, i: number) => {
-    acc[el.id] = i;
-    return acc;
-  }, {});
-  cloneData?.forEach((el: any) => {
-    if (el.parentId === null) {
-      root.push(el);
-      return;
-    }
-    const parentEl = cloneData?.[idMapping[el.parentId]];
-    parentEl!.children = [...(parentEl?.children || []), el];
-  });
-  return root;
-}
-
 const displayRender = (labels: string[]) => labels[labels.length - 1];
 const filterCascader = (inputValue: string, path: DefaultOptionType[]) => {
   return path.some(
@@ -471,7 +446,6 @@ export {
   removeDuplicates,
   unDuplicate,
   hasUniqueValues,
-  listToTree,
   findIndexInColumnSettings,
   typeOfFilters,
   onCloseFilterTag,
