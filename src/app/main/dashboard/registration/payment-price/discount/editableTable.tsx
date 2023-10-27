@@ -5,6 +5,7 @@ import {
   FormInstance,
   Popconfirm,
   Space,
+  Switch,
   Table,
   message,
 } from "antd";
@@ -46,6 +47,7 @@ const EditableTableDiscount = (props: IProps) => {
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
 
   const [editingIndex, setEditingIndex] = useState<number>();
+  const [isPercent, setIsPercent] = useState<boolean>(false);
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -278,34 +280,46 @@ const EditableTableDiscount = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"percent"}
-        title="Хөнгөлөлтийн хувь"
+        title="Хөнгөлөлт хувь эсэх"
         render={(value, row, index) => (
-          <Form.Item name={[index, "percent"]}>
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-              prefix={"₮"}
-              formatter={(value: any) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-            />
-          </Form.Item>
+          <Switch
+            disabled={!(index === editingIndex)}
+            onChange={(value) => setIsPercent(value)}
+          />
         )}
       />
-      <Column
-        dataIndex={"amount"}
-        title="Хөнгөлөлт хассан /Хямдарсан/ үнэ"
-        render={(value, row, index) => (
-          <Form.Item name={[index, "amount"]}>
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-              prefix={"%"}
-              parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-            />
-          </Form.Item>
-        )}
-      />
+      {isPercent ? (
+        <Column
+          dataIndex={"percent"}
+          title="Хөнгөлөлт"
+          render={(value, row, index) => (
+            <Form.Item name={[index, "percent"]}>
+              <NewInputNumber
+                disabled={!(index === editingIndex)}
+                suffix={"%"}
+                formatter={(value: any) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+              />
+            </Form.Item>
+          )}
+        />
+      ) : (
+        <Column
+          dataIndex={"amount"}
+          title="Хөнгөлөлт"
+          render={(value, row, index) => (
+            <Form.Item name={[index, "amount"]}>
+              <NewInputNumber
+                disabled={!(index === editingIndex)}
+                suffix={"₮"}
+                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+              />
+            </Form.Item>
+          )}
+        />
+      )}
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}
