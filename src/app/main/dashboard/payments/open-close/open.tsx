@@ -201,7 +201,6 @@ const OpenState = () => {
             Хаах
           </Button>,
         ]}
-        maskClosable={false}
       >
         <Form form={moneyForm}>
           <Form.List name="moneys">

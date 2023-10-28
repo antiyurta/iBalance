@@ -321,7 +321,7 @@ const InventoriesRegistration = (props: IProps) => {
     const id = info.response.response.id;
     await ReferenceService.removeUploadImage(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Амжиллтай", "Устгагдав");
+        openNofi("success", "Устгагдав");
       }
     });
   };
@@ -356,7 +356,7 @@ const InventoriesRegistration = (props: IProps) => {
         .then((response) => {
           setImageIds([]);
           if (response.success) {
-            openNofi("success", "Амжиллтай", "Бараа материал үүсгэлээ");
+            openNofi("success", "Бараа материал үүсгэлээ");
             setIsOpenModal(false);
             getData(params);
           }
@@ -378,7 +378,7 @@ const InventoriesRegistration = (props: IProps) => {
       //   }
       // });
     } else {
-      openNofi("error", "Алдаа", "Харилцагч сонгоно уу");
+      openNofi("error", "Харилцагч сонгоно уу");
     }
   };
   //
@@ -1141,7 +1141,7 @@ const InventoriesRegistration = (props: IProps) => {
         />
       </NewModal>
       <NewModal
-        title="Бренд"
+        title="Брэнд"
         open={isOpenModalBrand}
         onCancel={() => setIsOpenModalBrand(false)}
       >

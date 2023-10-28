@@ -26,7 +26,9 @@ const RefundReasonPage = () => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [params, setParams] = useState<IParamReference>();
+  const [params, setParams] = useState<IParamReference>({
+    type: IType.REASON_REFUND,
+  });
   const [meta, setMeta] = useState<Meta>({});
   const [filters, setFilters] = useState<IFilterReference>({
     type: IType.REASON_REFUND,
@@ -45,14 +47,14 @@ const RefundReasonPage = () => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
-      type: DataIndexType.MULTI,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["updatedUser", "firstName"],
       type: DataIndexType.MULTI,
     },
   });
@@ -67,6 +69,7 @@ const RefundReasonPage = () => {
     setIsOpenModal(true);
   };
   const getData = async (params: IParamReference) => {
+    params.type = IType.REASON_REFUND;
     await ReferenceService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -79,7 +82,7 @@ const RefundReasonPage = () => {
     await ReferenceService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadList(!isReloadList);
-        openNofi("success", "Амжилттай", "Буцаалтын шалтгаан устгалаа.");
+        openNofi("success", "Буцаалтын шалтгаан устгалаа.");
       }
     });
   };
@@ -87,33 +90,36 @@ const RefundReasonPage = () => {
     blockContext.block();
     data.type = IType.REASON_REFUND;
     if (isEdit && selectedRow && selectedRow.id) {
-      await ReferenceService.patch(selectedRow.id, data).then((response) => {
-        success(response);
-      });
+      await ReferenceService.patch(selectedRow.id, data)
+        .then((response) => {
+          success(response);
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     } else {
-      await ReferenceService.post(data).then((response) => {
-        success(response);
-      });
+      await ReferenceService.post(data)
+        .then((response) => {
+          success(response);
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
     }
-    blockContext.unblock();
   };
   const success = (response: IResponseReference) => {
     if (response.success) {
-      openNofi(
-        "success",
-        "Амжилттай",
-        "Буцаалтын шалтгаан амжилттай хадгаллаа."
-      );
+      openNofi("success", "Буцаалтын шалтгаан амжилттай хадгаллаа.");
       setIsOpenModal(false);
       setIsReloadList(!isReloadList);
     }
   };
   useEffect(() => {
-    getData({ type: IType.REASON_REFUND });
+    getData(params);
   }, []);
 
   useEffect(() => {
-    getData({ type: IType.REASON_REFUND });
+    getData(params);
   }, [isReloadList]);
   return (
     <div>
@@ -154,6 +160,8 @@ const RefundReasonPage = () => {
             newParams={params}
             onParams={setParams}
             incomeFilters={filters}
+            isEdit={true}
+            isDelete={true}
             onEdit={(row) => openModal(true, row)}
             onDelete={onDelete}
           />

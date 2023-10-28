@@ -63,7 +63,7 @@ const LimitOfLoans = () => {
       .remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          openNofi("success", "Амжиллтай устгагдлаа");
           setIsReloadList(true);
         }
       })
@@ -253,7 +253,6 @@ const LimitOfLoans = () => {
           })
         }
         width={900}
-        maskClosable={false}
         okText="Хадгалах"
       >
         <Form

@@ -97,7 +97,7 @@ const SavePrice = (props: IProps) => {
   };
   const success = (name: string, response: IResponseOneCommand) => {
     if (response.success) {
-      openNofi("success", "Амжилттай", `${name} амжилттай хадгаллаа.`);
+      openNofi("success", `${name} амжилттай хадгаллаа.`);
       setIsReloadList(!isReloadList);
       form.resetFields();
     }

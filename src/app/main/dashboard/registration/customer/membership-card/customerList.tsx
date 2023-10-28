@@ -29,7 +29,11 @@ interface IProps {
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [params, setParams] = useState<IParamConsumer>();
+  const [params, setParams] = useState<IParamConsumer>({
+    page: 1,
+    limit: 10,
+    memberships: true,
+  });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterConsumer>();
@@ -186,8 +190,8 @@ const CustomerList = (props: IProps) => {
             onClick={(key) => {
               if (key && column.sectionId) {
                 column.sectionId.isFiltered = true;
-                setParams({ sectionId: [key.toString()] });
-                getData({ page: 1, limit: 10, ...params });
+                setParams({ ...params, sectionId: [`${key}`] });
+                getData(params);
               }
             }}
           />
@@ -242,6 +246,12 @@ const CustomerList = (props: IProps) => {
                     width={24}
                     height={24}
                     alt="printIcon"
+                  />
+                  <Image
+                    src={"/images/UploadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="uploadIcon"
                   />
                   <Image
                     src={"/images/DownloadIcon.svg"}

@@ -381,12 +381,12 @@ const Information = (props: IProps) => {
         ids: tableSelectedRows.map((row) => row.id),
       }).then((response) => {
         if (response.success) {
-          openNofi("success", "Амжилттай", "Амилттай солигдлоо");
+          openNofi("success", "Амилттай солигдлоо");
           onClickModal?.(false);
         }
       });
     } else {
-      openNofi("error", "Алдаа", "Харилцагч сонгоно уу");
+      openNofi("error", "Харилцагч сонгоно уу");
     }
   };
   useEffect(() => {
@@ -748,7 +748,6 @@ const Information = (props: IProps) => {
           })
         }
         width={800}
-        maskClosable={false}
       >
         <Form
           form={form}

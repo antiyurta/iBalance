@@ -87,7 +87,7 @@ const InventoriesGroup = () => {
       const id = info.response?.response.id;
       await ReferenceService.removeUploadImage(id).then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай", "Устгагдав");
+          openNofi("success", "Устгагдав");
         }
       });
     }
@@ -220,7 +220,7 @@ const InventoriesGroup = () => {
               await MaterialSectionService.remove(id)
                 .then((response) => {
                   if (response.success) {
-                    openNofi("success", "Амжилттай", "Амжилттай устгагдлаа");
+                    openNofi("success", "Амжилттай устгагдлаа");
                     getMaterialSections();
                   }
                 })

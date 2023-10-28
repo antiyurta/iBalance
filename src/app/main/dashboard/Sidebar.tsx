@@ -49,7 +49,7 @@ const Sidebar = () => {
         getItem("Бүртгэл", "/inventories-registration"),
         getItem("Данс", "/inventories-type"),
         getItem("Бүлэг", "/inventories-group"),
-        getItem("Бренд", "/inventories-brand"),
+        getItem("Брэнд", "/inventories-brand"),
         getItem("Хэмжих нэгж", "/unit-of-measure"),
         getItem("Байршлын бүртгэл", "/storagies-registration"),
         getItem("Үйлчилгээний бүртгэл", "/services-registration"),

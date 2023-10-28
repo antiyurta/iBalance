@@ -119,7 +119,7 @@ const ReceivableAccount = (props: IProps) => {
             setSelectedRow(response.response.data);
             setIsOpenModal(false);
             getReceivableAccounts({ page: 1, limit: 10 });
-            openNofi('success', 'Данс', 'Амжилттай заслаа');
+            openNofi('success', 'Данс амжилттай заслаа');
           }
         });
     } else {
@@ -127,7 +127,7 @@ const ReceivableAccount = (props: IProps) => {
         if (response.success) {
           getReceivableAccounts(params ? params : { page: 1, limit: 10 });
           setIsOpenModal(false);
-          openNofi('success', 'Данс', 'Амжилттай үүслээ');
+          openNofi('success', 'Данс амжилттай үүслээ');
         }
       });
     }
@@ -156,7 +156,7 @@ const ReceivableAccount = (props: IProps) => {
           <>
             <Col md={24} lg={16} xl={19}>
               <Space size={24}>
-                <Title level={5}>
+                <Title level={3}>
                   Үндсэн бүртгэл / Харилцагч / Авлага дансны бүртгэл
                 </Title>
                 <Button

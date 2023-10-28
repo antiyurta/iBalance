@@ -106,7 +106,7 @@ const Group = () => {
               await TreeSectionService.remove(id)
                 .then((response) => {
                   if (response.success) {
-                    openNofi("success", "Амжилттай", "Амжилттай устгагдлаа");
+                    openNofi("success", "Амжилттай устгагдлаа");
                     getConsumerSection(TreeSectionType.Consumer);
                   }
                 })
@@ -282,7 +282,6 @@ const Group = () => {
             onFinishAdd(values);
           })
         }
-        maskClosable={false}
       >
         <Form
           form={addForm}

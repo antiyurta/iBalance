@@ -143,7 +143,7 @@ const CommandList = (props: IProps) => {
   const onDelete = async (id: number) => {
     await MaterialCommandService.remove(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Амжиллтай", "Үнэ амжиллттай устгагдлаа");
+        openNofi("success", "Үнэ амжиллттай устгагдлаа");
         getData(params);
       }
     });
