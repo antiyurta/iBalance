@@ -159,7 +159,7 @@ const RStorage1Filter = (props: IProps) => {
             ]}
           />
         </Form.Item>
-        <Form.Item label="Бренд">
+        <Form.Item label="Брэнд">
           <NewSelect
             options={[
               {

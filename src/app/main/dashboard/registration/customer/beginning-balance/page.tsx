@@ -58,7 +58,7 @@ const BeginningBalance = () => {
       .remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          openNofi("success", "Амжиллтай устгагдлаа");
           setIsReloadList(true);
         }
       })
@@ -91,7 +91,7 @@ const BeginningBalance = () => {
         }
       });
     }
-    openNofi("success", "Амжилттай", "Амжиллтай хадгаллаа.");
+    openNofi("success", "Амжиллтай хадгаллаа.");
   };
   //
   const openModal = (state: boolean, balance?: IDataInitialBalance) => {
@@ -222,7 +222,6 @@ const BeginningBalance = () => {
         }
         okText="Хадгалах"
         width={1000}
-        maskClosable={false}
       >
         <Form form={form} layout="vertical">
           <div

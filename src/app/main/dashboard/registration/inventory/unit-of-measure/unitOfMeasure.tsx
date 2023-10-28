@@ -124,7 +124,6 @@ const UnitOfMeasure = (props: IProps) => {
           if (response.success) {
             openNofi(
               "success",
-              "Амжиллтай",
               "Хэмжих нэгж амжилттай засагдлаа"
             );
             getData({ page: 1, limit: 10 });
@@ -137,7 +136,7 @@ const UnitOfMeasure = (props: IProps) => {
     } else {
       await UnitOfMeasureService.post(values).then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай", "Хэмжих нэгж амжилттай нэмэгдлээ");
+          openNofi("success", "Хэмжих нэгж амжилттай нэмэгдлээ");
           getData({ page: 1, limit: 10 });
           setIsOpenModal(false);
         }
@@ -147,7 +146,7 @@ const UnitOfMeasure = (props: IProps) => {
   const onDelete = async (id: number) => {
     await UnitOfMeasureService.remove(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Амжиллтай", "Хэмжих нэгж амжилттай устгагдлаа");
+        openNofi("success", "Хэмжих нэгж амжилттай устгагдлаа");
         getData({ page: 1, limit: 10 });
       }
     });

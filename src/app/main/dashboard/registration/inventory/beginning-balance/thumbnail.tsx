@@ -116,7 +116,6 @@ const Thumbnail = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            mode="MATERIAL"
             extra="HALF"
             data={sections}
             isLeaf={true}

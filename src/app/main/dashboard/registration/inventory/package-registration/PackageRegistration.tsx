@@ -307,7 +307,7 @@ const PackageRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      openNofi("success", "Амжилттай", "Багц амжилттай хадгаллаа.");
+      openNofi("success", "Багц амжилттай хадгаллаа.");
       getData(params);
     }
     setIsOpenModal(false);
@@ -317,7 +317,7 @@ const PackageRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжилттай", "Багц амжиллтай устгагдлаа");
+          openNofi("success", "Багц амжиллтай устгагдлаа");
           getData(params);
         }
       })
@@ -620,7 +620,6 @@ const PackageRegistration = (props: IProps) => {
         okText="Хадгалах"
         cancelText="Болих"
         width={800}
-        maskClosable={false}
       >
         <Form
           form={form}

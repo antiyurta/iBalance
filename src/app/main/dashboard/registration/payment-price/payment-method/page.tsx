@@ -123,7 +123,7 @@ const PaymentMethodPage = () => {
     await ReferencePaymentMethodService.remove(value).then((response) => {
       if (response.success) {
         getData({ page: 1, limit: 10 });
-        openNofi('success', 'Амжилттай устгалаа.', 'Төлбөрийн хэлбэр');
+        openNofi('success', 'Төлбөрийн хэлбэр амжилттай устгалаа');
       }
     });
   };
@@ -150,7 +150,7 @@ const PaymentMethodPage = () => {
       const id = info.response?.response.id;
       await ReferenceService.removeUploadImage(id).then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай", "Устгагдав");
+          openNofi("success", "Устгагдав");
         }
       });
     }
@@ -267,7 +267,6 @@ const PaymentMethodPage = () => {
       <NewModal
         title="Төлбөрийн хэлбэр"
         open={isModal}
-        maskClosable={false}
         onCancel={() => setIsModal(false)}
         onOk={() =>
           form.validateFields().then((values) => {

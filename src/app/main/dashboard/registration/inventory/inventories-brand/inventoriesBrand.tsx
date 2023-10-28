@@ -46,7 +46,7 @@ const InventoriesBrand = (props: IProps) => {
   const [selectedRow, setSelectedRow] = useState<IDataBrand>();
   const [columns, setColumns] = useState<FilteredColumns>({
     name: {
-      label: "Бренд",
+      label: "Брэнд",
       isView: true,
       isFiltered: false,
       dataIndex: "name",
@@ -104,7 +104,7 @@ const InventoriesBrand = (props: IProps) => {
     } else {
       await BrandService.post(values).then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай", "Хэмжих нэгж амжиллттай нэмэгдлээ");
+          openNofi("success", "Брэнд амжилттай хадгалагдлаа");
           getData({ page: 1, limit: 10 });
           setIsOpenModal(false);
         }
@@ -120,9 +120,9 @@ const InventoriesBrand = (props: IProps) => {
         <div className="header">
           <div className="left">
             {ComponentType === "FULL" ? (
-              <Title level={3}>Үндсэн бүртгэл / Бараа материал / Бренд</Title>
+              <Title level={3}>Үндсэн бүртгэл / Бараа материал / Брэнд</Title>
             ) : (
-              <Title level={3}>Бренд</Title>
+              <Title level={3}>Брэнд</Title>
             )}
             <button
               className="app-button"
@@ -137,7 +137,7 @@ const InventoriesBrand = (props: IProps) => {
                 height={12}
                 alt="addicon"
               />
-              Бренд бүртгэх
+              Брэнд бүртгэх
             </button>
           </div>
           <div className="right">
@@ -193,6 +193,12 @@ const InventoriesBrand = (props: IProps) => {
                 alt="printIcon"
               />
               <Image
+                src={"/images/UploadIcon.svg"}
+                width={24}
+                height={24}
+                alt="uploadIcon"
+              />
+              <Image
                 src={"/images/DownloadIcon.svg"}
                 width={24}
                 height={24}
@@ -224,6 +230,8 @@ const InventoriesBrand = (props: IProps) => {
               newParams={newParams}
               onParams={(params) => setNewParams(params)}
               incomeFilters={filters}
+              isEdit
+              isDelete
               onEdit={(row) => openModal(true, row)}
               onDelete={(id) => console.log(id)}
             />
@@ -232,14 +240,14 @@ const InventoriesBrand = (props: IProps) => {
       </div>
       <NewModal
         width={300}
-        title="Бараа материалын бренд"
+        title="Бараа материалын брэнд"
         open={isOpenModal}
         onCancel={() => setIsOpenModal(false)}
         onOk={() => form.validateFields().then((values) => onFinish(values))}
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="Бренд"
+            label="Брэнд"
             name={"name"}
             rules={[
               {

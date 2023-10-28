@@ -117,6 +117,11 @@ const InventoriesType = (props: IProps) => {
         blockContext.unblock();
       });
   };
+  const newType = () => {
+    form.resetFields();
+    setEditMode(false);
+    setIsOpenModal(true);
+  };
   const onFinish = async (values: IDataType) => {
     blockContext.block();
     if (editMode) {
@@ -151,19 +156,6 @@ const InventoriesType = (props: IProps) => {
       }
     });
   };
-  const checkDuplicate = (e: ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = e;
-    if (data.find((item) => item.accountNo === value)) {
-      message.error({
-        content: <p>Данс код давхцаж байна</p>,
-      });
-      form.setFieldsValue({
-        accountNo: "",
-      });
-    }
-  };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
   }, []);
@@ -176,13 +168,7 @@ const InventoriesType = (props: IProps) => {
               <Title level={3}>Үндсэн бүртгэл / Бараа материал / Данс</Title>
             ) : null}
             {ComponentType === "MODAL" ? <Title level={3}>Данс</Title> : null}
-            <button
-              className="app-button"
-              onClick={() => {
-                form.resetFields();
-                setIsOpenModal(true);
-              }}
-            >
+            <button className="app-button" onClick={newType}>
               <Image
                 src={"/images/AddIcon.svg"}
                 width={12}
@@ -310,7 +296,7 @@ const InventoriesType = (props: IProps) => {
               },
             ]}
           >
-            <NewInput onChange={checkDuplicate} />
+            <NewInput />
           </Form.Item>
           <Form.Item
             label="Бараа материалын дансны нэр"

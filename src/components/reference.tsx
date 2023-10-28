@@ -52,7 +52,7 @@ const Reference = (props: IProps) => {
       console.log(rowId);
       await ReferenceService.remove(rowId).then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай", "Устгагдав");
+          openNofi("success", "Устгагдав");
         }
       });
       remove(dataIndex);
@@ -96,7 +96,7 @@ const Reference = (props: IProps) => {
             };
             await ReferenceService.post(data).then((response) => {
               if (response.success) {
-                openNofi("success", "Амжилттай", "Нэмэгдэв");
+                openNofi("success", "Нэмэгдэв");
                 getData();
               }
             });

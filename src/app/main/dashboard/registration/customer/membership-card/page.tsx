@@ -193,7 +193,7 @@ const MembershipCard = () => {
   };
   const success = (response: IResponseConsumerMembership) => {
     if (response.success) {
-      openNofi("success", "Амжилттай", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
+      openNofi("success", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
       setIsOpenModal(false);
       setIsReloadList(!isReloadList);
     }
@@ -214,13 +214,13 @@ const MembershipCard = () => {
         }
       });
     }
-    openNofi("success", "Гишүүнчлэл", "Амжилттай хадгаллаа.");
+    openNofi("success", "Гишүүнчлэл амжилттай хадгаллаа.");
   };
   const onDeleteConsumer = async (id: number) => {
     await ConsumerMembershipService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadList(!isReloadList);
-        openNofi("success", "Гишүүнчлэл", "Амжилттай устгалаа.");
+        openNofi("success", "Гишүүнчлэл амжилттай устгалаа.");
       }
     });
   };
@@ -228,7 +228,7 @@ const MembershipCard = () => {
     await MembershipService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadCardList(!isReloadCardList);
-        openNofi("success", "Гишүүнчлэл карт", "Амжилттай устгалаа.");
+        openNofi("success", "Гишүүнчлэл карт амжилттай устгалаа.");
       }
     });
   };
@@ -444,7 +444,6 @@ const MembershipCard = () => {
             onFinishMembership(values);
           })
         }
-        maskClosable={false}
       >
         <Form
           form={formMembership}

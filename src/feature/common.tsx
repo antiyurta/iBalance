@@ -21,13 +21,29 @@ import { IDataCountry } from "@/service/reference/country/entities";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
-  message: string,
-  description: string
+  description: string,
+  message?: string,
 ) => {
   notification.config({
     top: 80,
     duration: 4,
   });
+  switch (type) {
+    case 'success':
+      message = 'Амжилттай';
+      break;
+    case 'error':
+      message = 'Алдаа';
+      break;
+    case 'warning':
+      message = 'Амжилтгүй';
+      break;
+    case 'info':
+      message = 'Мэдээлэл';
+      break;
+    default:
+      break;
+  }
   return notification[type]({
     message: message,
     description: description,

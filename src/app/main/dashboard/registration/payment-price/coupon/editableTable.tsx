@@ -10,6 +10,7 @@ import {
   Row,
   Select,
   Space,
+  Switch,
   Table,
   message,
 } from "antd";
@@ -50,6 +51,7 @@ const EditableTableCoupon = (props: IProps) => {
     useState<Map<number, IDataViewMaterial>>();
   const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
+  const [isPercent, setIsPercent] = useState<boolean>(false);
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -309,30 +311,42 @@ const EditableTableCoupon = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
-        title="Урамшуулалын тоо"
+        title="Хөнгөлөлт хувь эсэх"
         render={(value, row, index) => (
-          <Form.Item name={[index, "quantity"]}>
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-              parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-            />
-          </Form.Item>
+          <Switch
+            disabled={!(index === editingIndex)}
+            onChange={(value) => setIsPercent(value)}
+          />
         )}
       />
-      <Column
-        dataIndex={"percent"}
-        title="Урамшуулалын хувь"
-        render={(value, row, index) => (
-          <Form.Item name={[index, "percent"]}>
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-              suffix={"%"}
-              parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-            />
-          </Form.Item>
-        )}
-      />
+      {isPercent ? (
+        <Column
+          dataIndex={"percent"}
+          title="Урамшуулалын хувь"
+          render={(value, row, index) => (
+            <Form.Item name={[index, "percent"]}>
+              <NewInputNumber
+                disabled={!(index === editingIndex)}
+                suffix={"%"}
+                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+              />
+            </Form.Item>
+          )}
+        />
+      ) : (
+        <Column
+          dataIndex={"quantity"}
+          title="Урамшуулалын тоо"
+          render={(value, row, index) => (
+            <Form.Item name={[index, "quantity"]}>
+              <NewInputNumber
+                disabled={!(index === editingIndex)}
+                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+              />
+            </Form.Item>
+          )}
+        />
+      )}
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}

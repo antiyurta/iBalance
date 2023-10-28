@@ -248,7 +248,7 @@ const ServicesRegistration = (props: IProps) => {
     const id = info.response.response.id;
     await ReferenceService.removeUploadImage(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Амжиллтай", "Устгагдав");
+        openNofi("success", "Устгагдав");
       }
     });
   };
@@ -326,7 +326,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      openNofi("success", "Амжилттай", "Үйлчилгээ амжилттай хадгаллаа.");
+      openNofi("success", "Үйлчилгээ амжилттай хадгаллаа.");
       getData(params);
     }
     setIsOpenModal(false);
@@ -336,7 +336,7 @@ const ServicesRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжилттай", "Амжиллтай устгагдлаа");
+          openNofi("success", "Амжиллтай устгагдлаа");
           getData(params);
         }
       })
@@ -639,7 +639,6 @@ const ServicesRegistration = (props: IProps) => {
         okText="Хадгалах"
         cancelText="Болих"
         width={800}
-        maskClosable={false}
       >
         <Form
           form={form}
