@@ -25,19 +25,24 @@ const PosSales = () => {
   });
   const [isActiveSegment, setIsActiveSegment] = useState<TypeSegment>("group");
   const getMaterials = async (page: number) => {
+    blockContext.block();
     await ViewMaterialService.get({
       types: [MaterialType.Material],
       sectionId: value === "all" ? undefined : value,
       page: page,
       limit: meta.limit,
-    }).then((response) => {
-      if (page === 1) {
-        setMaterials(response.response.data);
-      } else {
-        setMaterials([...materials, ...response.response.data]);
-      }
-      setMeta(response.response.meta);
-    });
+    })
+      .then((response) => {
+        if (page === 1) {
+          setMaterials(response.response.data);
+        } else {
+          setMaterials([...materials, ...response.response.data]);
+        }
+        setMeta(response.response.meta);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   const onSearchMaterial = async (searchValue: string) => {
     blockContext.block();

@@ -4,15 +4,19 @@ import type { DataNode, DirectoryTreeProps } from "antd/es/tree";
 import { NewInput } from "./input";
 import { useEffect, useMemo, useState } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { IDataTreeSection } from "@/service/reference/tree-section/entities";
-import { IDataMaterialSection } from "@/service/material/section/entities";
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
-import { IDataUnit } from "@/app/main/dashboard/registration/inventory/unit-of-measure/unitOfMeasure";
 
 type TreeExtra = "FULL" | "HALF";
 
+interface IData {
+  id: number;
+  sectionId: number | null;
+  name: string;
+  isExpand: boolean;
+}
+
 interface IProps {
-  data: IDataTreeSection[] | IDataMaterialSection[] | IDataUnit[];
+  data: IData[];
   isLeaf: boolean;
   extra: TreeExtra;
   onClick?: (keys: number[], isLeaf?: boolean) => void;
@@ -128,12 +132,12 @@ const NewDirectoryTree = (props: IProps) => {
         isLeaf: !el.isExpand ? !el.isExpand : undefined,
       };
     });
-    const idMapping = data?.reduce(
+    const idMapping = data.reduce(
       (acc: { [key: number]: number }, el, i: number) => {
         acc[el.id] = i;
         return acc;
       },
-      {}
+      []
     );
     cloneData?.forEach((el) => {
       if (el.parentId === null) {

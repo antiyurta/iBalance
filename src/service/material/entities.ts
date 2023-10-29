@@ -15,6 +15,8 @@ import { IDataBrand } from "../reference/brand/entities";
 import { IDataMaterialSection } from "./section/entities";
 import { IDataUnitOfMeasure } from "./unitOfMeasure/entities";
 import { IDataViewMaterial } from "./view-material/entities";
+import { IDataCoupon } from "../command/coupon/entities";
+import { IDataDiscount } from "../command/discount/entities";
 
 // Материалын төрөл
 export enum MaterialType {
@@ -60,8 +62,8 @@ export interface IDataMaterial {
   packageMaterials: IDataPackageMaterial[];
   // TODO resourceSizes: ResourceSize[];
   prices: IDataPrice[];
-  // TODO discounts: Discount[];
-  // TODO coupons: Coupon[];
+  discounts: IDataDiscount[];
+  coupons: IDataCoupon[];
   // TODO materialCoupons: Coupon[];
   // TODO refunds: Refund[];
   // TODO bookingMaterials: BookingMaterial[];

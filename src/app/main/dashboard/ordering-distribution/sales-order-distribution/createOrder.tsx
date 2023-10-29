@@ -21,7 +21,7 @@ import { IDataStorage } from "@/service/material/storage/entities";
 import { IDataConsumer } from "@/service/consumer/entities";
 import NewModal from "@/components/modal";
 import Information from "../../registration/customer/information/information";
-import { TabType } from "./page";
+import { TabType } from "@/service/order-distribution/entities";
 
 interface IProps {
   type: TabType;

@@ -6,7 +6,7 @@ import { NewTable, Column } from "@/components/table";
 import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import CreateOrder from "./createOrder";
-import { TabType } from "./page";
+import { TabType } from "@/service/order-distribution/entities";
 
 const { Title } = Typography;
 

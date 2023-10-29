@@ -397,6 +397,7 @@ const ListOfReceipt = () => {
                   },
                 }}
                 form={lockForm}
+                itemname={"TEST"}
               />
               <Form.Item
                 style={{

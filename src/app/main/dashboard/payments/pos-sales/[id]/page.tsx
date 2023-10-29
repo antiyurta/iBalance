@@ -13,16 +13,50 @@ import {
 import { Badge, Breadcrumb, Button, Col, Row, Space, Typography } from "antd";
 import { useParams } from "next/navigation";
 import { NewInputNumber } from "@/components/input";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MaterialService } from "@/service/material/service";
 import { IDataMaterial } from "@/service/material/entities";
+//swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { getFile } from "@/feature/common";
+import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+
 const { Title } = Typography;
+
+interface xIDataMaterial extends IDataMaterial {
+  resources?: string[];
+}
+
 const MaterialDetail = () => {
   const params = useParams();
-  const [material, setMaterial] = useState<IDataMaterial>();
+  const { setReload } = usePaymentGroupContext();
+  const blockContext: BlockView = useContext(BlockContext);
+  const [material, setMaterial] = useState<xIDataMaterial>();
   const getMaterial = async (id: number) => {
-    await MaterialService.getById(id).then((response) => {
-      setMaterial(response.response);
+    await MaterialService.getById(id).then(async ({ response }) => {
+      var material: xIDataMaterial = response;
+      if (material.fileIds.length > 0) {
+        var resources: string[] = [];
+        await Promise.all(
+          material.fileIds.map(async (fileId) => {
+            const src = await getFile(fileId);
+            resources.push(src);
+          })
+        );
+        material.resources = resources;
+      }
+      setMaterial(material);
+    });
+  };
+  const onFinish = async (data: IDataShoppingCartPost) => {
+    blockContext.block();
+    await ShoppingCartService.post(data).then((response) => {
+      if (response.success) {
+        setReload(true);
+      }
     });
   };
   useEffect(() => {
@@ -41,18 +75,11 @@ const MaterialDetail = () => {
             separator=">"
             items={[
               {
-                title: "Home",
-              },
-              {
-                title: "Application Center",
+                title: material?.section.name,
                 href: "",
               },
               {
-                title: "Application List",
-                href: "",
-              },
-              {
-                title: "An Application",
+                title: material?.name,
               },
             ]}
           />
@@ -60,14 +87,13 @@ const MaterialDetail = () => {
         <Col span={24}>
           <Row gutter={[12, 24]}>
             <Col sm={24} md={24} lg={12} xl={10}>
-              <Image
-                src="/images/vera.png"
-                width={0}
-                height={0}
-                sizes="100vw"
-                style={{ width: "100%", height: "auto" }}
-                alt="dd"
-              />
+              <Swiper className="swiper-one-item">
+                {material?.resources?.map((blobUrls, index) => (
+                  <SwiperSlide key={index}>
+                    <Image src={blobUrls} width={0} height={0} alt="dd" />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </Col>
             <Col sm={24} md={24} lg={12} xl={14}>
               <Row gutter={[12, 12]}>
@@ -102,15 +128,33 @@ const MaterialDetail = () => {
                       color: "#6C757D",
                     }}
                   >
-                    #1325 4896 4848 1515
+                    {material?.code}
                   </Title>
                 </Col>
                 <Col span={24}>
                   <Space size={24} wrap>
-                    <Badge count={11} color="red" />
-                    <Badge>
-                      <ShoppingCartOutlined />
-                    </Badge>
+                    {material?.coupons?.map((coupon, index) => (
+                      <Badge
+                        key={index}
+                        count={`${coupon.conditionValue} + ${coupon.quantity}`}
+                      />
+                    ))}
+                    {material?.discounts?.map((discount, index) => (
+                      <Badge
+                        key={index}
+                        count={
+                          discount.percent > 0
+                            ? `${discount.percent}%`
+                            : `${discount.amount}₮`
+                        }
+                        style={{
+                          display: "flex",
+                          padding: 12,
+                          alignItems: "center",
+                          fontSize: 13,
+                        }}
+                      />
+                    ))}
                   </Space>
                 </Col>
                 <Col span={24}>
@@ -143,6 +187,14 @@ const MaterialDetail = () => {
                     style={{
                       height: 32,
                     }}
+                    onClick={() => {
+                      if (material) {
+                        onFinish({
+                          materialId: material.id,
+                          quantity: 0,
+                        });
+                      }
+                    }}
                   >
                     <ShoppingCartOutlined />
                     Сагслах
@@ -167,15 +219,7 @@ const MaterialDetail = () => {
                       color: "#86909C",
                     }}
                   >
-                    Дизайнер М.Төмөрсүх нь энэ ондоо амжилт бүтээлээрээ,
-                    бусдыгаа манлайлан онц сайн ажилласан тул байгууллагын
-                    зүгээс урамшуулал олгон бүэн жилийн Мульти Витамин ундааны
-                    хэрэглээ болон 100,000,00.00 ₮ -ны мөнгөн урамшуулал олгож
-                    Зайсанд 3-н Өрөө хаус бэлэглэж хувийн онгоц урамшуулал
-                    болгон өглөө. Мөн сарын цалинг 351% өгсөхөөр боллоо. Ингээд
-                    Төмөрсүхдээ болон ажиллын хамт олон, зэвсэг нэгт ахан дүүсд
-                    нь цаашдын ажиллын өндөр амжилт хүссэн ерөөж байна. Гэвэл
-                    гоеоо хаха
+                    {material?.description}
                   </Title>
                 </Col>
                 <Col span={24}>

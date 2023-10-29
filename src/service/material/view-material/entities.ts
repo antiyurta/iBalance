@@ -41,6 +41,10 @@ export interface IParamViewMaterial extends Meta, IParam, IFilterViewMaterial {
   sectionId?: number;
 }
 
+export interface IResponseViewMaterialOne extends GenericResponse {
+  response: IDataViewMaterial;
+}
+
 export interface IResponseViewMaterial extends GenericResponse {
   response: {
     data: IDataViewMaterial[];

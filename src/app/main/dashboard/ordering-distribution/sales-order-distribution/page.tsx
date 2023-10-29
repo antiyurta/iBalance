@@ -6,13 +6,9 @@ import { NewSearch } from "@/components/input";
 //
 import CreateOrder from "./createOrder";
 import Distribution from "./distribution";
+import { TabType } from "@/service/order-distribution/entities";
 
 const { Title } = Typography;
-
-export enum TabType {
-  CREATE_ORDER = "create_order",
-  DISTRIBUTION = "distribution",
-}
 
 const page = () => {
   const items = [

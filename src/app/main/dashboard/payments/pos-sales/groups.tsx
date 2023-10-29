@@ -51,20 +51,14 @@ const Groups = () => {
       const result: IGroup[] = [];
       await Promise.all(
         response.response.data.map(async (section) => {
-          if (section.fileId) {
-            const src = await getFile(section.fileId);
-            result.push({
-              name: section.name,
-              src: src,
-              sectionId: section.id,
-            });
-          } else {
-            result.push({
-              name: section.name,
-              src: "",
-              sectionId: section.id,
-            });
-          }
+          result.push({
+            name: section.name,
+            src:
+              section.fileId != null
+                ? await getFile(section.fileId)
+                : "/images/emptyMarket.png",
+            sectionId: section.id,
+          });
         })
       );
       setSections(result);
@@ -93,6 +87,7 @@ const Groups = () => {
               <p className="text">Бүгд</p>
             </div>
             <Swiper
+              className="swiper-group"
               modules={[Navigation, Pagination, Scrollbar, A11y]}
               navigation
               spaceBetween={20}
@@ -148,8 +143,8 @@ const Groups = () => {
                       <Image
                         src={section.src}
                         alt={`${section.name + index}`}
-                        width={30}
-                        height={30}
+                        width={25}
+                        height={25}
                       />
                       <p className="text">{section.name}</p>
                     </div>
