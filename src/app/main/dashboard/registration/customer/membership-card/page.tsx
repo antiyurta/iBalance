@@ -120,8 +120,8 @@ const MembershipCard = () => {
       };
       consumerFormField(consumer.id);
       form.setFieldsValue(data);
-      setIsEdit(true);
     }
+    setIsEdit(state);
     setIsOpenModal(true);
   };
   const openModalCard = (state: boolean, membership?: IDataMembership) => {
@@ -131,6 +131,7 @@ const MembershipCard = () => {
       formMembership.setFieldsValue(membership);
       setMembership(membership);
     }
+    setIsEdit(state);
     setIsOpenModalCard(true);
     setIsReloadCardList(!isReloadCardList);
   };

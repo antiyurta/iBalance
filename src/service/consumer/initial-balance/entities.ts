@@ -23,9 +23,9 @@ export interface IInputInitialBalance {
 }
 // Хайлт харилцагчийн эхний үлдэгдэл
 export interface IFilterInitialBalance {
-  code?: string[];
-  sectionId?: number[];
-  name?: string[];
+  consumerCode?: string[];
+  consumerSectionId?: number[];
+  consumerName?: string[];
   amount?: number[];
   accountId?: number[];
   updatedBy?: number;

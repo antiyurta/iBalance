@@ -421,6 +421,17 @@ const InventoriesRegistration = (props: IProps) => {
     ) => {},
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
   };
+  const onDeleteMaterial = (id: number) => {
+    MaterialService.remove(id)
+      .then((response) => {
+        if (response.success) {
+          openNofi("success", "Бараа материал амжилттай устгалаа.");
+        }
+      })
+      .then(() => {
+        getData(params);
+      });
+  };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
     getMaterialSections();
@@ -729,7 +740,7 @@ const InventoriesRegistration = (props: IProps) => {
                 isEdit={true}
                 onEdit={(row) => openModal(true, row)}
                 isDelete={true}
-                onDelete={(id) => console.log(id)}
+                onDelete={(id) => onDeleteMaterial(id)}
               />
             </Col>
           </Row>

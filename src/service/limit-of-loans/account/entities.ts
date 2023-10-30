@@ -2,6 +2,7 @@ import {
   ColumnType,
   GenericResponse,
   IData,
+  IFilter,
   IFilters,
   IParam,
   Meta,
@@ -18,7 +19,7 @@ export interface IDataLimitOfLoansAccount extends IData {
   lendLimit: IDataLimitOfLoans;
 }
 
-export interface IFilterLimitOfLoansAccount {
+export interface IFilterLimitOfLoansAccount extends IFilter {
   code?: number[];
   name?: string[];
   sectionId?: number[];
