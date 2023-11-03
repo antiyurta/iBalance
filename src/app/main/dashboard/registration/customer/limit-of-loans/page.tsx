@@ -63,7 +63,6 @@ const LimitOfLoans = () => {
       .remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай устгагдлаа");
           setIsReloadList(true);
         }
       })
@@ -124,7 +123,7 @@ const LimitOfLoans = () => {
         if (response.response.data.length > 0) {
           openNofi(
             "error",
-            `${response.response.data[0].code} кодтой хэрэглэгч бүтгэсэн байна`
+            `${response.response.data[0].code} кодтой харилцагч бүртгэлтэй байна`
           );
           form.setFieldsValue({
             consumerId: "",
@@ -356,7 +355,6 @@ const LimitOfLoans = () => {
                 ]}
               >
                 <NewInputNumber
-                  disabled={isAccounts}
                   className="numberValue-to-right"
                   style={{ width: "100%", color: "red" }}
                   addonAfter="₮"

@@ -167,6 +167,7 @@ const StoragiesRegistration = (props: IProps) => {
             extra="HALF"
             data={sections}
             isLeaf={true}
+            
             onClick={(key) => {
               //   getData({ page: 1, limit: 10, sectionId: [`${key}`] });
             }}

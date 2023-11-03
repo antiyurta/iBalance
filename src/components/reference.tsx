@@ -11,7 +11,6 @@ import {
   CloseOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { openNofi } from "@/feature/common";
 
 interface IProps {
   type: IType;
@@ -52,7 +51,7 @@ const Reference = (props: IProps) => {
       console.log(rowId);
       await ReferenceService.remove(rowId).then((response) => {
         if (response.success) {
-          openNofi("success", "Устгагдав");
+          getData();
         }
       });
       remove(dataIndex);
@@ -96,7 +95,6 @@ const Reference = (props: IProps) => {
             };
             await ReferenceService.post(data).then((response) => {
               if (response.success) {
-                openNofi("success", "Нэмэгдэв");
                 getData();
               }
             });

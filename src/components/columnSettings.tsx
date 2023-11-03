@@ -6,6 +6,7 @@ const { CheckableTag } = Tag;
 interface IProps {
   columns: object;
   columnIndexes: (selected: string[], unSelected: string[]) => void;
+  defaultColumns?: object;
 }
 
 const ColumnSettings = (props: IProps) => {
@@ -64,12 +65,12 @@ const ColumnSettings = (props: IProps) => {
               }}
               className="app-button-regular"
               onClick={() => {
-                // setSelectedTags(defualtColumns);
+                // setColumns(defaultColumns);
                 // columnIndexes(defualtColumns, unSelectedTags);
                 setIsOpenModal(false);
               }}
             >
-              Defualt
+              Default
             </button>
             <button
               disabled={selectedTags?.length > 0 ? false : true}

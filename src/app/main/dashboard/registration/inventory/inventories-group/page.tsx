@@ -25,7 +25,6 @@ import InventoriesType from "../inventories-type/inventoriesType";
 import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { ReferenceService } from "@/service/reference/reference";
-import { openNofi } from "@/feature/common";
 import type { UploadProps } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
 import { MaterialService } from "@/service/material/service";
@@ -87,7 +86,6 @@ const InventoriesGroup = () => {
       const id = info.response?.response.id;
       await ReferenceService.removeUploadImage(id).then((response) => {
         if (response.success) {
-          openNofi("success", "Устгагдав");
         }
       });
     }
@@ -220,7 +218,6 @@ const InventoriesGroup = () => {
               await MaterialSectionService.remove(id)
                 .then((response) => {
                   if (response.success) {
-                    openNofi("success", "Амжилттай устгагдлаа");
                     getMaterialSections();
                   }
                 })

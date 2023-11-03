@@ -74,14 +74,14 @@ const DescriptionList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["account", "code"],
-      type: DataIndexType.STRING_ACCOUNT_CODE,
+      type: DataIndexType.MULTI,
     },
     accountName: {
       label: "Дансны нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["account", "name"],
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     amount: {
       label: "Зээлийн лимит /дансаарх/",

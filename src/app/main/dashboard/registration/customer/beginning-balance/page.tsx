@@ -58,7 +58,6 @@ const BeginningBalance = () => {
       .remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай устгагдлаа");
           setIsReloadList(true);
         }
       })
@@ -91,7 +90,6 @@ const BeginningBalance = () => {
         }
       });
     }
-    openNofi("success", "Амжиллтай хадгаллаа.");
   };
   //
   const openModal = (state: boolean, balance?: IDataInitialBalance) => {
@@ -119,12 +117,12 @@ const BeginningBalance = () => {
   };
   const consumerFormField = async (id: number) => {
     blockContext.block();
-    await ConsumerService.get({ ids: [id], memberships: true })
+    await ConsumerService.get({ ids: [id], initialBalances: true })
       .then((response) => {
         if (response.response.data.length > 0) {
           openNofi(
             "error",
-            `${response.response.data[0].code} кодтой хэрэглэгч бүтгэсэн байна`
+            `${response.response.data[0].code} кодтой харилцагч бүртгэлтэй байна`
           );
           form.setFieldsValue({
             consumerId: "",

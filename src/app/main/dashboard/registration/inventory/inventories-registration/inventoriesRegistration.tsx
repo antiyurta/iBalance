@@ -321,7 +321,6 @@ const InventoriesRegistration = (props: IProps) => {
     const id = info.response.response.id;
     await ReferenceService.removeUploadImage(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Устгагдав");
       }
     });
   };
@@ -356,7 +355,6 @@ const InventoriesRegistration = (props: IProps) => {
         .then((response) => {
           setImageIds([]);
           if (response.success) {
-            openNofi("success", "Бараа материал үүсгэлээ");
             setIsOpenModal(false);
             getData(params);
           }
@@ -373,7 +371,6 @@ const InventoriesRegistration = (props: IProps) => {
       //   ids: tableSelectedRows.map((row) => row.id),
       // }).then((response) => {
       //   if (response.success) {
-      //     openNofi("success", "Амжилттай", "Амилттай солигдлоо");
       //     onClickModal?.(false);
       //   }
       // });
@@ -423,11 +420,6 @@ const InventoriesRegistration = (props: IProps) => {
   };
   const onDeleteMaterial = (id: number) => {
     MaterialService.remove(id)
-      .then((response) => {
-        if (response.success) {
-          openNofi("success", "Бараа материал амжилттай устгалаа.");
-        }
-      })
       .then(() => {
         getData(params);
       });

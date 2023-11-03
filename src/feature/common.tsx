@@ -33,10 +33,10 @@ export const openNofi = (
       message = 'Амжилттай';
       break;
     case 'error':
-      message = 'Алдаа';
+      message = 'Амжилтгүй';
       break;
     case 'warning':
-      message = 'Амжилтгүй';
+      message = 'Анхаар';
       break;
     case 'info':
       message = 'Мэдээлэл';
