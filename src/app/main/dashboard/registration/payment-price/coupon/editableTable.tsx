@@ -293,8 +293,8 @@ const EditableTableCoupon = (props: IProps) => {
                 <Select
                   disabled={!(index === editingIndex)}
                   options={[
-                    { value: "EQUALS", label: "=" },
-                    { value: "IS_GREATER", label: ">" },
+                    { value: "EQUALS", label: "Тутамд" },
+                    { value: "IS_GREATOR_OR_EQUAL", label: "Дээш" },
                   ]}
                 />
               </Form.Item>

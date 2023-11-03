@@ -4,7 +4,6 @@ import { NewInput } from "@/components/input";
 import {
   findIndexInColumnSettings,
   onCloseFilterTag,
-  openNofi,
   unDuplicate,
 } from "@/feature/common";
 import {
@@ -119,7 +118,6 @@ const ReceivableAccount = (props: IProps) => {
             setSelectedRow(response.response.data);
             setIsOpenModal(false);
             getReceivableAccounts({ page: 1, limit: 10 });
-            openNofi('success', 'Данс амжилттай заслаа');
           }
         });
     } else {
@@ -127,7 +125,6 @@ const ReceivableAccount = (props: IProps) => {
         if (response.success) {
           getReceivableAccounts(params ? params : { page: 1, limit: 10 });
           setIsOpenModal(false);
-          openNofi('success', 'Данс амжилттай үүслээ');
         }
       });
     }

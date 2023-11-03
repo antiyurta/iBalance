@@ -321,7 +321,6 @@ const InventoriesRegistration = (props: IProps) => {
     const id = info.response.response.id;
     await ReferenceService.removeUploadImage(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Устгагдав");
       }
     });
   };
@@ -356,7 +355,6 @@ const InventoriesRegistration = (props: IProps) => {
         .then((response) => {
           setImageIds([]);
           if (response.success) {
-            openNofi("success", "Бараа материал үүсгэлээ");
             setIsOpenModal(false);
             getData(params);
           }
@@ -373,7 +371,6 @@ const InventoriesRegistration = (props: IProps) => {
       //   ids: tableSelectedRows.map((row) => row.id),
       // }).then((response) => {
       //   if (response.success) {
-      //     openNofi("success", "Амжилттай", "Амилттай солигдлоо");
       //     onClickModal?.(false);
       //   }
       // });
@@ -420,6 +417,12 @@ const InventoriesRegistration = (props: IProps) => {
       selectedRows: IDataConsumer[]
     ) => {},
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
+  };
+  const onDeleteMaterial = (id: number) => {
+    MaterialService.remove(id)
+      .then(() => {
+        getData(params);
+      });
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
@@ -729,7 +732,7 @@ const InventoriesRegistration = (props: IProps) => {
                 isEdit={true}
                 onEdit={(row) => openModal(true, row)}
                 isDelete={true}
-                onDelete={(id) => console.log(id)}
+                onDelete={(id) => onDeleteMaterial(id)}
               />
             </Col>
           </Row>

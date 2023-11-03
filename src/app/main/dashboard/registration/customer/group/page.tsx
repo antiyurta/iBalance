@@ -106,7 +106,6 @@ const Group = () => {
               await TreeSectionService.remove(id)
                 .then((response) => {
                   if (response.success) {
-                    openNofi("success", "Амжилттай устгагдлаа");
                     getConsumerSection(TreeSectionType.Consumer);
                   }
                 })

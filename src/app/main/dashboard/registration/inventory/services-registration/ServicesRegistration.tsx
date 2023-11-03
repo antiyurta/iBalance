@@ -24,11 +24,7 @@ import {
   NewSwitch,
   NewTextArea,
 } from "@/components/input";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import {
   IDataReference,
@@ -246,11 +242,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   const handleRemove = async (info: any) => {
     const id = info.response.response.id;
-    await ReferenceService.removeUploadImage(id).then((response) => {
-      if (response.success) {
-        openNofi("success", "Устгагдав");
-      }
-    });
+    await ReferenceService.removeUploadImage(id);
   };
   // end zuragtai hamaarah functionuud
   const getData = async (params: IParamMaterial) => {
@@ -326,7 +318,6 @@ const ServicesRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      openNofi("success", "Үйлчилгээ амжилттай хадгаллаа.");
       getData(params);
     }
     setIsOpenModal(false);
@@ -336,7 +327,6 @@ const ServicesRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай устгагдлаа");
           getData(params);
         }
       })

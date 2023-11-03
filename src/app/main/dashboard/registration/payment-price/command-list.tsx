@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   CommandType,
@@ -143,7 +139,6 @@ const CommandList = (props: IProps) => {
   const onDelete = async (id: number) => {
     await MaterialCommandService.remove(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Үнэ амжиллттай устгагдлаа");
         getData(params);
       }
     });

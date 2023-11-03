@@ -14,7 +14,7 @@ import {
   IResponseOneCommand,
 } from "@/service/command/entities";
 import { MaterialCommandService } from "@/service/command/service";
-import { hasUniqueValues, openNofi } from "@/feature/common";
+import { hasUniqueValues } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import mnMN from "antd/es/calendar/locale/mn_MN";
@@ -54,21 +54,21 @@ const SavePrice = (props: IProps) => {
       if (type == CommandType.Discount) {
         await MaterialCommandService.patchDiscount(selectedCommand.id, values)
           .then((response) => {
-            success("Хөнгөлөлт", response);
+            success(response);
             onSavePriceModal?.(false);
           })
           .finally(() => blockContext.unblock());
       } else if (type == CommandType.Coupon) {
         await MaterialCommandService.patchCoupon(selectedCommand.id, values)
           .then((response) => {
-            success("Урамшуулал", response);
+            success(response);
             onSavePriceModal?.(false);
           })
           .finally(() => blockContext.unblock());
       } else {
         await MaterialCommandService.patchPrice(selectedCommand.id, values)
           .then((response) => {
-            success("Үнэ", response);
+            success(response);
             onSavePriceModal?.(false);
           })
           .finally(() => blockContext.unblock());
@@ -77,27 +77,26 @@ const SavePrice = (props: IProps) => {
       if (type == CommandType.Discount) {
         await MaterialCommandService.postDiscount(values)
           .then((response) => {
-            success("Хөнгөлөлт", response);
+            success(response);
           })
           .finally(() => blockContext.unblock());
       } else if (type == CommandType.Coupon) {
         await MaterialCommandService.postCoupon(values)
           .then((response) => {
-            success("Урамшуулал", response);
+            success(response);
           })
           .finally(() => blockContext.unblock());
       } else {
         await MaterialCommandService.postPrice(values)
           .then((response) => {
-            success("Үнэ", response);
+            success(response);
           })
           .finally(() => blockContext.unblock());
       }
     }
   };
-  const success = (name: string, response: IResponseOneCommand) => {
+  const success = (response: IResponseOneCommand) => {
     if (response.success) {
-      openNofi("success", `${name} амжилттай хадгаллаа.`);
       setIsReloadList(!isReloadList);
       form.resetFields();
     }

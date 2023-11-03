@@ -37,27 +37,27 @@ interface IProps {
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [newParams, setNewParams] = useState<IParamInitialBalance>({});
+  const [newParams, setNewParams] = useState<IParamInitialBalance>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterInitialBalance>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsInitialBalance>({
-    code: {
+    consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "code"],
       type: DataIndexType.MULTI,
     },
-    name: {
+    consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    consumerSectionId: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
@@ -88,44 +88,8 @@ const CustomerList = (props: IProps) => {
   });
   const getData = async (params: IParamInitialBalance) => {
     blockContext.block();
-    var prm: IParamInitialBalance = {
-      page: params.page || newParams.page,
-      limit: params.limit || newParams.limit,
-      orderParam: params.orderParam || newParams.orderParam,
-      order: params.order || newParams.order,
-      code: params.code || newParams.code,
-      name: params.name || newParams.name,
-      sectionId: params.sectionId || newParams.sectionId,
-      amount: params.amount || newParams.amount,
-      updatedAt: params.updatedAt || newParams.updatedAt,
-      updatedBy: params.updatedBy || newParams.updatedBy,
-      queries: newParams.queries,
-    };
-    if (params.queries?.length) {
-      const incomeParam = params.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, newParams), ...params.queries];
-    }
-    if (params.code) {
-      prm.queries = [...unDuplicate("code", newParams)];
-    }
-    if (params.name) {
-      prm.queries = [...unDuplicate("name", newParams)];
-    }
-    if (params.sectionId) {
-      prm.queries = [...unDuplicate("sectionId", newParams)];
-    }
-    if (params.amount) {
-      prm.queries = [...unDuplicate("amount", newParams)];
-    }
-    if (params.updatedAt) {
-      prm.queries = [...unDuplicate("updatedAt", newParams)];
-    }
-    if (params.updatedBy) {
-      prm.queries = [...unDuplicate("updatedBy", newParams)];
-    }
-    setNewParams(prm);
     await initialBalanceService
-      .get(prm)
+      .get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -148,7 +112,7 @@ const CustomerList = (props: IProps) => {
     getSections(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    getData(newParams);
   }, [onReload]);
   return (
     <div>
@@ -159,8 +123,9 @@ const CustomerList = (props: IProps) => {
             data={sections}
             isLeaf={true}
             onClick={(key, isLeaf) => {
-              if (isLeaf) {
-                getData({ page: 1, limit: 10, sectionId: key });
+              if (!isLeaf) {
+                setNewParams({...newParams, consumerSectionId: key });
+                getData(newParams);
               }
             }}
           />

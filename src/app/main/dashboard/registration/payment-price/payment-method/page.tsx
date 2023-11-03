@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { PlusOutlined } from "@ant-design/icons";
 import Filtered from "@/components/filtered";
-import { onCloseFilterTag, openNofi } from "@/feature/common";
+import { onCloseFilterTag } from "@/feature/common";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsPaymentMethod,
@@ -123,7 +123,6 @@ const PaymentMethodPage = () => {
     await ReferencePaymentMethodService.remove(value).then((response) => {
       if (response.success) {
         getData({ page: 1, limit: 10 });
-        openNofi('success', 'Төлбөрийн хэлбэр амжилттай устгалаа');
       }
     });
   };
@@ -150,7 +149,7 @@ const PaymentMethodPage = () => {
       const id = info.response?.response.id;
       await ReferenceService.removeUploadImage(id).then((response) => {
         if (response.success) {
-          openNofi("success", "Устгагдав");
+          getData(params);
         }
       });
     }

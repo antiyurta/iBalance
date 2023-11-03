@@ -3,7 +3,6 @@
 import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
@@ -82,7 +81,6 @@ const RefundReasonPage = () => {
     await ReferenceService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadList(!isReloadList);
-        openNofi("success", "Буцаалтын шалтгаан устгалаа.");
       }
     });
   };
@@ -109,7 +107,6 @@ const RefundReasonPage = () => {
   };
   const success = (response: IResponseReference) => {
     if (response.success) {
-      openNofi("success", "Буцаалтын шалтгаан амжилттай хадгаллаа.");
       setIsOpenModal(false);
       setIsReloadList(!isReloadList);
     }

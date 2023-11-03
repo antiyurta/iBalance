@@ -3,11 +3,7 @@ import Filtered from "@/components/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -24,7 +20,9 @@ import { BrandService } from "@/service/reference/brand/service";
 import { ReferenceService } from "@/service/reference/reference";
 import { Form, Typography } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { UploadExcelFile } from "@/components/upload-excel-file";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -36,14 +34,20 @@ const { Title } = Typography;
 const InventoriesBrand = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [data, setData] = useState<IDataBrand[]>([]);
   const [countries, setCountries] = useState<IDataCountry[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBrand>();
-  const [newParams, setNewParams] = useState<IParamBrand>({});
+  const [params, setNewParams] = useState<IParamBrand>({
+    page: 1,
+    limit: 10,
+  });
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataBrand>();
+  const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
+  const [isReload, setIsReload] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumns>({
     name: {
       label: "Брэнд",
@@ -100,20 +104,31 @@ const InventoriesBrand = (props: IProps) => {
     });
   };
   const onFinish = async (values: IDataBrand) => {
-    if (editMode) {
+    if (editMode && selectedRow) {
     } else {
       await BrandService.post(values).then((response) => {
         if (response.success) {
-          openNofi("success", "Брэнд амжилттай хадгалагдлаа");
-          getData({ page: 1, limit: 10 });
+          setIsReload(!isReload);
           setIsOpenModal(false);
         }
       });
     }
   };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await BrandService.remove(id)
+      .then((response) => {
+        if (response.success) {
+          setIsReload(!isReload);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, []);
+    getData(params);
+  }, [isReload]);
   return (
     <div>
       <div className="information">
@@ -164,10 +179,10 @@ const InventoriesBrand = (props: IProps) => {
                 state: state,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: newParams,
+                params,
                 onParams: (params) => setNewParams(params),
               });
-              getData(newParams);
+              getData(params);
             }}
           />
           {ComponentType === "FULL" ? (
@@ -180,7 +195,7 @@ const InventoriesBrand = (props: IProps) => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: newParams,
+                    params,
                     onParams: (params) => setNewParams(params),
                     getData: (params) => getData(params),
                   })
@@ -197,6 +212,7 @@ const InventoriesBrand = (props: IProps) => {
                 width={24}
                 height={24}
                 alt="uploadIcon"
+                onClick={() => setIsUploadModal(true)}
               />
               <Image
                 src={"/images/DownloadIcon.svg"}
@@ -227,13 +243,13 @@ const InventoriesBrand = (props: IProps) => {
               columns={columns}
               onChange={(params) => getData(params)}
               onColumns={(columns) => setColumns(columns)}
-              newParams={newParams}
+              newParams={params}
               onParams={(params) => setNewParams(params)}
               incomeFilters={filters}
               isEdit
               isDelete
               onEdit={(row) => openModal(true, row)}
-              onDelete={(id) => console.log(id)}
+              onDelete={(id) => onDelete(id)}
             />
           </div>
         </div>
@@ -286,6 +302,13 @@ const InventoriesBrand = (props: IProps) => {
           </Form.Item>
         </Form>
       </NewModal>
+      <UploadExcelFile
+        isModal={isUploadModal}
+        setIsModal={(value) => setIsUploadModal(value)}
+        templateExcel="MATERIAL_BRAND"
+        isReload={isReload}
+        setIsReload={setIsReload}
+      />
     </div>
   );
 };

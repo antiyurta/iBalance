@@ -4,11 +4,7 @@ import Filtered from "@/components/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   DataIndexType,
@@ -122,10 +118,6 @@ const UnitOfMeasure = (props: IProps) => {
       await UnitOfMeasureService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
-            openNofi(
-              "success",
-              "Хэмжих нэгж амжилттай засагдлаа"
-            );
             getData({ page: 1, limit: 10 });
             setIsOpenModal(false);
           }
@@ -136,7 +128,6 @@ const UnitOfMeasure = (props: IProps) => {
     } else {
       await UnitOfMeasureService.post(values).then((response) => {
         if (response.success) {
-          openNofi("success", "Хэмжих нэгж амжилттай нэмэгдлээ");
           getData({ page: 1, limit: 10 });
           setIsOpenModal(false);
         }
@@ -146,7 +137,6 @@ const UnitOfMeasure = (props: IProps) => {
   const onDelete = async (id: number) => {
     await UnitOfMeasureService.remove(id).then((response) => {
       if (response.success) {
-        openNofi("success", "Хэмжих нэгж амжилттай устгагдлаа");
         getData({ page: 1, limit: 10 });
       }
     });

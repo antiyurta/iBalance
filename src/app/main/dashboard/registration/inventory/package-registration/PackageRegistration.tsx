@@ -26,7 +26,6 @@ import {
 import {
   findIndexInColumnSettings,
   onCloseFilterTag,
-  openNofi,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import {
@@ -307,7 +306,6 @@ const PackageRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      openNofi("success", "Багц амжилттай хадгаллаа.");
       getData(params);
     }
     setIsOpenModal(false);
@@ -317,7 +315,6 @@ const PackageRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Багц амжиллтай устгагдлаа");
           getData(params);
         }
       })

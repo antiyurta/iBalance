@@ -40,7 +40,6 @@ import {
   IInputMembership,
 } from "@/service/reference/membership/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { openNofi } from "@/feature/common";
 import dayjs from "dayjs";
 import Information from "../information/information";
 import CardList from "./cardList";
@@ -120,8 +119,8 @@ const MembershipCard = () => {
       };
       consumerFormField(consumer.id);
       form.setFieldsValue(data);
-      setIsEdit(true);
     }
+    setIsEdit(state);
     setIsOpenModal(true);
   };
   const openModalCard = (state: boolean, membership?: IDataMembership) => {
@@ -131,6 +130,7 @@ const MembershipCard = () => {
       formMembership.setFieldsValue(membership);
       setMembership(membership);
     }
+    setIsEdit(state);
     setIsOpenModalCard(true);
     setIsReloadCardList(!isReloadCardList);
   };
@@ -193,7 +193,6 @@ const MembershipCard = () => {
   };
   const success = (response: IResponseConsumerMembership) => {
     if (response.success) {
-      openNofi("success", "Гишүүнчлэлийн бүртгэл хадгаллаа.");
       setIsOpenModal(false);
       setIsReloadList(!isReloadList);
     }
@@ -214,13 +213,11 @@ const MembershipCard = () => {
         }
       });
     }
-    openNofi("success", "Гишүүнчлэл амжилттай хадгаллаа.");
   };
   const onDeleteConsumer = async (id: number) => {
     await ConsumerMembershipService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadList(!isReloadList);
-        openNofi("success", "Гишүүнчлэл амжилттай устгалаа.");
       }
     });
   };
@@ -228,7 +225,6 @@ const MembershipCard = () => {
     await MembershipService.remove(id).then((response) => {
       if (response.success) {
         setIsReloadCardList(!isReloadCardList);
-        openNofi("success", "Гишүүнчлэл карт амжилттай устгалаа.");
       }
     });
   };

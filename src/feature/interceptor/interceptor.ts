@@ -9,6 +9,7 @@ import axios, {
 import { CoreActions } from "../core/actions/CoreAction";
 import { authService } from "../../service/authentication/service";
 import { RootState } from "../store/reducer";
+import { openNofi } from "../common";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASEURL,
@@ -19,17 +20,21 @@ export const api = axios.create({
 });
 
 let isRetry: boolean = false;
-
+let method:string = '';
 export const Interceptor = (api: AxiosInstance, store: any) => {
   api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = store.getState().core.login_data?.response?.accessToken;
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
+    if (config.method) method = config.method;
     return config;
   });
   api.interceptors.response.use(
     (response: AxiosResponse) => {
+      if (method == 'post' && response.status == 201) openNofi('success', 'Амжилттай үүсгэлээ.');
+      if (method == 'patch') openNofi('success', 'Амжилттай заслаа.');
+      if (method == 'delete') openNofi('success', 'Амжилттай устгалаа.');
       return response.data;
     },
     (error: AxiosError<any>) => {
@@ -65,10 +70,7 @@ export const Interceptor = (api: AxiosInstance, store: any) => {
         (response?.data?.message instanceof Array
           ? response?.data?.message[0]
           : response?.data?.message) || error.message;
-      notification.error({
-        message: "Амжилтгүй",
-        description: message,
-      });
+      openNofi('error', message);
       return Promise.reject(response?.data);
     }
   );

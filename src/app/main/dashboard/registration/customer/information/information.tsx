@@ -381,7 +381,6 @@ const Information = (props: IProps) => {
         ids: tableSelectedRows.map((row) => row.id),
       }).then((response) => {
         if (response.success) {
-          openNofi("success", "Амилттай солигдлоо");
           onClickModal?.(false);
         }
       });

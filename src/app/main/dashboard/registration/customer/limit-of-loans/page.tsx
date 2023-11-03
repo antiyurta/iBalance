@@ -63,7 +63,6 @@ const LimitOfLoans = () => {
       .remove(id)
       .then((response) => {
         if (response.success) {
-          openNofi("success", "Амжиллтай устгагдлаа");
           setIsReloadList(true);
         }
       })
@@ -122,9 +121,10 @@ const LimitOfLoans = () => {
     await ConsumerService.get({ ids: [id], lendLimits: true })
       .then((response) => {
         if (response.response.data.length > 0) {
-          message.error({
-            content: `${response.response.data[0].code} кодтой хэрэглэгч бүтгэсэн байна`,
-          });
+          openNofi(
+            "error",
+            `${response.response.data[0].code} кодтой харилцагч бүртгэлтэй байна`
+          );
           form.setFieldsValue({
             consumerId: "",
           });
@@ -181,14 +181,7 @@ const LimitOfLoans = () => {
       children: (
         <DescriptionList
           onReload={isReloadList}
-          onEdit={async (row) => {
-            await limitOfLoansService
-              .getById(row.lendLimitId)
-              .then((response) => {
-                console.log(response);
-                openModal(true, response.response);
-              });
-          }}
+          onEdit={(row) => openModal(true, row)}
         />
       ),
     },
@@ -362,7 +355,6 @@ const LimitOfLoans = () => {
                 ]}
               >
                 <NewInputNumber
-                  disabled={isAccounts}
                   className="numberValue-to-right"
                   style={{ width: "100%", color: "red" }}
                   addonAfter="₮"

@@ -182,6 +182,12 @@ const Thumbnail = (props: IProps) => {
                     alt="printIcon"
                   />
                   <Image
+                    src={"/images/UploadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="uploadIcon"
+                  />
+                  <Image
                     src={"/images/DownloadIcon.svg"}
                     width={24}
                     height={24}

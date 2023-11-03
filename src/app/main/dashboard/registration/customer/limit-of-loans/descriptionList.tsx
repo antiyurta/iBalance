@@ -24,10 +24,12 @@ import { DataIndexType, Meta } from "@/service/entities";
 import { limitOfLoansAccountService } from "@/service/limit-of-loans/account/service";
 import { Col, Row, Space } from "antd";
 import Export from "@/components/Export";
+import { limitOfLoansService } from "@/service/limit-of-loans/service";
+import { IDataLimitOfLoans } from "@/service/limit-of-loans/entities";
 
 interface IProps {
   onReload: boolean;
-  onEdit?: (row: IDataLimitOfLoansAccount) => void;
+  onEdit?: (row: IDataLimitOfLoans) => void;
   onDelete?: (id: number) => void;
 }
 
@@ -72,14 +74,14 @@ const DescriptionList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["account", "code"],
-      type: DataIndexType.STRING_ACCOUNT_CODE,
+      type: DataIndexType.MULTI,
     },
     accountName: {
       label: "Дансны нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["account", "name"],
-      type: DataIndexType.STRING,
+      type: DataIndexType.MULTI,
     },
     amount: {
       label: "Зээлийн лимит /дансаарх/",
@@ -101,6 +103,20 @@ const DescriptionList = (props: IProps) => {
       isFiltered: false,
       dataIndex: ["lendLimit", "consumer", "isActive"],
       type: DataIndexType.BOOLEAN_STRING,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт оруулсан хэрэглэгч",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.MULTI,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт оруулсан огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.MULTI,
     },
   });
   const getData = async (param: IParamLimitOFloansAccount) => {
@@ -127,6 +143,13 @@ const DescriptionList = (props: IProps) => {
       .finally(() => {
         blockContext.unblock();
       });
+  };
+  const onEditModal = async (lendLimitId: number) => {
+    await limitOfLoansService.getById(lendLimitId).then((response) => {
+      if (response.success) {
+        onEdit?.(response.response);
+      }
+    });
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
@@ -208,7 +231,9 @@ const DescriptionList = (props: IProps) => {
             onParams={(params) => setParams(params)}
             incomeFilters={filters}
             isEdit={true}
-            onEdit={onEdit}
+            onEdit={(row: IDataLimitOfLoansAccount) =>
+              onEditModal(row.lendLimitId)
+            }
             isDelete={false}
           />
         </Col>

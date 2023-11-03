@@ -3,6 +3,7 @@ import Filtered from "@/components/filtered";
 import { NewInput, NewSearch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
+import { UploadExcelFile } from "@/components/upload-excel-file";
 import {
   findIndexInColumnSettings,
   onCloseFilterTag,
@@ -35,15 +36,16 @@ interface IProps {
 const InventoriesType = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
-  const { message } = App.useApp();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamMaterialType>({});
+  const [params, setParams] = useState<IParamMaterialType>({ page: 1, limit: 10 });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataType[]>([]);
   const [filters, setFilters] = useState<IFilters>();
   //
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
+  const [isReload, setIsReload] = useState<boolean>(false);
   //
   const [selectedRow, setSelectedRow] = useState<IDataType>();
   const [columns, setColumns] = useState<FilteredColumnsMaterialType>({
@@ -151,14 +153,14 @@ const InventoriesType = (props: IProps) => {
   const onDelete = async (id: number) => {
     await TypeService.remove(id).then((response) => {
       if (response.success) {
-        getData({ page: 1, limit: 10 });
+        getData(params);
         setIsOpenModal(false);
       }
     });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, []);
+    getData(params);
+  }, [isReload]);
   return (
     <div>
       <div className="information">
@@ -233,7 +235,8 @@ const InventoriesType = (props: IProps) => {
               src={"/images/UploadIcon.svg"}
               width={24}
               height={24}
-              alt="uploadIcon"
+              alt="Дата байршуулах"
+              onClick={() => setIsUploadModal(true)}
             />
             <Image
               src={"/images/DownloadIcon.svg"}
@@ -312,6 +315,13 @@ const InventoriesType = (props: IProps) => {
           </Form.Item>
         </Form>
       </NewModal>
+      <UploadExcelFile
+        isModal={isUploadModal}
+        setIsModal={(value) => setIsUploadModal(value)}
+        templateExcel="MATERIAL_TYPE"
+        isReload={isReload}
+        setIsReload={setIsReload}
+      />
     </div>
   );
 };
