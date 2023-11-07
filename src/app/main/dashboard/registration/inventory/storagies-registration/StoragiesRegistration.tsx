@@ -1,23 +1,16 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewInputNumber, NewSelect } from "@/components/input";
+import { NewInput, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
   onCloseFilterTag,
+  openNofi,
   unDuplicate,
 } from "@/feature/common";
-import {
-  ComponentType,
-  DataIndexType,
-  FilteredColumns,
-  IFilters,
-  Meta,
-} from "@/service/entities";
-import { IParamsStorage } from "@/service/material/storage/entities";
-import { StorageSerivce } from "@/service/material/storage/service";
+import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
   IDataTreeSection,
   TreeSectionType,
@@ -31,37 +24,49 @@ import {
   Popover,
   Row,
   Space,
+  Switch,
   Typography,
 } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { SignalFilled } from "@ant-design/icons";
+import { SignalFilled, SwapOutlined } from "@ant-design/icons";
 import {
   FilteredColumnsWarehouse,
+  IDataWarehouse,
   IFilterWarehouse,
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { WarehouseService } from "@/service/reference/warehouse/service";
+import TextArea from "antd/es/input/TextArea";
+import { UserSelect } from "@/components/user-select";
 
 interface IProps {
   ComponentType: ComponentType;
+  onClickModal?: (row: any) => void;
 }
 
 const { Title } = Typography;
 
 const StoragiesRegistration = (props: IProps) => {
-  const { ComponentType } = props;
+  const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
-  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const [switchForm] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [params, setParams] = useState<IParamWarehouse>({});
   const [data, setData] = useState<any[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterWarehouse>();
-  const [editMode, setIsEditMode] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<IDataWarehouse>();
+  const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
+    useState<boolean>(false);
+  const [tableSelectedRows, setTableSelectedRows] = useState<IDataWarehouse[]>(
+    []
+  );
   const [columns, setColumns] = useState<FilteredColumnsWarehouse>({
     code: {
       label: "Байршилын код",
@@ -70,28 +75,62 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: "code",
       type: DataIndexType.MULTI,
     },
-    name: {
+    names: {
       label: "Байршилын нэр",
       isView: true,
       isFiltered: false,
       dataIndex: "name",
       type: DataIndexType.MULTI,
     },
+    sectionIds: {
+      label: "Байршилын бүлэг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["section", "name"],
+      type: DataIndexType.MULTI,
+    },
+    userId: {
+      label: "Хариуцсан нярав",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["user", "firstName"],
+      type: DataIndexType.MULTI,
+    },
+    address: {
+      label: "Байршилын хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "address",
+      type: DataIndexType.MULTI,
+    },
+    isActive: {
+      label: "Төлөв",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isActive",
+      type: DataIndexType.BOOLEAN_STRING,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.MULTI,
+    },
   });
-  const openModal = (state: boolean, row?: any) => {
-    setIsEditMode(state);
+  const openModal = (state: boolean, row?: IDataWarehouse) => {
+    setIsEdit(state);
     form.resetFields();
     if (state && row) {
-      //   const data: IInputConsumerMembership = {
-      //     consumerId: consumer.id,
-      //     cards: consumer.memberships.map((card) => ({
-      //       ...card,
-      //       endAt: dayjs(card.endAt),
-      //       name: card.membership.name,
-      //     })),
-      //   };
-      //   consumerFormField(consumer.id);
-      form.setFieldsValue(data);
+      form.setFieldsValue(row);
+      setSelectedRow(row);
     }
     setIsOpenModal(true);
   };
@@ -126,7 +165,94 @@ const StoragiesRegistration = (props: IProps) => {
       }
     });
   };
-  const onDelete = (id: number) => {};
+  // switch group solih
+  const switchGroup = async (values: { sectionId: number }) => {
+    if (tableSelectedRows.length > 0) {
+      await WarehouseService.switchPatch({
+        sectionId: values.sectionId,
+        ids: tableSelectedRows.map((row) => row.id),
+      }).then((response) => {
+        if (response.success) {
+          onClickModal?.(false);
+        }
+      });
+    } else {
+      openNofi("error", "Байршил сонгоно уу");
+    }
+  };
+  /** row selection GROUP UED */
+  const rowSelection = {
+    onSelectAll: (state: boolean, allRow: any, changeRow: any) => {
+      if (state) {
+        const clone = [...tableSelectedRows, ...changeRow];
+        setTableSelectedRows(clone);
+      } else {
+        const clone = [...tableSelectedRows];
+        changeRow?.map((row: any) => {
+          clone.splice(
+            clone.findIndex((clo) => {
+              return clo.id === row.id;
+            }),
+            1
+          );
+        });
+        setTableSelectedRows(clone);
+      }
+    },
+    onSelect: (selectedRow: IDataWarehouse, selected: boolean) => {
+      if (selected) {
+        if (!tableSelectedRows.find((e) => e.id === selectedRow.id)) {
+          setTableSelectedRows([...tableSelectedRows, selectedRow]);
+        }
+      } else {
+        var clone = [...tableSelectedRows];
+        clone.splice(
+          tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
+          1
+        );
+        setTableSelectedRows(clone);
+      }
+    },
+    selectedRowKeys: tableSelectedRows.map((e) => e.id),
+  };
+  const onFinish = async (values: IDataWarehouse) => {
+    blockContext.block();
+    if (isEdit && selectedRow) {
+      await WarehouseService.patch(selectedRow.id, values)
+        .then((response) => {
+          if (response.success) {
+            setIsOpenModal(false);
+            getData(params);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    } else {
+      await WarehouseService.post(values)
+        .then((response) => {
+          if (response.success) {
+            setIsOpenModal(false);
+            getData(params);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
+        });
+    }
+  };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await WarehouseService.remove(id)
+      .then((response) => {
+        if (response.success) {
+          getData(params);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock;
+      });
+  };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
     getSections(TreeSectionType.Warehouse);
@@ -134,6 +260,110 @@ const StoragiesRegistration = (props: IProps) => {
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        <Col md={24} lg={14} xl={18}>
+          <Row gutter={[0, 12]}>
+            {ComponentType === "LITTLE" ? (
+              <Col span={24}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "flex-end",
+                    width: "100%",
+                    gap: 12,
+                  }}
+                >
+                  <Form
+                    form={switchForm}
+                    layout="vertical"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Form.Item
+                      label="Байршилын бүлэг"
+                      style={{
+                        width: "100%",
+                      }}
+                    >
+                      <Space.Compact>
+                        <div
+                          className="extraButton"
+                          style={{
+                            display: "flex",
+                            height: 38,
+                            alignItems: "center",
+                            placeContent: "center",
+                          }}
+                        >
+                          <Popover
+                            placement="bottom"
+                            open={isOpenPopOverLittle}
+                            onOpenChange={(state) =>
+                              setIsOpenPopOverLittle(state)
+                            }
+                            content={
+                              <NewDirectoryTree
+                                isLeaf={true}
+                                data={sections}
+                                extra="HALF"
+                                onClick={(keys, isLeaf) => {
+                                  if (!isLeaf) {
+                                    setIsOpenPopOverLittle(false);
+                                    switchForm.setFieldsValue({
+                                      sectionId: keys![0],
+                                    });
+                                  }
+                                }}
+                              />
+                            }
+                            trigger={"click"}
+                          >
+                            <SignalFilled rotate={-90} />
+                          </Popover>
+                        </div>
+                        <Form.Item
+                          name="sectionId"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Шинээр шилжүүлэх бүлэг заавал",
+                            },
+                          ]}
+                        >
+                          <NewSelect
+                            className="ant-selecto-38px"
+                            disabled={true}
+                            style={{
+                              width: "100%",
+                            }}
+                            options={sections?.map(
+                              (section: IDataTreeSection) => ({
+                                label: section.name,
+                                value: section.id,
+                              })
+                            )}
+                          />
+                        </Form.Item>
+                      </Space.Compact>
+                    </Form.Item>
+                  </Form>
+                  <Button
+                    type="primary"
+                    icon={<SwapOutlined />}
+                    onClick={() => {
+                      switchForm.validateFields().then((value) => {
+                        switchGroup(value);
+                      });
+                    }}
+                  >
+                    Шилжүүлэх
+                  </Button>
+                </div>
+              </Col>
+            ) : null}
+          </Row>
+        </Col>
         {ComponentType === "FULL" ? (
           <>
             <Col md={24} lg={16} xl={19}>
@@ -166,10 +396,17 @@ const StoragiesRegistration = (props: IProps) => {
           <NewDirectoryTree
             extra="HALF"
             data={sections}
-            isLeaf={true}
-            
-            onClick={(key) => {
-              //   getData({ page: 1, limit: 10, sectionId: [`${key}`] });
+            isLeaf={false}
+            onClick={(keys) => {
+              onCloseFilterTag({
+                key: "sectionIds",
+                state: true,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: params,
+                onParams: (params) => setParams(params),
+              });
+              getData({ page: 1, limit: 10, sectionIds: keys });
             }}
           />
         </Col>
@@ -247,8 +484,18 @@ const StoragiesRegistration = (props: IProps) => {
                 newParams={params}
                 onParams={(params) => setParams(params)}
                 incomeFilters={filters}
+                isEdit
+                isDelete
                 onEdit={(row) => openModal(true, row)}
                 onDelete={(id) => onDelete(id)}
+                rowSelection={ComponentType === "LITTLE" ? rowSelection : null}
+                onDClick={(value) => {
+                  if (ComponentType === "FULL") {
+                    setSelectedRow(value);
+                  } else if (ComponentType === "MIDDLE") {
+                    onClickModal?.(value);
+                  }
+                }}
               />
             </Col>
           </Row>
@@ -259,6 +506,11 @@ const StoragiesRegistration = (props: IProps) => {
         title="Байршлын бүртгэл"
         open={isOpenModal}
         onCancel={() => setIsOpenModal(false)}
+        onOk={() =>
+          form.validateFields().then((values) => {
+            onFinish(values);
+          })
+        }
       >
         <Form form={form} layout="vertical">
           <div
@@ -269,12 +521,12 @@ const StoragiesRegistration = (props: IProps) => {
             }}
           >
             <Form.Item label="Байршлын код" name="code">
-              <NewInputNumber />
+              <NewInput />
             </Form.Item>
-            <Form.Item label="Байршлын код" name="code">
-              <NewInputNumber />
+            <Form.Item label="Байршлын нэр" name="name">
+              <NewInput />
             </Form.Item>
-            <Form.Item label="Харилцагчийн код">
+            <Form.Item label="Байршилын бүлэг">
               <Space.Compact>
                 <div className="extraButton">
                   <Popover
@@ -285,7 +537,7 @@ const StoragiesRegistration = (props: IProps) => {
                       <NewDirectoryTree
                         data={sections}
                         extra="HALF"
-                        isLeaf={true}
+                        isLeaf={false}
                         onClick={(key, isLeaf) => {
                           if (isLeaf) {
                             setIsOpenPopOver(false);
@@ -303,7 +555,6 @@ const StoragiesRegistration = (props: IProps) => {
                 </div>
                 <Form.Item name="sectionId">
                   <NewSelect
-                    //TODO end ih sonin shaaclaa
                     options={sections
                       ?.filter((section) => !section.isExpand)
                       ?.map((section) => ({
@@ -327,6 +578,15 @@ const StoragiesRegistration = (props: IProps) => {
                   />
                 </div>
               </Space.Compact>
+            </Form.Item>
+            <Form.Item label="Хариуцсан нярав">
+              <UserSelect form={form} rules={[]} name="userId" />
+            </Form.Item>
+            <Form.Item label="Байршилын хаяг" name="address">
+              <TextArea />
+            </Form.Item>
+            <Form.Item label="Идэвхтэй эсэх" name="isActive">
+              <Switch />
             </Form.Item>
           </div>
         </Form>

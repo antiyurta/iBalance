@@ -16,15 +16,24 @@ function patch(
   id: number,
   body: IDataWarehouse
 ): Promise<IResponseWarehouse> {
-  return api.patch("warehouse/" + id, body);
+  return api.patch(`warehouse/${id}`, body);
+}
+function switchPatch(
+  body: {
+    sectionId: number;
+    ids: number[];
+  }
+): Promise<IResponseWarehouses> {
+  return api.patch("warehouse/", body);
 }
 
 function remove(id: number): Promise<GenericResponse> {
-  return api.delete("warehouse/" + id);
+  return api.delete(`warehouse/${id}`);
 }
 export const WarehouseService = {
   get,
   post,
   patch,
+  switchPatch,
   remove,
 };
