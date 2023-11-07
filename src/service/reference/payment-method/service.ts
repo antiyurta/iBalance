@@ -3,13 +3,10 @@ import {
   IResponsePaymentMethod,
   IResponsePaymentMethods,
   IDataReferencePaymentMethod,
-  IParamReferencePaymentMethod,
 } from "./entities";
 
-function get(
-  params: IParamReferencePaymentMethod
-): Promise<IResponsePaymentMethods> {
-  return api.get("payment-method", { params });
+function get(): Promise<IResponsePaymentMethods> {
+  return api.get("payment-method");
 }
 function getById(id: number): Promise<IResponsePaymentMethod> {
   return api.get(`payment-method/${id}`);

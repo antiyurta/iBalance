@@ -5,33 +5,27 @@ import {
   IParam,
   Meta,
 } from "@/service/entities";
-
+/** Төлбөрийн хэлбэр */
+export enum PaymentType {
+  /** Бэлэн */
+  Cash = "CASH",
+  /** Зээл */
+  Lend = "LEND",
+  /** Бэлэн бус */
+  NotCash = "NOT_CASH",
+}
 export interface IDataReferencePaymentMethod extends IData {
   id: number;
-  fileId?: number;
+  imageUrl: string;
   name: string;
-  isLend: boolean;
+  type: PaymentType;
+  isActive: boolean;
 }
-export interface IFilterReferencePaymentMethod {
-  name?: string[];
-  isLend?: boolean[];
-  file?: string[];
-  updatedAt?: string[];
-  updatedBy?: number[];
-}
-export type FilteredColumnsPaymentMethod = {
-  [T in keyof IFilterReferencePaymentMethod]?: ColumnType;
-};
-export interface IParamReferencePaymentMethod
-  extends IFilterReferencePaymentMethod,
-    Meta,
-    IParam {}
 
 export interface IResponsePaymentMethods extends GenericResponse {
   response: {
     data: IDataReferencePaymentMethod[];
     meta: Meta;
-    filter: IFilterReferencePaymentMethod;
   };
 }
 export interface IResponsePaymentMethod extends GenericResponse {
