@@ -23,11 +23,14 @@ export interface IDataWarehouse extends IData {
 }
 
 export interface IFilterWarehouse extends IFilter {
-  sectionId?: number[];
+  sectionIds?: number[];
+  sectionId?: number;
   code?: string[];
-  name?: string[];
+  names?: string[];
   provinceId?: number[];
   districtId?: number[];
+  userId?: number[];
+  address?: string[];
   fileId?: number[];
   isActive?: string[];
 }

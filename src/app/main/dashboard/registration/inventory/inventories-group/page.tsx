@@ -288,7 +288,7 @@ const InventoriesGroup = () => {
                 />
               }
             >
-              Харилцагчийн бүлэг өөрчлөх
+              Барааны бүлэг өөрчлөх
             </Button>
             <Image
               src={"/images/PrintIcon.svg"}

@@ -1,3 +1,5 @@
+import { ColumnType } from "../entities";
+
 interface GenericResponse {
   success: boolean;
   message: string;
@@ -67,6 +69,19 @@ export interface LoginResponse extends GenericResponse {
 export interface LogoutResponse extends GenericResponse {
   statusCode: number;
 }
+export interface IFilterUser {
+  createdAt?: string;
+  email?: string;
+  firstName?: string;
+  hospitalId?: number;
+  ids?: number;
+  isActive?: boolean;
+  lastName?: string;
+  phonoNo?: string;
+}
+export type FilteredColumnsUser = {
+  [T in keyof IFilterUser]?: ColumnType;
+};
 export interface AuthenticationResponse extends GenericResponse {
   response: IUser;
 }

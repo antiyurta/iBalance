@@ -13,15 +13,15 @@ import Image from "next/image";
 import NewCard from "@/components/Card";
 
 // service
-import { StorageSerivce } from "@/service/material/storage/service";
 import { ConsumerService } from "@/service/consumer/service";
 
 // entity
-import { IDataStorage } from "@/service/material/storage/entities";
 import { IDataConsumer } from "@/service/consumer/entities";
 import NewModal from "@/components/modal";
 import Information from "../../registration/customer/information/information";
 import { TabType } from "@/service/order-distribution/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
 
 interface IProps {
   type: TabType;
@@ -34,7 +34,7 @@ const CreateOrder = (props: IProps) => {
   const [form] = Form.useForm();
   const [isOpenModalConsumer, setIsOpenModalConsumer] =
     useState<boolean>(false);
-  const [storagies, setStoragies] = useState<IDataStorage[]>([]);
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const FormItems = () => {
     switch (type) {
@@ -79,9 +79,9 @@ const CreateOrder = (props: IProps) => {
                     .toLowerCase()
                     .includes(input.toLowerCase())
                 }
-                options={storagies?.map((storage) => ({
-                  label: storage.name,
-                  value: storage.id,
+                options={warehouses?.map((warehouse) => ({
+                  label: warehouse.name,
+                  value: warehouse.id,
                 }))}
               />
             </Form.Item>
@@ -232,9 +232,9 @@ const CreateOrder = (props: IProps) => {
                     .toLowerCase()
                     .includes(input.toLowerCase())
                 }
-                options={storagies?.map((storage) => ({
-                  label: storage.name,
-                  value: storage.id,
+                options={warehouses?.map((warehouse) => ({
+                  label: warehouse.name,
+                  value: warehouse.id,
                 }))}
               />
             </Form.Item>
@@ -327,10 +327,10 @@ const CreateOrder = (props: IProps) => {
       </div>
     </Form>
   );
-  const getStorage = async () => {
-    await StorageSerivce.get().then((response) => {
+  const getWarehouse = async () => {
+    await WarehouseService.get({}).then((response) => {
       if (response.success) {
-        setStoragies(response.response.data);
+        setWarehouses(response.response.data);
       }
     });
   };
@@ -342,7 +342,7 @@ const CreateOrder = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getStorage();
+    getWarehouse();
     getConsumers();
   }, []);
   return (

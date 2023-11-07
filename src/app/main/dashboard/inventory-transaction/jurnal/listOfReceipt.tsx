@@ -7,15 +7,15 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import { DataIndexType } from "@/service/entities";
 import NewModal from "@/components/modal";
 import DateIntervalForm from "@/components/dateIntervalForm";
-import { StorageSerivce } from "@/service/material/storage/service";
-import { IDataStorage } from "@/service/material/storage/entities";
 import { IDataConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
 const { Title } = Typography;
 
 const ListOfReceipt = () => {
   const [lockForm] = Form.useForm();
-  const [storagies, setStoragies] = useState<IDataStorage[]>([]);
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [isOpenLockModal, setIsOpenLockModal] = useState<boolean>(false);
   const [isFilter, setIsFilter] = useState<boolean>(false);
@@ -177,10 +177,10 @@ const ListOfReceipt = () => {
       type: DataIndexType.MULTI,
     },
   });
-  const getStorage = async () => {
-    await StorageSerivce.get().then((response) => {
+  const getWarehouse = async () => {
+    await WarehouseService.get({}).then((response) => {
       if (response.success) {
-        setStoragies(response.response.data);
+        setWarehouses(response.response.data);
       }
     });
   };
@@ -192,7 +192,7 @@ const ListOfReceipt = () => {
     });
   };
   useEffect(() => {
-    getStorage();
+    getWarehouse();
     getConsumers();
   }, []);
   return (
@@ -428,9 +428,9 @@ const ListOfReceipt = () => {
                       label: "Бүгд",
                       value: null,
                     },
-                    ...storagies?.map((storagies) => ({
-                      label: storagies.name,
-                      value: storagies.id,
+                    ...warehouses?.map((warehouse) => ({
+                      label: warehouse.name,
+                      value: warehouse.id,
                     })),
                   ]}
                 />
