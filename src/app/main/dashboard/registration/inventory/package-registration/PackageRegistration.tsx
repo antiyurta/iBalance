@@ -23,16 +23,8 @@ import {
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
-import {
-  IDataReference,
-  IParamReference,
-  IType,
-} from "@/service/reference/entity";
 import NewModal from "@/components/modal";
 import {
   IDataMaterialSection,
@@ -49,40 +41,21 @@ import {
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import {
-  IDataUnitCode,
-  IParamUnitCode,
-} from "@/service/reference/unit-code/entities";
-import { UnitCodeService } from "@/service/reference/unit-code/service";
-import { ReferenceService } from "@/service/reference/reference";
-import {
   IDataUnitOfMeasure,
   IParamUnitOfMeasure,
 } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
-import { IDataBrand, IParamBrand } from "@/service/reference/brand/entities";
-import { BrandService } from "@/service/reference/brand/service";
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
-import { ConsumerService } from "@/service/consumer/service";
 import EditableTableMaterial from "./editableTableMaterial";
 const { Title } = Typography;
 
 interface IProps {
   ComponentType: ComponentType;
+  type: MaterialType;
   onClickModal?: (row: any) => void;
 }
 
 const PackageRegistration = (props: IProps) => {
-  const {
-    login_data: {
-      response: { accessToken },
-    },
-  } = useTypedSelector((state: RootState) => state.core);
-  const headers = {
-    Authorization: `Bearer ${accessToken}`,
-    "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
-  };
-  const { ComponentType, onClickModal } = props;
+  const { ComponentType, type, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
   const [switchForm] = Form.useForm(); // buleg solih
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
@@ -99,14 +72,8 @@ const PackageRegistration = (props: IProps) => {
     IDataMaterialSection[]
   >([]);
   const [measurements, setMeasurements] = useState<IDataUnitOfMeasure[]>([]);
-  const [unitCodes, setUnitCodes] = useState<IDataUnitCode[]>([]);
-  const [ranks, setRanks] = useState<IDataReference[]>([]);
-  const [brands, setBrands] = useState<IDataBrand[]>([]);
-  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   // end used datas
-  const [imageIds, setImageIds] = useState<number[]>([]);
   const [isDescription, setIsDescription] = useState<boolean>(false);
-  const [isOpenTree, setIsOpenTree] = useState<boolean>(true);
   const [params, setParams] = useState<IParamMaterial>({});
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
@@ -253,37 +220,13 @@ const PackageRegistration = (props: IProps) => {
       setMeasurements(response.response.data);
     });
   };
-  const getUnitCode = async (params: IParamUnitCode) => {
-    await UnitCodeService.get(params).then((response) => {
-      setUnitCodes(response.response.data);
-    });
-  };
-  const getRanks = async (params: IParamReference) => {
-    await ReferenceService.get(params).then((response) => {
-      setRanks(response.response.data);
-    });
-  };
-  const getBrands = async (params: IParamBrand) => {
-    await BrandService.get(params).then((response) => {
-      setBrands(response.response.data);
-    });
-  };
-  const getConsumers = async (params: IParamConsumer) => {
-    await ConsumerService.get(params).then((response) => {
-      setConsumers(response.response.data);
-    });
-  };
   useEffect(() => {
-    getMaterialSection({});
+    getMaterialSection({ type });
     getData({ page: 1, limit: 10, types: [MaterialType.Package] });
   }, []);
   useEffect(() => {
     if (isOpenModal) {
       getMeasurements({});
-      getUnitCode({});
-      getRanks({ type: IType.MATERIAL_RANK });
-      getBrands({});
-      getConsumers({ isSupplier: true });
     }
   }, [isOpenModal]);
 
@@ -353,38 +296,7 @@ const PackageRegistration = (props: IProps) => {
             </Col>
           </>
         ) : null}
-        {isOpenTree && materialSections?.length > 0 ? (
-          <Col md={24} lg={10} xl={6}>
-            <NewDirectoryTree
-              extra="HALF"
-              data={materialSections}
-              isLeaf={true}
-              onClick={(keys, isLeaf) => {
-                if (isLeaf) {
-                  // getData({
-                  //   page: 1,
-                  //   limit: 10,
-                  //   sectionId: [`${key}`],
-                  // });
-                  onCloseFilterTag({
-                    key: "sectionId",
-                    state: true,
-                    column: columns,
-                    onColumn: (columns) => setColumns(columns),
-                    params,
-                    onParams: (params) => setParams(params),
-                  });
-                  getData({
-                    page: 1,
-                    limit: 10,
-                    materialSectionId: keys,
-                  });
-                }
-              }}
-            />
-          </Col>
-        ) : null}
-        <Col md={24} lg={14} xl={18}>
+        <Col span={24}>
           <Row gutter={[0, 12]}>
             {ComponentType === "LITTLE" ? (
               <Col span={24}>
@@ -567,7 +479,6 @@ const PackageRegistration = (props: IProps) => {
                   if (ComponentType === "FULL") {
                     setSelectedRow(value);
                     setIsDescription(true);
-                    setIsOpenTree(false);
                   } else if (ComponentType === "MIDDLE") {
                     onClickModal?.(value);
                   }
@@ -591,15 +502,14 @@ const PackageRegistration = (props: IProps) => {
         {isDescription ? (
           <Col md={24} lg={10} xl={6}>
             <Description
-              title="Харилцагчийн мэдээлэл"
+              title="Барааны мэдээлэл"
               open={isDescription}
               columns={columns}
               selectedRow={selectedRow}
               onEdit={() => openModal(true, selectedRow)}
-              onDelete={(id) => 1}
+              onDelete={onDelete}
               onCancel={(state) => {
                 setIsDescription(state);
-                setIsOpenTree(!state);
               }}
             />
           </Col>

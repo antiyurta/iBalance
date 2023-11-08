@@ -85,6 +85,7 @@ const InventoriesBrand = (props: IProps) => {
       form.resetFields();
     } else {
       form.setFieldsValue(row);
+      setSelectedRow(row);
     }
     setIsOpenModal(true);
     setSelectedRow(row);
@@ -105,6 +106,12 @@ const InventoriesBrand = (props: IProps) => {
   };
   const onFinish = async (values: IDataBrand) => {
     if (editMode && selectedRow) {
+      await BrandService.patch(selectedRow.id, values).then((response) => {
+        if (response.success) {
+          setIsReload(!isReload);
+          setIsOpenModal(false);
+        }
+      });
     } else {
       await BrandService.post(values).then((response) => {
         if (response.success) {
@@ -129,6 +136,9 @@ const InventoriesBrand = (props: IProps) => {
   useEffect(() => {
     getData(params);
   }, [isReload]);
+  useEffect(() => {
+    getCountries();
+  }, []);
   return (
     <div>
       <div className="information">
@@ -232,12 +242,6 @@ const InventoriesBrand = (props: IProps) => {
             <NewTable
               scroll={{ x: ComponentType === "FULL" ? 1000 : 400 }}
               rowKey="id"
-              //   doubleClick={true}
-              //   onDClick={(value) => {
-              //     setSelectedRow(value);
-              //     setIsDescription(true);
-              //     setIsOpenTree(false);
-              //   }}
               data={data}
               meta={meta}
               columns={columns}

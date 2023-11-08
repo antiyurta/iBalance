@@ -83,7 +83,7 @@ const UnitOfMeasure = (props: IProps) => {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedBy",
+      dataIndex: ["updatedUser", "firstName"],
       type: DataIndexType.MULTI,
     },
   });

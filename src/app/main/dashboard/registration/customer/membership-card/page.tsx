@@ -44,6 +44,7 @@ import dayjs from "dayjs";
 import Information from "../information/information";
 import CardList from "./cardList";
 import { NumericFormat } from "react-number-format";
+import { hasUniqueValues } from "@/feature/common";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -57,6 +58,7 @@ const MembershipCard = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenModalCard, setIsOpenModalCard] = useState<boolean>(false);
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
+  const [isSave, setIsSave] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
@@ -149,7 +151,7 @@ const MembershipCard = () => {
     });
   };
   const getMemberships = async () => {
-    const response = await MembershipService.get({});
+    const response = await MembershipService.get({ isSale: [false] });
     if (response.success) {
       setMemberships(response.response.data);
     }
@@ -227,6 +229,15 @@ const MembershipCard = () => {
         setIsReloadCardList(!isReloadCardList);
       }
     });
+  };
+  const onChangeIsSave = (value: boolean) => {
+    setIsSave(value);
+    if (isSave) {
+      formMembership.setFieldsValue({
+        isSale: !isSave,
+        isBalance: isSave,
+      });
+    }
   };
   useEffect(() => {
     getConsumers({});
@@ -395,17 +406,41 @@ const MembershipCard = () => {
                 <NewSwitch disabled />
               </Form.Item>
             </div>
-            <Form.List name="cards">
-              {(cards, { add, remove }) => (
-                <EditableTableCard
-                  data={cards}
-                  memberships={memberships}
-                  warehouses={warehouses}
-                  form={form}
-                  add={add}
-                  remove={remove}
-                  editMode={false}
-                />
+            <Form.List
+              name="cards"
+              rules={[
+                {
+                  validator: async (_, cards) => {
+                    if (!cards) {
+                      return Promise.reject(
+                        new Error("Харилцагчийн картын мэдээллийг оруулна уу!")
+                      );
+                    }
+                    const arr = Array.isArray(cards)
+                      ? cards.map((card) => card?.cardno)
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Картын дугаар давхацсан байна.")
+                      );
+                    }
+                  },
+                },
+              ]}
+            >
+              {(cards, { add, remove }, { errors }) => (
+                <>
+                  <EditableTableCard
+                    data={cards}
+                    memberships={memberships}
+                    warehouses={warehouses}
+                    form={form}
+                    add={add}
+                    remove={remove}
+                    editMode={false}
+                  />
+                  <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                </>
               )}
             </Form.List>
           </div>
@@ -472,8 +507,17 @@ const MembershipCard = () => {
                 name="isSave"
                 valuePropName="checked"
               >
-                <NewSwitch />
+                <NewSwitch onChange={onChangeIsSave} />
               </Form.Item>
+              {isSave ? (
+                <Form.Item
+                  label="Үлдэгдэлтэй эсэх"
+                  name="isBalance"
+                  valuePropName="checked"
+                >
+                  <NewSwitch />
+                </Form.Item>
+              ) : null}
             </div>
             <div className="inputs-gird-3">
               <Form.Item label="Карт, эрхийн бичгийн нэр" name="name">
@@ -542,7 +586,9 @@ const MembershipCard = () => {
                 name="isSale"
                 valuePropName="checked"
               >
-                <NewSwitch />
+                <Form.Item>
+                  <NewSwitch disabled={isSave} />
+                </Form.Item>
               </Form.Item>
             </div>
             <Form.Item label="Тайлбар" name="description">

@@ -7,7 +7,7 @@ import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
-import { DataIndexType, Meta } from "@/service/entities";
+import { Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -21,7 +21,6 @@ import {
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { defaultColumnConsumerMembership } from "@/service/consumer/membership/entities";
 import NewModal from "@/components/modal";
-import { UploadExcelFile } from "@/components/upload-excel-file";
 
 interface IProps {
   onReload: boolean;
@@ -90,8 +89,7 @@ const CustomerList = (props: IProps) => {
                 params: params,
                 onParams: (params) => setParams(params),
               });
-              setParams({ ...params, sectionId: keys });
-              getData(params);
+              getData({ page: 1, limit: 10, sectionId: keys });
             }}
           />
         </Col>

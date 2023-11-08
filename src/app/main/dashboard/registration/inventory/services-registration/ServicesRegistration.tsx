@@ -66,6 +66,7 @@ const { Title } = Typography;
 
 interface IProps {
   ComponentType: ComponentType;
+  type: MaterialType;
   onClickModal?: (row: any) => void;
 }
 
@@ -79,7 +80,7 @@ const ServicesRegistration = (props: IProps) => {
     Authorization: `Bearer ${accessToken}`,
     "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
   };
-  const { ComponentType, onClickModal } = props;
+  const { ComponentType, onClickModal, type } = props;
   const [form] = Form.useForm(); // add hiih Form
   const [switchForm] = Form.useForm(); // buleg solih
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
@@ -286,7 +287,7 @@ const ServicesRegistration = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getMaterialSection({});
+    getMaterialSection({ type });
     getData({ page: 1, limit: 10, types: [MaterialType.Service] });
   }, []);
   useEffect(() => {
@@ -328,6 +329,8 @@ const ServicesRegistration = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           getData(params);
+          setIsDescription(false);
+          setIsOpenTree(true);
         }
       })
       .finally(() => {
@@ -603,12 +606,12 @@ const ServicesRegistration = (props: IProps) => {
         {isDescription ? (
           <Col md={24} lg={10} xl={6}>
             <Description
-              title="Харилцагчийн мэдээлэл"
+              title="Үйлчилгээний мэдээлэл"
               open={isDescription}
               columns={columns}
               selectedRow={selectedRow}
               onEdit={() => openModal(true, selectedRow)}
-              onDelete={(id) => 1}
+              onDelete={onDelete}
               onCancel={(state) => {
                 setIsDescription(state);
                 setIsOpenTree(!state);

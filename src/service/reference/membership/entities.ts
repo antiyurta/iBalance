@@ -32,6 +32,7 @@ export interface IInputMembership extends IDataMembership {
 export interface IFilterMembership extends IFilter {
   name?: string[];
   isSave?: boolean[];
+  isBalance?: boolean[];
   isActive?: boolean[]
   isPercent?: boolean[];
   isSale?: boolean[];

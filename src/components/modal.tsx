@@ -6,7 +6,7 @@ interface IProps extends ModalProps {
 
 const NewModal = (props: IProps) => {
   return (
-    <Modal cancelText="Болих" {...props} maskClosable={false}>
+    <Modal cancelText="Болих" okText="Хадгалах" {...props} maskClosable={false}>
       {props.children}
     </Modal>
   );
