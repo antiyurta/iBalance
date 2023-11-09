@@ -1,9 +1,9 @@
 import { GenericResponse, IDataFile, Meta } from "@/service/entities";
-import { IDataType } from "../type/entities";
+import { IDataMaterialAccount } from "../account/entities";
 import { MaterialType } from "../entities";
 
 export interface IParamMaterialSection {
-  type: MaterialType;
+  materialTypes: MaterialType[];
   materialAccountId?: number[];
   sectionId?: number[];
   isExpand?: boolean;
@@ -19,7 +19,7 @@ export interface IDataMaterialSection {
   isSale: boolean;
   type: MaterialType;
   materialAccountId: number;
-  materialAccount?: IDataType;
+  materialAccount?: IDataMaterialAccount;
   fileId?: number;
   file?: IDataFile;
 }

@@ -1,39 +1,27 @@
 import Image from "next/image";
 import {
   Button,
-  Checkbox,
   Col,
   Form,
   FormInstance,
-  Modal,
   Popconfirm,
   Row,
   Select,
-  Space,
   Switch,
   Table,
   message,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import {
-  NewDatePicker,
-  NewInput,
-  NewInputNumber,
-  NewSelect,
-} from "@/components/input";
+import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
 import { MaterialType } from "@/service/material/entities";
-import {
-  IDataViewMaterial,
-  IParamViewMaterial,
-} from "@/service/material/view-material/entities";
-import { ViewMaterialService } from "@/service/material/view-material/service";
+import { MaterialSelect } from "@/components/material-select";
 const { Column } = Table;
 
 interface IProps {
@@ -46,10 +34,6 @@ interface IProps {
 const EditableTableCoupon = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
-  const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
-  const [viewMaterialDictionary, setViewMaterialDictionary] =
-    useState<Map<number, IDataViewMaterial>>();
-  const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
   const [isPercent, setIsPercent] = useState<boolean>(false);
   const addService = () => {
@@ -98,40 +82,6 @@ const EditableTableCoupon = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
-  const getViewMaterials = async (params: IParamViewMaterial) => {
-    await ViewMaterialService.get(params).then((response) => {
-      if (response.success) {
-        setViewMaterials(response.response.data);
-      }
-    });
-  };
-  const materialFormField = (id: number) => {
-    const material = viewMaterialDictionary?.get(id);
-    if (material) {
-      form.setFieldsValue({
-        ["coupons"]: {
-          [`${editingIndex}`]: {
-            name: material.name,
-            measurement: material.measurementName,
-            section: material.sectionName,
-            unitAmount: material.unitAmount,
-          },
-        },
-      });
-    }
-  };
-  useEffect(() => {
-    setViewMaterialDictionary(
-      viewMaterials.reduce((dict, material) => {
-        dict.set(material.id, material);
-        return dict;
-      }, new Map<number, IDataViewMaterial>())
-    );
-  }, [viewMaterials]);
-
-  useEffect(() => {
-    getViewMaterials({ types: [MaterialType.Material, MaterialType.Service] });
-  }, []);
   return (
     <Table
       dataSource={data}
@@ -170,63 +120,47 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         dataIndex={"materialId"}
         title="Дотоод код"
-        render={(value, row, index) => (
-          <Form.Item>
-            <Space.Compact>
-              {index === editingIndex ? (
-                <div className="extraButton">
-                  <Image
-                    onClick={() => setIsOpenPopOver(true)}
-                    src="/icons/clipboardBlack.svg"
-                    width={16}
-                    height={16}
-                    alt="clipboard"
-                  />
-                </div>
-              ) : null}
-              <Form.Item
-                name={[index, "materialId"]}
-                rules={[
-                  {
-                    required: true,
-                    message: "Дотоод код заавал",
+        render={(_, __, index) => (
+          <MaterialSelect
+            materialTypes={[
+              MaterialType.Service,
+              MaterialType.Material,
+              MaterialType.Package,
+            ]}
+            form={form}
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
+            name={[index, "materialId"]}
+            listName="coupons"
+            disabled={!(index === editingIndex)}
+            onClear={() => {
+              form.resetFields([
+                ["coupons", index, "name"],
+                ["coupons", index, "measurement"],
+                ["coupons", index, "countPackage"],
+                ["coupons", index, "section"],
+                ["coupons", index, "unitAmount"],
+              ]);
+            }}
+            onSelect={(value) => {
+              form.setFieldsValue({
+                coupons: {
+                  [index]: {
+                    name: value.name,
+                    measurement: value.measurementName,
+                    countPackage: value.countPackage,
+                    section: value.sectionName,
+                    unitAmount: value.unitAmount,
                   },
-                ]}
-              >
-                <NewSelect
-                  allowClear
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  disabled={!(index === editingIndex)}
-                  onClear={() => {
-                    form.resetFields([
-                      ["coupons", index, "name"],
-                      ["coupons", index, "measurement"],
-                      ["coupons", index, "countPackage"],
-                      ["coupons", index, "section"],
-                    ]);
-                  }}
-                  options={viewMaterials?.map((material) => ({
-                    value: material.id,
-                    label: material.code,
-                  }))}
-                  onSelect={materialFormField}
-                />
-              </Form.Item>
-            </Space.Compact>
-          </Form.Item>
+                },
+              });
+            }}
+          />
         )}
       />
       <Column
         dataIndex={"name"}
         title="Бараа/Үйлчилгээний нэр"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "name"]}>
             <NewInput disabled />
           </Form.Item>
@@ -235,7 +169,7 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         dataIndex={"section"}
         title="Бараа/Үйлчилгээний бүлэг"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "section"]}>
             <NewInput disabled />
           </Form.Item>
@@ -244,7 +178,7 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         dataIndex={"measurement"}
         title="Хэмжих нэгж"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "measurement"]}>
             <NewInput disabled />
           </Form.Item>
@@ -253,7 +187,7 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         dataIndex={"unitAmount"}
         title="Нэгж үнэ"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "unitAmount"]}>
             <NewInputNumber
               disabled
@@ -269,7 +203,7 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         dataIndex={"endAt"}
         title="Урамшуулал дуусах огноо"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             name={[index, "endAt"]}
             rules={[
@@ -286,7 +220,7 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         dataIndex={"condition"}
         title="Урамшуулал авах нөхцөл"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Row>
             <Col span={12}>
               <Form.Item name={[index, "condition"]}>
@@ -312,7 +246,7 @@ const EditableTableCoupon = (props: IProps) => {
       />
       <Column
         title="Хөнгөлөлт хувь эсэх"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Switch
             disabled={!(index === editingIndex)}
             onChange={(value) => setIsPercent(value)}
@@ -323,7 +257,7 @@ const EditableTableCoupon = (props: IProps) => {
         <Column
           dataIndex={"percent"}
           title="Урамшуулалын хувь"
-          render={(value, row, index) => (
+          render={(_, __, index) => (
             <Form.Item name={[index, "percent"]}>
               <NewInputNumber
                 disabled={!(index === editingIndex)}
@@ -337,7 +271,7 @@ const EditableTableCoupon = (props: IProps) => {
         <Column
           dataIndex={"quantity"}
           title="Урамшуулалын тоо"
-          render={(value, row, index) => (
+          render={(_, __, index) => (
             <Form.Item name={[index, "quantity"]}>
               <NewInputNumber
                 disabled={!(index === editingIndex)}
@@ -351,7 +285,7 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         title={" "}
         width={160}
-        render={(value, row, index) => {
+        render={(_, __, index) => {
           if (index === editingIndex) {
             return (
               <Fragment>

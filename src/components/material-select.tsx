@@ -3,51 +3,95 @@ import { Form, Space } from "antd";
 import { NewFilterSelect } from "./input";
 import { useEffect, useState } from "react";
 import NewModal from "./modal";
-import { FormInstance } from "antd/lib";
+import { FormInstance, SelectProps } from "antd/lib";
 import { Rule } from "antd/es/form";
-import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
+import {
+  IDataMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
+import { fieldValue } from "@/feature/common";
+import {
+  IDataViewMaterial,
+  IParamViewMaterial,
+} from "@/service/material/view-material/entities";
+import { ViewMaterialService } from "@/service/material/view-material/service";
+
 interface IProps {
+  materialTypes: MaterialType[];
   form: FormInstance;
   rules: Rule[];
-  /** default => materialId */
-  name?: string;
+  name: string | (string | number)[];
+  listName?: string;
+  disabled?: boolean;
+  onClear?: () => void;
+  onSelect?: (value: IDataViewMaterial) => void;
 }
+
 export const MaterialSelect = (props: IProps) => {
-  const { form, name, rules } = props;
+  const {
+    materialTypes,
+    form,
+    name,
+    rules,
+    listName,
+    disabled,
+    onClear,
+    onSelect,
+  } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
-  const getMaterials = async (params: IParamMaterial) => {
-    await MaterialService.get(params).then((response) => {
+  const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
+  const [viewMaterialDictionary, setViewMaterialDictionary] =
+    useState<Map<number, IDataViewMaterial>>();
+  const getViewMaterials = async (params: IParamViewMaterial) => {
+    await ViewMaterialService.get(params).then((response) => {
       if (response.success) {
-        setMaterials(response.response.data);
+        setViewMaterials(response.response.data);
       }
     });
   };
+
   useEffect(() => {
-    getMaterials({});
+    getViewMaterials({ types: materialTypes });
   }, []);
+  useEffect(() => {
+    setViewMaterialDictionary(
+      viewMaterials.reduce((dict, material) => {
+        dict.set(material.id, material);
+        return dict;
+      }, new Map<number, IDataViewMaterial>())
+    );
+  }, [viewMaterials]);
   return (
     <>
       <Space.Compact>
-        <div className="extraButton" onClick={() => setIsOpenPopOver(true)}>
-          <Image
-            src="/icons/clipboardBlack.svg"
-            width={16}
-            height={16}
-            alt="clipboard"
-          />
-        </div>
+        {!disabled ? (
+          <div className="extraButton" onClick={() => setIsOpenPopOver(true)}>
+            <Image
+              src="/icons/clipboardBlack.svg"
+              width={16}
+              height={16}
+              alt="clipboard"
+            />
+          </div>
+        ) : null}
         <Form.Item name={name ? name : "materialId"} rules={rules}>
           <NewFilterSelect
             style={{
               width: "100%",
             }}
-            options={materials.map((material) => ({
+            options={viewMaterials.map((material) => ({
               value: material.id,
               label: `${material.code} - ${material.name}`,
             }))}
+            onClear={onClear}
+            disabled={disabled}
+            onSelect={(id) => {
+              const material = viewMaterialDictionary?.get(id);
+              if (material) onSelect?.(material);
+            }}
           />
         </Form.Item>
       </Space.Compact>
@@ -60,11 +104,16 @@ export const MaterialSelect = (props: IProps) => {
         <InventoriesRegistration
           ComponentType="MIDDLE"
           onClickModal={(row: IDataMaterial) => {
-            form.setFieldsValue({
-              [name ? `${name}` : "materialId"]: row.id,
-            });
+            if (listName) {
+              form.setFieldsValue(fieldValue([listName, ...name], row.id));
+            } else {
+              form.setFieldsValue(fieldValue([name.toString()], row.id));
+            }
+            const material = viewMaterialDictionary?.get(row.id);
+            if (material) onSelect?.(material);
             setIsOpenPopOver(false);
           }}
+          materialTypes={materialTypes}
         />
       </NewModal>
     </>

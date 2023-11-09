@@ -17,11 +17,11 @@ import {
   Meta,
 } from "@/service/entities";
 import {
-  FilteredColumnsMaterialType,
-  IDataType,
-  IParamMaterialType,
-} from "@/service/material/type/entities";
-import { TypeService } from "@/service/material/type/service";
+  FilteredColumnsMaterialAccount,
+  IDataMaterialAccount,
+  IParamMaterialAccount,
+} from "@/service/material/account/entities";
+import { MaterialAccountService } from "@/service/material/account/service";
 import { App, Form, Typography } from "antd";
 import Image from "next/image";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
@@ -37,18 +37,18 @@ const InventoriesType = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamMaterialType>({ page: 1, limit: 10 });
+  const [params, setParams] = useState<IParamMaterialAccount>({ page: 1, limit: 10 });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [data, setData] = useState<IDataType[]>([]);
+  const [data, setData] = useState<IDataMaterialAccount[]>([]);
   const [filters, setFilters] = useState<IFilters>();
   //
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
   const [isReload, setIsReload] = useState<boolean>(false);
   //
-  const [selectedRow, setSelectedRow] = useState<IDataType>();
-  const [columns, setColumns] = useState<FilteredColumnsMaterialType>({
+  const [selectedRow, setSelectedRow] = useState<IDataMaterialAccount>();
+  const [columns, setColumns] = useState<FilteredColumnsMaterialAccount>({
     accountNo: {
       label: "Дансны код",
       isView: true,
@@ -79,7 +79,7 @@ const InventoriesType = (props: IProps) => {
     },
   });
   // modal neeh edit uu esvel new uu ??
-  const openModal = (state: boolean, row?: IDataType) => {
+  const openModal = (state: boolean, row?: IDataMaterialAccount) => {
     setEditMode(state);
     if (!state) {
       form.resetFields();
@@ -89,9 +89,9 @@ const InventoriesType = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (param: IParamMaterialType) => {
+  const getData = async (param: IParamMaterialAccount) => {
     blockContext.block();
-    var prm: IParamMaterialType = {
+    var prm: IParamMaterialAccount = {
       ...params,
       ...param,
       queries: params.queries,
@@ -107,7 +107,7 @@ const InventoriesType = (props: IProps) => {
       prm.queries = [...unDuplicate("name", params)];
     }
     setParams(prm);
-    await TypeService.get(prm)
+    await MaterialAccountService.get(prm)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -124,10 +124,10 @@ const InventoriesType = (props: IProps) => {
     setEditMode(false);
     setIsOpenModal(true);
   };
-  const onFinish = async (values: IDataType) => {
+  const onFinish = async (values: IDataMaterialAccount) => {
     blockContext.block();
     if (editMode) {
-      await TypeService.patch(selectedRow?.id, values)
+      await MaterialAccountService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
             getData(params);
@@ -138,7 +138,7 @@ const InventoriesType = (props: IProps) => {
           blockContext.unblock();
         });
     } else {
-      await TypeService.post(values)
+      await MaterialAccountService.post(values)
         .then((response) => {
           if (response.success) {
             getData(params);
@@ -151,7 +151,7 @@ const InventoriesType = (props: IProps) => {
     }
   };
   const onDelete = async (id: number) => {
-    await TypeService.remove(id).then((response) => {
+    await MaterialAccountService.remove(id).then((response) => {
       if (response.success) {
         getData(params);
         setIsOpenModal(false);

@@ -178,7 +178,7 @@ function EditableTable(props: IProps) {
         <Column
           dataIndex={"code"}
           title={"Дансны код"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item>
                 <Space.Compact>
@@ -236,7 +236,7 @@ function EditableTable(props: IProps) {
         <Column
           dataIndex={"name"}
           title={"Дансны нэр"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item
                 name={[index, "name"]}
@@ -255,7 +255,7 @@ function EditableTable(props: IProps) {
         <Column
           dataIndex={"date"}
           title={"Авлага үүссэн огноо"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item
                 rules={[
@@ -277,7 +277,7 @@ function EditableTable(props: IProps) {
         <Column
           dataIndex={"amount"}
           title={"Дансны эхний үлдэгдэл"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item
                 rules={[
@@ -305,7 +305,7 @@ function EditableTable(props: IProps) {
         <Column
           title={" "}
           width={110}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             if (index === editingIndex) {
               return (
                 <React.Fragment>

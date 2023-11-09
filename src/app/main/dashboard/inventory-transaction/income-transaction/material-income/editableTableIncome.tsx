@@ -1,29 +1,18 @@
 import Image from "next/image";
-import {
-  Button,
-  Form,
-  FormInstance,
-  Popconfirm,
-  Switch,
-  Table,
-  message,
-} from "antd";
+import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
+import { Column } from "@/components/table";
+import { NewDatePicker, NewInput } from "@/components/input";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { MaterialSelect } from "@/components/material-select";
+import mnMN from "antd/es/calendar/locale/mn_MN";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import {
-  NewDatePicker,
-  NewInput,
-  NewInputNumber,
-} from "@/components/input";
-import { MaterialSelect } from "@/components/material-select";
 import { MaterialType } from "@/service/material/entities";
-const { Column } = Table;
 
 interface IProps {
   data: FormListFieldData[];
@@ -31,26 +20,20 @@ interface IProps {
   add: () => void;
   remove: (index: number) => void;
 }
-
-const EditableTableDiscount = (props: IProps) => {
+export const EditableTableIncome = (props: IProps) => {
+  const { message } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [isPercent, setIsPercent] = useState<boolean>(false);
-  const addService = () => {
-    onSave().then((state) => {
-      if (state) {
-        add();
-        setEditingIndex(data.length);
-        setNewService(true);
-      }
-    });
-  };
   const onSave = async () => {
     return form
       .validateFields([
-        ["discounts", editingIndex, "materialId"],
-        ["discounts", editingIndex, "endAt"],
+        ["transactions"],
+        ["transactions", editingIndex, "materialId"],
+        ["transactions", editingIndex, "name"],
+        ["transactions", editingIndex, "countPackage"],
+        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "endAt"],
       ])
       .then(() => {
         setNewService(false);
@@ -63,12 +46,6 @@ const EditableTableDiscount = (props: IProps) => {
         });
         return false;
       });
-  };
-  const onRemove = (index: number) => {
-    const amount = form.getFieldValue(["accounts", index, "amount"]);
-    const limitAmount = form.getFieldValue("amount");
-    form.setFieldValue("amount", limitAmount - amount);
-    remove(index);
   };
   const onCancel = (index: number) => {
     if (isNewService) {
@@ -83,12 +60,18 @@ const EditableTableDiscount = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
+  const onRemove = (index: number) => {
+    const amount = form.getFieldValue(["accounts", index, "amount"]);
+    const limitAmount = form.getFieldValue("amount");
+    form.setFieldValue("amount", limitAmount - amount);
+    remove(index);
+  };
   return (
     <Table
       dataSource={data}
       footer={() => {
         return (
-          <div className="button-editable-footer" onClick={() => addService()}>
+          <div className="button-editable-footer" onClick={() => add()}>
             <div
               style={{
                 display: "flex",
@@ -123,30 +106,25 @@ const EditableTableDiscount = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Service, MaterialType.Material, MaterialType.Package]}
+            materialTypes={[MaterialType.Material]}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            listName="discounts"
-            disabled={!(index === editingIndex)}
+            listName="transactions"
             onClear={() => {
               form.resetFields([
-                ["discounts", index, "name"],
-                ["discounts", index, "measurement"],
-                ["discounts", index, "countPackage"],
-                ["discounts", index, "section"],
-                ["discounts", index, "unitAmount"],
+                ["transactions", index, "name"],
+                ["transactions", index, "measurement"],
+                ["transactions", index, "countPackage"],
               ]);
             }}
             onSelect={(value) => {
               form.setFieldsValue({
-                discounts: {
+                transactions: {
                   [index]: {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
-                    section: value.sectionName,
-                    unitAmount: value.unitAmount,
                   },
                 },
               });
@@ -156,109 +134,84 @@ const EditableTableDiscount = (props: IProps) => {
       />
       <Column
         dataIndex={"name"}
-        title="Бараа/Үйлчилгээний нэр"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "name"]}>
-            <NewInput disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"section"}
-        title="Бараа/Үйлчилгээний нэр"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "section"]}>
-            <NewInput disabled />
-          </Form.Item>
-        )}
+        title="Бараа материалын нэр"
+        render={(_, __, index) => {
+          return (
+            <Form.Item
+              name={[index, "name"]}
+              rules={[
+                { required: true, message: "Бараа материалын нэр заавал" },
+              ]}
+            >
+              <NewInput disabled />
+            </Form.Item>
+          );
+        }}
       />
       <Column
         dataIndex={"measurement"}
         title="Хэмжих нэгж"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "measurement"]}>
-            <NewInput disabled />
-          </Form.Item>
-        )}
+        render={(_, __, index) => {
+          return (
+            <Form.Item
+              name={[index, "measurement"]}
+              rules={[{ required: true, message: "Хэмжих нэгж заавал" }]}
+            >
+              <NewInput disabled />
+            </Form.Item>
+          );
+        }}
       />
       <Column
-        dataIndex={"unitAmount"}
-        title="Нэгж үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
-            <NewInputNumber
-              disabled
-              prefix={"₮ "}
-              formatter={(value: any) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-            />
-          </Form.Item>
-        )}
+        dataIndex={"countPackage"}
+        title="Багц доторх тоо"
+        render={(_, __, index) => {
+          return (
+            <Form.Item
+              name={[index, "countPackage"]}
+              rules={[{ required: true, message: "Багц доторх тоо заавал" }]}
+            >
+              <NewInput disabled />
+            </Form.Item>
+          );
+        }}
+      />
+      <Column
+        dataIndex={"quantity"}
+        title="Орлогын тоо хэмжээ"
+        render={(_, __, index) => {
+          return (
+            <Form.Item
+              name={[index, "quantity"]}
+              rules={[{ required: true, message: "Орлогын тоо хэмжээ заавал" }]}
+            >
+              <NewInput disabled />
+            </Form.Item>
+          );
+        }}
       />
       <Column
         dataIndex={"endAt"}
-        title="Хөнгөлөлт дуусах огноо"
-        render={(_, __, index) => (
-          <Form.Item
-            name={[index, "endAt"]}
-            rules={[
-              {
-                required: true,
-                message: "Хөнгөлөлт дуусах огноо",
-              },
-            ]}
-          >
-            <NewDatePicker disabled={!(index === editingIndex)} />
-          </Form.Item>
-        )}
-      />
-      <Column
-        title="Хөнгөлөлт хувь эсэх"
-        render={(_, __, index) => (
-          <Switch
-            disabled={!(index === editingIndex)}
-            onChange={(value) => setIsPercent(value)}
-          />
-        )}
-      />
-      {isPercent ? (
-        <Column
-          dataIndex={"percent"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "percent"]}>
-              <NewInputNumber
+        title="Дуусах хугацаа"
+        render={(_, __, index) => {
+          return (
+            <Form.Item
+              name={[index, "endAt"]}
+              rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
+            >
+              <NewDatePicker
                 disabled={!(index === editingIndex)}
-                suffix={"%"}
-                formatter={(value: any) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                format={"YYYY-MM-DD"}
+                locale={mnMN}
               />
             </Form.Item>
-          )}
-        />
-      ) : (
-        <Column
-          dataIndex={"amount"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "amount"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"₮"}
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      )}
+          );
+        }}
+      />
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}
-        width={160}
+        width={110}
         render={(_, __, index) => {
           if (index === editingIndex) {
             return (
@@ -319,4 +272,3 @@ const EditableTableDiscount = (props: IProps) => {
     </Table>
   );
 };
-export default EditableTableDiscount;

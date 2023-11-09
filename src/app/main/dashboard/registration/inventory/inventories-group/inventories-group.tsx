@@ -21,8 +21,8 @@ import {
   IParamMaterialSection,
 } from "@/service/material/section/entities";
 import { MaterialSectionService } from "@/service/material/section/service";
-import { IDataType } from "@/service/material/type/entities";
-import { TypeService } from "@/service/material/type/service";
+import { IDataMaterialAccount } from "@/service/material/account/entities";
+import { MaterialAccountService } from "@/service/material/account/service";
 import InventoriesType from "../inventories-type/inventoriesType";
 import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
@@ -61,12 +61,14 @@ const InventoriesGroup = (props: IProps) => {
     },
   } = useTypedSelector((state: RootState) => state.core);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamMaterialSection>({ type });
+  const [params, setParams] = useState<IParamMaterialSection>({
+    materialTypes: [type],
+  });
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
-  const [accounts, setAccounts] = useState<IDataType[]>([]);
+  const [accounts, setAccounts] = useState<IDataMaterialAccount[]>([]);
   const [isOpenModalType, setIsOpenModalType] = useState<boolean>(false);
   const [fileList, setFileList] = useState<MyUploadFile>();
   //
@@ -159,7 +161,7 @@ const InventoriesGroup = (props: IProps) => {
   };
   const checkTreeIn = async (sectionId: number) => {
     await MaterialSectionService.get({
-      type,
+      materialTypes: [type],
       sectionId: [sectionId],
     }).then((response) => {
       if (response.response.data.length > 0) {
@@ -195,7 +197,7 @@ const InventoriesGroup = (props: IProps) => {
     });
   };
   const getInventoriesType = async () => {
-    await TypeService.get().then((response) => {
+    await MaterialAccountService.get().then((response) => {
       setAccounts(response.response.data);
     });
   };
@@ -333,7 +335,7 @@ const InventoriesGroup = (props: IProps) => {
         <InventoriesRegistration
           ComponentType="LITTLE"
           onClickModal={(e) => console.log(e)}
-          type={type}
+          materialTypes={[type]}
         />
       </NewModal>
       <NewModal

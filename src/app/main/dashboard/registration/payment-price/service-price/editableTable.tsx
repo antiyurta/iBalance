@@ -9,20 +9,16 @@ import {
   Table,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
-import {
-  IDataMaterial,
-  IParamMaterial,
-  MaterialType,
-} from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
+import { NewInput, NewInputNumber } from "@/components/input";
+import { MaterialType } from "@/service/material/entities";
+import { MaterialSelect } from "@/components/material-select";
 const { Column } = Table;
 
 interface IProps {
@@ -35,11 +31,7 @@ interface IProps {
 const EditableTableService = (props: IProps) => {
   const { message } = App.useApp();
   const { data, form, add, remove } = props;
-  const [materialDictionary, setMaterialDictionary] =
-    useState<Map<number, IDataMaterial>>();
   const [isNewService, setNewService] = useState<boolean>(false);
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
-  const [isOpenPopover, setIsOpenPopOver] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
   const addService = () => {
     onSave().then((state) => {
@@ -88,38 +80,6 @@ const EditableTableService = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
-  const getMaterials = async (params: IParamMaterial) => {
-    await MaterialService.get(params).then((response) => {
-      if (response.success) {
-        setMaterials(response.response.data);
-      }
-    });
-  };
-  const materialFormField = (id: number) => {
-    const material = materialDictionary?.get(id);
-    if (material) {
-      form.setFieldsValue({
-        ["prices"]: {
-          [`${editingIndex}`]: {
-            name: material.name,
-            measurement: material.measurement?.name,
-            section: material.section?.name,
-          },
-        },
-      });
-    }
-  };
-  useEffect(() => {
-    setMaterialDictionary(
-      materials.reduce((dict, material) => {
-        dict.set(material.id, material);
-        return dict;
-      }, new Map<number, IDataMaterial>())
-    );
-  }, [materials]);
-  useEffect(() => {
-    getMaterials({ types: [MaterialType.Service] });
-  }, []);
   return (
     <>
       <Table
@@ -162,65 +122,44 @@ const EditableTableService = (props: IProps) => {
         <Column
           dataIndex={"materialId"}
           title="Дотоод код"
-          render={(value, row, index) => {
-            return (
-              <Form.Item>
-                <Space.Compact>
-                  {index === editingIndex ? (
-                    <div className="extraButton">
-                      <Image
-                        onClick={() => setIsOpenPopOver(true)}
-                        src="/icons/clipboardBlack.svg"
-                        width={16}
-                        height={16}
-                        alt="clipboard"
-                      />
-                    </div>
-                  ) : null}
-                  <Form.Item
-                    name={[index, "materialId"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Дотоод код заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      disabled={!(index === editingIndex)}
-                      onClear={() => {
-                        form.resetFields([
-                          ["prices", index, "name"],
-                          ["prices", index, "measurement"],
-                          ["prices", index, "countPackage"],
-                          ["prices", index, "section"],
-                        ]);
-                      }}
-                      options={materials?.map((material) => ({
-                        value: material.id,
-                        label: material.code,
-                      }))}
-                      onSelect={materialFormField}
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-            );
-          }}
+          render={(_, __, index) => (
+            <MaterialSelect
+              materialTypes={[MaterialType.Service]}
+              form={form}
+              rules={[
+                {
+                  required: true,
+                  message: "Дотоод код заавал",
+                },
+              ]}
+              name={[index, "materialId"]}
+              listName="prices"
+              disabled={!(index === editingIndex)}
+              onClear={() => {
+                form.resetFields([
+                  ["prices", index, "name"],
+                  ["prices", index, "measurement"],
+                  ["prices", index, "section"],
+                ]);
+              }}
+              onSelect={(value) => {
+                form.setFieldsValue({
+                  prices: {
+                    [index]: {
+                      name: value.name,
+                      measurement: value.measurementName,
+                      section: value.sectionName,
+                    },
+                  },
+                });
+              }}
+            />
+          )}
         />
         <Column
           dataIndex={"name"}
           title="Үйлчилгээний нэр"
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item name={[index, "name"]}>
                 <NewInput disabled />
@@ -231,7 +170,7 @@ const EditableTableService = (props: IProps) => {
         <Column
           dataIndex={"section"}
           title="Үйлчилгээний бүлэг"
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item name={[index, "section"]}>
                 <NewInput disabled />
@@ -242,7 +181,7 @@ const EditableTableService = (props: IProps) => {
         <Column
           dataIndex={"measurement"}
           title="Хэмжих нэгж"
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item name={[index, "measurement"]}>
                 <NewInput disabled />
@@ -253,7 +192,7 @@ const EditableTableService = (props: IProps) => {
         <Column
           dataIndex={"unitAmount"}
           title="Нэгж үнэ"
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item
                 name={[index, "unitAmount"]}
@@ -280,7 +219,7 @@ const EditableTableService = (props: IProps) => {
         <Column
           title={" "}
           width={110}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             if (index === editingIndex) {
               return (
                 <Fragment>

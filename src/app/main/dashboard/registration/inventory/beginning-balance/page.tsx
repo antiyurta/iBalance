@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Button,
   Col,
@@ -16,27 +15,15 @@ import { useEffect, useState } from "react";
 import Thumbnail from "./thumbnail";
 import Detailed from "./detailed";
 import NewModal from "@/components/modal";
-import { balanceService } from "@/service/material/balance/service";
-import {
-  IDataUnitOfMeasure,
-  IParamUnitOfMeasure,
-} from "@/service/material/unitOfMeasure/entities";
-import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
-import {
-  IDataMaterialSection,
-  IParamMaterialSection,
-} from "@/service/material/section/entities";
-import { MaterialSectionService } from "@/service/material/section/service";
+import { BalanceService } from "@/service/material/balance/service";
 import EditableTableBalance from "./editableTable";
+import { NewInput } from "@/components/input";
 import {
-  IDataStorage,
-  IParamsStorage,
-} from "@/service/material/storage/entities";
-import { StorageSerivce } from "@/service/material/storage/service";
-import { NewInput, NewSelect } from "@/components/input";
-import InventoriesRegistration from "../inventories-registration/inventoriesRegistration";
-import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
+  IDataWarehouse,
+  IParamWarehouse,
+} from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
+import { MaterialSelect } from "@/components/material-select";
 
 const { Title } = Typography;
 const BeginningBalancePage = () => {
@@ -44,15 +31,7 @@ const BeginningBalancePage = () => {
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [measumerments, setMeasurements] = useState<IDataUnitOfMeasure[]>([]);
-  const [materialSections, setMaterialSections] = useState<
-    IDataMaterialSection[]
-  >([]);
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
-  const [storages, setStorages] = useState<IDataStorage[]>([]);
-  const [materialDictionary, setMaterialDictionary] =
-    useState<Map<number, IDataMaterial>>();
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [selectedRow, setSelectedRow] = useState<IDataBalance>();
   const items = [
     {
@@ -74,62 +53,16 @@ const BeginningBalancePage = () => {
       children: <Detailed />,
     },
   ];
-  // START get data
-  const getMeasurements = async (param: IParamUnitOfMeasure) => {
-    await UnitOfMeasureService.get(param).then((response) => {
+  const getWarehouses = async (param: IParamWarehouse) => {
+    await WarehouseService.get(param).then((response) => {
       if (response.success) {
-        setMeasurements(response.response.data);
-      }
-    });
-  };
-  const getMaterialSections = async (param: IParamMaterialSection) => {
-    await MaterialSectionService.get(param).then((response) => {
-      if (response.success) {
-        setMaterialSections(response.response.data);
-      }
-    });
-  };
-  const getStorages = async (param: IParamsStorage) => {
-    await StorageSerivce.get(param).then((response) => {
-      if (response.success) {
-        setStorages(response.response.data);
-      }
-    });
-  };
-  const getMaterials = async (param: IParamMaterial) => {
-    await MaterialService.get(param).then((response) => {
-      if (response.success) {
-        setMaterials(response.response.data);
+        setWarehouses(response.response.data);
       }
     });
   };
   useEffect(() => {
-    getMeasurements({});
-    getMaterialSections({});
-    getStorages({});
-    getMaterials({});
+    getWarehouses({});
   }, []);
-
-  // END get data
-  const materialFormField = (id: number) => {
-    const material = materialDictionary?.get(id);
-    if (material) {
-      form.setFieldsValue({
-        name: material.name,
-        measurementId: material.measurementId,
-        materialSectionId: material.materialSectionId,
-        countPackage: material.countPackage,
-      });
-    }
-  };
-  useEffect(() => {
-    setMaterialDictionary(
-      materials.reduce((dict, material) => {
-        dict.set(material.id, material);
-        return dict;
-      }, new Map<number, IDataMaterial>())
-    );
-  }, [materials]);
   const openModal = (state: boolean, row?: IDataBalance) => {
     setIsReloadList(false);
     setEditMode(state);
@@ -138,20 +71,19 @@ const BeginningBalancePage = () => {
       setSelectedRow(row);
       form.resetFields();
       form.setFieldsValue(row);
-      materialFormField(row.materialId);
     }
     setIsOpenModal(true);
   };
   const onFinish = async (values: IDataBalance) => {
     if (editMode && selectedRow) {
-      await balanceService.patch(selectedRow.id, values).then((response) => {
+      await BalanceService.patch(selectedRow.id, values).then((response) => {
         if (response.success) {
           setIsOpenModal(false);
           setIsReloadList(true);
         }
       });
     } else {
-      await balanceService.post(values).then((response) => {
+      await BalanceService.post(values).then((response) => {
         if (response.success) {
           setIsOpenModal(false);
           setIsReloadList(true);
@@ -164,7 +96,7 @@ const BeginningBalancePage = () => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>
+            <Title level={3}>
               Үндсэн бүртгэл / Бараа материал / Эхний үлдэгдэл
             </Title>
             <Button
@@ -219,62 +151,42 @@ const BeginningBalancePage = () => {
           >
             <div className="inputs-gird-2">
               <Form.Item label="Дотоод код">
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Image
-                      onClick={() => setIsOpenPopOver(true)}
-                      src="/icons/clipboardBlack.svg"
-                      width={16}
-                      height={16}
-                      alt="clipboard"
-                    />
-                  </div>
-                  <Form.Item
-                    name="materialId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Дотоод код",
-                      },
-                      {
-                        pattern: /^\d*(?:\.\d+)?$/,
-                        message: "Зөвхөн тоо оруулах",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      onSelect={materialFormField}
-                      options={materials?.map((material) => ({
-                        label: material.code,
-                        value: material.id,
-                      }))}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <MaterialSelect
+                  materialTypes={[]}
+                  form={form}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Дотоод код",
+                    },
+                  ]}
+                  name="materialId"
+                  onClear={() => {
+                    form.resetFields([
+                      "name",
+                      "measurement",
+                      "countPackage",
+                      "section",
+                    ]);
+                  }}
+                  onSelect={(value) => {
+                    form.setFieldsValue({
+                      name: value.name,
+                      measurement: value.measurementName,
+                      countPackage: value.countPackage,
+                      section: value.sectionName,
+                    });
+                  }}
+                />
               </Form.Item>
               <Form.Item label="Бараа материалын нэр" name="name">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Хэмжих нэгж" name="measurementId">
-                <NewSelect
-                  disabled
-                  options={measumerments?.map((measumerment, index) => ({
-                    label: measumerment.name,
-                    value: measumerment.id,
-                  }))}
-                />
+              <Form.Item label="Хэмжих нэгж" name="measurement">
+                <NewInput disabled />
               </Form.Item>
-              <Form.Item
-                label="Бараа материалын бүлэг"
-                name="materialSectionId"
-              >
-                <NewSelect
-                  disabled
-                  options={materialSections?.map((section, index) => ({
-                    label: section.name,
-                    value: section.id,
-                  }))}
-                />
+              <Form.Item label="Бараа материалын бүлэг" name="section">
+                <NewInput disabled />
               </Form.Item>
               <Form.Item label="Багцын доторх тоо" name="countPackage">
                 <InputNumber disabled />
@@ -283,7 +195,7 @@ const BeginningBalancePage = () => {
                 <InputNumber disabled />
               </Form.Item>
             </div>
-            <Form.List name="materialStorageBalances">
+            <Form.List name="materialWarehouseBalances">
               {(accounts, { add, remove }) => (
                 <EditableTableBalance
                   data={accounts}
@@ -291,30 +203,12 @@ const BeginningBalancePage = () => {
                   editMode={editMode}
                   add={add}
                   remove={remove}
-                  storages={storages}
+                  warehouses={warehouses}
                 />
               )}
             </Form.List>
           </div>
         </Form>
-      </NewModal>
-      <NewModal
-        title=" "
-        width={1200}
-        open={isOpenPopOver}
-        onCancel={() => setIsOpenPopOver(false)}
-        footer={null}
-      >
-        <InventoriesRegistration
-          ComponentType="MIDDLE"
-          onClickModal={(row: IDataMaterial) => {
-            console.log(row);
-            // form.setFieldsValue({
-            // consumerId: row.id,
-            // });
-            // setIsOpenPopOver(false);
-          }}
-        />
       </NewModal>
     </div>
   );

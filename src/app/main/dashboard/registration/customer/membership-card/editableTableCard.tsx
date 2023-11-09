@@ -136,7 +136,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         dataIndex="cardno"
         title="Картын дугаар"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "cardno"]}>
             <NewInput disabled={!(index === editingIndex)} />
           </Form.Item>
@@ -145,7 +145,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         dataIndex="membershipId"
         title="Карт эрхийн бичгийн нэр"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             name={[index, "membershipId"]}
             rules={[{ required: true, message: "Карт эрхийн бичгийн нэр" }]}
@@ -172,7 +172,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         dataIndex="amount"
         title="Эхний үлдэгдэл"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             name={[index, "amount"]}
             rules={[{ required: true, message: "Эхний үлдэгдэл заавал" }]}
@@ -192,7 +192,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         dataIndex="warehouseId"
         title="Нээсэн салбар"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             name={[index, "warehouseId"]}
             rules={[{ required: true, message: "Нээсэн салбар заавал" }]}
@@ -219,7 +219,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         dataIndex="endAt"
         title="Дуусах огноо"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "endAt"]}>
             <DatePicker
               disabled={!(index === editingIndex)}
@@ -232,7 +232,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         dataIndex="isClose"
         title="Хаах эсэх"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             valuePropName="checked"
             name={[index, "isClose"]}
@@ -245,7 +245,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
       <Column
         title=" "
         width={110}
-        render={(value, row, index) => {
+        render={(_, __, index) => {
           if (index === editingIndex) {
             return (
               <>

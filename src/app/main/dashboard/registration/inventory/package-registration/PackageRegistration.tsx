@@ -221,7 +221,7 @@ const PackageRegistration = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getMaterialSection({ type });
+    getMaterialSection({ materialTypes: [type] });
     getData({ page: 1, limit: 10, types: [MaterialType.Package] });
   }, []);
   useEffect(() => {
@@ -298,110 +298,6 @@ const PackageRegistration = (props: IProps) => {
         ) : null}
         <Col span={24}>
           <Row gutter={[0, 12]}>
-            {ComponentType === "LITTLE" ? (
-              <Col span={24}>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "flex-end",
-                    width: "100%",
-                    gap: 12,
-                  }}
-                >
-                  <Form
-                    form={switchForm}
-                    layout="vertical"
-                    style={{
-                      width: "100%",
-                    }}
-                  >
-                    <Form.Item
-                      label="Харилцагчийн бүлэг"
-                      style={{
-                        width: "100%",
-                      }}
-                    >
-                      <Space.Compact>
-                        <div
-                          className="extraButton"
-                          style={{
-                            display: "flex",
-                            height: 38,
-                            alignItems: "center",
-                            placeContent: "center",
-                          }}
-                        >
-                          <Popover
-                            placement="bottom"
-                            open={isOpenPopOverLittle}
-                            onOpenChange={(state) =>
-                              setIsOpenPopOverLittle(state)
-                            }
-                            content={
-                              <NewDirectoryTree
-                                extra="HALF"
-                                data={materialSections}
-                                isLeaf={false}
-                                onClick={(key, isLeaf) => {
-                                  if (isLeaf) {
-                                    setIsOpenPopOverLittle(false);
-                                    switchForm.setFieldsValue({
-                                      sectionId: key,
-                                    });
-                                  }
-                                }}
-                              />
-                            }
-                            trigger={"click"}
-                          >
-                            <SignalFilled rotate={-90} />
-                          </Popover>
-                        </div>
-                        <Form.Item
-                          name="sectionId"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Шинээр шилжүүлэх бүлэг заавал",
-                            },
-                          ]}
-                        >
-                          <NewSelect
-                            allowClear
-                            showSearch
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toString()
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={materialSections.map(
-                              (materialSection) => ({
-                                value: materialSection.id,
-                                label: materialSection.name,
-                              })
-                            )}
-                          />
-                        </Form.Item>
-                      </Space.Compact>
-                    </Form.Item>
-                  </Form>
-                  {/* <Button
-                    type="primary"
-                    icon={<SwapOutlined />}
-                    onClick={() => {
-                      switchForm.validateFields().then((value) => {
-                        switchGroup(value);
-                      });
-                    }}
-                  >
-                    Шилжүүлэх
-                  </Button> */}
-                </div>
-              </Col>
-            ) : null}
             <Col span={24}>
               <Space
                 style={{

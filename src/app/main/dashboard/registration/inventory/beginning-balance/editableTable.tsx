@@ -18,11 +18,11 @@ import {
 import Image from "next/image";
 import React, { useState } from "react";
 import "dayjs/locale/mn";
-import { IDataStorage } from "@/service/material/storage/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 
 interface IProps {
   data: FormListFieldData[];
-  storages: IDataStorage[];
+  warehouses: IDataWarehouse[];
   form: FormInstance;
   editMode: boolean;
   add: () => void;
@@ -34,7 +34,7 @@ const { Option } = Select;
 
 const EditableTableBalance: React.FC<IProps> = (props) => {
   const { message } = App.useApp();
-  const { data, storages, form, editMode, add, remove } = props;
+  const { data, warehouses, form, editMode, add, remove } = props;
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
@@ -42,8 +42,8 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
   const addService = () => {
     form
       .validateFields([
-        ["materialStorageBalances", editingIndex, "storageId"],
-        ["materialStorageBalances", editingIndex, "quantity"],
+        ["materialWarehouseBalances", editingIndex, "warehouseId"],
+        ["materialWarehouseBalances", editingIndex, "quantity"],
       ])
       .then(() => {
         add();
@@ -60,8 +60,8 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
   const onSave = () => {
     form
       .validateFields([
-        ["materialStorageBalances", editingIndex, "storageId"],
-        ["materialStorageBalances", editingIndex, "quantity"],
+        ["materialWarehouseBalances", editingIndex, "warehouseId"],
+        ["materialWarehouseBalances", editingIndex, "quantity"],
       ])
       .then(() => {
         setNewService(false);
@@ -83,8 +83,8 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
       remove(index);
     } else {
       form.resetFields([
-        ["materialStorageBalances", editingIndex, "storageId"],
-        ["materialStorageBalances", editingIndex, "quantity"],
+        ["materialWarehouseBalances", editingIndex, "warehouseId"],
+        ["materialWarehouseBalances", editingIndex, "quantity"],
       ]);
     }
     setNewService(false);
@@ -126,18 +126,18 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
     >
       <Column
         width={50}
-        dataIndex="storageId"
+        dataIndex="warehouseId"
         title="Байршил"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
-            name={[index, "storageId"]}
+            name={[index, "warehouseId"]}
             rules={[{ required: true, message: "Байршил заавал" }]}
           >
             <Select showSearch allowClear>
-              {storages?.map((storage, index) => {
+              {warehouses?.map((warehouse, index) => {
                 return (
-                  <Option key={index} value={storage.id}>
-                    {storage.name}
+                  <Option key={index} value={warehouse.id}>
+                    {warehouse.name}
                   </Option>
                 );
               })}
@@ -149,7 +149,7 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
         width={50}
         dataIndex="quantity"
         title="Эхний үлдэгдэл"
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Эхний үлдэгдэл заавал" }]}
@@ -161,7 +161,7 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
       <Column
         title=" "
         width={110}
-        render={(value, row, index) => {
+        render={(_, __, index) => {
           if (index === editingIndex) {
             return (
               <>

@@ -364,7 +364,6 @@ const SavePrice = (props: IProps) => {
                       form={form}
                       add={add}
                       remove={remove}
-                      errors={errors}
                     />
                   );
                 } else if (type === CommandType.Service) {
