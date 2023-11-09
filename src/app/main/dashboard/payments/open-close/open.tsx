@@ -81,6 +81,8 @@ const OpenState = () => {
         >
           <Form
             form={form}
+            autoCapitalize="off"
+            autoComplete="off"
             layout="vertical"
             onFinish={onFinish}
             initialValues={{

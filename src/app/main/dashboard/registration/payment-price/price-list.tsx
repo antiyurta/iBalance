@@ -29,7 +29,11 @@ const PriceList = (props: IProps) => {
   const [data, setData] = useState<IDataPrice[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterPrice>();
-  const [params, setParams] = useState<IParamPrice>({ type, page: 1, limit: 10 });
+  const [params, setParams] = useState<IParamPrice>({
+    type,
+    page: 1,
+    limit: 10,
+  });
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsPrice>({
@@ -299,7 +303,7 @@ const PriceList = (props: IProps) => {
           isEdit
           selectedCommand={selectedCommand}
           type={type}
-          onSavePriceModal={(state) => (setIsOpenModal(state))}
+          onSavePriceModal={(state) => setIsOpenModal(state)}
         />
       </NewModal>
     </div>

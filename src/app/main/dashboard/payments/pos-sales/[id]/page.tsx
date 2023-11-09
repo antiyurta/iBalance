@@ -189,10 +189,13 @@ const MaterialDetail = () => {
                     }}
                     onClick={() => {
                       if (material) {
-                        onFinish({
-                          materialId: material.id,
-                          quantity: 0,
-                        });
+                        // onFinish({
+                        //   materialId: material.id,
+                        //   quantity: 0,
+                        //   amount: material.unitAmount,
+                        //   discountId: material.discount.id,
+                        //   couponId: material.coupon.id,
+                        // });
                       }
                     }}
                   >

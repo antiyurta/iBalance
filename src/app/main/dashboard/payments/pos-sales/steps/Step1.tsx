@@ -1,199 +1,233 @@
-import { NewInput, NewSelect } from "@/components/input";
-import { Button, Typography } from "antd";
+import { Button, Switch, Typography } from "antd";
+import { useEffect, useState } from "react";
+import { NumericFormat } from "react-number-format";
+import Membership from "./Step1/Membership";
+import Bonus from "./Step1/Bonus";
+import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { PosStepActions } from "@/feature/core/actions/PosAction";
 
 const { Title } = Typography;
 
 interface IProps {
+  data: {
+    amount: number;
+    bonus: number;
+  };
   isPrev?: () => void;
   isNext?: () => void;
+  paidAmount: (value: number) => void;
 }
 
 const Step1 = (props: IProps) => {
-  const { isNext } = props;
+  const dispatch = useDispatch();
+  const { data, isNext, paidAmount } = props;
+  const { isMembership, isSave, saveValue, isUseSave, useValue } =
+    useTypedSelector((state: RootState) => state.posStep);
+  const [isBonus, setIsBonus] = useState<boolean>(false);
+  //
+  const setPosMembership = (state: boolean) => {
+    dispatch(PosStepActions.setIsMembership(state));
+  };
+  //
+  useEffect(() => {
+    if (!isMembership) {
+      dispatch(PosStepActions.setIsSaveAndSaveValue(true, 0));
+      dispatch(PosStepActions.setIsUseSaveAndSeUseValue(false, 0));
+    }
+  }, [isMembership]);
   return (
-    <div className="step-membership">
-      <NewInput placeholder="Утас / Эсвэл РД хайх" />
-      <div className="info">
-        <div className="names">
-          <Title level={3} type="secondary">
-            Овог: Мөнхтөр
-          </Title>
-          <Title level={3} type="secondary">
-            Овог: Мөнхтөр
-          </Title>
+    <div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          <Title level={2}>Гишүүнчлэлтэй эсэх:</Title>
+          <Switch checked={isMembership} onChange={setPosMembership} />
         </div>
-        <div className="card-no">
-          <Title level={3} type="secondary">
-            Картын дугаар:
-          </Title>
-          <NewSelect
+        {isMembership ? <Membership amount={data.amount} /> : null}
+        <div
+          style={{
+            width: "100%",
+            height: 1,
+            background: "#ccc",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          <Title level={2}>Бэлгийн карттай эсэх:</Title>
+          <Switch onChange={setIsBonus} />
+        </div>
+        {isBonus ? <Bonus /> : null}
+        <div
+          style={{
+            width: "100%",
+            height: 1,
+            background: "#ccc",
+          }}
+        />
+        <div className="step-membership">
+          <div className="numbers">
+            <Title
+              style={{
+                fontSize: 16,
+                fontWeight: 400,
+              }}
+            >
+              Нийт дүн:
+            </Title>
+            <Title
+              style={{
+                fontSize: 16,
+                fontWeight: 700,
+              }}
+            >
+              <NumericFormat
+                value={data.amount}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
+            </Title>
+          </div>
+          {isUseSave ? (
+            <div className="numbers">
+              <Title
+                style={{
+                  fontSize: 16,
+                  fontWeight: 400,
+                  color: "#DC3545",
+                }}
+              >
+                Ашигласан оноо:
+              </Title>
+              <Title
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "#DC3545",
+                }}
+              >
+                <NumericFormat
+                  value={useValue}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </Title>
+            </div>
+          ) : null}
+          {!isSave ? (
+            <div className="numbers">
+              <Title
+                style={{
+                  fontSize: 16,
+                  fontWeight: 400,
+                  color: "#DC3545",
+                }}
+              >
+                Харилцагчийн хөнгөлөлт:
+              </Title>
+              <Title
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "#DC3545",
+                }}
+              >
+                <NumericFormat
+                  value={saveValue}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </Title>
+            </div>
+          ) : null}
+          {isBonus ? (
+            <div className="numbers">
+              <Title
+                style={{
+                  fontSize: 16,
+                  fontWeight: 400,
+                  color: "#DC3545",
+                }}
+              >
+                Бэлгийн карт/1 удаагийн ХА-лтын/:
+              </Title>
+              <Title
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "#DC3545",
+                }}
+              >
+                0.00 ₮
+              </Title>
+            </div>
+          ) : null}
+          <div
             style={{
-              width: 200,
+              width: "100%",
+              height: 1,
+              background: "#ccc",
             }}
-            options={[
-              {
-                label: "1236456789000",
-                value: 1,
-              },
-            ]}
           />
-        </div>
-        <div className="card-info">
-          <Title level={3} type="secondary">
-            Картын нэр: Мөнгөн
-          </Title>
           <Title
-            level={3}
             style={{
-              color: "#E35D6A",
+              fontSize: 20,
+              fontWeight: 400,
+              alignSelf: "center",
             }}
-            type="secondary"
           >
-            Нэмэгдсэн оноо: 1,100.00₮
+            Төлөх дүн:
+            <NumericFormat
+              value={
+                isUseSave ? data.amount - useValue : data.amount - saveValue
+              }
+              thousandSeparator=","
+              decimalScale={2}
+              fixedDecimalScale
+              displayType="text"
+              suffix="₮"
+            />
           </Title>
+          <Button
+            type="primary"
+            onClick={() => {
+              paidAmount(
+                isUseSave ? data.amount - useValue : data.amount - saveValue
+              );
+              isNext?.();
+            }}
+          >
+            Үргэлжлүүлэх
+          </Button>
         </div>
       </div>
-      <Title
-        style={{
-          fontSize: 20,
-          fontWeight: 400,
-          alignSelf: "center",
-        }}
-      >
-        Онооны үлдэгдэл: 11,000.00 ₮
-      </Title>
-      <div className="inputs">
-        <button
-          className="app-button-regular"
-          style={{
-            height: 36,
-            minWidth: 140,
-          }}
-        >
-          Оноо ашиглах
-        </button>
-        <NewInput type="password" placeholder="Пин код оруулах" />
-      </div>
-      <div
-        style={{
-          width: "100%",
-          height: 1,
-          background: "#ccc",
-        }}
-      />
-      <Title
-        style={{
-          fontSize: 20,
-          fontWeight: 500,
-        }}
-      >
-        Бэлгийн карттай эсэх:
-      </Title>
-      <NewInput />
-      <div
-        style={{
-          width: "100%",
-          height: 1,
-          background: "#ccc",
-        }}
-      />
-      <div className="numbers">
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 400,
-          }}
-        >
-          Нийт дүн:
-        </Title>
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-          }}
-        >
-          88,000.00 ₮
-        </Title>
-      </div>
-      <div className="numbers">
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 400,
-            color: "#DC3545",
-          }}
-        >
-          Ашигласан оноо:
-        </Title>
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#DC3545",
-          }}
-        >
-          11,000.00 ₮
-        </Title>
-      </div>
-      <div className="numbers">
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 400,
-            color: "#DC3545",
-          }}
-        >
-          Харилцагчийн хөнгөлөлт:
-        </Title>
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#DC3545",
-          }}
-        >
-          0.00 ₮
-        </Title>
-      </div>
-      <div className="numbers">
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 400,
-            color: "#DC3545",
-          }}
-        >
-          Бэлгийн карт/1 удаагийн ХА-лтын/:
-        </Title>
-        <Title
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#DC3545",
-          }}
-        >
-          0.00 ₮
-        </Title>
-      </div>
-      <div
-        style={{
-          width: "100%",
-          height: 1,
-          background: "#ccc",
-        }}
-      />
-      <Title
-        style={{
-          fontSize: 20,
-          fontWeight: 400,
-          alignSelf: "center",
-        }}
-      >
-        Төлөх дүн: 77,000.00 ₮
-      </Title>
-      <Button type="primary" onClick={() => isNext?.()}>
-        Үргэлжлүүлэх
-      </Button>
     </div>
   );
 };

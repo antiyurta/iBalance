@@ -11,7 +11,14 @@ interface IStep {
   content: ReactNode;
 }
 
-const StepIndex = () => {
+interface IProps {
+  amount: number;
+  bonus: number;
+}
+
+const StepIndex = (props: IProps) => {
+  const { amount, bonus } = props;
+  const [paidAmout, setPaidAmout] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const prev = () => {
@@ -33,7 +40,13 @@ const StepIndex = () => {
           Гишүүнчлэлтэй эсэх:
         </Title>
       ),
-      content: <Step1 isNext={next} />,
+      content: (
+        <Step1
+          data={{ amount: amount, bonus: bonus }}
+          isNext={next}
+          paidAmount={(value) => setPaidAmout(value)}
+        />
+      ),
     },
     {
       label: (
@@ -46,7 +59,7 @@ const StepIndex = () => {
           Төлөх дүн:
         </Title>
       ),
-      content: <Step2 isPrev={prev} isNext={next} />,
+      content: <Step2 isPrev={prev} isNext={next} paidAmount={paidAmout} />,
     },
     {
       label: " ",
@@ -62,7 +75,6 @@ const StepIndex = () => {
         width: "100%",
       }}
     >
-      {steps[currentStep].label}
       {steps[currentStep].content}
     </div>
   );
