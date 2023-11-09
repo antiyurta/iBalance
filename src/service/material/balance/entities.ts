@@ -1,13 +1,13 @@
 import { ColumnType, GenericResponse, Meta } from "@/service/entities";
 import { IDataMaterial } from "../entities";
-import { IDataStorageBalance } from "./storage-balance/entites";
+import { IDataWarehouseBalance } from "./warehouse-balance/entites";
 
 export interface IDataBalance {
   id: number;
   materialId: number; // Барааны id
   material: IDataMaterial; // Барааны мэдээлэл
   quantity: number; // Эхний үлдэгдэл
-  materialStorageBalances: IDataStorageBalance[]; // барааны байршилийн мэдээлэл
+  materialStorageBalances: IDataWarehouseBalance[]; // барааны байршилийн мэдээлэл
   createdAt: string;
   updatedAt: string;
 }

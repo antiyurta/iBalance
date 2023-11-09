@@ -64,20 +64,20 @@ import { MaterialSectionService } from "@/service/material/section/service";
 import InventoriesBrand from "../inventories-brand/inventoriesBrand";
 import { UnitCodeService } from "@/service/reference/unit-code/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { TypeService } from "@/service/material/type/service";
-import { IDataType } from "@/service/material/type/entities";
+import { MaterialAccountService } from "@/service/material/account/service";
+import { IDataMaterialAccount } from "@/service/material/account/entities";
 import InventoriesType from "../inventories-type/inventoriesType";
 
 interface IProps {
   ComponentType: ComponentType;
-  type: MaterialType;
+  materialTypes: MaterialType[];
   onClickModal?: (row: any) => void;
 }
 
 const { Title } = Typography;
 
 const InventoriesRegistration = (props: IProps) => {
-  const { ComponentType = "FULL", type, onClickModal } = props;
+  const { ComponentType = "FULL", materialTypes, onClickModal } = props;
   const [form] = Form.useForm();
   const [switchForm] = Form.useForm();
   const {
@@ -86,7 +86,9 @@ const InventoriesRegistration = (props: IProps) => {
     },
   } = useTypedSelector((state: RootState) => state.core);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamMaterial>({});
+  const [params, setParams] = useState<IParamMaterial>({
+    types: materialTypes,
+  });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterial[]>([]);
@@ -108,8 +110,7 @@ const InventoriesRegistration = (props: IProps) => {
   const [isOpenModalBrand, setIsOpenModalBrand] = useState<boolean>(false);
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-  //
-  const [materialTypes, setMaterialTypes] = useState<IDataType[]>([]);
+
   const [isOpenMaterialType, setIsOpenMaterialType] = useState<boolean>(false);
   //
   const [filters, setFilters] = useState<IFilterMaterial>();
@@ -249,6 +250,7 @@ const InventoriesRegistration = (props: IProps) => {
   };
   const getData = async (param: IParamMaterial) => {
     blockContext.block();
+
     var prm: IParamMaterial = {
       ...params,
       ...param,
@@ -273,13 +275,8 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getMaterialSections = async () => {
-    await MaterialSectionService.get({ type }).then((response) => {
+    await MaterialSectionService.get({ materialTypes }).then((response) => {
       setMaterialSections(response.response.data);
-    });
-  };
-  const getMaterialType = async () => {
-    await TypeService.get({}).then((response) => {
-      setMaterialTypes(response.response.data);
     });
   };
   const getMaterialRanks = async (type: IType) => {
@@ -434,7 +431,6 @@ const InventoriesRegistration = (props: IProps) => {
   };
   useEffect(() => {
     getMaterialSections();
-    getMaterialType();
     getUnitCode();
   }, []);
   useEffect(() => {
@@ -1143,7 +1139,7 @@ const InventoriesRegistration = (props: IProps) => {
       >
         <InventoriesType
           ComponentType="MODAL"
-          onClickModal={(row: IDataType) => {
+          onClickModal={(row: IDataMaterialAccount) => {
             switchForm.setFieldsValue({
               materialAccountId: row.id,
             });

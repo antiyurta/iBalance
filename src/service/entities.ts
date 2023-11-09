@@ -20,6 +20,10 @@ export enum Operator {
   IsLess = "IS_LESS",
   IsLessOrEqual = "IS_LESS_OR_EQUAL",
 }
+export enum TransactionType {
+  Income = 'INCOME', // Орлого
+  Expense = 'EXPENSE', // Зарлага
+}
 export interface GenericResponse {
   success: boolean;
   message: string;

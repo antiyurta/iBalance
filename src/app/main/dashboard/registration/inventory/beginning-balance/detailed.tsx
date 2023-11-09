@@ -11,20 +11,20 @@ import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { Col, Row, Space } from "antd";
 import {
-  FilteredColumnsStorageBalance,
-  IDataStorageBalance,
-  IFilterStorageBalance,
-  IParamStorageBalance,
-} from "@/service/material/balance/storage-balance/entites";
-import { storageBalanceService } from "@/service/material/balance/storage-balance/service";
+  FilteredColumnsWarehouseBalance,
+  IDataWarehouseBalance,
+  IFilterWarehouseBalance,
+  IParamWarehouseBalance,
+} from "@/service/material/balance/warehouse-balance/entites";
+import { WarehouseBalanceService } from "@/service/material/balance/warehouse-balance/service";
 
 const Detailed = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [data, setData] = useState<IDataStorageBalance[]>([]);
+  const [data, setData] = useState<IDataWarehouseBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterStorageBalance>();
-  const [params, setParams] = useState<IParamStorageBalance>();
-  const [columns, setColumns] = useState<FilteredColumnsStorageBalance>({
+  const [filters, setFilters] = useState<IFilterWarehouseBalance>();
+  const [params, setParams] = useState<IParamWarehouseBalance>();
+  const [columns, setColumns] = useState<FilteredColumnsWarehouseBalance>({
     materialCode: {
       label: "Дотоод код",
       isView: true,
@@ -60,11 +60,11 @@ const Detailed = () => {
       dataIndex: ["balance", "material", "countPackage"],
       type: DataIndexType.MULTI,
     },
-    storageId: {
+    warehouseId: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: ["storage", "name"],
+      dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     quantity: {
@@ -75,9 +75,9 @@ const Detailed = () => {
       type: DataIndexType.NUMBER,
     },
   });
-  const getData = async (params: IParamStorageBalance) => {
+  const getData = async (params: IParamWarehouseBalance) => {
     blockContext.block();
-    await storageBalanceService.get(params).then((response) => {
+    await WarehouseBalanceService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);

@@ -455,6 +455,23 @@ const getFile = async (id: number) => {
   });
 };
 
+interface FieldData {
+  [key: string]: any;
+}
+/** формийн field set хийх 
+ * @example
+ * form.setFieldsValue(fieldValue([etc...], value));
+*/
+function fieldValue(dataIndex: (string | number)[], value: number): FieldData {
+  const result: FieldData = {};
+  let temp = result;
+  for (let i = 0; i < dataIndex.length - 1; i++) {
+    temp[dataIndex[i]] = {};
+    temp = temp[dataIndex[i]];
+  }
+  temp[dataIndex[dataIndex.length - 1]] = value;
+  return result;
+}
 export {
   parseNumber,
   isChecked,
@@ -468,4 +485,5 @@ export {
   displayRender,
   filterCascader,
   getFile,
+  fieldValue,
 };

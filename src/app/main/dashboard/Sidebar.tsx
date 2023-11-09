@@ -78,6 +78,10 @@ const Sidebar = () => {
     ),
     getItem("Бараа материал", "/inventory-transaction", <WindowsOutlined />, [
       getItem("Бараа материалын жагсаалт", "/jurnal"),
+      getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
+        getItem("Бараа материалын орлого", "/material-income"),
+        getItem("Борлуулалтын буцаалт", "/material-refund"),
+      ]),
     ]),
     getItem("Төлбөр тооцоо", "/payments", <WindowsOutlined />, [
       getItem("Поссын борлуулалт", "/pos-sales"),

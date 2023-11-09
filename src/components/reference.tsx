@@ -158,7 +158,7 @@ const Reference = (props: IProps) => {
           <Column
             dataIndex={"name"}
             title={"Нэр"}
-            render={(value, row, index) => {
+            render={(_, __, index) => {
               return (
                 <Form.Item
                   rules={[
@@ -182,7 +182,7 @@ const Reference = (props: IProps) => {
           <Column
             title={" "}
             width={110}
-            render={(value, row, index) => {
+            render={(_, __, index) => {
               if (index === editingIndex) {
                 return (
                   <React.Fragment>

@@ -50,29 +50,23 @@ const Price = (props: IProps) => {
     },
   ];
   return (
-    <div>
-      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {ComponentType === "FULL" ? (
-          <>
-            <Col md={24} lg={16} xl={19}>
-              <Space size={24}>
-                <Title level={3}>Үндсэн бүртгэл / Төлбөр, үнэ / {name}</Title>
-              </Space>
-            </Col>
-            <Col md={24} lg={8} xl={5}>
-              <Input.Search />
-            </Col>
-          </>
-        ) : null}
-        <Col span={24}>
-          <Tabs
-            className="lineTop"
-            items={items}
-            destroyInactiveTabPane={true}
-          />
-        </Col>
-      </Row>
-    </div>
+    <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+      {ComponentType === "FULL" ? (
+        <>
+          <Col md={24} lg={16} xl={19}>
+            <Space size={24}>
+              <Title level={3}>Үндсэн бүртгэл / Төлбөр, үнэ / {name}</Title>
+            </Space>
+          </Col>
+          <Col md={24} lg={8} xl={5}>
+            <Input.Search />
+          </Col>
+        </>
+      ) : null}
+      <Col span={24}>
+        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
+      </Col>
+    </Row>
   );
 };
 export default Price;

@@ -11,10 +11,11 @@ import {
 import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
-import { IDataMaterial } from "@/service/material/entities";
+import { IDataMaterial, MaterialType } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
+import { MaterialSelect } from "@/components/material-select";
 
 interface IProps {
   isFormAdd: boolean;
@@ -28,19 +29,9 @@ const { Column } = Table;
 
 const EditableTableOrder = (props: IProps) => {
   const { isFormAdd, data, form, add, remove } = props;
-  const [isOpenModalMaterial, setIsOpenModalMaterial] =
-    useState<boolean>(false);
   const { message } = App.useApp();
   const [isNewService, setNewService] = useState<boolean>(false);
-  const [editingIndex, setEditingIndex] = useState<number | undefined>(
-    undefined
-  );
-  //material
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
-  const [materialDictory, setMaterialDictionary] =
-    useState<Map<number, IDataMaterial>>();
-  // hemjih negj
-  const [measuries, setMeasuries] = useState<IDataUnitOfMeasure[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number>();
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -117,47 +108,6 @@ const EditableTableOrder = (props: IProps) => {
       </div>
     </div>
   );
-  //
-  const materialFormField = (id: number) => {
-    console.log(id);
-    const material = materialDictory?.get(id);
-    if (material) {
-      form.setFieldsValue({
-        ["test"]: {
-          [`${editingIndex}`]: {
-            code: material.id,
-            name: material.name,
-            measurementId: material.measurementId,
-            countPackage: material.countPackage,
-            order_price: material.price,
-          },
-        },
-      });
-    }
-  };
-  const getMaterials = async () => {
-    await MaterialService.get().then((response) => {
-      if (response.success) {
-        const data = response.response.data;
-        setMaterials(response.response.data);
-        setMaterialDictionary(
-          data.reduce((dict, material) => {
-            dict.set(material.id, material);
-            return dict;
-          }, new Map<number, IDataMaterial>())
-        );
-      }
-    });
-  };
-  const getMeasurements = async () => {
-    await UnitOfMeasureService.get({}).then((response) => {
-      setMeasuries(response.response.data);
-    });
-  };
-  useEffect(() => {
-    getMaterials();
-    getMeasurements();
-  }, []);
   return (
     <>
       <Table dataSource={data} footer={isFormAdd ? Footer : undefined}>
@@ -165,45 +115,32 @@ const EditableTableOrder = (props: IProps) => {
           title="Дотоод код"
           dataIndex={"code"}
           render={(_, __, index) => (
-            <Form.Item>
-              <Space.Compact>
-                <div
-                  className="extraButton"
-                  onClick={() => {
-                    if (index === editingIndex) {
-                      setIsOpenModalMaterial(true);
-                    }
-                  }}
-                >
-                  <Image
-                    src="/icons/clipboardBlack.svg"
-                    width={16}
-                    height={16}
-                    alt="clipboard"
-                  />
-                </div>
-                <Form.Item name={[index, "code"]}>
-                  <NewSelect
-                    disabled={!(index === editingIndex)}
-                    allowClear
-                    showSearch
-                    virtual={false}
-                    optionFilterProp="children"
-                    filterOption={(input, label) =>
-                      (label?.label ?? "")
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    onSelect={materialFormField}
-                    options={materials?.map((material) => ({
-                      label: material.code,
-                      value: material.id,
-                    }))}
-                  />
-                </Form.Item>
-              </Space.Compact>
-            </Form.Item>
+            <MaterialSelect
+              materialTypes={[MaterialType.Material]}
+              form={form}
+              rules={[{ required: true, message: "Дотоод код заавал" }]}
+              name={[index, "materialId"]}
+              listName="test"
+              disabled={!(index === editingIndex)}
+              onClear={() => {
+                form.resetFields([
+                  ["test", index, "name"],
+                  ["test", index, "measurement"],
+                  ["test", index, "countPackage"],
+                ]);
+              }}
+              onSelect={(value) => {
+                form.setFieldsValue({
+                  test: {
+                    [index]: {
+                      name: value.name,
+                      measurement: value.measurementName,
+                      countPackage: value.countPackage,
+                    },
+                  },
+                });
+              }}
+            />
           )}
         />
         <Column
@@ -217,25 +154,10 @@ const EditableTableOrder = (props: IProps) => {
         />
         <Column
           title="Хэмжих нэгж"
-          dataIndex={"measurementId"}
+          dataIndex={"measurement"}
           render={(_, __, index) => (
-            <Form.Item name={[index, "measurementId"]}>
-              <NewSelect
-                disabled
-                allowClear
-                showSearch
-                optionFilterProp="children"
-                filterOption={(input, label) =>
-                  (label?.label ?? "")
-                    .toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={measuries?.map((measure) => ({
-                  label: measure.name,
-                  value: measure.id,
-                }))}
-              />
+            <Form.Item name={[index, "measurement"]}>
+              <NewInput disabled />
             </Form.Item>
           )}
         />
@@ -296,7 +218,7 @@ const EditableTableOrder = (props: IProps) => {
         <Column
           title={" "}
           width={110}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             if (index === editingIndex) {
               return (
                 <React.Fragment>
@@ -356,21 +278,6 @@ const EditableTableOrder = (props: IProps) => {
           }}
         />
       </Table>
-      <NewModal
-        width={1300}
-        title="Бараа материал бүртгэл"
-        open={isOpenModalMaterial}
-        onCancel={() => setIsOpenModalMaterial(false)}
-        footer={null}
-      >
-        <InventoriesRegistration
-          ComponentType="MIDDLE"
-          onClickModal={(row: IDataMaterial) => {
-            materialFormField(row.id);
-            setIsOpenModalMaterial(false);
-          }}
-        />
-      </NewModal>
     </>
   );
 };

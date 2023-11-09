@@ -287,7 +287,7 @@ const ServicesRegistration = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getMaterialSection({ type });
+    getMaterialSection({ materialTypes: [type] });
     getData({ page: 1, limit: 10, types: [MaterialType.Service] });
   }, []);
   useEffect(() => {

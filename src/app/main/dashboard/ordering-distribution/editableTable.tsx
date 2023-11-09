@@ -143,7 +143,7 @@ const EditableTable = (props: IProps) => {
       <Column
         title={" "}
         width={110}
-        render={(value, row, index) => {
+        render={(_, __, index) => {
           if (index === editingIndex) {
             return (
               <React.Fragment>

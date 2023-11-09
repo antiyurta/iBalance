@@ -186,7 +186,7 @@ function EditableTableLimit(props: IProps) {
         <Column
           dataIndex={"accountId"}
           title={"Дансны код"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item>
                 <Space.Compact>
@@ -236,7 +236,7 @@ function EditableTableLimit(props: IProps) {
         <Column
           dataIndex={"name"}
           title={"Дансны нэр"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item
                 name={[index, "name"]}
@@ -255,7 +255,7 @@ function EditableTableLimit(props: IProps) {
         <Column
           dataIndex={"amount"}
           title={"Зээлийн лимит /дансаарх/"}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             return (
               <Form.Item
                 rules={[
@@ -282,7 +282,7 @@ function EditableTableLimit(props: IProps) {
         <Column
           title={" "}
           width={110}
-          render={(value, row, index) => {
+          render={(_, __, index) => {
             if (index === editingIndex) {
               return (
                 <React.Fragment>

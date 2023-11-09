@@ -9,21 +9,20 @@ import Filtered from "@/components/filtered";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
 // interface  types
-import {
-  IDataTreeSection,
-  TreeSectionType,
-} from "@/service/reference/tree-section/entities";
+import { TreeSectionType } from "@/service/reference/tree-section/entities";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { Col, Row, Space } from "antd";
-import { TreeSectionService } from "@/service/reference/tree-section/service";
 import {
   FilteredColumnsBalance,
   IDataBalance,
   IFilterBalance,
   IParamBalance,
 } from "@/service/material/balance/entities";
-import { balanceService } from "@/service/material/balance/service";
+import { BalanceService } from "@/service/material/balance/service";
+import { IDataMaterialSection } from "@/service/material/section/entities";
+import { MaterialSectionService } from "@/service/material/section/service";
+import { MaterialType } from "@/service/material/entities";
 
 interface IProps {
   onReload: boolean;
@@ -41,7 +40,7 @@ const Thumbnail = (props: IProps) => {
   const [data, setData] = useState<IDataBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBalance>();
-  const [sections, setSections] = useState<IDataTreeSection[]>([]);
+  const [sections, setSections] = useState<IDataMaterialSection[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsBalance>({
     materialCode: {
       label: "Дотоод код",
@@ -88,7 +87,7 @@ const Thumbnail = (props: IProps) => {
   });
   const getData = async (params: IParamBalance) => {
     blockContext.block();
-    await balanceService.get(params).then((response) => {
+    await BalanceService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
@@ -97,14 +96,16 @@ const Thumbnail = (props: IProps) => {
     });
     blockContext.unblock();
   };
-  const getConsumerSection = async (type: TreeSectionType) => {
-    await TreeSectionService.get(type).then((response) => {
-      setSections(response.response);
+  const getMaterialSection = async () => {
+    await MaterialSectionService.get({
+      materialTypes: [MaterialType.Material],
+    }).then((response) => {
+      setSections(response.response.data);
     });
   };
   useEffect(() => {
     getData({ page: 1, limit: 10 });
-    getConsumerSection(TreeSectionType.Consumer);
+    getMaterialSection();
   }, []);
   useEffect(() => {
     if (onReload) {

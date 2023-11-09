@@ -12,7 +12,7 @@ function patch(id: number, body: IDataBalance): Promise<IResponseBalance> {
   return api.patch(`material-balance/${id}`, body);
 }
 
-export const balanceService = {
+export const BalanceService = {
   get,
   post,
   patch,

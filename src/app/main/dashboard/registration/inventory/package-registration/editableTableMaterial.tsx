@@ -10,8 +10,13 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import { FormInstance } from "antd/lib";
-import { IDataMaterial, IParamMaterial } from "@/service/material/entities";
+import {
+  IDataMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
+import { MaterialSelect } from "@/components/material-select";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
@@ -24,11 +29,8 @@ const { Column } = Table;
 function EditableTableMaterial(props: IProps) {
   const { message } = App.useApp();
   const { data, form, add, remove } = props;
-  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [materialDictionary, setMaterialDictionary] =
-    useState<Map<number, IDataMaterial>>();
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -60,51 +62,15 @@ function EditableTableMaterial(props: IProps) {
     if (isNewService) {
       remove(index);
     } else {
-      form.resetFields([
-        ["packageMaterials", index, "materialId"],
-        ["packageMaterials", index, "name"],
-        ["packageMaterials", index, "materialSectionId"],
-        ["packageMaterials", index, "measurementId"],
-        ["packageMaterials", index, "countPackage"],
-        ["packageMaterials", index, "quantity"],
-      ]);
-    }
-    setNewService(false);
-    setEditingIndex(undefined);
-  };
-  const materialFormField = (id: number) => {
-    const material = materialDictionary?.get(id);
-    if (material) {
-      form.setFieldsValue({
-        ["packageMaterials"]: {
-          [`${editingIndex}`]: {
-            name: material.name,
-            materialSectionId: material.materialSectionId,
-            measurementId: material.measurementId,
-            countPackage: material.countPackage,
-          },
-        },
+      onSave().then((state) => {
+        if (state) {
+          setNewService(false);
+          setEditingIndex(undefined);
+        }
       });
     }
+    setEditingIndex(undefined);
   };
-  const getMaterials = async (params: IParamMaterial) => {
-    await MaterialService.get(params).then((response) => {
-      if (response.success) {
-        setMaterials(response.response.data);
-      }
-    });
-  };
-  useEffect(() => {
-    getMaterials({});
-  }, []);
-  useEffect(() => {
-    setMaterialDictionary(
-      materials.reduce((dict, material) => {
-        dict.set(material.id, material);
-        return dict;
-      }, new Map<number, IDataMaterial>())
-    );
-  }, [materials]);
   return (
     <Table
       locale={{
@@ -147,79 +113,69 @@ function EditableTableMaterial(props: IProps) {
       <Column
         dataIndex={"id"}
         title={"Дотоод код"}
-        render={(value, row, index) => (
-          <Form.Item
+        render={(_, __, index) => (
+          <MaterialSelect
+            materialTypes={[MaterialType.Service, MaterialType.Material]}
+            form={form}
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            rules={[
-              {
-                required: true,
-                message: "Дотоод код заавал",
-              },
-            ]}
-          >
-            <NewSelect
-              allowClear
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              disabled={!(index === editingIndex)}
-              options={materials.map((material) => ({
-                value: material.id,
-                label: material.code,
-              }))}
-              onSelect={materialFormField}
-            />
-          </Form.Item>
+            listName="packageMaterials"
+            disabled={!(index === editingIndex)}
+            onClear={() => {
+              form.resetFields([
+                ["packageMaterials", index, "name"],
+                ["packageMaterials", index, "measurement"],
+                ["packageMaterials", index, "countPackage"],
+                ["packageMaterials", index, "section"],
+                ["packageMaterials", index, "unitAmount"],
+              ]);
+            }}
+            onSelect={(value) => {
+              form.setFieldsValue({
+                packageMaterials: {
+                  [index]: {
+                    name: value.name,
+                    measurement: value.measurementName,
+                    countPackage: value.countPackage,
+                    section: value.sectionName,
+                  },
+                },
+              });
+            }}
+          />
         )}
       />
       <Column
         dataIndex={"name"}
         title={"Бараа материалын нэр"}
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "name"]}>
             <NewInput disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"materialSectionId"}
+        dataIndex={"section"}
         title={"Бараа материалын бүлэг"}
-        render={(value, row, index) => (
-          <Form.Item name={[index, "materialSectionId"]}>
-            <NewSelect
-              disabled
-              options={materials.map((material) => ({
-                value: material.materialSectionId,
-                label: material.section?.name,
-              }))}
-            />
+        render={(_, __, index) => (
+          <Form.Item name={[index, "section"]}>
+            <NewInput disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"measurementId"}
+        dataIndex={"measurement"}
         title={"Хэмжих нэгж"}
-        render={(value, row, index) => (
-          <Form.Item name={[index, "measurementId"]}>
-            <NewSelect
-              disabled
-              options={materials.map((material) => ({
-                value: material.measurementId,
-                label: material.measurement?.name,
-              }))}
-            />
+        render={(_, __, index) => (
+          <Form.Item name={[index, "measurement"]}>
+            <NewInput disabled />
           </Form.Item>
         )}
       />
       <Column
         dataIndex={"countPackage"}
         title={"Багц доторх тоо"}
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item name={[index, "countPackage"]}>
             <NewInputNumber disabled />
           </Form.Item>
@@ -228,7 +184,7 @@ function EditableTableMaterial(props: IProps) {
       <Column
         dataIndex={"quantity"}
         title={"Тоо ширхэг"}
-        render={(value, row, index) => (
+        render={(_, __, index) => (
           <Form.Item
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Тоо ширхэг заавал" }]}
@@ -240,7 +196,7 @@ function EditableTableMaterial(props: IProps) {
       <Column
         title={" "}
         width={110}
-        render={(value, row, index) => {
+        render={(_, __, index) => {
           if (index === editingIndex) {
             return (
               <React.Fragment>
