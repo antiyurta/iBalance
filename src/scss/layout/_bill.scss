@@ -1,0 +1,109 @@
+.bill {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  p {
+    font-size: 10px;
+    margin: 0px;
+    font-weight: bold;
+  }
+  h3,
+  h4,
+  h5 {
+    margin: 0px;
+  }
+  .bill-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    .top {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+    .bottom {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      .employee,
+      .pos {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+      }
+    }
+  }
+  .warehouse-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    h4,
+    h5 {
+      min-width: 50px;
+    }
+    p {
+      font-weight: 400;
+    }
+    .info,
+    .address,
+    .date,
+    .ddtd {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      align-items: flex-end;
+    }
+  }
+  .services {
+    table {
+      width: 100%;
+      thead {
+        border: 1px dashed black;
+      }
+      tbody {
+        border-bottom: 1px dashed black;
+      }
+      th {
+        font-size: 10px;
+        text-align: start;
+      }
+      td:first-child {
+        text-align: start;
+      }
+      td:nth-child(2) {
+        text-align: center;
+      }
+      td {
+        font-size: 9px;
+        text-align: end;
+      }
+    }
+    .result {
+      border-bottom: 1px dashed black;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      .items {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        justify-content: space-between;
+      }
+    }
+  }
+  .barimt {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    .ebarimt-info {
+      width: 100%;
+      align-items: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+}

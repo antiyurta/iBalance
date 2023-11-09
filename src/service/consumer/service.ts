@@ -11,6 +11,9 @@ function get(params?: IParamConsumer): Promise<IResponseConsumer> {
 function getById(id: number): Promise<IResponseOneConsumer> {
   return api.get(`consumer/${id}`);
 }
+function Byfilter(value: string): Promise<IResponseOneConsumer> {
+  return api.get(`consumer/by-filter/${value}`);
+}
 function post(body: IDataConsumer): Promise<IResponseConsumer> {
   return api.post("consumer", body);
 }
@@ -31,6 +34,7 @@ function remove(id: number): Promise<IResponseConsumer> {
 export const ConsumerService = {
   get,
   getById,
+  Byfilter,
   post,
   patch,
   switchPatch,

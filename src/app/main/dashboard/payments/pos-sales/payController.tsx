@@ -18,6 +18,7 @@ import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ShoppingGoodsService } from "@/service/pos/shopping-goods/service";
+import { NumericFormat } from "react-number-format";
 
 const { Title } = Typography;
 const PayController = () => {
@@ -29,6 +30,11 @@ const PayController = () => {
   const [isOpenModalExtra, setIsOpenModalExtra] = useState<boolean>(false);
   const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
   const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
+  //
+  const [totalQuantity, setTotalQuantity] = useState<number>(0);
+  const [totalDiscountAndCoupon, setTotalDiscountAndCoupon] =
+    useState<number>(0);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
   const getShoppingCarts = async () => {
     await ShoppingCartService.get()
       .then((response) => {
@@ -54,6 +60,40 @@ const PayController = () => {
   useEffect(() => {
     isReload && getShoppingCarts();
   }, [isReload]);
+
+  const getAll = () => {
+    return shoppingCarts
+      .map((cart) => {
+        var backDiscount: number = 0;
+        var backCoupon: number = 0;
+        if (cart.discount) {
+          backDiscount = cart.unitAmount * cart.quantity - cart.amount;
+        } else {
+          backDiscount = 0;
+        }
+        if (cart.coupon && cart.coupon.conditionValue < cart.quantity) {
+          backCoupon = cart.amount / cart.quantity;
+        } else {
+          backCoupon = 0;
+        }
+        return backDiscount + backCoupon;
+      })
+      .reduce((total: number, arg: number) => total + arg, 0);
+  };
+
+  useEffect(() => {
+    // niit too shirheg bodoh
+    setTotalQuantity(
+      shoppingCarts.reduce((total: number, cart) => total + cart.quantity, 0)
+    );
+    // niit dun bodoh
+    setTotalAmount(
+      shoppingCarts.reduce((total: number, cart) => total + cart.amount, 0)
+    );
+    // niit hongololt uruamshuulal bodoh
+    setTotalDiscountAndCoupon(getAll());
+  }, [shoppingCarts]);
+  //
   return (
     <>
       <div
@@ -116,8 +156,8 @@ const PayController = () => {
             overflowY: "auto",
           }}
         >
-          {shoppingCarts?.map((material) => (
-            <Item key={material.id} data={material} />
+          {shoppingCarts?.map((cart) => (
+            <Item key={cart.id} data={cart} />
           ))}
         </div>
         <div
@@ -154,7 +194,7 @@ const PayController = () => {
                 margin: 0,
               }}
             >
-              26
+              {totalQuantity}
             </Title>
           </div>
           <div
@@ -183,7 +223,14 @@ const PayController = () => {
                 margin: 0,
               }}
             >
-              12,000.00₮
+              <NumericFormat
+                value={totalDiscountAndCoupon}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
             </Title>
           </div>
           <div
@@ -214,7 +261,14 @@ const PayController = () => {
                 margin: 0,
               }}
             >
-              88,8888
+              <NumericFormat
+                value={totalAmount}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
             </Title>
           </div>
           <div
@@ -240,6 +294,7 @@ const PayController = () => {
                 width: "100%",
               }}
               type="primary"
+              disabled={shoppingCarts.length > 0 ? false : true}
               onClick={() => setIsOpenModalSteps(true)}
             >
               Үргэлжлүүлэх
@@ -376,7 +431,7 @@ const PayController = () => {
         footer={null}
         destroyOnClose
       >
-        <StepIndex />
+        <StepIndex amount={totalAmount} bonus={totalDiscountAndCoupon} />
       </NewModal>
       <NewModal
         title=" "

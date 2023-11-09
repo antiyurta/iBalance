@@ -9,7 +9,7 @@ function get(params: IParamViewMaterial): Promise<IResponseViewMaterial> {
   return api.get("view-material", { params });
 }
 function getById(id: number): Promise<IResponseViewMaterialOne> {
-  return api.get("view-materia/" + id);
+  return api.get("view-material/" + id);
 }
 
 export const ViewMaterialService = { get, getById };

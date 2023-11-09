@@ -1,10 +1,4 @@
-import {
-  ColumnType,
-  GenericResponse,
-  IData,
-  IParam,
-  Meta,
-} from "@/service/entities";
+import { GenericResponse, IData, Meta } from "@/service/entities";
 /** Төлбөрийн хэлбэр */
 export enum PaymentType {
   /** Бэлэн */

@@ -68,11 +68,13 @@ const DisplayItem = (props: IProps) => {
   };
   const onFinish = async (data: IDataShoppingCartPost) => {
     blockContext.block();
-    await ShoppingCartService.post(data).then((response) => {
-      if (response.success) {
+    await ShoppingCartService.post(data)
+      .finally(() => {
         setReload(true);
-      }
-    });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
   const configureData = async () => {
     setItem({
@@ -122,9 +124,20 @@ const DisplayItem = (props: IProps) => {
               <>
                 {item.coupon ? (
                   <div className="extra-bottom">
-                    <p>
-                      {item.coupon.conditionValue + "+" + item.coupon.quantity}
-                    </p>
+                    {item.coupon.percent > 0 ? (
+                      <>
+                        {item.coupon.conditionValue +
+                          "+" +
+                          item.coupon.percent +
+                          "%"}
+                      </>
+                    ) : (
+                      <>
+                        {item.coupon.conditionValue +
+                          "+" +
+                          item.coupon.quantity}
+                      </>
+                    )}
                   </div>
                 ) : null}
                 {item.discount ? (
@@ -170,7 +183,10 @@ const DisplayItem = (props: IProps) => {
                 onClick={() =>
                   onFinish({
                     materialId: item.id,
-                    quantity: 0,
+                    quantity: 1,
+                    amount: item.unitAmount,
+                    discountId: item.discount?.id,
+                    couponId: item.coupon?.id,
                   })
                 }
                 icon={<ShoppingCartOutlined />}
@@ -215,7 +231,10 @@ const DisplayItem = (props: IProps) => {
                 onClick={() =>
                   onFinish({
                     materialId: item.id,
-                    quantity: 0,
+                    quantity: 1,
+                    amount: item.unitAmount,
+                    discountId: item.discount?.id,
+                    couponId: item.coupon?.id,
                   })
                 }
               >
