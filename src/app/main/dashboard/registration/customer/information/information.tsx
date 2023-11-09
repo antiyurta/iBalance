@@ -53,6 +53,7 @@ import {
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import Export from "@/components/Export";
+import { TreeSectionSelect } from "@/components/tree-select";
 
 const { Title } = Typography;
 
@@ -472,66 +473,17 @@ const Information = (props: IProps) => {
                         width: "100%",
                       }}
                     >
-                      <Space.Compact>
-                        <div
-                          className="extraButton"
-                          style={{
-                            display: "flex",
-                            height: 38,
-                            alignItems: "center",
-                            placeContent: "center",
-                          }}
-                        >
-                          <Popover
-                            placement="bottom"
-                            open={isOpenPopOverLittle}
-                            onOpenChange={(state) =>
-                              setIsOpenPopOverLittle(state)
-                            }
-                            content={
-                              <NewDirectoryTree
-                                isLeaf={true}
-                                data={sections}
-                                extra="HALF"
-                                onClick={(keys, isLeaf) => {
-                                  if (!isLeaf) {
-                                    setIsOpenPopOverLittle(false);
-                                    switchForm.setFieldsValue({
-                                      sectionId: keys![0],
-                                    });
-                                  }
-                                }}
-                              />
-                            }
-                            trigger={"click"}
-                          >
-                            <SignalFilled rotate={-90} />
-                          </Popover>
-                        </div>
-                        <Form.Item
-                          name="sectionId"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Шинээр шилжүүлэх бүлэг заавал",
-                            },
-                          ]}
-                        >
-                          <NewSelect
-                            className="ant-selecto-38px"
-                            disabled={true}
-                            style={{
-                              width: "100%",
-                            }}
-                            options={sections?.map(
-                              (section: IDataTreeSection) => ({
-                                label: section.name,
-                                value: section.id,
-                              })
-                            )}
-                          />
-                        </Form.Item>
-                      </Space.Compact>
+                      <TreeSectionSelect
+                        type={TreeSectionType.Consumer}
+                        form={switchForm}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Шинээр шилжүүлэх бүлэг заавал",
+                          },
+                        ]}
+                        name="sectionId"
+                      />
                     </Form.Item>
                   </Form>
                   <Button
@@ -889,56 +841,17 @@ const Information = (props: IProps) => {
                   width: "100%",
                 }}
               >
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Popover
-                      placement="bottom"
-                      open={isOpenPopOver}
-                      onOpenChange={(state) => setIsOpenPopOver(state)}
-                      content={
-                        <NewDirectoryTree
-                          data={sections}
-                          isLeaf={true}
-                          extra="HALF"
-                          onClick={(keys, isLeaf) => {
-                            if (!isLeaf) {
-                              setIsOpenPopOver(false);
-                              form.setFieldsValue({
-                                sectionId: keys![0],
-                              });
-                            }
-                          }}
-                        />
-                      }
-                      trigger={"click"}
-                    >
-                      <SignalFilled rotate={-90} />
-                    </Popover>
-                  </div>
-                  <Form.Item
-                    style={{
-                      width: "100%",
-                    }}
-                    name="sectionId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Харилцагчийн бүлэг заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      disabled={true}
-                      style={{
-                        width: "100%",
-                      }}
-                      options={sections?.map((section: IDataTreeSection) => ({
-                        label: section.name,
-                        value: section.id,
-                      }))}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <TreeSectionSelect
+                  type={TreeSectionType.Consumer}
+                  form={form}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Харилцагчийн бүлэг заавал",
+                    },
+                  ]}
+                  name="sectionId"
+                />
               </Form.Item>
             </div>
             <div className="inputs">

@@ -29,6 +29,7 @@ import {
   IDataMaterial,
   IFilterMaterial,
   IParamMaterial,
+  MaterialType,
 } from "@/service/material/entities";
 
 import { IDataUnitCode } from "@/service/reference/unit-code/entities";
@@ -45,7 +46,7 @@ import {
   Upload,
 } from "antd";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
 import UnitOfMeasure from "../unit-of-measure/unitOfMeasure";
@@ -69,13 +70,14 @@ import InventoriesType from "../inventories-type/inventoriesType";
 
 interface IProps {
   ComponentType: ComponentType;
+  type: MaterialType;
   onClickModal?: (row: any) => void;
 }
 
 const { Title } = Typography;
 
 const InventoriesRegistration = (props: IProps) => {
-  const { ComponentType = "FULL", onClickModal } = props;
+  const { ComponentType = "FULL", type, onClickModal } = props;
   const [form] = Form.useForm();
   const [switchForm] = Form.useForm();
   const {
@@ -92,6 +94,7 @@ const InventoriesRegistration = (props: IProps) => {
   const [materialSections, setMaterialSections] = useState<
     IDataMaterialSection[]
   >([]);
+  const [isReload, setIsReload] = useState<boolean>(false);
   // hemjih negj
   const [measuries, setMeasuries] = useState<IDataUnitOfMeasure[]>([]);
   const [isOpenMeasure, setIsOpenMeasure] = useState<boolean>(false);
@@ -237,6 +240,7 @@ const InventoriesRegistration = (props: IProps) => {
     getBrands();
     if (!state) {
       form.resetFields();
+      form.setFieldsValue({ isActive: true });
     } else {
       form.setFieldsValue(row);
     }
@@ -269,7 +273,7 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getMaterialSections = async () => {
-    await MaterialSectionService.get({}).then((response) => {
+    await MaterialSectionService.get({ type }).then((response) => {
       setMaterialSections(response.response.data);
     });
   };
@@ -366,16 +370,17 @@ const InventoriesRegistration = (props: IProps) => {
   };
   const switchGroup = async (values: { sectionId: number }) => {
     if (tableSelectedRows.length > 0) {
-      // await MaterialService.switchPatch({
-      //   sectionId: values.sectionId,
-      //   ids: tableSelectedRows.map((row) => row.id),
-      // }).then((response) => {
-      //   if (response.success) {
-      //     onClickModal?.(false);
-      //   }
-      // });
+      await MaterialService.switchPatch({
+        materialSectionId: values.sectionId,
+        ids: tableSelectedRows.map((row) => row.id),
+      }).then((response) => {
+        if (response.success) {
+          onClickModal?.(false);
+          setIsReload(!isReload);
+        }
+      });
     } else {
-      openNofi("error", "Харилцагч сонгоно уу");
+      openNofi("error", "Бараа сонгоно уу");
     }
   };
   //
@@ -419,17 +424,22 @@ const InventoriesRegistration = (props: IProps) => {
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
   };
   const onDeleteMaterial = (id: number) => {
-    MaterialService.remove(id)
-      .then(() => {
+    MaterialService.remove(id).then((response) => {
+      if (response.success) {
         getData(params);
-      });
+        setIsDescription(false);
+        setIsOpenTree(true);
+      }
+    });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
     getMaterialSections();
     getMaterialType();
     getUnitCode();
   }, []);
+  useEffect(() => {
+    getData(params);
+  }, [isReload]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -546,9 +556,10 @@ const InventoriesRegistration = (props: IProps) => {
                                         setIsOpenPopoverLittle(false);
                                         switchForm.setFieldsValue({
                                           sectionId: keys![0],
-                                          materialTypeId: materialSections.find(
-                                            (item) => item.id === keys[0]
-                                          )?.materialTypeId,
+                                          materialAccountId:
+                                            materialSections.find(
+                                              (item) => item.id === keys[0]
+                                            )?.materialAccountId,
                                         });
                                       }
                                     }}
@@ -579,48 +590,6 @@ const InventoriesRegistration = (props: IProps) => {
                                     value: section.id,
                                   })
                                 )}
-                              />
-                            </Form.Item>
-                          </Space.Compact>
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item label="Холбох дансны код" name="code">
-                          <Space.Compact>
-                            <div className="extraButton">
-                              <Image
-                                onClick={() => setIsOpenMaterialType(true)}
-                                src="/icons/clipboardBlack.svg"
-                                width={16}
-                                height={16}
-                                alt="clipboard"
-                              />
-                            </div>
-                            <Form.Item
-                              name="materialTypeId"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Харилцагчийн код",
-                                },
-                                {
-                                  pattern: /^\d*(?:\.\d+)?$/,
-                                  message: "Зөвхөн тоо оруулах",
-                                },
-                              ]}
-                            >
-                              <NewSelect
-                                allowClear
-                                showSearch
-                                filterOption={(input, label) =>
-                                  (label ?? "")
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                                }
-                                options={materialTypes?.map((type) => ({
-                                  label: type.accountNo,
-                                  value: type.id,
-                                }))}
                               />
                             </Form.Item>
                           </Space.Compact>
@@ -741,12 +710,12 @@ const InventoriesRegistration = (props: IProps) => {
           <Col md={24} lg={10} xl={6}>
             <Description
               mode="PICTURE"
-              title="Харилцагчийн мэдээлэл"
+              title="Бараа материалын мэдээлэл"
               open={isDescription}
               columns={columns}
               selectedRow={selectedRow}
               onEdit={() => openModal(true, selectedRow)}
-              onDelete={(id) => console.log(id)}
+              onDelete={onDeleteMaterial}
               onCancel={(state) => {
                 setIsDescription(state);
                 setIsOpenTree(!state);
@@ -784,7 +753,13 @@ const InventoriesRegistration = (props: IProps) => {
               >
                 Үндсэн мэдээлэл
               </Title>
-              <Form.Item label="Бараа материалын нэр" name="name">
+              <Form.Item
+                label="Бараа материалын нэр"
+                name="name"
+                rules={[
+                  { required: true, message: "Бараа материалын нэр заавал" },
+                ]}
+              >
                 <NewInput />
               </Form.Item>
               <Form.Item
@@ -849,7 +824,10 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
               <Form.Item label="Хэмжих нэгж">
                 <Space.Compact>
-                  <Form.Item name="measurementId">
+                  <Form.Item
+                    name="measurementId"
+                    rules={[{ required: true, message: "Хэмжих нэгж заавал" }]}
+                  >
                     <NewSelect
                       allowClear
                       showSearch
@@ -882,7 +860,11 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-              <Form.Item label="Багц доторх тоо" name="countPackage">
+              <Form.Item
+                label="Багц доторх тоо"
+                name="countPackage"
+                rules={[{ required: true, message: "Багц доторх тоо заавал" }]}
+              >
                 <NewInputNumber />
               </Form.Item>
               <Form.Item label="Зэрэглэл">
@@ -930,10 +912,23 @@ const InventoriesRegistration = (props: IProps) => {
               >
                 Кодын мэдээлэл
               </Title>
-              <Form.Item label="Дотоод код" name="code">
+              <Form.Item
+                label="Дотоод код"
+                name="code"
+                rules={[{ required: true, message: "Дотоод код заавал" }]}
+              >
                 <NewInput />
               </Form.Item>
-              <Form.Item label="Бар код" name="barCode">
+              <Form.Item
+                label="Бар код"
+                name="barCode"
+                rules={[
+                  {
+                    pattern: /^-?\d*(\.\d*)?$/,
+                    message: "тоо оруулна уу",
+                  },
+                ]}
+              >
                 <NewInput />
               </Form.Item>
               <Form.Item label="Сериал код" name="serial">
@@ -1030,19 +1025,7 @@ const InventoriesRegistration = (props: IProps) => {
                       alt="clipboard"
                     />
                   </div>
-                  <Form.Item
-                    name="consumerSupplierId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Харилцагчийн код",
-                      },
-                      {
-                        pattern: /^\d*(?:\.\d+)?$/,
-                        message: "Зөвхөн тоо оруулах",
-                      },
-                    ]}
-                  >
+                  <Form.Item name="consumerSupplierId">
                     <NewSelect
                       allowClear
                       showSearch
@@ -1162,7 +1145,7 @@ const InventoriesRegistration = (props: IProps) => {
           ComponentType="MODAL"
           onClickModal={(row: IDataType) => {
             switchForm.setFieldsValue({
-              materialTypeId: row.id,
+              materialAccountId: row.id,
             });
             setIsOpenMaterialType(false);
           }}

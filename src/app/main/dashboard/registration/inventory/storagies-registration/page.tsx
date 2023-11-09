@@ -1,6 +1,5 @@
 "use client";
 
-import NewDirectoryTree from "@/components/directoryTree";
 import StoragiesRegistration from "./StoragiesRegistration";
 import { Tabs } from "antd";
 import { StoragiesGroup } from "./storage-group";

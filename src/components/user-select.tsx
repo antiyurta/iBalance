@@ -101,7 +101,7 @@ export const UserSelect = (props: IProps) => {
             }}
             options={users.map((user) => ({
               value: user.id,
-              label: `${user.lastName} - ${user.firstName}`,
+              label: `${user.lastName?.substring(0, 1)}. ${user.firstName}`,
             }))}
           />
         </Form.Item>

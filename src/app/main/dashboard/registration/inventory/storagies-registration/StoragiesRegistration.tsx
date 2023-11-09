@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewInput, NewSelect } from "@/components/input";
+import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
@@ -16,20 +16,10 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Popover,
-  Row,
-  Space,
-  Switch,
-  Typography,
-} from "antd";
+import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
-import { SignalFilled, SwapOutlined } from "@ant-design/icons";
+import { Component, useContext, useEffect, useState } from "react";
+import { SwapOutlined } from "@ant-design/icons";
 import {
   FilteredColumnsWarehouse,
   IDataWarehouse,
@@ -40,6 +30,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import TextArea from "antd/es/input/TextArea";
 import { UserSelect } from "@/components/user-select";
+import { TreeSectionSelect } from "@/components/tree-select";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -60,7 +51,6 @@ const StoragiesRegistration = (props: IProps) => {
   const [filters, setFilters] = useState<IFilterWarehouse>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataWarehouse>();
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
     useState<boolean>(false);
@@ -69,21 +59,21 @@ const StoragiesRegistration = (props: IProps) => {
   );
   const [columns, setColumns] = useState<FilteredColumnsWarehouse>({
     code: {
-      label: "Байршилын код",
+      label: "Байршлын код",
       isView: true,
       isFiltered: false,
       dataIndex: "code",
       type: DataIndexType.MULTI,
     },
     names: {
-      label: "Байршилын нэр",
+      label: "Байршлын нэр",
       isView: true,
       isFiltered: false,
       dataIndex: "name",
       type: DataIndexType.MULTI,
     },
     sectionIds: {
-      label: "Байршилын бүлэг",
+      label: "Байршлын бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["section", "name"],
@@ -97,7 +87,7 @@ const StoragiesRegistration = (props: IProps) => {
       type: DataIndexType.MULTI,
     },
     address: {
-      label: "Байршилын хаяг",
+      label: "Байршлын хаяг",
       isView: true,
       isFiltered: false,
       dataIndex: "address",
@@ -129,6 +119,7 @@ const StoragiesRegistration = (props: IProps) => {
     setIsEdit(state);
     form.resetFields();
     if (state && row) {
+      console.log("row =========>", row);
       form.setFieldsValue(row);
       setSelectedRow(row);
     }
@@ -260,110 +251,6 @@ const StoragiesRegistration = (props: IProps) => {
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <Col md={24} lg={14} xl={18}>
-          <Row gutter={[0, 12]}>
-            {ComponentType === "LITTLE" ? (
-              <Col span={24}>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "flex-end",
-                    width: "100%",
-                    gap: 12,
-                  }}
-                >
-                  <Form
-                    form={switchForm}
-                    layout="vertical"
-                    style={{
-                      width: "100%",
-                    }}
-                  >
-                    <Form.Item
-                      label="Байршилын бүлэг"
-                      style={{
-                        width: "100%",
-                      }}
-                    >
-                      <Space.Compact>
-                        <div
-                          className="extraButton"
-                          style={{
-                            display: "flex",
-                            height: 38,
-                            alignItems: "center",
-                            placeContent: "center",
-                          }}
-                        >
-                          <Popover
-                            placement="bottom"
-                            open={isOpenPopOverLittle}
-                            onOpenChange={(state) =>
-                              setIsOpenPopOverLittle(state)
-                            }
-                            content={
-                              <NewDirectoryTree
-                                isLeaf={true}
-                                data={sections}
-                                extra="HALF"
-                                onClick={(keys, isLeaf) => {
-                                  if (!isLeaf) {
-                                    setIsOpenPopOverLittle(false);
-                                    switchForm.setFieldsValue({
-                                      sectionId: keys![0],
-                                    });
-                                  }
-                                }}
-                              />
-                            }
-                            trigger={"click"}
-                          >
-                            <SignalFilled rotate={-90} />
-                          </Popover>
-                        </div>
-                        <Form.Item
-                          name="sectionId"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Шинээр шилжүүлэх бүлэг заавал",
-                            },
-                          ]}
-                        >
-                          <NewSelect
-                            className="ant-selecto-38px"
-                            disabled={true}
-                            style={{
-                              width: "100%",
-                            }}
-                            options={sections?.map(
-                              (section: IDataTreeSection) => ({
-                                label: section.name,
-                                value: section.id,
-                              })
-                            )}
-                          />
-                        </Form.Item>
-                      </Space.Compact>
-                    </Form.Item>
-                  </Form>
-                  <Button
-                    type="primary"
-                    icon={<SwapOutlined />}
-                    onClick={() => {
-                      switchForm.validateFields().then((value) => {
-                        switchGroup(value);
-                      });
-                    }}
-                  >
-                    Шилжүүлэх
-                  </Button>
-                </div>
-              </Col>
-            ) : null}
-          </Row>
-        </Col>
         {ComponentType === "FULL" ? (
           <>
             <Col md={24} lg={16} xl={19}>
@@ -394,25 +281,80 @@ const StoragiesRegistration = (props: IProps) => {
         ) : null}
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            extra="HALF"
             data={sections}
             isLeaf={false}
+            extra="HALF"
             onClick={(keys) => {
               onCloseFilterTag({
-                key: "sectionIds",
+                key: "sectionId",
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
                 params: params,
                 onParams: (params) => setParams(params),
               });
-              getData({ page: 1, limit: 10, sectionIds: keys });
+              getData({
+                page: 1,
+                limit: 10,
+                sectionIds: keys,
+              });
             }}
           />
         </Col>
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>
-            <Col sm={24}>
+            {ComponentType === "LITTLE" ? (
+              <Col span={24}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "flex-end",
+                    width: "100%",
+                    gap: 12,
+                  }}
+                >
+                  <Form
+                    form={switchForm}
+                    layout="vertical"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Form.Item
+                      label="Байршлын бүлэг"
+                      style={{
+                        width: "100%",
+                      }}
+                    >
+                      <TreeSectionSelect
+                        type={TreeSectionType.Warehouse}
+                        form={switchForm}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Шинээр шилжүүлэх бүлэг заавал",
+                          },
+                        ]}
+                        name="sectionId"
+                      />
+                    </Form.Item>
+                  </Form>
+                  <Button
+                    type="primary"
+                    icon={<SwapOutlined />}
+                    onClick={() => {
+                      switchForm.validateFields().then((value) => {
+                        switchGroup(value);
+                      });
+                    }}
+                  >
+                    Шилжүүлэх
+                  </Button>
+                </div>
+              </Col>
+            ) : null}
+            <Col span={24}>
               <Space
                 style={{
                   width: "100%",
@@ -434,48 +376,50 @@ const StoragiesRegistration = (props: IProps) => {
                     getData(params);
                   }}
                 />
-                <Space
-                  style={{
-                    width: "100%",
-                    justifyContent: "flex-end",
-                  }}
-                  size={12}
-                >
-                  <ColumnSettings
-                    columns={columns}
-                    columnIndexes={(arg1, arg2) =>
-                      findIndexInColumnSettings({
-                        newRowIndexes: arg1,
-                        unSelectedRow: arg2,
-                        columns: columns,
-                        onColumns: (columns) => setColumns(columns),
-                        params: params,
-                        onParams: (params) => setParams(params),
-                        getData: (params) => getData(params),
-                      })
-                    }
-                  />
-                  <Image
-                    src={"/images/PrintIcon.svg"}
-                    width={24}
-                    height={24}
-                    alt="printIcon"
-                  />
-                  <Image
-                    src={"/images/DownloadIcon.svg"}
-                    width={24}
-                    height={24}
-                    alt="downloadIcon"
-                  />
-                </Space>
+                {ComponentType === "FULL" ? (
+                  <Space
+                    style={{
+                      width: "100%",
+                      justifyContent: "flex-end",
+                    }}
+                    size={12}
+                  >
+                    <ColumnSettings
+                      columns={columns}
+                      columnIndexes={(arg1, arg2) =>
+                        findIndexInColumnSettings({
+                          newRowIndexes: arg1,
+                          unSelectedRow: arg2,
+                          columns: columns,
+                          onColumns: (columns) => setColumns(columns),
+                          params: params,
+                          onParams: (params) => setParams(params),
+                          getData: (params) => getData(params),
+                        })
+                      }
+                    />
+                    <Image
+                      src={"/images/PrintIcon.svg"}
+                      width={24}
+                      height={24}
+                      alt="printIcon"
+                    />
+                    <Image
+                      src={"/images/DownloadIcon.svg"}
+                      width={24}
+                      height={24}
+                      alt="downloadIcon"
+                    />
+                  </Space>
+                ) : null}
               </Space>
             </Col>
             <Col span={24}>
               <NewTable
-                scroll={{
-                  x: 800,
-                }}
+                componentType={ComponentType}
+                scroll={{ x: ComponentType === "FULL" ? 1700 : 400 }}
                 rowKey="id"
+                rowSelection={ComponentType === "LITTLE" ? rowSelection : null}
                 data={data}
                 meta={meta}
                 columns={columns}
@@ -488,7 +432,6 @@ const StoragiesRegistration = (props: IProps) => {
                 isDelete
                 onEdit={(row) => openModal(true, row)}
                 onDelete={(id) => onDelete(id)}
-                rowSelection={ComponentType === "LITTLE" ? rowSelection : null}
                 onDClick={(value) => {
                   if (ComponentType === "FULL") {
                     setSelectedRow(value);
@@ -526,67 +469,26 @@ const StoragiesRegistration = (props: IProps) => {
             <Form.Item label="Байршлын нэр" name="name">
               <NewInput />
             </Form.Item>
-            <Form.Item label="Байршилын бүлэг">
-              <Space.Compact>
-                <div className="extraButton">
-                  <Popover
-                    placement="bottom"
-                    open={isOpenPopOver}
-                    onOpenChange={(state) => setIsOpenPopOver(state)}
-                    content={
-                      <NewDirectoryTree
-                        data={sections}
-                        extra="HALF"
-                        isLeaf={false}
-                        onClick={(key, isLeaf) => {
-                          if (isLeaf) {
-                            setIsOpenPopOver(false);
-                            form.setFieldsValue({
-                              sectionId: key,
-                            });
-                          }
-                        }}
-                      />
-                    }
-                    trigger={"click"}
-                  >
-                    <SignalFilled rotate={-90} />
-                  </Popover>
-                </div>
-                <Form.Item name="sectionId">
-                  <NewSelect
-                    options={sections
-                      ?.filter((section) => !section.isExpand)
-                      ?.map((section) => ({
-                        label: section.name,
-                        value: section.id,
-                      }))}
-                  />
-                </Form.Item>
-                <div
-                  style={{
-                    marginLeft: 4,
-                  }}
-                  className="app-button-square"
-                  //   onClick={() => setIsOpenModalBrand(true)}
-                >
-                  <Image
-                    src={"/icons/plusGray.svg"}
-                    height={18}
-                    width={18}
-                    alt="plsu"
-                  />
-                </div>
-              </Space.Compact>
+            <Form.Item label="Байршлын бүлэг">
+              <TreeSectionSelect
+                type={TreeSectionType.Warehouse}
+                form={form}
+                rules={[]}
+                name="sectionId"
+              />
             </Form.Item>
             <Form.Item label="Хариуцсан нярав">
               <UserSelect form={form} rules={[]} name="userId" />
             </Form.Item>
-            <Form.Item label="Байршилын хаяг" name="address">
+            <Form.Item label="Байршлын хаяг" name="address">
               <TextArea />
             </Form.Item>
-            <Form.Item label="Идэвхтэй эсэх" name="isActive">
-              <Switch />
+            <Form.Item
+              label="Идэвхтэй эсэх"
+              name="isActive"
+              valuePropName="checked"
+            >
+              <NewSwitch />
             </Form.Item>
           </div>
         </Form>

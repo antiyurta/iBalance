@@ -17,7 +17,7 @@ import {
   Table,
 } from "antd";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { IDataMembership } from "@/service/reference/membership/entities";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import dayjs from "dayjs";
@@ -44,8 +44,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     undefined
   );
   const [isNewService, setNewService] = useState<boolean>(false);
-  const [membershipDictionary, setMembershipDictionary] =
-    useState<Map<number, IDataMembership>>();
+  
 
   const addService = () => {
     onSave().then((state) => {
@@ -55,33 +54,15 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         setNewService(true);
       }
     });
-    form
-      .validateFields([
-        ["cards", editingIndex, "membershipId"],
-        ["cards", editingIndex, "name"],
-        ["cards", editingIndex, "amount"],
-        ["cards", editingIndex, "branchId"],
-        ["cards", editingIndex, "endAt"],
-        ["cards", editingIndex, "isClose"],
-      ])
-      .then(() => {
-        add();
-        setEditingIndex(data.length);
-        setNewService(true);
-      })
-      .catch((error) => {
-        error.errorFields?.map((errorMsg: any) => {
-          message.error(errorMsg.errors[0]);
-        });
-      });
   };
   const onSave = async () => {
     return form
       .validateFields([
+        ["cards"],
         ["cards", editingIndex, "membershipId"],
         ["cards", editingIndex, "name"],
         ["cards", editingIndex, "amount"],
-        ["cards", editingIndex, "branchId"],
+        ["cards", editingIndex, "warehouseId"],
         ["cards", editingIndex, "endAt"],
         ["cards", editingIndex, "isClose"],
       ])
@@ -94,7 +75,6 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         return true;
       })
       .catch((error) => {
-        console.log(error);
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
@@ -110,7 +90,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         ["cards", editingIndex, "membershipId"],
         ["cards", editingIndex, "name"],
         ["cards", editingIndex, "amount"],
-        ["cards", editingIndex, "branchId"],
+        ["cards", editingIndex, "warehouseId"],
         ["cards", editingIndex, "endAt"],
         ["cards", editingIndex, "isClose"],
       ]);
@@ -119,13 +99,6 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     setEditingIndex(undefined);
   };
 
-  useEffect(() => {
-    setMembershipDictionary(
-      new Map<number, IDataMembership>(
-        memberships.map((membership) => [membership.id, membership])
-      )
-    );
-  }, [memberships]);
   return (
     <Table
       dataSource={data}
@@ -175,7 +148,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
         render={(value, row, index) => (
           <Form.Item
             name={[index, "membershipId"]}
-            rules={[{ required: true, message: "Картын дугаар заавал" }]}
+            rules={[{ required: true, message: "Карт эрхийн бичгийн нэр" }]}
           >
             <NewSelect
               allowClear

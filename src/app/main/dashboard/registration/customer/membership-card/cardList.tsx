@@ -42,6 +42,13 @@ const CardList = (props: IProps) => {
       dataIndex: "isSave",
       type: DataIndexType.BOOLEAN,
     },
+    isBalance: {
+      label: "Үлдэгдэлтэй эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isBalance",
+      type: DataIndexType.BOOLEAN,
+    },
     isPercent: {
       label: "Хөнгөлөлт хувиар эсэх",
       isView: true,

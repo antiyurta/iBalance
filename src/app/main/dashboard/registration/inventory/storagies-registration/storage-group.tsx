@@ -19,10 +19,11 @@ import {
 } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { SignalFilled, PlusOutlined } from "@ant-design/icons";
+import { SignalFilled } from "@ant-design/icons";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import StoragiesRegistration from "./StoragiesRegistration";
+import { TreeSectionSelect } from "@/components/tree-select";
 const { Title } = Typography;
 export const StoragiesGroup = () => {
   const [form] = Form.useForm();
@@ -53,8 +54,7 @@ export const StoragiesGroup = () => {
     });
   };
   const onFinishAdd = (values: IDataTreeSection) => {
-    // values.sectionId != selectedSectionId &&
-    if (isHaveChild) {
+    if (values.sectionId != selectedSectionId && isHaveChild) {
       modal.warning({
         title: "Анхааруулга",
         content: (
@@ -291,58 +291,12 @@ export const StoragiesGroup = () => {
                 width: "100%",
               }}
             >
-              <Space.Compact>
-                <div className="extraButton">
-                  <Popover
-                    placement="bottom"
-                    open={isOpenPopOverAdd}
-                    onOpenChange={(state) => setIsOpenPopOverAdd(state)}
-                    content={
-                      <NewDirectoryTree
-                        extra="HALF"
-                        data={sections}
-                        isLeaf={true}
-                        onClick={(keys, isLeaf) => {
-                          checkSectionInWarehouse(keys[0]);
-                          form.setFieldsValue({
-                            sectionId: keys![0],
-                            isExpand: isEdit
-                              ? form.getFieldValue("isExpand")
-                              : !isLeaf,
-                          });
-                          setIsOpenPopOverAdd(false);
-                        }}
-                      />
-                    }
-                    trigger={"click"}
-                  >
-                    <SignalFilled rotate={-90} />
-                  </Popover>
-                </div>
-                <Form.Item
-                  style={{
-                    width: "100%",
-                  }}
-                  name="sectionId"
-                  rules={[
-                    {
-                      required: false,
-                      message: "Харъяалах бүлэг заавал",
-                    },
-                  ]}
-                >
-                  <NewSelect
-                    disabled={true}
-                    style={{
-                      width: "100%",
-                    }}
-                    options={sections?.map((section: IDataTreeSection) => ({
-                      label: section.name,
-                      value: section.id,
-                    }))}
-                  />
-                </Form.Item>
-              </Space.Compact>
+              <TreeSectionSelect
+                type={TreeSectionType.Warehouse}
+                form={form}
+                rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}
+                name="sectionId"
+              />
             </Form.Item>
             <div className="switches-col">
               <Form.Item
@@ -366,7 +320,7 @@ export const StoragiesGroup = () => {
         <StoragiesRegistration
           ComponentType="LITTLE"
           onClickModal={(row) => {
-            console.log('row =======>', row);
+            console.log("row =======>", row);
           }}
         />
       </NewModal>
