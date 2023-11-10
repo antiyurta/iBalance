@@ -2,8 +2,8 @@
 import { Col, Input, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { SaveIncome } from "./save-income";
-import { DocumentList } from "./document-list";
-import { TransactionList } from "./transaction-list";
+import { DocumentList } from "../document-list";
+import { TransactionList } from "../transaction-list";
 const { Title } = Typography;
 const TransactionIncomePage = () => {
   const items = [

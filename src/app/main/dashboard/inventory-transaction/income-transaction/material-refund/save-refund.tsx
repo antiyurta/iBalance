@@ -3,7 +3,7 @@ import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space } from "antd";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import Image from "next/image";
-import { EditableTableIncome } from "./editableTableIncome";
+import { EditableTableRefund } from "./editableTableRefund";
 import { useEffect, useState } from "react";
 import {
   IDataWarehouse,
@@ -20,7 +20,7 @@ import { ReferenceService } from "@/service/reference/reference";
 import { IDataDocument } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 
-export const SaveIncome = () => {
+export const SaveRefund = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [incomeTypes, setIncomeTypes] = useState<IDataReference[]>([]);
@@ -165,7 +165,7 @@ export const SaveIncome = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableIncome
+                  <EditableTableRefund
                     data={items}
                     form={form}
                     add={add}

@@ -8,7 +8,8 @@ import {
   Meta,
 } from "@/service/entities";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
-import { IDataTransaction } from "../entities";
+import { IDataReference } from "@/service/reference/entity";
+import { IDataTransaction } from "./transaction/entities";
 
 export enum MovingStatus {
   Purchase = "PURCHASE", // Татан авалт/Худалдан авалт
@@ -20,9 +21,15 @@ export enum MovingStatus {
   MovementInWarehouse = "MOVEMENT_IN_WAREHOUSE", // Агуулах доторх хөдөлгөөн
   ItemConversion = "ITEM_CONVERSION", // Барааны хөрвүүлэг
 }
-
+export enum TransactionType {
+  Income = 'INCOME', // Орлого
+  Expense = 'EXPENSE', // Зарлага
+  Refund = 'REFUND', // Буцаалт
+}
 export interface IDataDocument extends IData {
   id?: number;
+  type: TransactionType;
+  refundDocumentId: number;
   bookingId: number;
   booking?: any; // TODO datag hiih
   warehouseId: number;
@@ -34,6 +41,9 @@ export interface IDataDocument extends IData {
   expenseQuantity: number;
   consumerId: number;
   consumer?: IDataConsumer;
+  sectionId: number;
+  section: IDataReference; // гүйлгээний төрөл
+  description: string; // гүйлгээний утга
   movingStatus: MovingStatus;
   transactions?: IDataTransaction[];
 }
@@ -44,8 +54,8 @@ export interface IFilterDocument extends IFilter {
   isLock?: number[];
 }
 
-export type FilteredColumnsReference = {
-  [T in keyof IFilterDocument]?: ColumnType;
+export type FilteredColumnsDocument = {
+  [T in keyof IDataDocument]?: ColumnType;
 };
 
 export interface IParamDocument extends Meta, IParam, IFilterDocument {}
