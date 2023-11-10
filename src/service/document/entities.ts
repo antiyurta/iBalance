@@ -11,24 +11,27 @@ import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
 
+/** Гүйлгээний төлвүүд */
 export enum MovingStatus {
-  Purchase = "PURCHASE", // Татан авалт/Худалдан авалт
-  SalesReturn = "SALE_RETURN", // Борлуулалтын буцаалт
-  Sales = "SALES", // Борлуулалт
-  PurchaseReturn = "PURCHASE_RETURN", // Худалдан авалтын буцаалт
-  InOperation = "IN_OPERATION", // Үйл ажиллагаанд
-  ActAmortization = "ACT_AMORTIZATION", // Акт хорогдол
-  MovementInWarehouse = "MOVEMENT_IN_WAREHOUSE", // Агуулах доторх хөдөлгөөн
-  ItemConversion = "ITEM_CONVERSION", // Барааны хөрвүүлэг
-}
-export enum TransactionType {
-  Income = 'INCOME', // Орлого
-  Expense = 'EXPENSE', // Зарлага
-  Refund = 'REFUND', // Буцаалт
+  /** Татан авалт/Худалдан авалт */
+  Purchase = 'PURCHASE',
+  /** Борлуулалтын буцаалт */
+  SaleReturn = 'SALE_RETURN',
+  /** Борлуулалт */
+  Sales = 'SALES',
+  /** Худалдан авалтын буцаалт */
+  PurchaseReturn = 'PURCHASE_RETURN',
+  /** Үйл ажиллагаанд */
+  InOperation = 'IN_OPERATION',
+  /** Акт хорогдол */
+  ActAmortization = 'ACT_AMORTIZATION',
+  /** Агуулах доторх хөдөлгөөн */
+  MovementInWarehouse = 'MOVEMENT_IN_WAREHOUSE',
+  /** Барааны хөрвүүлэг */
+  ItemConversion = 'ITEM_CONVERSION',
 }
 export interface IDataDocument extends IData {
   id?: number;
-  type: TransactionType;
   refundDocumentId: number;
   bookingId: number;
   booking?: any; // TODO datag hiih
@@ -49,6 +52,7 @@ export interface IDataDocument extends IData {
 }
 
 export interface IFilterDocument extends IFilter {
+  movingStatus: MovingStatus;
   bookingId?: number[];
   warehouseId?: number[];
   isLock?: number[];

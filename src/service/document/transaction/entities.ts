@@ -7,7 +7,7 @@ import {
   Meta,
 } from "../../entities";
 import { IDataMaterial } from "../../material/entities";
-import { IDataDocument } from "../entities";
+import { IDataDocument, MovingStatus } from "../entities";
 
 export interface IDataTransaction extends IData {
   id?: number;
@@ -31,6 +31,7 @@ export interface IFilterTransaction extends IFilter {
   description?: string[];
   sectionName?: string[];
   endAt?: string[];
+  movingStatus?: MovingStatus;
 }
 
 export type FilteredColumnsTransaction = {

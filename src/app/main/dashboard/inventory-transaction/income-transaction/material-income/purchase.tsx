@@ -3,7 +3,7 @@ import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space } from "antd";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import Image from "next/image";
-import { EditableTableIncome } from "./editableTableIncome";
+import { EditableTablePurchase } from "./editableTablePurchase";
 import { useEffect, useState } from "react";
 import {
   IDataWarehouse,
@@ -20,7 +20,7 @@ import { ReferenceService } from "@/service/reference/reference";
 import { IDataDocument } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 
-export const SaveIncome = () => {
+export const Purchase = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [incomeTypes, setIncomeTypes] = useState<IDataReference[]>([]);
@@ -85,14 +85,7 @@ export const SaveIncome = () => {
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item label="Огноо" name="date">
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
-                    disabled
-                  />
+                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} disabled />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
@@ -165,7 +158,7 @@ export const SaveIncome = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableIncome
+                  <EditableTablePurchase
                     data={items}
                     form={form}
                     add={add}

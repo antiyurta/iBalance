@@ -37,7 +37,7 @@ const Step2 = (props: IProps) => {
     useState<IDataReferencePaymentMethod[]>();
   const getPaymentMethods = async () => {
     blockContext.block();
-    await ReferencePaymentMethodService.get()
+    await ReferencePaymentMethodService.get({})
       .then((response) => {
         setPaymentMethods(response.response.data);
       })

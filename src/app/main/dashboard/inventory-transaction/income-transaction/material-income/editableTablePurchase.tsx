@@ -20,7 +20,7 @@ interface IProps {
   add: () => void;
   remove: (index: number) => void;
 }
-export const EditableTableRefund = (props: IProps) => {
+export const EditableTablePurchase = (props: IProps) => {
   const { message } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);

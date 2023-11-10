@@ -14,8 +14,12 @@ import { TransactionService } from "@/service/document/transaction/service";
 import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-
-export const TransactionList = () => {
+import { MovingStatus } from "@/service/document/entities";
+interface IProps {
+  movingStatus: MovingStatus;
+}
+export const TransactionList = (props: IProps) => {
+  const { movingStatus } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [data, setData] = useState<IDataTransaction[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
@@ -23,6 +27,7 @@ export const TransactionList = () => {
   const [params, setParams] = useState<IParamTransaction>({
     page: 1,
     limit: 10,
+    movingStatus,
   });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsTransaction>({

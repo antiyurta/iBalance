@@ -45,7 +45,14 @@ function NewAvatar(props: IAvatar) {
 }
 
 function NewDatePicker(props: DatePickerProps) {
-  return <DatePicker {...props} />;
+  return (
+    <DatePicker
+      style={{
+        width: "100%",
+      }}
+      {...props}
+    />
+  );
 }
 
 function NewRangePicker(props: RangePickerProps) {
