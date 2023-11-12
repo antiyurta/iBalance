@@ -47,7 +47,7 @@ const TransactionSale = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postRefund(values).then((response) => {
+    await DocumentService.postSale(values).then((response) => {
       if (response.success) form.resetFields();
     });
   };
@@ -141,9 +141,14 @@ const TransactionSale = () => {
                   },
                 ]}
               >
-                <NewFilterSelect options={[]} />
+                <NewFilterSelect
+                  options={paymentMethods.map((paymentMethod) => ({
+                    value: paymentMethod.id,
+                    label: paymentMethod.name,
+                  }))}
+                />
               </Form.Item>
-              <Form.Item label="Нийт дүн" name="totalAmount">
+              <Form.Item label="Нийт дүн" name="amount" shouldUpdate>
                 <NewInputNumber disabled />
               </Form.Item>
               <Form.Item

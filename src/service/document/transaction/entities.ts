@@ -16,7 +16,8 @@ export interface IDataTransaction extends IData {
   documentId: number;
   document?: IDataDocument;
   quantity: number;
-  price: number;
+  amount: number;
+  discountAmount: number;
   endAt: Date;
 }
 

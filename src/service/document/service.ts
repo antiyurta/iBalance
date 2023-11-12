@@ -16,6 +16,9 @@ function postIncome(body: IDataDocument): Promise<IResponseDocuments> {
 function postRefund(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/refund", body);
 }
+function postSale(body: IDataDocument): Promise<IResponseDocuments> {
+  return api.post("transaction-document/sale", body);
+}
 
 function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
   return api.patch(`transaction-document/${id}`, body);
@@ -24,4 +27,11 @@ function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
 function remove(id: number): Promise<IResponseDocument> {
   return api.delete(`transaction-document/${id}`);
 }
-export const DocumentService = { get, postIncome, postRefund, patch, remove };
+export const DocumentService = {
+  get,
+  postIncome,
+  postRefund,
+  postSale,
+  patch,
+  remove,
+};

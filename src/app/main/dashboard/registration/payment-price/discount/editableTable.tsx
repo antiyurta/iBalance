@@ -16,11 +16,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import {
-  NewDatePicker,
-  NewInput,
-  NewInputNumber,
-} from "@/components/input";
+import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
 import { MaterialSelect } from "@/components/material-select";
 import { MaterialType } from "@/service/material/entities";
 const { Column } = Table;
@@ -123,7 +119,11 @@ const EditableTableDiscount = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Service, MaterialType.Material, MaterialType.Package]}
+            materialTypes={[
+              MaterialType.Service,
+              MaterialType.Material,
+              MaterialType.Package,
+            ]}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
@@ -217,10 +217,12 @@ const EditableTableDiscount = (props: IProps) => {
       <Column
         title="Хөнгөлөлт хувь эсэх"
         render={(_, __, index) => (
-          <Switch
-            disabled={!(index === editingIndex)}
-            onChange={(value) => setIsPercent(value)}
-          />
+          <Form.Item name={[index, "isPercent"]} valuePropName="checked">
+            <Switch
+              disabled={!(index === editingIndex)}
+              onChange={(value) => setIsPercent(value)}
+            />
+          </Form.Item>
         )}
       />
       {isPercent ? (
