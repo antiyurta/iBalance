@@ -25,6 +25,9 @@ function postOperation(body: IDataDocument): Promise<IResponseDocuments> {
 function postAct(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/act", body);
 }
+function postMove(body: IDataDocument): Promise<IResponseDocuments> {
+  return api.post("transaction-document/move", body);
+}
 function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
   return api.patch(`transaction-document/${id}`, body);
 }
@@ -39,6 +42,7 @@ export const DocumentService = {
   postSale,
   postOperation,
   postAct,
+  postMove,
   patch,
   remove,
 };
