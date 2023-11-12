@@ -16,7 +16,6 @@ import {
   NewInput,
 } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
-import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTableMove } from "./editableTableMove";
 
 const TransactionMove = () => {
