@@ -64,7 +64,6 @@ export interface IDataMaterial {
   prices: IDataPrice[];
   discounts: IDataDiscount[];
   coupons: IDataCoupon[];
-  // TODO materialCoupons: Coupon[];
   // TODO refunds: Refund[];
   // TODO bookingMaterials: BookingMaterial[];
   // TODO transactions: Transaction[];

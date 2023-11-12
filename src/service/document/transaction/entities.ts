@@ -5,10 +5,9 @@ import {
   IFilter,
   IParam,
   Meta,
-  TransactionType,
-} from "../entities";
-import { IDataMaterial } from "../material/entities";
-import { IDataDocument } from "./document/entities";
+} from "../../entities";
+import { IDataMaterial } from "../../material/entities";
+import { IDataDocument, MovingStatus } from "../entities";
 
 export interface IDataTransaction extends IData {
   id?: number;
@@ -19,11 +18,20 @@ export interface IDataTransaction extends IData {
   quantity: number;
   price: number;
   endAt: Date;
-  type: TransactionType;
 }
 
 export interface IFilterTransaction extends IFilter {
-  materialId?: number[];
+  documentId?: number[];
+  createdAt?: number[];
+  warehouse?: number[];
+  materialCode?: string[];
+  materialName?: number[];
+  quantity?: number[];
+  consumerName?: string[];
+  description?: string[];
+  sectionName?: string[];
+  endAt?: string[];
+  movingStatus?: MovingStatus;
 }
 
 export type FilteredColumnsTransaction = {

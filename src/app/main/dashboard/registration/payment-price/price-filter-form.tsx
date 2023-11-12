@@ -15,6 +15,7 @@ import { authService } from "@/service/authentication/service";
 import { IParamCommand } from "@/service/command/entities";
 import { MaterialSelect } from "@/components/material-select";
 import { MaterialSectionSelect } from "@/components/material-section-select";
+import { MaterialType } from "@/service/material/entities";
 interface IProps {
   onToggle(): void;
   getData(params: IParamCommand): void;
@@ -108,7 +109,16 @@ export const PriceFilterForm = (props: IProps) => {
           />
         </Form.Item>
         <Form.Item label="Бараа үйлчилгээний код, нэр">
-          <MaterialSelect form={form} rules={[]} />
+          <MaterialSelect
+            form={form}
+            rules={[]}
+            materialTypes={[
+              MaterialType.Material,
+              MaterialType.Package,
+              MaterialType.Service,
+            ]}
+            name="materialId"
+          />
         </Form.Item>
         <Form.Item label="Бараа үйлчилгээний бүлэг">
           <MaterialSectionSelect form={form} rules={[]} />

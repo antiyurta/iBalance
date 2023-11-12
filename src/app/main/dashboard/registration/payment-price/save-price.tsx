@@ -205,13 +205,7 @@ const SavePrice = (props: IProps) => {
                     },
                   ]}
                 >
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
-                  />
+                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
@@ -239,13 +233,7 @@ const SavePrice = (props: IProps) => {
                     },
                   ]}
                 >
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
-                  />
+                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>

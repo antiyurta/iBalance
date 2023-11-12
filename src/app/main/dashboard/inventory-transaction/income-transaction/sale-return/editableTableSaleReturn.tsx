@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
-import { NewDatePicker, NewInput } from "@/components/input";
+import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useEffect, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
@@ -20,7 +20,7 @@ interface IProps {
   add: () => void;
   remove: (index: number) => void;
 }
-export const EditableTableIncome = (props: IProps) => {
+export const EditableTableSaleReturn = (props: IProps) => {
   const { message } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
@@ -110,6 +110,7 @@ export const EditableTableIncome = (props: IProps) => {
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
+            disabled={!(index === editingIndex)}
             listName="transactions"
             onClear={() => {
               form.resetFields([
@@ -135,78 +136,66 @@ export const EditableTableIncome = (props: IProps) => {
       <Column
         dataIndex={"name"}
         title="Бараа материалын нэр"
-        render={(_, __, index) => {
-          return (
-            <Form.Item
-              name={[index, "name"]}
-              rules={[
-                { required: true, message: "Бараа материалын нэр заавал" },
-              ]}
-            >
-              <NewInput disabled />
-            </Form.Item>
-          );
-        }}
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "name"]}
+            rules={[{ required: true, message: "Бараа материалын нэр заавал" }]}
+          >
+            <NewInput disabled />
+          </Form.Item>
+        )}
       />
       <Column
         dataIndex={"measurement"}
         title="Хэмжих нэгж"
-        render={(_, __, index) => {
-          return (
-            <Form.Item
-              name={[index, "measurement"]}
-              rules={[{ required: true, message: "Хэмжих нэгж заавал" }]}
-            >
-              <NewInput disabled />
-            </Form.Item>
-          );
-        }}
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "measurement"]}
+            rules={[{ required: true, message: "Хэмжих нэгж заавал" }]}
+          >
+            <NewInput disabled />
+          </Form.Item>
+        )}
       />
       <Column
         dataIndex={"countPackage"}
         title="Багц доторх тоо"
-        render={(_, __, index) => {
-          return (
-            <Form.Item
-              name={[index, "countPackage"]}
-              rules={[{ required: true, message: "Багц доторх тоо заавал" }]}
-            >
-              <NewInput disabled />
-            </Form.Item>
-          );
-        }}
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "countPackage"]}
+            rules={[{ required: true, message: "Багц доторх тоо заавал" }]}
+          >
+            <NewInputNumber disabled />
+          </Form.Item>
+        )}
       />
       <Column
         dataIndex={"quantity"}
         title="Орлогын тоо хэмжээ"
-        render={(_, __, index) => {
-          return (
-            <Form.Item
-              name={[index, "quantity"]}
-              rules={[{ required: true, message: "Орлогын тоо хэмжээ заавал" }]}
-            >
-              <NewInput disabled />
-            </Form.Item>
-          );
-        }}
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "quantity"]}
+            rules={[{ required: true, message: "Орлогын тоо хэмжээ заавал" }]}
+          >
+            <NewInputNumber disabled={!(index === editingIndex)} />
+          </Form.Item>
+        )}
       />
       <Column
         dataIndex={"endAt"}
         title="Дуусах хугацаа"
-        render={(_, __, index) => {
-          return (
-            <Form.Item
-              name={[index, "endAt"]}
-              rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
-            >
-              <NewDatePicker
-                disabled={!(index === editingIndex)}
-                format={"YYYY-MM-DD"}
-                locale={mnMN}
-              />
-            </Form.Item>
-          );
-        }}
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "endAt"]}
+            rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
+          >
+            <NewDatePicker
+              disabled={!(index === editingIndex)}
+              format={"YYYY-MM-DD"}
+              locale={mnMN}
+            />
+          </Form.Item>
+        )}
       />
       {/* Засах устгах хэсэг */}
       <Column

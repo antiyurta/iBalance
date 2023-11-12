@@ -80,7 +80,14 @@ const Sidebar = () => {
       getItem("Бараа материалын жагсаалт", "/jurnal"),
       getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
         getItem("Бараа материалын орлого", "/material-income"),
-        getItem("Борлуулалтын буцаалт", "/material-refund"),
+        getItem("Борлуулалтын буцаалт", "/sale-return"),
+      ]),
+      getItem("Зарлагын гүйлгээ", "/expense-transaction", <></>, [
+        getItem("Борлуулалт", "/sale-transaction"),
+        getItem("Худалдан авалтын буцаалт", "/refund-purchase"),
+        getItem("Үйл ажиллагаанд", "/action-transaction"),
+        getItem("Акт, хорогдол, устгал", "/act-transaction"),
+        getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
       ]),
     ]),
     getItem("Төлбөр тооцоо", "/payments", <WindowsOutlined />, [

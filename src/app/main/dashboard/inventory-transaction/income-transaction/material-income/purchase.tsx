@@ -1,15 +1,55 @@
 import NewCard from "@/components/Card";
-import { NewDatePicker, NewInput } from "@/components/input";
+import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space } from "antd";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import Image from "next/image";
-import { EditableTableIncome } from "./editableTableIncome";
-import { useEffect } from "react";
+import { EditableTablePurchase } from "./editableTablePurchase";
+import { useEffect, useState } from "react";
+import {
+  IDataWarehouse,
+  IParamWarehouse,
+} from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
+import { ConsumerSelect } from "@/components/consumer-select";
+import {
+  IDataReference,
+  IParamReference,
+  IType,
+} from "@/service/reference/entity";
+import { ReferenceService } from "@/service/reference/reference";
+import { IDataDocument } from "@/service/document/entities";
+import { DocumentService } from "@/service/document/service";
 
-export const SaveIncome = () => {
+export const Purchase = () => {
   const [form] = Form.useForm();
-  
-  const onFinish = async (values: any) => {};
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [incomeTypes, setIncomeTypes] = useState<IDataReference[]>([]);
+
+  const getWarehouses = (params: IParamWarehouse) => {
+    WarehouseService.get(params).then((response) => {
+      if (response.success) {
+        setWarehouses(response.response.data);
+      }
+    });
+  };
+  const getIncomeTypes = (params: IParamReference) => {
+    ReferenceService.get(params).then((response) => {
+      if (response.success) {
+        setIncomeTypes(response.response.data);
+      }
+    });
+  };
+  useEffect(() => {
+    getWarehouses({});
+    getIncomeTypes({
+      type: IType.MATERIAL_INCOME_TYPE,
+    });
+  }, []);
+  const onFinish = async (values: IDataDocument) => {
+    await DocumentService.postIncome(values).then((response) => {
+      if (response.success) form.resetFields();
+    });
+  };
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -44,29 +84,14 @@ export const SaveIncome = () => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item
-                  label="Огноо"
-                  name="commandAt"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Тушаалын огноо оруулна уу.",
-                    },
-                  ]}
-                >
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
-                  />
+                <Form.Item label="Огноо" name="date">
+                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} disabled />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item
                   label="Байршил"
-                  name="commandNo"
+                  name="warehouseId"
                   rules={[
                     {
                       required: true,
@@ -74,33 +99,23 @@ export const SaveIncome = () => {
                     },
                   ]}
                 >
-                  <NewInput />
+                  <NewFilterSelect
+                    options={warehouses.map((warehouse) => ({
+                      value: warehouse.id,
+                      label: warehouse.name,
+                    }))}
+                  />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item
-                  label="Нийлүүлэгчийн нэр"
-                  name="ruleAt"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Заавал",
-                    },
-                  ]}
-                >
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
-                  />
+                <Form.Item label="Нийлүүлэгчийн нэр">
+                  <ConsumerSelect form={form} rules={[]} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item
                   label="Гүйлгээний төрөл"
-                  name="ruleAt"
+                  name="sectionId"
                   rules={[
                     {
                       required: true,
@@ -108,19 +123,18 @@ export const SaveIncome = () => {
                     },
                   ]}
                 >
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
+                  <NewFilterSelect
+                    options={incomeTypes.map((incomeType) => ({
+                      value: incomeType.id,
+                      label: incomeType.name,
+                    }))}
                   />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item
                   label="Гүйлгээний утга"
-                  name="ruleAt"
+                  name="description"
                   rules={[
                     {
                       required: true,
@@ -128,13 +142,7 @@ export const SaveIncome = () => {
                     },
                   ]}
                 >
-                  <NewDatePicker
-                    style={{
-                      width: "100%",
-                    }}
-                    format={"YYYY-MM-DD"}
-                    locale={mnMN}
-                  />
+                  <NewInput />
                 </Form.Item>
               </Col>
             </Row>
@@ -150,7 +158,7 @@ export const SaveIncome = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableIncome
+                  <EditableTablePurchase
                     data={items}
                     form={form}
                     add={add}

@@ -64,7 +64,7 @@ const PaymentMethodPage = () => {
     },
   ];
   const getData = async () => {
-    await ReferencePaymentMethodService.get().then((response) => {
+    await ReferencePaymentMethodService.get({}).then((response) => {
       if (response.success) {
         setData(response.response.data);
       }

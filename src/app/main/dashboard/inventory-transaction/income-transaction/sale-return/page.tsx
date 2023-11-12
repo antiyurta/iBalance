@@ -1,12 +1,12 @@
 "use client";
 import { Col, Input, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Purchase } from "./purchase";
+import { SaleReturn } from "./sale-return";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
 const { Title } = Typography;
-const TransactionIncomePage = () => {
+const TransactionRefundPage = () => {
   const items = [
     {
       label: (
@@ -16,17 +16,17 @@ const TransactionIncomePage = () => {
         </div>
       ),
       key: "item-1",
-      children: <Purchase />,
+      children: <SaleReturn />,
     },
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.Purchase} />,
+      children: <DocumentList movingStatus={MovingStatus.SaleReturn} />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <TransactionList movingStatus={MovingStatus.Purchase} />,
+      children: <TransactionList movingStatus={MovingStatus.SaleReturn} />,
     },
   ];
   return (
@@ -34,7 +34,7 @@ const TransactionIncomePage = () => {
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
           <Title level={3}>
-            Бараа материал /Орлогын гүйлгээ/Бараа материалын орлого
+            Бараа материал /Орлогын гүйлгээ/Борлуулалтын буцаалт
           </Title>
         </Space>
       </Col>
@@ -44,4 +44,4 @@ const TransactionIncomePage = () => {
     </Row>
   );
 };
-export default TransactionIncomePage;
+export default TransactionRefundPage;

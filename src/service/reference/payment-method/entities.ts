@@ -1,4 +1,4 @@
-import { GenericResponse, IData, Meta } from "@/service/entities";
+import { GenericResponse, IData, IParam, Meta } from "@/service/entities";
 /** Төлбөрийн хэлбэр */
 export enum PaymentType {
   /** Бэлэн */
@@ -15,7 +15,11 @@ export interface IDataReferencePaymentMethod extends IData {
   type: PaymentType;
   isActive: boolean;
 }
-
+export interface IParamPaymentMethod extends IParam {
+  name?: string;
+  type?: PaymentType;
+  isActive?: boolean;
+}
 export interface IResponsePaymentMethods extends GenericResponse {
   response: {
     data: IDataReferencePaymentMethod[];

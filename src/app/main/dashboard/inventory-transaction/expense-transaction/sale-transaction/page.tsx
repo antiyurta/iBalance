@@ -1,32 +1,34 @@
 "use client";
-import { Col, Input, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Purchase } from "./purchase";
+import TransactionSale from "./sale";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
+
 const { Title } = Typography;
-const TransactionIncomePage = () => {
+
+const TransactionSalePage = () => {
   const items = [
     {
       label: (
         <div>
           <PlusCircleOutlined />
-          Орлого бүртгэх
+          Зарлага бүртгэх
         </div>
       ),
       key: "item-1",
-      children: <Purchase />,
+      children: <TransactionSale />,
     },
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.Purchase} />,
+      children: <DocumentList movingStatus={MovingStatus.SaleReturn} />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <TransactionList movingStatus={MovingStatus.Purchase} />,
+      children: <TransactionList movingStatus={MovingStatus.SaleReturn} />,
     },
   ];
   return (
@@ -34,7 +36,7 @@ const TransactionIncomePage = () => {
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
           <Title level={3}>
-            Бараа материал /Орлогын гүйлгээ/Бараа материалын орлого
+            Бараа материал / Зарлагын гүйлгээ/ Борлуулалт
           </Title>
         </Space>
       </Col>
@@ -44,4 +46,4 @@ const TransactionIncomePage = () => {
     </Row>
   );
 };
-export default TransactionIncomePage;
+export default TransactionSalePage;
