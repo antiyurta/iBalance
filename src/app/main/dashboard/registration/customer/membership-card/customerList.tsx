@@ -7,7 +7,7 @@ import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
-import { Meta } from "@/service/entities";
+import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -19,7 +19,6 @@ import {
   IParamConsumer,
 } from "@/service/consumer/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import { defaultColumnConsumerMembership } from "@/service/consumer/membership/entities";
 import NewModal from "@/components/modal";
 
 interface IProps {
@@ -39,9 +38,120 @@ const CustomerList = (props: IProps) => {
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterConsumer>();
-  const [columns, setColumns] = useState<FilteredColumnsConsumer>(
-    defaultColumnConsumerMembership
-  );
+  const [columns, setColumns] = useState<FilteredColumnsConsumer>({
+    code: {
+      label: "Харилцагчийн код",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "code",
+      type: DataIndexType.MULTI,
+    },
+    isIndividual: {
+      label: "Хувь хүн эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isIndividual",
+      type: DataIndexType.BOOLEAN,
+    },
+    isEmployee: {
+      label: "Ажилтан эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isEmployee",
+      type: DataIndexType.BOOLEAN,
+    },
+    lastName: {
+      label: "Харилцагчийн овог",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "lastName",
+      type: DataIndexType.MULTI,
+    },
+    name: {
+      label: "Харилцагчийн нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "name",
+      type: DataIndexType.MULTI,
+    },
+    sectionId: {
+      label: "Харилцагчийн бүлэг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["section", "name"],
+      type: DataIndexType.STRING_SECTION,
+    },
+    regno: {
+      label: "Регистр №",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "regno",
+      type: DataIndexType.MULTI,
+    },
+    phone: {
+      label: "Утасны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "phone",
+      type: DataIndexType.MULTI,
+    },
+    address: {
+      label: "Хаяг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "address",
+      type: DataIndexType.MULTI,
+    },
+    bankId: {
+      label: "Банкны нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["bank", "name"],
+      type: DataIndexType.MULTI,
+    },
+    bankAccountNo: {
+      label: "Дансны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "bankAccountNo",
+      type: DataIndexType.MULTI,
+    },
+    email: {
+      label: "И-мэйл хаяг",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "email",
+      type: DataIndexType.MULTI,
+    },
+    isActive: {
+      label: "Төлөв",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isActive",
+      type: DataIndexType.BOOLEAN,
+    },
+    createdAt: {
+      label: "Карт нээсэн огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "createdAt",
+      type: DataIndexType.DATE,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
+    },
+  });
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
   //
   const getData = async (params: IParamConsumer) => {
@@ -137,7 +247,7 @@ const CustomerList = (props: IProps) => {
                         getData: (params) => getData(params),
                       })
                     }
-                    defaultColumns={defaultColumnConsumerMembership}
+                    defaultColumns={columns}
                   />
                   <Image
                     src={"/images/PrintIcon.svg"}

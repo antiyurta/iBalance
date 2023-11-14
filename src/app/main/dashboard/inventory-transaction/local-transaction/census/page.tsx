@@ -4,6 +4,7 @@ import { PlusCircleOutlined } from "@ant-design/icons";
 // import TransactionMove from "./transaction-move";
 import { DocumentList } from "../../document-list";
 import { MovingStatus } from "@/service/document/entities";
+import TransactionCencus from "./TransactionCencus";
 
 const { Title } = Typography;
 
@@ -17,12 +18,12 @@ const TransactionCensusPage = () => {
         </div>
       ),
       key: "item-1",
-    //   children: <TransactionMove />,
+      children: <TransactionCencus />,
     },
     {
       label: "Тооллогын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.MovementInWarehouse} />,
+      children: <DocumentList movingStatus={MovingStatus.Cencus} />,
     },
   ];
   return (

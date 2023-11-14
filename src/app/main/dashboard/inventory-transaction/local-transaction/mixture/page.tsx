@@ -1,10 +1,10 @@
 "use client";
 import { Col, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-// import TransactionMove from "./transaction-move";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
+import TransactionMixture from "./TransactionMixture";
 
 const { Title } = Typography;
 
@@ -18,17 +18,17 @@ const TransactionCensusPage = () => {
         </div>
       ),
       key: "item-1",
-    //   children: <TransactionMove />,
+      children: <TransactionMixture />,
     },
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.MovementInWarehouse} />,
+      children: <DocumentList movingStatus={MovingStatus.Mixture} />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <TransactionList movingStatus={MovingStatus.MovementInWarehouse} />,
+      children: <TransactionList movingStatus={MovingStatus.Mixture} />,
     },
   ];
   return (

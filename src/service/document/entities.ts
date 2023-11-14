@@ -30,6 +30,10 @@ export enum MovingStatus {
   MovementInWarehouse = 'MOVEMENT_IN_WAREHOUSE',
   /** Барааны хөрвүүлэг */
   ItemConversion = 'ITEM_CONVERSION',
+  /** Хольц */
+  Mixture = 'MIXTURE',
+  /** Тооллого */
+  Cencus = 'CENCUS',
 }
 export interface IDataDocument extends IData {
   id?: number;
