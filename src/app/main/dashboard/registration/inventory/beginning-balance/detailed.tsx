@@ -11,56 +11,56 @@ import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { Col, Row, Space } from "antd";
 import {
-  FilteredColumnsWarehouseBalance,
-  IDataWarehouseBalance,
-  IFilterWarehouseBalance,
-  IParamWarehouseBalance,
-} from "@/service/material/balance/warehouse-balance/entites";
-import { WarehouseBalanceService } from "@/service/material/balance/warehouse-balance/service";
+  FilteredColumnsBalance,
+  IDataBalance,
+  IFilterBalance,
+  IParamBalance,
+} from "@/service/material/balance/entities";
+import { BalanceService } from "@/service/material/balance/service";
 
 const Detailed = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [data, setData] = useState<IDataWarehouseBalance[]>([]);
-  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterWarehouseBalance>();
-  const [params, setParams] = useState<IParamWarehouseBalance>({
+  const [data, setData] = useState<IDataBalance[]>([]);
+  const [params, setParams] = useState<IParamBalance>({
     page: 1,
     limit: 10,
   });
-  const [columns, setColumns] = useState<FilteredColumnsWarehouseBalance>({
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [filters, setFilters] = useState<IFilterBalance>();
+  const [columns, setColumns] = useState<FilteredColumnsBalance>({
     materialCode: {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "code"],
+      dataIndex: ["material", "code"],
       type: DataIndexType.MULTI,
     },
     materialName: {
       label: "Барааны нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "name"],
+      dataIndex: ["material", "name"],
       type: DataIndexType.MULTI,
     },
     materialSectionId: {
       label: "Бараа материалын бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "section", "name"],
+      dataIndex: ["material", "section", "name"],
       type: DataIndexType.MULTI,
     },
     materialMeasurementId: {
       label: "Хэмжих нэгж",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "measurement", "name"],
+      dataIndex: ["material", "measurement", "name"],
       type: DataIndexType.MULTI,
     },
     materialCountPackage: {
       label: "Багц доторх тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "countPackage"],
+      dataIndex: ["material", "countPackage"],
       type: DataIndexType.MULTI,
     },
     warehouseId: {
@@ -78,16 +78,19 @@ const Detailed = () => {
       type: DataIndexType.NUMBER,
     },
   });
-  const getData = async (params: IParamWarehouseBalance) => {
+  const getData = async (params: IParamBalance) => {
     blockContext.block();
-    await WarehouseBalanceService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
-    blockContext.unblock();
+    await BalanceService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getData(params);
@@ -166,8 +169,6 @@ const Detailed = () => {
           newParams={params}
           onParams={(params) => setParams(params)}
           incomeFilters={filters}
-          onEdit={(row) => console.log(row)}
-          onDelete={(id) => console.log(id)}
         />
       </Col>
     </Row>

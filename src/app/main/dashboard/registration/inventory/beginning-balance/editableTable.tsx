@@ -19,6 +19,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import "dayjs/locale/mn";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { NewDatePicker, NewFilterSelect } from "@/components/input";
 
 interface IProps {
   data: FormListFieldData[];
@@ -125,7 +126,6 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
       )}
     >
       <Column
-        width={50}
         dataIndex="warehouseId"
         title="Байршил"
         render={(_, __, index) => (
@@ -133,20 +133,41 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
             name={[index, "warehouseId"]}
             rules={[{ required: true, message: "Байршил заавал" }]}
           >
-            <Select showSearch allowClear>
-              {warehouses?.map((warehouse, index) => {
-                return (
-                  <Option key={index} value={warehouse.id}>
-                    {warehouse.name}
-                  </Option>
-                );
-              })}
-            </Select>
+            <NewFilterSelect
+              options={warehouses.map((warehouse) => ({
+                value: warehouse.id,
+                label: warehouse.name,
+              }))}
+              disabled={editingIndex !== index}
+            />
           </Form.Item>
         )}
       />
       <Column
-        width={50}
+        dataIndex="purchaseAt"
+        title="Худалдан авсан огноо"
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "purchaseAt"]}
+            rules={[{ required: true, message: "Худалдан авсан огноо заавал" }]}
+          >
+            <NewDatePicker disabled={editingIndex !== index} />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex="expirationAt"
+        title="Хугацаа дуусах огноо"
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "expirationAt"]}
+            rules={[{ required: true, message: "Хугацаа дуусах огноо заавал" }]}
+          >
+            <NewDatePicker disabled={editingIndex !== index} />
+          </Form.Item>
+        )}
+      />
+      <Column
         dataIndex="quantity"
         title="Эхний үлдэгдэл"
         render={(_, __, index) => (
@@ -154,7 +175,7 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Эхний үлдэгдэл заавал" }]}
           >
-            <InputNumber />
+            <InputNumber disabled={editingIndex !== index} />
           </Form.Item>
         )}
       />

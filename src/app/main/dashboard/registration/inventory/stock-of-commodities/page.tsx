@@ -31,7 +31,7 @@ const StockOfCommoditiesPage = () => {
       label: "Бараа материалын жагсаалт",
       key: "item-1",
       children: (
-        <Thumbnail isReload={isReload} onEdit={(row) => openModal(true, row)} />
+        <Thumbnail onEdit={(row) => openModal(true, row)} />
       ),
     },
     {

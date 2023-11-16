@@ -34,13 +34,11 @@ import { MaterialSectionService } from "@/service/material/section/service";
 
 const { Title } = Typography;
 interface IProps {
-  isReload: boolean;
   onEdit: (row: IDataMaterial) => void;
 }
 
 const Thumbnail = (props: IProps) => {
-
-  const {isReload, onEdit } = props;
+  const { onEdit } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [params, setParams] = useState<IParamMaterial>({
     page: 1,
@@ -149,10 +147,8 @@ const Thumbnail = (props: IProps) => {
   };
   useEffect(() => {
     getMaterialSections();
-  }, []);
-  useEffect(() => {
     getData(params);
-  }, [isReload]);
+  }, []);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
