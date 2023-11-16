@@ -14,7 +14,7 @@ export interface IDataWarehouse extends IData {
   section: IDataTreeSection;
   provinceId: number;
   districtId: number;
-  userId: number; // Хариуцсан нярав
+  userIds: number[]; // Хариуцсан нярав
   fileId: number;
   code: string;
   name: string;
@@ -29,7 +29,7 @@ export interface IFilterWarehouse extends IFilter {
   names?: string[];
   provinceId?: number[];
   districtId?: number[];
-  userId?: number[];
+  userIds?: number[];
   address?: string[];
   fileId?: number[];
   isActive?: string[];

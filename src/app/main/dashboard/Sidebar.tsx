@@ -43,7 +43,7 @@ const Sidebar = () => {
         getItem("Авлага дансны бүртгэл", "/receivable-account"),
         getItem("Гишүүнчлэлийн бүртгэл", "/membership-card"),
         getItem("Зээлийн лимит", "/limit-of-loans"),
-        getItem("Эхний үлдэгдэл", "/beginning-balance"),
+        getItem("Эхний үлдэгдэл", "/customer-balance"),
       ]),
       getItem("Бараа материал", "/inventory", <AppstoreOutlined />, [
         getItem("Бүртгэл", "/inventories-registration"),

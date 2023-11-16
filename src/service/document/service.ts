@@ -34,6 +34,12 @@ function postConversion(body: IDataDocument): Promise<IResponseDocuments> {
 function postMixture(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/mixture", body);
 }
+function postCensus(body: IDataDocument): Promise<IResponseDocuments> {
+  return api.post("transaction-document/census", body);
+}
+function postPurchaseReturn(body: IDataDocument): Promise<IResponseDocuments> {
+  return api.post("transaction-document/purchase-return", body);
+}
 function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
   return api.patch(`transaction-document/${id}`, body);
 }
@@ -51,6 +57,8 @@ export const DocumentService = {
   postMove,
   postConversion,
   postMixture,
+  postCensus,
+  postPurchaseReturn,
   patch,
   remove,
 };

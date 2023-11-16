@@ -1,9 +1,14 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
-import { NewInput, NewInputNumber } from "@/components/input";
+import {
+  NewDatePicker,
+  NewFilterSelect,
+  NewInput,
+  NewInputNumber,
+} from "@/components/input";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
 import {
   SaveOutlined,
@@ -12,6 +17,12 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import {
+  IDataDocument,
+  IParamDocument,
+  MovingStatus,
+} from "@/service/document/entities";
+import { DocumentService } from "@/service/document/service";
 
 interface IProps {
   data: FormListFieldData[];
@@ -19,11 +30,12 @@ interface IProps {
   add: () => void;
   remove: (index: number) => void;
 }
-export const EditableTableAct = (props: IProps) => {
+export const EditableTableRefundPurchase = (props: IProps) => {
   const { message } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
+  const [documents, setDocuments] = useState<IDataDocument[]>([]);
 
   const onSave = async () => {
     return form
@@ -33,6 +45,8 @@ export const EditableTableAct = (props: IProps) => {
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
         ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "date"],
+        ["transactions", editingIndex, "refundDocumentId"],
       ])
       .then(() => {
         setNewService(false);
@@ -71,6 +85,17 @@ export const EditableTableAct = (props: IProps) => {
   const onRemove = (index: number) => {
     remove(index);
   };
+  const getDocuments = () => {
+    const params: IParamDocument = { movingStatus: MovingStatus.Purchase };
+    DocumentService.get(params).then((response) => {
+      if (response.success) {
+        setDocuments(response.response.data);
+      }
+    });
+  };
+  useEffect(() => {
+    getDocuments();
+  }, []);
   return (
     <Table
       dataSource={data}
@@ -122,7 +147,7 @@ export const EditableTableAct = (props: IProps) => {
                 ["transactions", index, "name"],
                 ["transactions", index, "measurement"],
                 ["transactions", index, "countPackage"],
-                ["transactions", index, "unitAmount"],
+                ["transactions", index, "lastQty"],
               ]);
             }}
             onSelect={(value) => {
@@ -132,7 +157,7 @@ export const EditableTableAct = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
-                    unitAmount: value.unitAmount,
+                    lastQty: value.lastQty,
                     quantity: 1,
                   },
                 },
@@ -169,19 +194,10 @@ export const EditableTableAct = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"countPackage"}
+        dataIndex={"lastQty"}
         title="Агуулахын үлдэгдэл"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
-            <NewInputNumber disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"unitAmount"}
-        title="Нэгжийн үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
+          <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
@@ -194,8 +210,36 @@ export const EditableTableAct = (props: IProps) => {
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
           >
-            <NewInputNumber
+            <NewInputNumber disabled={!(index === editingIndex)} />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"date"}
+        title="Буцаалтын огноо"
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "date"]}
+            rules={[{ required: true, message: "Буцаалтын огноо заавал" }]}
+          >
+            <NewDatePicker disabled={!(index === editingIndex)} />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"refundDocumentId"}
+        title="Буцаалтын баримтын дугаар"
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "refundDocumentId"]}
+            rules={[{ required: true, message: "Буцаалтын баримтын дугаар" }]}
+          >
+            <NewFilterSelect
               disabled={!(index === editingIndex)}
+              options={documents.map((document) => ({
+                value: document.id,
+                label: document.description,
+              }))}
             />
           </Form.Item>
         )}

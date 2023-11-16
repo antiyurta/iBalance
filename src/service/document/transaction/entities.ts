@@ -18,7 +18,8 @@ export interface IDataTransaction extends IData {
   quantity: number;
   amount: number;
   discountAmount: number;
-  endAt: Date;
+  date: Date;
+  excessOrDeficiency: number;
 }
 
 export interface IFilterTransaction extends IFilter {
@@ -31,7 +32,7 @@ export interface IFilterTransaction extends IFilter {
   consumerName?: string[];
   description?: string[];
   sectionName?: string[];
-  endAt?: string[];
+  date?: string[];
   movingStatus?: MovingStatus;
 }
 

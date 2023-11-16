@@ -6,7 +6,7 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Tabs } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
@@ -16,42 +16,71 @@ import { EditableTableCencus } from "./editableTableCencus";
 import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { MaterialType } from "@/service/material/entities";
+import { IParamUser, IUser } from "@/service/authentication/entities";
+import { authService } from "@/service/authentication/service";
 
 const TransactionCencus = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [warehouseDict, setWarehouseDict] =
+    useState<Map<number, IDataWarehouse>>();
+  const [users, setUsers] = useState<IUser[]>([]);
+  const warehouseId = Form.useWatch("warehouseId", form);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
+        setWarehouseDict(
+          warehouses.reduce((dict, warehouse) => {
+            dict.set(warehouse.id, warehouse);
+            return dict;
+          }, new Map<number, IDataWarehouse>())
+        );
       }
     });
   };
   const getMaterials = async (params: IParamViewMaterial) => {
-    await ViewMaterialService.get(params).then((response) => {
+    form.validateFields(["warehouseId"]).then(async () => {
+      await ViewMaterialService.get(params).then((response) => {
+        if (response.success) {
+          const materials = response.response.data.map((response) => ({
+            materialId: response.id,
+            name: response.name,
+            measurement: response.measurementName,
+            countPackage: response.countPackage,
+            unitAmount: response.unitAmount,
+            lastQty: response.lastQty,
+          }));
+          form.setFieldsValue({ transactions: materials });
+        }
+      });
+    });
+  };
+  const getUsers = async (params: IParamUser) => {
+    authService.getAllUsers(params).then((response) => {
       if (response.success) {
-        const materials = response.response.data.map((response) => ({
-          materialId: response.id,
-          name: response.name,
-          measurement: response.measurementName,
-          countPackage: response.countPackage,
-          unitAmount: response.unitAmount,
-        }));
-        console.log("transactions =====>", materials);
-        form.setFieldsValue({ transactions: materials });
+        setUsers(response.response);
       }
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postMixture(values).then((response) => {
+    await DocumentService.postCensus(values).then((response) => {
       if (response.success) form.resetFields();
     });
   };
   useEffect(() => {
     getWarehouses({});
-    getMaterials({ types: [MaterialType.Material] });
   }, []);
+  useEffect(() => {
+    getMaterials({
+      warehouseId,
+      types: [MaterialType.Material],
+    });
+    if ((warehouseDict?.get(warehouseId)?.userIds || []).length > 0) {
+      getUsers({ ids: warehouseDict?.get(warehouseId)?.userIds });
+    }
+  }, [warehouseId]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -83,7 +112,7 @@ const TransactionCencus = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4,1fr)",
+                gridTemplateColumns: "repeat(5,1fr)",
                 gap: 12,
               }}
             >
@@ -102,6 +131,18 @@ const TransactionCencus = () => {
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
                     label: warehouse.name,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Хариуцсан нярав"
+                name="userId"
+                rules={[{ required: true, message: "Хариуцсан нярав оруулна уу" }]}
+              >
+                <NewFilterSelect
+                  options={users.map((user) => ({
+                    value: user.id,
+                    label: `${user.lastName}. ${user.firstName}`,
                   }))}
                 />
               </Form.Item>

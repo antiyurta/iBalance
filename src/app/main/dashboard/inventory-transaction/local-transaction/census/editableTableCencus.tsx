@@ -26,6 +26,31 @@ export const EditableTableCencus = (props: IProps) => {
   const [editingIndex, setEditingIndex] = useState<number>();
 
   const onSave = async () => {
+    if (editingIndex !== undefined) {
+      const quantity = form.getFieldValue([
+        "transactions",
+        editingIndex,
+        "quantity",
+      ]);
+      const lastQty = form.getFieldValue([
+        "transactions",
+        editingIndex,
+        "lastQty",
+      ]);
+      const unitAmount = form.getFieldValue([
+        "transactions",
+        editingIndex,
+        "unitAmount",
+      ]);
+      form.setFieldsValue({
+        transactions: {
+          [editingIndex]: {
+            excessOrDeficiency: quantity - lastQty,
+            amount: (quantity - lastQty) * unitAmount,
+          },
+        },
+      });
+    }
     return form
       .validateFields([
         ["transactions"],
@@ -132,6 +157,7 @@ export const EditableTableCencus = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
+                    lastQty: value.lastQty,
                     quantity: 1,
                   },
                 },
@@ -177,10 +203,10 @@ export const EditableTableCencus = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"countPackage"}
+        dataIndex={"lastQty"}
         title="Тооллохын өмнөх үлдэгдэл"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
+          <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
@@ -198,31 +224,28 @@ export const EditableTableCencus = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"excessOrDeficiency"}
         title="Илүүдэл (дутагдал)"
         render={(_, __, index) => (
-          <Form.Item name={[index, "quantity"]}>
+          <Form.Item name={[index, "excessOrDeficiency"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"amount"}
         title="Борлуулалтын үнээрх дүн"
         render={(_, __, index) => (
-          <Form.Item name={[index, "quantity"]}>
+          <Form.Item name={[index, "amount"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"description"}
         title="Гүйлгээний утга"
         render={(_, __, index) => (
-          <Form.Item
-            name={[index, "quantity"]}
-            rules={[{ required: true, message: "Гүйлгээний утга заавал" }]}
-          >
+          <Form.Item name={[index, "description"]}>
             <NewInput disabled={!(index === editingIndex)} />
           </Form.Item>
         )}

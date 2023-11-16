@@ -79,7 +79,7 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
     },
-    userId: {
+    userIds: {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
@@ -119,7 +119,6 @@ const StoragiesRegistration = (props: IProps) => {
     setIsEdit(state);
     form.resetFields();
     if (state && row) {
-      console.log("row =========>", row);
       form.setFieldsValue(row);
       setSelectedRow(row);
     }
@@ -478,7 +477,7 @@ const StoragiesRegistration = (props: IProps) => {
               />
             </Form.Item>
             <Form.Item label="Хариуцсан нярав">
-              <UserSelect form={form} rules={[]} name="userId" />
+              <UserSelect form={form} rules={[]} name="userIds" isMultiple={true} />
             </Form.Item>
             <Form.Item label="Байршлын хаяг" name="address">
               <TextArea />

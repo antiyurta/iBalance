@@ -14,9 +14,10 @@ interface IProps {
   rules: Rule[];
   /** default => userId */
   name?: string;
+  isMultiple?: boolean;
 }
 export const UserSelect = (props: IProps) => {
-  const { form, rules, name } = props;
+  const { form, rules, name, isMultiple } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [users, setUsers] = useState<IUser[]>([]);
   const [filters, setFilters] = useState<IFilterUser>();
@@ -99,6 +100,7 @@ export const UserSelect = (props: IProps) => {
             style={{
               width: "100%",
             }}
+            mode={isMultiple ? "multiple" : undefined }
             options={users.map((user) => ({
               value: user.id,
               label: `${user.lastName?.substring(0, 1)}. ${user.firstName}`,

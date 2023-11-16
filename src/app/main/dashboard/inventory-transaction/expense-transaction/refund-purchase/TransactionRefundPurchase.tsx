@@ -10,16 +10,12 @@ import { Button, Col, Form, Row, Space } from "antd";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
-import {
-  NewDatePicker,
-  NewFilterSelect,
-  NewInput,
-} from "@/components/input";
+import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableAct } from "./editableTableAct";
+import { EditableTableRefundPurchase } from "./editableTableRefundPurchase";
 
-const TransactionAct = () => {
+const TransactionRefundPurchase = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
 
@@ -31,7 +27,7 @@ const TransactionAct = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postAct(values).then((response) => {
+    await DocumentService.postPurchaseReturn(values).then((response) => {
       if (response.success) form.resetFields();
     });
   };
@@ -91,24 +87,24 @@ const TransactionAct = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Харилцагчийн код, нэр">
+              <Form.Item label="Нийлүүлэгчийн нэр">
                 <ConsumerSelect
                   form={form}
                   rules={[
                     {
                       required: true,
-                      message: "Харилцагчийн код, нэр оруулна уу.",
+                      message: "Нийлүүлэгчийн нэр оруулна уу.",
                     },
                   ]}
                 />
               </Form.Item>
               <Form.Item
-                label="Гүйлгээний утга"
+                label="Буцаалтын шалтгаан"
                 name="description"
                 rules={[
                   {
                     required: true,
-                    message: "Гүйлгээний утга оруулна уу.",
+                    message: "Буцаалтын шалтгаан оруулна уу.",
                   },
                 ]}
               >
@@ -128,7 +124,7 @@ const TransactionAct = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableAct
+                  <EditableTableRefundPurchase
                     data={items}
                     form={form}
                     add={add}
@@ -163,4 +159,4 @@ const TransactionAct = () => {
     </Row>
   );
 };
-export default TransactionAct;
+export default TransactionRefundPurchase;
