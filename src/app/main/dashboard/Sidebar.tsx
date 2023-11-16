@@ -43,7 +43,7 @@ const Sidebar = () => {
         getItem("Авлага дансны бүртгэл", "/receivable-account"),
         getItem("Гишүүнчлэлийн бүртгэл", "/membership-card"),
         getItem("Зээлийн лимит", "/limit-of-loans"),
-        getItem("Эхний үлдэгдэл", "/beginning-balance"),
+        getItem("Эхний үлдэгдэл", "/customer-balance"),
       ]),
       getItem("Бараа материал", "/inventory", <AppstoreOutlined />, [
         getItem("Бүртгэл", "/inventories-registration"),
@@ -88,6 +88,11 @@ const Sidebar = () => {
         getItem("Үйл ажиллагаанд", "/action-transaction"),
         getItem("Акт, хорогдол, устгал", "/act-transaction"),
         getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
+      ]),
+      getItem("Дотоод гүйлгээ", "/local-transaction", <></>, [
+        getItem("Бараа материалын хөрвүүлэг", "/converter"),
+        getItem("Бараа материалын хольц", "/mixture"),
+        getItem("Тооллого", "/census"),
       ]),
     ]),
     getItem("Төлбөр тооцоо", "/payments", <WindowsOutlined />, [

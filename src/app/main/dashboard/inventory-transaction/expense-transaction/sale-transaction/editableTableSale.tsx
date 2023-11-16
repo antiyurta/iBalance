@@ -1,11 +1,10 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
+import { NewInput, NewInputNumber } from "@/components/input";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useEffect, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import {
   SaveOutlined,
   CloseOutlined,
@@ -13,6 +12,8 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import { IDataDiscount } from "@/service/command/discount/entities";
+import { IDataTransaction } from "@/service/document/transaction/entities";
 
 interface IProps {
   data: FormListFieldData[];
@@ -25,6 +26,9 @@ export const EditableTableSale = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
+  const [quantity, setQuantity] = useState<number>(1);
+  const [discountDictionary, setDiscountDictionary] =
+    useState<Map<number, IDataDiscount>>();
   const onSave = async () => {
     return form
       .validateFields([
@@ -38,6 +42,22 @@ export const EditableTableSale = (props: IProps) => {
       .then(() => {
         setNewService(false);
         setEditingIndex(undefined);
+        const transactions = form.getFieldValue("transactions") || [];
+        const amount = transactions.reduce(
+          (sum: number, transaction: IDataTransaction) =>
+            sum + (transaction.amount || 0),
+          0
+        );
+        const discountAmount = transactions.reduce(
+          (sum: number, transaction: IDataTransaction) =>
+            sum + (transaction.discountAmount || 0),
+          0
+        );
+        form.setFieldsValue({
+          amount,
+          discountAmount,
+          payAmount: amount - discountAmount,
+        });
         return true;
       })
       .catch((error) => {
@@ -46,6 +66,15 @@ export const EditableTableSale = (props: IProps) => {
         });
         return false;
       });
+  };
+  const addService = () => {
+    onSave().then((state) => {
+      if (state) {
+        add();
+        setEditingIndex(data.length);
+        setNewService(true);
+      }
+    });
   };
   const onCancel = (index: number) => {
     if (isNewService) {
@@ -66,12 +95,49 @@ export const EditableTableSale = (props: IProps) => {
     form.setFieldValue("amount", limitAmount - amount);
     remove(index);
   };
+  const getDiscountAmount = (
+    unitAmount: number,
+    quantity: number,
+    discount: IDataDiscount
+  ) => {
+    const amount = unitAmount * quantity;
+    if (discount.percent > 0) {
+      return (amount * discount.percent) / 100;
+    } else if (discount.amount > 0) {
+      return discount.amount * quantity;
+    }
+  };
+  useEffect(() => {
+    if (editingIndex !== undefined) {
+      const unitAmount = form.getFieldValue([
+        "transactions",
+        editingIndex,
+        "unitAmount",
+      ]);
+      const discount = discountDictionary?.get(editingIndex);
+      if (discount) {
+        const discountAmount = getDiscountAmount(
+          unitAmount,
+          quantity,
+          discount
+        );
+        form.setFieldsValue({
+          transactions: {
+            [editingIndex]: {
+              amount: unitAmount * quantity,
+              discountAmount: discountAmount,
+            },
+          },
+        });
+      }
+    }
+  }, [quantity, editingIndex]);
   return (
     <Table
       dataSource={data}
       footer={() => {
         return (
-          <div className="button-editable-footer" onClick={() => add()}>
+          <div className="button-editable-footer" onClick={() => addService()}>
             <div
               style={{
                 display: "flex",
@@ -117,15 +183,33 @@ export const EditableTableSale = (props: IProps) => {
                 ["transactions", index, "name"],
                 ["transactions", index, "measurement"],
                 ["transactions", index, "countPackage"],
+                ["transactions", index, "unitAmount"],
               ]);
             }}
             onSelect={(value) => {
+              let discountAmount = 0;
+              if (value.discount) {
+                if (value.discount.isPercent)
+                  discountAmount = value.discount.percent;
+                else discountAmount = value.discount.amount;
+                setDiscountDictionary(
+                  new Map(discountDictionary).set(index, value.discount)
+                );
+              }
               form.setFieldsValue({
                 transactions: {
                   [index]: {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
+                    unitAmount: value.unitAmount,
+                    amount: value.unitAmount,
+                    quantity: 1,
+                    discountAmount: getDiscountAmount(
+                      value.unitAmount,
+                      1,
+                      value.discount
+                    ),
                   },
                 },
               });
@@ -186,25 +270,29 @@ export const EditableTableSale = (props: IProps) => {
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Борлуулах тоо хэмжээ заавал" }]}
           >
-            <NewInputNumber disabled={!(index === editingIndex)} />
+            <NewInputNumber
+              disabled={!(index === editingIndex)}
+              value={quantity}
+              onChange={(value) => setQuantity(Number(value))}
+            />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"totalAmount"}
+        dataIndex={"amount"}
         title="Нийт үнэ"
         render={(_, __, index) => (
-          <Form.Item name={[index, "totalAmount"]}>
+          <Form.Item name={[index, "amount"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"materialDiscountAmount"}
+        dataIndex={"discountAmount"}
         title="Бараа материалын үнийн хөнгөлөлт"
         render={(_, __, index) => (
-          <Form.Item name={[index, "materialDiscountAmount"]}>
-            <NewInputNumber disabled />
+          <Form.Item name={[index, "discountAmount"]}>
+            <NewInputNumber disabled suffix="₮" />
           </Form.Item>
         )}
       />

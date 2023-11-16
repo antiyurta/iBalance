@@ -1,34 +1,29 @@
 "use client";
 import { Col, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import TransactionAction from "./transaction-action";
+// import TransactionMove from "./transaction-move";
 import { DocumentList } from "../../document-list";
-import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
+import TransactionCencus from "./TransactionCencus";
 
 const { Title } = Typography;
 
-const TransactionActionPage = () => {
+const TransactionCensusPage = () => {
   const items = [
     {
       label: (
         <div>
           <PlusCircleOutlined />
-          Зарлага бүртгэх
+          Тооллого бүртгэх
         </div>
       ),
       key: "item-1",
-      children: <TransactionAction />,
+      children: <TransactionCencus />,
     },
     {
-      label: "Баримтын жагсаалт",
+      label: "Тооллогын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.InOperation} />,
-    },
-    {
-      label: "Гүйлгээний жагсаалт",
-      key: "item-3",
-      children: <TransactionList movingStatus={MovingStatus.InOperation} />,
+      children: <DocumentList movingStatus={MovingStatus.Cencus} />,
     },
   ];
   return (
@@ -36,7 +31,7 @@ const TransactionActionPage = () => {
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
           <Title level={3}>
-            Бараа материал / Зарлагын гүйлгээ/ Борлуулалт
+            Бараа материал / Бусад гүйлгээ / Тооллого
           </Title>
         </Space>
       </Col>
@@ -46,4 +41,4 @@ const TransactionActionPage = () => {
     </Row>
   );
 };
-export default TransactionActionPage;
+export default TransactionCensusPage;

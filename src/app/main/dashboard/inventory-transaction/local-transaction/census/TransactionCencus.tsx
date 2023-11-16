@@ -6,55 +6,81 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Typography, message } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
-import {
-  NewDatePicker,
-  NewFilterSelect,
-  NewInput,
-  NewInputNumber,
-} from "@/components/input";
+import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
-import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableSale } from "./editableTableSale";
-import {
-  IDataReferencePaymentMethod,
-  IParamPaymentMethod,
-} from "@/service/reference/payment-method/entities";
-import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
+import { EditableTableCencus } from "./editableTableCencus";
+import { IParamViewMaterial } from "@/service/material/view-material/entities";
+import { ViewMaterialService } from "@/service/material/view-material/service";
+import { MaterialType } from "@/service/material/entities";
+import { IParamUser, IUser } from "@/service/authentication/entities";
+import { authService } from "@/service/authentication/service";
 
-const TransactionSale = () => {
+const TransactionCencus = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<
-    IDataReferencePaymentMethod[]
-  >([]);
+  const [warehouseDict, setWarehouseDict] =
+    useState<Map<number, IDataWarehouse>>();
+  const [users, setUsers] = useState<IUser[]>([]);
+  const warehouseId = Form.useWatch("warehouseId", form);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
+        setWarehouseDict(
+          warehouses.reduce((dict, warehouse) => {
+            dict.set(warehouse.id, warehouse);
+            return dict;
+          }, new Map<number, IDataWarehouse>())
+        );
       }
     });
   };
-  const getPaymentMethods = (params: IParamPaymentMethod) => {
-    ReferencePaymentMethodService.get(params).then((response) => {
+  const getMaterials = async (params: IParamViewMaterial) => {
+    form.validateFields(["warehouseId"]).then(async () => {
+      await ViewMaterialService.get(params).then((response) => {
+        if (response.success) {
+          const materials = response.response.data.map((response) => ({
+            materialId: response.id,
+            name: response.name,
+            measurement: response.measurementName,
+            countPackage: response.countPackage,
+            unitAmount: response.unitAmount,
+            lastQty: response.lastQty,
+          }));
+          form.setFieldsValue({ transactions: materials });
+        }
+      });
+    });
+  };
+  const getUsers = async (params: IParamUser) => {
+    authService.getAllUsers(params).then((response) => {
       if (response.success) {
-        setPaymentMethods(response.response.data);
+        setUsers(response.response);
       }
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postSale(values).then((response) => {
+    await DocumentService.postCensus(values).then((response) => {
       if (response.success) form.resetFields();
     });
   };
   useEffect(() => {
     getWarehouses({});
-    getPaymentMethods({});
   }, []);
+  useEffect(() => {
+    getMaterials({
+      warehouseId,
+      types: [MaterialType.Material],
+    });
+    if ((warehouseDict?.get(warehouseId)?.userIds || []).length > 0) {
+      getUsers({ ids: warehouseDict?.get(warehouseId)?.userIds });
+    }
+  }, [warehouseId]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -108,15 +134,16 @@ const TransactionSale = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Харилцагчийн код, нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Харилцагчийн код, нэр оруулна уу.",
-                    },
-                  ]}
+              <Form.Item
+                label="Хариуцсан нярав"
+                name="userId"
+                rules={[{ required: true, message: "Хариуцсан нярав оруулна уу" }]}
+              >
+                <NewFilterSelect
+                  options={users.map((user) => ({
+                    value: user.id,
+                    label: `${user.lastName}. ${user.firstName}`,
+                  }))}
                 />
               </Form.Item>
               <Form.Item
@@ -131,41 +158,6 @@ const TransactionSale = () => {
               >
                 <NewInput />
               </Form.Item>
-              <Form.Item
-                label="Төлбөрийн хэлбэр"
-                name="paymentMethodId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Төлбөрийн хэлбэр оруулна уу.",
-                  },
-                ]}
-              >
-                <NewFilterSelect
-                  options={paymentMethods.map((paymentMethod) => ({
-                    value: paymentMethod.id,
-                    label: paymentMethod.name,
-                  }))}
-                />
-              </Form.Item>
-              <Form.Item label="Нийт дүн" name="amount" shouldUpdate>
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item
-                label="Бараа материалын үнийн хөнгөлөлт"
-                name="discountAmount"
-              >
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item
-                label="Харилцагчийн хөнгөлөлт"
-                name="consumerDiscountAmount"
-              >
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item label="Төлөх дүн" name="payAmount">
-                <NewInputNumber disabled />
-              </Form.Item>
             </div>
             <Space size={12} wrap></Space>
             <div
@@ -177,19 +169,21 @@ const TransactionSale = () => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[]}>
-              {(items, { add, remove }, { errors }) => (
-                <>
-                  <EditableTableSale
-                    data={items}
-                    form={form}
-                    add={add}
-                    remove={remove}
-                  />
-                  <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                </>
-              )}
-            </Form.List>
+            <div style={{ overflow: "auto", maxHeight: "500px" }}>
+              <Form.List name="transactions" rules={[]}>
+                {(items, { add, remove }, { errors }) => (
+                  <>
+                    <EditableTableCencus
+                      data={items}
+                      form={form}
+                      add={add}
+                      remove={remove}
+                    />
+                    <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                  </>
+                )}
+              </Form.List>
+            </div>
           </Form>
           <div
             style={{
@@ -215,4 +209,4 @@ const TransactionSale = () => {
     </Row>
   );
 };
-export default TransactionSale;
+export default TransactionCencus;

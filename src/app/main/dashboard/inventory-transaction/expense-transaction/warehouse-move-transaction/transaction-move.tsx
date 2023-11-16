@@ -6,7 +6,7 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Typography, message } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
@@ -14,23 +14,13 @@ import {
   NewDatePicker,
   NewFilterSelect,
   NewInput,
-  NewInputNumber,
 } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
-import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableSale } from "./editableTableSale";
-import {
-  IDataReferencePaymentMethod,
-  IParamPaymentMethod,
-} from "@/service/reference/payment-method/entities";
-import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
+import { EditableTableMove } from "./editableTableMove";
 
-const TransactionSale = () => {
+const TransactionMove = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<
-    IDataReferencePaymentMethod[]
-  >([]);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -39,21 +29,13 @@ const TransactionSale = () => {
       }
     });
   };
-  const getPaymentMethods = (params: IParamPaymentMethod) => {
-    ReferencePaymentMethodService.get(params).then((response) => {
-      if (response.success) {
-        setPaymentMethods(response.response.data);
-      }
-    });
-  };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postSale(values).then((response) => {
+    await DocumentService.postMove(values).then((response) => {
       if (response.success) form.resetFields();
     });
   };
   useEffect(() => {
     getWarehouses({});
-    getPaymentMethods({});
   }, []);
   return (
     <Row gutter={[12, 24]}>
@@ -97,29 +79,6 @@ const TransactionSale = () => {
                 <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} disabled />
               </Form.Item>
               <Form.Item
-                label="Байршил"
-                name="warehouseId"
-                rules={[{ required: true, message: "Байршил оруулна уу" }]}
-              >
-                <NewFilterSelect
-                  options={warehouses.map((warehouse) => ({
-                    value: warehouse.id,
-                    label: warehouse.name,
-                  }))}
-                />
-              </Form.Item>
-              <Form.Item label="Харилцагчийн код, нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Харилцагчийн код, нэр оруулна уу.",
-                    },
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item
                 label="Гүйлгээний утга"
                 name="description"
                 rules={[
@@ -132,39 +91,28 @@ const TransactionSale = () => {
                 <NewInput />
               </Form.Item>
               <Form.Item
-                label="Төлбөрийн хэлбэр"
-                name="paymentMethodId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Төлбөрийн хэлбэр оруулна уу.",
-                  },
-                ]}
+                label="Зарлага гаргах байршил"
+                name="expenseWarehouseId"
+                rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
                 <NewFilterSelect
-                  options={paymentMethods.map((paymentMethod) => ({
-                    value: paymentMethod.id,
-                    label: paymentMethod.name,
+                  options={warehouses.map((warehouse) => ({
+                    value: warehouse.id,
+                    label: warehouse.name,
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Нийт дүн" name="amount" shouldUpdate>
-                <NewInputNumber disabled />
-              </Form.Item>
               <Form.Item
-                label="Бараа материалын үнийн хөнгөлөлт"
-                name="discountAmount"
+                label="Орлого авах байршил"
+                name="incomeWarehouseId"
+                rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item
-                label="Харилцагчийн хөнгөлөлт"
-                name="consumerDiscountAmount"
-              >
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item label="Төлөх дүн" name="payAmount">
-                <NewInputNumber disabled />
+                <NewFilterSelect
+                  options={warehouses.map((warehouse) => ({
+                    value: warehouse.id,
+                    label: warehouse.name,
+                  }))}
+                />
               </Form.Item>
             </div>
             <Space size={12} wrap></Space>
@@ -180,7 +128,7 @@ const TransactionSale = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableSale
+                  <EditableTableMove
                     data={items}
                     form={form}
                     add={add}
@@ -215,4 +163,4 @@ const TransactionSale = () => {
     </Row>
   );
 };
-export default TransactionSale;
+export default TransactionMove;

@@ -10,6 +10,7 @@ import {
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
+import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -29,6 +30,10 @@ export enum MovingStatus {
   MovementInWarehouse = 'MOVEMENT_IN_WAREHOUSE',
   /** Барааны хөрвүүлэг */
   ItemConversion = 'ITEM_CONVERSION',
+  /** Хольц */
+  Mixture = 'MIXTURE',
+  /** Тооллого */
+  Cencus = 'CENCUS',
 }
 export interface IDataDocument extends IData {
   id?: number;
@@ -47,6 +52,12 @@ export interface IDataDocument extends IData {
   sectionId: number;
   section: IDataReference; // гүйлгээний төрөл
   description: string; // гүйлгээний утга
+  paymentMethodId: number;
+  paymentMethod?: IDataReferencePaymentMethod; // Төлбөрийн хэлбэр
+  amount: number; // нийт үнэ
+  discountAmount: number; // бараа материалын үнийн хөнгөлөлт
+  consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт
+  payAmount: number; // төлөх дүн
   movingStatus: MovingStatus;
   transactions?: IDataTransaction[];
 }

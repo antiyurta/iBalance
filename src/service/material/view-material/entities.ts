@@ -18,6 +18,7 @@ export interface IDataViewMaterial {
   coupon: IDataCoupon; // urushuulal
   discount: IDataDiscount; // hongololt
   unitAmount: number; // Нэгжийн үнэ
+  lastQty: number;
 }
 export interface IFilterViewMaterial {
   code?: string; // Дотоод код
@@ -29,6 +30,7 @@ export interface IFilterViewMaterial {
   countPackage?: number; // Багц доторх тоо
   sectionName?: string; // Бараа материалын бүлэг
   unitAmount?: number; // Нэгжийн үнэ
+  warehouseId?: number; // Агуулахын id
 }
 
 export type FilteredColumnsViewMaterial = {

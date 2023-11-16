@@ -23,12 +23,12 @@ const TransactionSalePage = () => {
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.SaleReturn} />,
+      children: <DocumentList movingStatus={MovingStatus.Sales} />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <TransactionList movingStatus={MovingStatus.SaleReturn} />,
+      children: <TransactionList movingStatus={MovingStatus.Sales} />,
     },
   ];
   return (

@@ -1,25 +1,28 @@
 import Image from "next/image";
+import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
+import { Column } from "@/components/table";
 import {
-  Button,
-  Form,
-  FormInstance,
-  Popconfirm,
-  Switch,
-  Table,
-  message,
-} from "antd";
+  NewDatePicker,
+  NewFilterSelect,
+  NewInput,
+  NewInputNumber,
+} from "@/components/input";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { MaterialSelect } from "@/components/material-select";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
-import { MaterialSelect } from "@/components/material-select";
 import { MaterialType } from "@/service/material/entities";
-const { Column } = Table;
+import {
+  IDataDocument,
+  IParamDocument,
+  MovingStatus,
+} from "@/service/document/entities";
+import { DocumentService } from "@/service/document/service";
 
 interface IProps {
   data: FormListFieldData[];
@@ -27,26 +30,23 @@ interface IProps {
   add: () => void;
   remove: (index: number) => void;
 }
-
-const EditableTableDiscount = (props: IProps) => {
+export const EditableTableRefundPurchase = (props: IProps) => {
+  const { message } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [isPercent, setIsPercent] = useState<boolean>(false);
-  const addService = () => {
-    onSave().then((state) => {
-      if (state) {
-        add();
-        setEditingIndex(data.length);
-        setNewService(true);
-      }
-    });
-  };
+  const [documents, setDocuments] = useState<IDataDocument[]>([]);
+
   const onSave = async () => {
     return form
       .validateFields([
-        ["discounts", editingIndex, "materialId"],
-        ["discounts", editingIndex, "endAt"],
+        ["transactions"],
+        ["transactions", editingIndex, "materialId"],
+        ["transactions", editingIndex, "name"],
+        ["transactions", editingIndex, "countPackage"],
+        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "date"],
+        ["transactions", editingIndex, "refundDocumentId"],
       ])
       .then(() => {
         setNewService(false);
@@ -60,11 +60,14 @@ const EditableTableDiscount = (props: IProps) => {
         return false;
       });
   };
-  const onRemove = (index: number) => {
-    const amount = form.getFieldValue(["accounts", index, "amount"]);
-    const limitAmount = form.getFieldValue("amount");
-    form.setFieldValue("amount", limitAmount - amount);
-    remove(index);
+  const addService = () => {
+    onSave().then((state) => {
+      if (state) {
+        add();
+        setEditingIndex(data.length);
+        setNewService(true);
+      }
+    });
   };
   const onCancel = (index: number) => {
     if (isNewService) {
@@ -79,6 +82,20 @@ const EditableTableDiscount = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
+  const onRemove = (index: number) => {
+    remove(index);
+  };
+  const getDocuments = () => {
+    const params: IParamDocument = { movingStatus: MovingStatus.Purchase };
+    DocumentService.get(params).then((response) => {
+      if (response.success) {
+        setDocuments(response.response.data);
+      }
+    });
+  };
+  useEffect(() => {
+    getDocuments();
+  }, []);
   return (
     <Table
       dataSource={data}
@@ -119,34 +136,29 @@ const EditableTableDiscount = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[
-              MaterialType.Service,
-              MaterialType.Material,
-              MaterialType.Package,
-            ]}
+            materialTypes={[MaterialType.Material]}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            listName="discounts"
             disabled={!(index === editingIndex)}
+            listName="transactions"
             onClear={() => {
               form.resetFields([
-                ["discounts", index, "name"],
-                ["discounts", index, "measurement"],
-                ["discounts", index, "countPackage"],
-                ["discounts", index, "section"],
-                ["discounts", index, "unitAmount"],
+                ["transactions", index, "name"],
+                ["transactions", index, "measurement"],
+                ["transactions", index, "countPackage"],
+                ["transactions", index, "lastQty"],
               ]);
             }}
             onSelect={(value) => {
               form.setFieldsValue({
-                discounts: {
+                transactions: {
                   [index]: {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
-                    section: value.sectionName,
-                    unitAmount: value.unitAmount,
+                    lastQty: value.lastQty,
+                    quantity: 1,
                   },
                 },
               });
@@ -156,18 +168,9 @@ const EditableTableDiscount = (props: IProps) => {
       />
       <Column
         dataIndex={"name"}
-        title="Бараа/Үйлчилгээний нэр"
+        title="Бараа материалын нэр"
         render={(_, __, index) => (
           <Form.Item name={[index, "name"]}>
-            <NewInput disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"section"}
-        title="Бараа/Үйлчилгээний нэр"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "section"]}>
             <NewInput disabled />
           </Form.Item>
         )}
@@ -182,85 +185,69 @@ const EditableTableDiscount = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"unitAmount"}
-        title="Нэгж үнэ"
+        dataIndex={"countPackage"}
+        title="Багц доторх тоо"
         render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
-            <NewInputNumber
-              disabled
-              prefix={"₮ "}
-              formatter={(value: any) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-            />
+          <Form.Item name={[index, "countPackage"]}>
+            <NewInputNumber disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"endAt"}
-        title="Хөнгөлөлт дуусах огноо"
+        dataIndex={"lastQty"}
+        title="Агуулахын үлдэгдэл"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "lastQty"]}>
+            <NewInputNumber disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"quantity"}
+        title="Зарлагын тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "endAt"]}
-            rules={[
-              {
-                required: true,
-                message: "Хөнгөлөлт дуусах огноо",
-              },
-            ]}
+            name={[index, "quantity"]}
+            rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
+          >
+            <NewInputNumber disabled={!(index === editingIndex)} />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"date"}
+        title="Буцаалтын огноо"
+        render={(_, __, index) => (
+          <Form.Item
+            name={[index, "date"]}
+            rules={[{ required: true, message: "Буцаалтын огноо заавал" }]}
           >
             <NewDatePicker disabled={!(index === editingIndex)} />
           </Form.Item>
         )}
       />
       <Column
-        title="Хөнгөлөлт хувь эсэх"
+        dataIndex={"refundDocumentId"}
+        title="Буцаалтын баримтын дугаар"
         render={(_, __, index) => (
-          <Form.Item name={[index, "isPercent"]} valuePropName="checked">
-            <Switch
+          <Form.Item
+            name={[index, "refundDocumentId"]}
+            rules={[{ required: true, message: "Буцаалтын баримтын дугаар" }]}
+          >
+            <NewFilterSelect
               disabled={!(index === editingIndex)}
-              onChange={(value) => setIsPercent(value)}
+              options={documents.map((document) => ({
+                value: document.id,
+                label: document.description,
+              }))}
             />
           </Form.Item>
         )}
       />
-      {isPercent ? (
-        <Column
-          dataIndex={"percent"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "percent"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"%"}
-                formatter={(value: any) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      ) : (
-        <Column
-          dataIndex={"amount"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "amount"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"₮"}
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      )}
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}
-        width={160}
+        width={110}
         render={(_, __, index) => {
           if (index === editingIndex) {
             return (
@@ -321,4 +308,3 @@ const EditableTableDiscount = (props: IProps) => {
     </Table>
   );
 };
-export default EditableTableDiscount;
