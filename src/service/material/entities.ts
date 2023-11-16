@@ -65,6 +65,8 @@ export interface IDataMaterial {
   prices: IDataPrice[];
   discounts: IDataDiscount[];
   coupons: IDataCoupon[];
+  minResourceSize: number;
+  minDownloadSize: number;
   // TODO refunds: Refund[];
   // TODO bookingMaterials: BookingMaterial[];
   // TODO transactions: Transaction[];
@@ -101,6 +103,7 @@ export type FilteredColumnsMaterial = {
 export interface IParamMaterial extends Meta, IParam, IFilterMaterial {
   types?: MaterialType[]; // төрөл
   ids?: number[];
+  isResourceSizeRel?: boolean;
 }
 
 export interface IResponseMaterial extends GenericResponse {

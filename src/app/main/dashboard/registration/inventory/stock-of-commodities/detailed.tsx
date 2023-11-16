@@ -1,93 +1,132 @@
+import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
+import ColumnSettings from "@/components/columnSettings";
+import Description from "@/components/description";
+import NewDirectoryTree from "@/components/directoryTree";
+import Filtered from "@/components/filtered";
+import { NewSelect } from "@/components/input";
+import { NewTable } from "@/components/table";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { ComponentType, DataIndexType, Meta } from "@/service/entities";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-
-//components
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { NewTable } from "@/components/table";
-import { DataIndexType, Meta } from "@/service/entities";
-//service
-import { Col, Row, Space } from "antd";
 import {
-  FilteredColumnsWarehouseBalance,
-  IDataWarehouseBalance,
-  IFilterWarehouseBalance,
-  IParamWarehouseBalance,
-} from "@/service/material/balance/warehouse-balance/entites";
-import { WarehouseBalanceService } from "@/service/material/balance/warehouse-balance/service";
+  FilteredColumnsMaterial,
+  IDataMaterial,
+  IFilterMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
+import { IDataMaterialSection } from "@/service/material/section/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { MaterialService } from "@/service/material/service";
+import { MaterialResourceSizeService } from "@/service/material/resource-size/service";
+import { MaterialSectionService } from "@/service/material/section/service";
+import {
+  FilteredColumnsResourceSize,
+  IDataResourceSize,
+  IFilterResourceSize,
+  IParamResourceSize,
+} from "@/service/material/resource-size/entities";
 
-const Detailed = () => {
+const { Title } = Typography;
+
+const DetailList = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [data, setData] = useState<IDataWarehouseBalance[]>([]);
+  const [data, setData] = useState<IDataResourceSize[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterWarehouseBalance>();
-  const [params, setParams] = useState<IParamWarehouseBalance>({
+  const [filters, setFilters] = useState<IFilterResourceSize>();
+  const [params, setParams] = useState<IParamResourceSize>({
     page: 1,
     limit: 10,
   });
-  const [columns, setColumns] = useState<FilteredColumnsWarehouseBalance>({
+  const [columns, setColumns] = useState<FilteredColumnsResourceSize>({
     materialCode: {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "code"],
+      dataIndex: ["material", "code"],
       type: DataIndexType.MULTI,
     },
     materialName: {
       label: "Барааны нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "name"],
+      dataIndex: ["material", "name"],
       type: DataIndexType.MULTI,
     },
     materialSectionId: {
       label: "Бараа материалын бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "section", "name"],
+      dataIndex: ["material", "section", "name"],
       type: DataIndexType.MULTI,
     },
-    materialMeasurementId: {
+    materialMeasurementName: {
       label: "Хэмжих нэгж",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "measurement", "name"],
+      dataIndex: ["material", "measurement", "name"],
       type: DataIndexType.MULTI,
     },
     materialCountPackage: {
       label: "Багц доторх тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["balance", "material", "countPackage"],
+      dataIndex: ["material", "countPackage"],
       type: DataIndexType.MULTI,
     },
-    warehouseId: {
+    warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
       dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
-    quantity: {
-      label: "Эхний үлдэгдэл",
+    downloadDay: {
+      label: "Эргэц /хоногоор/",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: "downloadDay",
+      type: DataIndexType.NUMBER,
+    },
+    minResourceSize: {
+      label: "Заавал байлгах хамгийн бага нөөцийн хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "minResourceSize",
+      type: DataIndexType.NUMBER,
+    },
+    minDownloadSize: {
+      label: "Дараагийн татан авалтын хамгийн бага хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "minDownloadSize",
       type: DataIndexType.NUMBER,
     },
   });
-  const getData = async (params: IParamWarehouseBalance) => {
+  const getData = async (params: IParamResourceSize) => {
     blockContext.block();
-    await WarehouseBalanceService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
-    blockContext.unblock();
+    await MaterialResourceSizeService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   useEffect(() => {
     getData(params);
@@ -166,11 +205,9 @@ const Detailed = () => {
           newParams={params}
           onParams={(params) => setParams(params)}
           incomeFilters={filters}
-          onEdit={(row) => console.log(row)}
-          onDelete={(id) => console.log(id)}
         />
       </Col>
     </Row>
   );
 };
-export default Detailed;
+export default DetailList;

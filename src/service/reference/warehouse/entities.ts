@@ -19,7 +19,7 @@ export interface IDataWarehouse extends IData {
   code: string;
   name: string;
   address: string;
-  isActive: string;
+  isActive: boolean;
 }
 
 export interface IFilterWarehouse extends IFilter {
@@ -32,7 +32,7 @@ export interface IFilterWarehouse extends IFilter {
   userIds?: number[];
   address?: string[];
   fileId?: number[];
-  isActive?: string[];
+  isActive?: boolean[];
 }
 
 export type FilteredColumnsWarehouse = {

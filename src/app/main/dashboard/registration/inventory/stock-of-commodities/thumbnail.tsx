@@ -34,22 +34,20 @@ import { MaterialSectionService } from "@/service/material/section/service";
 
 const { Title } = Typography;
 interface IProps {
-  ComponentType: ComponentType;
+  isReload: boolean;
+  onEdit: (row: IDataMaterial) => void;
 }
 
-const StockOfCommodities = (props: IProps) => {
-  const [form] = Form.useForm();
+const Thumbnail = (props: IProps) => {
+
+  const {isReload, onEdit } = props;
   const blockContext: BlockView = useContext(BlockContext);
-  const [isModal, setIsModal] = useState<boolean>(false);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [params, setParams] = useState<IParamMaterial>({
     page: 1,
     limit: 10,
   });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterial[]>([]);
-  const [isReload, setIsReload] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
   const [filters, setFilters] = useState<IFilterMaterial>();
   const [materialSections, setMaterialSections] = useState<
     IDataMaterialSection[]
@@ -94,14 +92,14 @@ const StockOfCommodities = (props: IProps) => {
       label: "Заавал байлгах хамгийн бага нөөцийн хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "countPackage"],
+      dataIndex: ["minResourceSize"],
       type: DataIndexType.MULTI,
     },
     minDownloadSize: {
       label: "Дараагийн татан авалтын хамгийн бага хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "countPackage"],
+      dataIndex: ["minDownloadSize"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
@@ -120,17 +118,6 @@ const StockOfCommodities = (props: IProps) => {
     },
   });
 
-  const openModal = (state: boolean, row?: IDataMaterial) => {
-    setIsEdit(state);
-    if (!state) {
-      form.resetFields();
-      form.setFieldsValue({ isActive: true });
-    } else {
-      form.setFieldsValue(row);
-    }
-    setIsModal(true);
-    setSelectedRow(row);
-  };
   const getMaterialSections = async () => {
     await MaterialSectionService.get({
       materialTypes: [MaterialType.Material],
@@ -140,6 +127,7 @@ const StockOfCommodities = (props: IProps) => {
   };
   const getData = async (params: IParamMaterial) => {
     blockContext.block();
+    params.isResourceSizeRel = true;
     await MaterialService.get(params)
       .then((response) => {
         if (response.success) {
@@ -155,7 +143,7 @@ const StockOfCommodities = (props: IProps) => {
   const onDeleteMaterialResourceSize = (id: number) => {
     MaterialResourceSizeService.remove(id).then((response) => {
       if (response.success) {
-        setIsReload(!isReload);
+        getData(params);
       }
     });
   };
@@ -174,22 +162,6 @@ const StockOfCommodities = (props: IProps) => {
               <Title level={3}>
                 Үндсэн бүртгэл / Бараа материал / Зохистой нөөцийн хэмжээ
               </Title>
-              <Button
-                type="primary"
-                onClick={() => {
-                  openModal(false);
-                }}
-                icon={
-                  <Image
-                    src={"/images/AddIcon.svg"}
-                    width={12}
-                    height={12}
-                    alt="addicon"
-                  />
-                }
-              >
-                Шинээр бүртгэх
-              </Button>
             </Space>
           </Col>
           <Col md={24} lg={8} xl={5}>
@@ -296,9 +268,6 @@ const StockOfCommodities = (props: IProps) => {
                 scroll={{ x: 1400 }}
                 rowKey="id"
                 doubleClick={true}
-                onDClick={(value) => {
-                  setSelectedRow(value);
-                }}
                 data={data}
                 meta={meta}
                 columns={columns}
@@ -308,7 +277,7 @@ const StockOfCommodities = (props: IProps) => {
                 onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
-                onEdit={(row) => openModal(true, row)}
+                onEdit={(row) => onEdit(row)}
                 isDelete={true}
                 onDelete={(id) => onDeleteMaterialResourceSize(id)}
               />
@@ -319,4 +288,4 @@ const StockOfCommodities = (props: IProps) => {
     </div>
   );
 };
-export default StockOfCommodities;
+export default Thumbnail;

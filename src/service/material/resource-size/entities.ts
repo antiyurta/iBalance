@@ -18,7 +18,10 @@ export interface IFilterResourceSize {
   materialSectionId?: number[]; // Барааны бүлэг
   materialMeasurementName?: string[]; // Барааны хэмжих нэгж
   materialCountPackage?: number[]; // Багц доторх тоо
+  warehouseName?: string[]; // Байршил
+  downloadDay?: number[];
   minResourceSize?: number[]; // Багц доторх тоо
+  minDownloadSize?: number[];
 }
 export type FilteredColumnsResourceSize = {
   [T in keyof IFilterResourceSize]?: ColumnType;
@@ -33,5 +36,6 @@ export interface IResponseResourceSizes extends GenericResponse {
   response: {
     data: IDataResourceSize[];
     meta: Meta;
+    filter: IFilterResourceSize;
   };
 }
