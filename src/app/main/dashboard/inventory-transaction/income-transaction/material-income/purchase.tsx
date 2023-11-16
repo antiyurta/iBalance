@@ -85,7 +85,7 @@ export const Purchase = () => {
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item label="Огноо" name="date">
-                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} disabled />
+                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>

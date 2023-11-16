@@ -1,10 +1,322 @@
-import { ComponentType } from "@/service/entities";
+import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
+import ColumnSettings from "@/components/columnSettings";
+import Description from "@/components/description";
+import NewDirectoryTree from "@/components/directoryTree";
+import Filtered from "@/components/filtered";
+import { NewSelect } from "@/components/input";
+import { NewTable } from "@/components/table";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { ComponentType, DataIndexType, Meta } from "@/service/entities";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Space,
+  Typography,
+} from "antd";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
+import {
+  FilteredColumnsMaterial,
+  IDataMaterial,
+  IFilterMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
+import { IDataMaterialSection } from "@/service/material/section/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { MaterialService } from "@/service/material/service";
+import { MaterialResourceSizeService } from "@/service/material/resource-size/service";
+import { MaterialSectionService } from "@/service/material/section/service";
 
+const { Title } = Typography;
 interface IProps {
   ComponentType: ComponentType;
 }
 
 const StockOfCommodities = (props: IProps) => {
-  return <>di</>;
+  const [form] = Form.useForm();
+  const blockContext: BlockView = useContext(BlockContext);
+  const [isModal, setIsModal] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [params, setParams] = useState<IParamMaterial>({
+    page: 1,
+    limit: 10,
+  });
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [data, setData] = useState<IDataMaterial[]>([]);
+  const [isReload, setIsReload] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
+  const [filters, setFilters] = useState<IFilterMaterial>();
+  const [materialSections, setMaterialSections] = useState<
+    IDataMaterialSection[]
+  >([]);
+  const [columns, setColumns] = useState<FilteredColumnsMaterial>({
+    code: {
+      label: "Дотоод код",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["code"],
+      type: DataIndexType.MULTI,
+    },
+    name: {
+      label: "Бараа материалын нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["name"],
+      type: DataIndexType.MULTI,
+    },
+    materialSectionId: {
+      label: "Бараа материалын бүлэг",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["section", "name"],
+      type: DataIndexType.MULTI,
+    },
+    measurementId: {
+      label: "Хэмжих нэгж",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["measurement", "name"],
+      type: DataIndexType.MULTI,
+    },
+    countPackage: {
+      label: "Багц доторх тоо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["countPackage"],
+      type: DataIndexType.MULTI,
+    },
+    minResourceSize: {
+      label: "Заавал байлгах хамгийн бага нөөцийн хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["material", "countPackage"],
+      type: DataIndexType.MULTI,
+    },
+    minDownloadSize: {
+      label: "Дараагийн татан авалтын хамгийн бага хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["material", "countPackage"],
+      type: DataIndexType.MULTI,
+    },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн хэрэглэгч",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.MULTI,
+    },
+  });
+
+  const openModal = (state: boolean, row?: IDataMaterial) => {
+    setIsEdit(state);
+    if (!state) {
+      form.resetFields();
+      form.setFieldsValue({ isActive: true });
+    } else {
+      form.setFieldsValue(row);
+    }
+    setIsModal(true);
+    setSelectedRow(row);
+  };
+  const getMaterialSections = async () => {
+    await MaterialSectionService.get({
+      materialTypes: [MaterialType.Material],
+    }).then((response) => {
+      setMaterialSections(response.response.data);
+    });
+  };
+  const getData = async (params: IParamMaterial) => {
+    blockContext.block();
+    await MaterialService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const onDeleteMaterialResourceSize = (id: number) => {
+    MaterialResourceSizeService.remove(id).then((response) => {
+      if (response.success) {
+        setIsReload(!isReload);
+      }
+    });
+  };
+  useEffect(() => {
+    getMaterialSections();
+  }, []);
+  useEffect(() => {
+    getData(params);
+  }, [isReload]);
+  return (
+    <div>
+      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        <>
+          <Col md={24} lg={16} xl={19}>
+            <Space size={24}>
+              <Title level={3}>
+                Үндсэн бүртгэл / Бараа материал / Зохистой нөөцийн хэмжээ
+              </Title>
+              <Button
+                type="primary"
+                onClick={() => {
+                  openModal(false);
+                }}
+                icon={
+                  <Image
+                    src={"/images/AddIcon.svg"}
+                    width={12}
+                    height={12}
+                    alt="addicon"
+                  />
+                }
+              >
+                Шинээр бүртгэх
+              </Button>
+            </Space>
+          </Col>
+          <Col md={24} lg={8} xl={5}>
+            <Input.Search />
+          </Col>
+        </>
+        <Col md={24} lg={10} xl={6}>
+          <NewDirectoryTree
+            data={materialSections}
+            extra="HALF"
+            isLeaf={false}
+            onClick={(keys, isLeaf) => {
+              onCloseFilterTag({
+                key: "materialSectionId",
+                state: true,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: params,
+                onParams: (params) => setParams(params),
+              });
+              getData({
+                page: 1,
+                limit: 10,
+                materialSectionId: keys,
+              });
+              if (isLeaf) {
+                getData({
+                  page: 1,
+                  limit: 10,
+                  materialSectionId: keys,
+                });
+              }
+            }}
+          />
+        </Col>
+        <Col md={24} lg={14} xl={18}>
+          <Row gutter={[0, 12]}>
+            <Col span={24}>
+              <Space
+                style={{
+                  width: "100%",
+                  justifyContent: "flex-end",
+                }}
+                size={12}
+              >
+                <Filtered
+                  columns={columns}
+                  isActive={(key, state) => {
+                    onCloseFilterTag({
+                      key: key,
+                      state: state,
+                      column: columns,
+                      onColumn: (columns) => setColumns(columns),
+                      params: params,
+                      onParams: (params) => setParams(params),
+                    });
+                    getData(params);
+                  }}
+                />
+                <Space
+                  style={{
+                    width: "100%",
+                    justifyContent: "flex-end",
+                  }}
+                  size={12}
+                >
+                  <ColumnSettings
+                    columns={columns}
+                    columnIndexes={(arg1, arg2) =>
+                      findIndexInColumnSettings({
+                        newRowIndexes: arg1,
+                        unSelectedRow: arg2,
+                        columns: columns,
+                        onColumns: (columns) => setColumns(columns),
+                        params: params,
+                        onParams: (params) => setParams(params),
+                        getData: (params) => getData(params),
+                      })
+                    }
+                  />
+                  <Image
+                    src={"/images/PrintIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="printIcon"
+                  />
+                  <Image
+                    src={"/images/UploadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="uploadIcon"
+                  />
+                  <Image
+                    src={"/images/DownloadIcon.svg"}
+                    width={24}
+                    height={24}
+                    alt="downloadIcon"
+                  />
+                </Space>
+              </Space>
+            </Col>
+            <Col span={24}>
+              <NewTable
+                scroll={{ x: 1400 }}
+                rowKey="id"
+                doubleClick={true}
+                onDClick={(value) => {
+                  setSelectedRow(value);
+                }}
+                data={data}
+                meta={meta}
+                columns={columns}
+                onChange={(params) => getData(params)}
+                onColumns={(columns) => setColumns(columns)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
+                incomeFilters={filters}
+                isEdit={true}
+                onEdit={(row) => openModal(true, row)}
+                isDelete={true}
+                onDelete={(id) => onDeleteMaterialResourceSize(id)}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </div>
+  );
 };
 export default StockOfCommodities;

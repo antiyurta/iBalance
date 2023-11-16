@@ -77,7 +77,7 @@ const TransactionAct = () => {
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} disabled />
+                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
               </Form.Item>
               <Form.Item
                 label="Байршил"

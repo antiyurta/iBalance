@@ -51,6 +51,7 @@ export interface IDataDocument extends IData {
   consumer?: IDataConsumer;
   sectionId: number;
   section: IDataReference; // гүйлгээний төрөл
+  date: Date;
   description: string; // гүйлгээний утга
   paymentMethodId: number;
   paymentMethod?: IDataReferencePaymentMethod; // Төлбөрийн хэлбэр

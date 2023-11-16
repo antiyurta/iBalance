@@ -17,6 +17,7 @@ import { IDataUnitOfMeasure } from "./unitOfMeasure/entities";
 import { IDataViewMaterial } from "./view-material/entities";
 import { IDataCoupon } from "../command/coupon/entities";
 import { IDataDiscount } from "../command/discount/entities";
+import { IDataResourceSize } from "./resource-size/entities";
 
 // Материалын төрөл
 export enum MaterialType {
@@ -60,7 +61,7 @@ export interface IDataMaterial {
   materials: IDataViewMaterial[]; // Багцад орох материалуудыг сетлэх
   balances: IDataBalance[];
   packageMaterials: IDataPackageMaterial[];
-  // TODO resourceSizes: ResourceSize[];
+  resourceSizes: IDataResourceSize[];
   prices: IDataPrice[];
   discounts: IDataDiscount[];
   coupons: IDataCoupon[];
@@ -89,6 +90,8 @@ export interface IFilterMaterial extends IFilter {
   unitCode?: IDataUnitCode;
   isCitizenTax?: boolean;
   isTax?: boolean;
+  minResourceSize?: number;
+  minDownloadSize?: number;
 }
 
 export type FilteredColumnsMaterial = {

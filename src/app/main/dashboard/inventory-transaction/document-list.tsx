@@ -38,7 +38,7 @@ export const DocumentList = (props: IProps) => {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: "date",
       type: DataIndexType.DATE,
     },
     warehouse: {
