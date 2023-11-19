@@ -70,6 +70,20 @@ const Detailed = () => {
       dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
+    purchaseAt: {
+      label: "Худалдан авсан огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "purchaseAt",
+      type: DataIndexType.DATE,
+    },
+    expirationAt: {
+      label: "Хугацаа дуусах огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "expirationAt",
+      type: DataIndexType.DATE,
+    },
     quantity: {
       label: "Эхний үлдэгдэл",
       isView: true,

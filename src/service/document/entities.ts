@@ -64,14 +64,22 @@ export interface IDataDocument extends IData {
 }
 
 export interface IFilterDocument extends IFilter {
-  movingStatus: MovingStatus;
+  id?: number;
+  date?: string;
+  warehouseName?: string;
+  incomeQuantity?: number;
+  incomeCount?: number;
+  expenseQuantity?: number;
+  consumerCode?: string;
+  consumerName?: string;
+  movingStatus?: MovingStatus;
   bookingId?: number[];
   warehouseId?: number[];
   isLock?: number[];
 }
 
 export type FilteredColumnsDocument = {
-  [T in keyof IDataDocument]?: ColumnType;
+  [T in keyof IFilterDocument]?: ColumnType;
 };
 
 export interface IParamDocument extends Meta, IParam, IFilterDocument {}

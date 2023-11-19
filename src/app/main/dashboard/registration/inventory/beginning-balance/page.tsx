@@ -24,7 +24,7 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { MaterialSelect } from "@/components/material-select";
-import { IDataMaterial } from "@/service/material/entities";
+import { IDataMaterial, MaterialType } from "@/service/material/entities";
 
 const { Title } = Typography;
 const BeginningBalancePage = () => {
@@ -153,7 +153,7 @@ const BeginningBalancePage = () => {
             <div className="inputs-gird-2">
               <Form.Item label="Дотоод код">
                 <MaterialSelect
-                  materialTypes={[]}
+                  params={{ types: [MaterialType.Material] }}
                   form={form}
                   rules={[
                     {

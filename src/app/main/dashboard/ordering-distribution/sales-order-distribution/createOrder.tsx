@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 //components
 import {
   NewDatePicker,
+  NewFilterSelect,
   NewInput,
   NewInputNumber,
   NewSelect,
@@ -12,270 +13,152 @@ import EditableTableOrder from "./editableTableOrder";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 
-// service
-import { ConsumerService } from "@/service/consumer/service";
-
 // entity
-import { IDataConsumer } from "@/service/consumer/entities";
-import NewModal from "@/components/modal";
-import Information from "../../registration/customer/information/information";
 import { TabType } from "@/service/order-distribution/entities";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
+import { ConsumerSelect } from "@/components/consumer-select";
+import { IDataBooking } from "@/service/booking/entities";
+import { BookingService } from "@/service/booking/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { MaterialType } from "@/service/material/entities";
+import { UserSelect } from "@/components/user-select";
+import dayjs from "dayjs";
 
 interface IProps {
   type: TabType;
   isEdit: boolean;
   isFormAdd: boolean;
+  row?: IDataBooking;
 }
 
 const CreateOrder = (props: IProps) => {
-  const { type, isEdit, isFormAdd } = props;
+  const { type, isEdit, isFormAdd, row } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
-  const [isOpenModalConsumer, setIsOpenModalConsumer] =
-    useState<boolean>(false);
+  const toWarehouseId = Form.useWatch("toWarehouseId", form);
+  const consumerId = Form.useWatch("consumerId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
+  const onFinish = (values: IDataBooking) => {
+    blockContext.block();
+    BookingService.postSale(values)
+      .then((response) => {
+        console.log("response =======>", response);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  useEffect(() => {
+    console.log("warehouseId ======>", toWarehouseId);
+  }, [toWarehouseId]);
+  useEffect(() => {
+    console.log("consumerId =====>", consumerId);
+  }, [consumerId]);
+  useEffect(() => {
+    console.log("row =====>", row);
+    form.setFieldsValue({
+      ...row,
+      createdAt: dayjs(row?.createdAt),
+      bookingAt: dayjs(row?.bookingAt),
+    });
+  }, [row]);
   const FormItems = () => {
-    switch (type) {
-      case TabType.CREATE_ORDER:
-        return (
-          <div
-            style={{
-              display: "grid",
-              gap: 12,
-              gridTemplateColumns: `repeat(4, minmax(0,1fr))`,
-            }}
-          >
-            <Form.Item label="Захиалгын ID" name="order_id">
-              <NewInput disabled />
-            </Form.Item>
-            <Form.Item
-              label="Огноо"
-              name="date"
-              rules={[
-                {
-                  required: true,
-                  message: "Огноо заавал",
-                },
-              ]}
-            >
-              <NewDatePicker
-                style={{
-                  width: "100%",
-                }}
-                format={"YYYY-MM-DD"}
-                locale={mnMN}
-              />
-            </Form.Item>
-            <Form.Item label="Зарлагын байршил" name="order_storage">
-              <NewSelect
-                allowClear
-                showSearch
-                optionFilterProp="children"
-                filterOption={(input, label) =>
-                  (label?.label ?? "")
-                    .toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={warehouses?.map((warehouse) => ({
-                  label: warehouse.name,
-                  value: warehouse.id,
-                }))}
-              />
-            </Form.Item>
-            <Form.Item label="Харилцагчийн нэр">
-              <Space.Compact>
-                <div
-                  className="extraButton"
-                  onClick={() => setIsOpenModalConsumer(true)}
-                >
-                  <Image
-                    src="/icons/clipboardBlack.svg"
-                    width={16}
-                    height={16}
-                    alt="clipboard"
-                  />
-                </div>
-                <Form.Item name="consumerId">
-                  <NewSelect
-                    allowClear
-                    showSearch
-                    virtual={false}
-                    optionFilterProp="children"
-                    filterOption={(input, label) =>
-                      (label?.label ?? "")
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={consumers?.map((consumer) => ({
-                      label: consumer.name,
-                      value: consumer.id,
-                    }))}
-                  />
-                </Form.Item>
-              </Space.Compact>
-            </Form.Item>
-            <Form.Item label="Нийт дүн" name="total">
-              <NewInputNumber disabled />
-            </Form.Item>
-            <Form.Item label="Бараа үйлчилгээний хөнгөлөлт" name="discount">
-              <NewInput disabled />
-            </Form.Item>
-            <Form.Item label="Харилцагчийн хөнгөлөлт" name="discount_consumer">
-              <NewInput disabled />
-            </Form.Item>
-            <Form.Item label="Төлөх дүн" name="paid_amount">
-              <NewInputNumber disabled />
-            </Form.Item>
-          </div>
-        );
-      case TabType.DISTRIBUTION:
-        return (
-          <div
-            style={{
-              display: "grid",
-              gap: 12,
-              gridTemplateColumns: `repeat(4, minmax(0,1fr))`,
-            }}
-          >
-            <Form.Item label="Захиалгын ID" name="order_id">
-              <NewInput disabled />
-            </Form.Item>
-            <Form.Item label="Баримтын төлөв" name="status">
-              <NewSelect
-                disabled
-                options={[
-                  {
-                    label: (
-                      <span
-                        style={{
-                          color: "blue",
-                        }}
-                      >
-                        Захиалга
-                      </span>
-                    ),
-                    value: 0,
-                  },
-                ]}
-              />
-            </Form.Item>
-            <Form.Item
-              label="Захиалга өгсөн огноо"
-              name="order_date"
-              rules={[
-                {
-                  required: false,
-                  message: "Захиалга өгсөн заавал",
-                },
-              ]}
-            >
-              <NewDatePicker
-                disabled
-                style={{
-                  width: "100%",
-                }}
-                format={"YYYY-MM-DD"}
-                locale={mnMN}
-              />
-            </Form.Item>
-            <Form.Item label="Захиалга өгсөн хэрэглэгч" name="order_consumer">
-              <NewSelect
-                disabled
-                options={consumers?.map((consumer) => ({
-                  label: consumer.name,
-                  value: consumer.id,
-                }))}
-              />
-            </Form.Item>
-            <Form.Item label="Нийт дүн" name="total">
-              <NewInputNumber disabled />
-            </Form.Item>
-            <Form.Item label="Бараа үйлчилгээний хөнгөлөлт" name="discount">
-              <NewInput disabled />
-            </Form.Item>
-            <Form.Item label="Харилцагчийн хөнгөлөлт" name="discount_consumer">
-              <NewInput disabled />
-            </Form.Item>
-            <Form.Item label="Төлөх дүн" name="paid_amount">
-              <NewInputNumber disabled />
-            </Form.Item>
-            <Form.Item
-              label="Огноо"
-              name="date"
-              rules={[
-                {
-                  required: true,
-                  message: "Огноо заавал",
-                },
-              ]}
-            >
-              <NewDatePicker
-                style={{
-                  width: "100%",
-                }}
-                format={"YYYY-MM-DD"}
-                locale={mnMN}
-              />
-            </Form.Item>
-            <Form.Item label="Зарлагын байршил" name="order_storage">
-              <NewSelect
-                allowClear
-                showSearch
-                optionFilterProp="children"
-                filterOption={(input, label) =>
-                  (label?.label ?? "")
-                    .toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={warehouses?.map((warehouse) => ({
-                  label: warehouse.name,
-                  value: warehouse.id,
-                }))}
-              />
-            </Form.Item>
-            <Form.Item label="Харилцагчийн нэр">
-              <Space.Compact>
-                <div
-                  className="extraButton"
-                  onClick={() => setIsOpenModalConsumer(true)}
-                >
-                  <Image
-                    src="/icons/clipboardBlack.svg"
-                    width={16}
-                    height={16}
-                    alt="clipboard"
-                  />
-                </div>
-                <Form.Item name="consumerId">
-                  <NewSelect
-                    allowClear
-                    showSearch
-                    virtual={false}
-                    optionFilterProp="children"
-                    filterOption={(input, label) =>
-                      (label?.label ?? "")
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={consumers?.map((consumer) => ({
-                      label: consumer.name,
-                      value: consumer.id,
-                    }))}
-                  />
-                </Form.Item>
-              </Space.Compact>
-            </Form.Item>
-          </div>
-        );
-      default:
-        return;
-    }
+    return (
+      <div
+        style={{
+          display: "grid",
+          gap: 12,
+          gridTemplateColumns: `repeat(4, minmax(0,1fr))`,
+        }}
+      >
+        <Form.Item label="Захиалгын ID" name="code">
+          <NewInput disabled />
+        </Form.Item>
+        <Form.Item
+          label="Баримтын төлөв"
+          name="status"
+          hidden={type == TabType.CREATE_ORDER}
+        >
+          <NewSelect
+            disabled
+            options={[
+              {
+                label: (
+                  <span
+                    style={{
+                      color: "blue",
+                    }}
+                  >
+                    Захиалга
+                  </span>
+                ),
+                value: 0,
+              },
+            ]}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Захиалга өгсөн огноо"
+          name="createdAt"
+          hidden={type == TabType.CREATE_ORDER}
+        >
+          <NewDatePicker disabled format={"YYYY-MM-DD"} />
+        </Form.Item>
+        <Form.Item
+          label="Захиалга өгсөн хэрэглэгч"
+          name="createdBy"
+          hidden={type == TabType.CREATE_ORDER}
+        >
+          <UserSelect form={form} rules={[]} name="createdBy" isDisable />
+        </Form.Item>
+        <Form.Item
+          label="Огноо"
+          name="bookingAt"
+          rules={[
+            {
+              required: true,
+              message: "Огноо заавал",
+            },
+          ]}
+        >
+          <NewDatePicker
+            format={"YYYY-MM-DD"}
+            disabled={type != TabType.CREATE_ORDER}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Зарлагын байршил"
+          name="toWarehouseId"
+          rules={[{ required: true, message: "Байршил заавал" }]}
+        >
+          <NewFilterSelect
+            options={warehouses?.map((warehouse) => ({
+              label: warehouse.name,
+              value: warehouse.id,
+            }))}
+          />
+        </Form.Item>
+        <Form.Item label="Харилцагчийн нэр">
+          <ConsumerSelect form={form} rules={[]} />
+        </Form.Item>
+        <Form.Item label="Нийт дүн" name="totalAmount">
+          <NewInputNumber disabled />
+        </Form.Item>
+        <Form.Item
+          label="Бараа үйлчилгээний хөнгөлөлт"
+          name="materialDiscountAmount"
+        >
+          <NewInput disabled />
+        </Form.Item>
+        <Form.Item label="Харилцагчийн хөнгөлөлт" name="consumerDiscountAmount">
+          <NewInput disabled />
+        </Form.Item>
+        <Form.Item label="Төлөх дүн" name="payAmount">
+          <NewInputNumber disabled />
+        </Form.Item>
+      </div>
+    );
   };
   const Content = () => (
     <Form form={form} layout="vertical">
@@ -294,9 +177,14 @@ const CreateOrder = (props: IProps) => {
             background: "#DEE2E6",
           }}
         />
-        <Form.List name="test">
+        <Form.List name="bookingMaterials">
           {(items, { add, remove }) => (
             <EditableTableOrder
+              params={{
+                types: [MaterialType.Material],
+                warehouseId: toWarehouseId,
+                consumerId: consumerId,
+              }}
               isFormAdd={isFormAdd}
               data={items}
               form={form}
@@ -316,7 +204,7 @@ const CreateOrder = (props: IProps) => {
             type="primary"
             onClick={() =>
               form.validateFields().then((values) => {
-                // onFinish(values);
+                onFinish(values);
                 console.log(values);
               })
             }
@@ -334,16 +222,8 @@ const CreateOrder = (props: IProps) => {
       }
     });
   };
-  const getConsumers = async () => {
-    await ConsumerService.get().then((response) => {
-      if (response.success) {
-        setConsumers(response.response.data);
-      }
-    });
-  };
   useEffect(() => {
     getWarehouse();
-    getConsumers();
   }, []);
   return (
     <>
@@ -393,23 +273,6 @@ const CreateOrder = (props: IProps) => {
           )}
         </Col>
       </Row>
-      <NewModal
-        width={1300}
-        title="Харилцагчын бүртгэл"
-        open={isOpenModalConsumer}
-        onCancel={() => setIsOpenModalConsumer(false)}
-        footer={null}
-      >
-        <Information
-          ComponentType="MIDDLE"
-          onClickModal={(row: IDataConsumer) => {
-            form.setFieldsValue({
-              consumerId: row.id,
-            });
-            setIsOpenModalConsumer(false);
-          }}
-        />
-      </NewModal>
     </>
   );
 };

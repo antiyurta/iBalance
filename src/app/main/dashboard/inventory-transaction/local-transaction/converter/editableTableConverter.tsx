@@ -111,7 +111,7 @@ export const EditableTableConverter = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Material]}
+            params={{ types: [MaterialType.Material] }}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
@@ -183,9 +183,7 @@ export const EditableTableConverter = (props: IProps) => {
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
           >
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-            />
+            <NewInputNumber disabled={!(index === editingIndex)} />
           </Form.Item>
         )}
       />
@@ -194,7 +192,7 @@ export const EditableTableConverter = (props: IProps) => {
         title="Хөрвүүлэх бараа"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Material]}
+            params={{ types: [MaterialType.Material] }}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "convertMaterialId"]}
@@ -266,9 +264,7 @@ export const EditableTableConverter = (props: IProps) => {
             name={[index, "convertQuantity"]}
             rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
           >
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-            />
+            <NewInputNumber disabled={!(index === editingIndex)} />
           </Form.Item>
         )}
       />

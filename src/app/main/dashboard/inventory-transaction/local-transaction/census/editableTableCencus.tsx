@@ -137,7 +137,7 @@ export const EditableTableCencus = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Material]}
+            params={{ types: [MaterialType.Material] }}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}

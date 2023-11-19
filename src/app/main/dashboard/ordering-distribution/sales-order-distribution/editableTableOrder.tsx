@@ -1,23 +1,20 @@
 import { App, Button, Form, Popconfirm, Space, Table } from "antd";
 import { FormInstance, FormListFieldData } from "antd/lib";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
-import NewModal from "@/components/modal";
-import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
-import { IDataMaterial, MaterialType } from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
-import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
-import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
+import { NewInput, NewInputNumber } from "@/components/input";
 import { MaterialSelect } from "@/components/material-select";
+import { IParamViewMaterial } from "@/service/material/view-material/entities";
+import { IDataBookingMaterial } from "@/service/booking/booking-material/entities";
 
 interface IProps {
+  params: IParamViewMaterial;
   isFormAdd: boolean;
   data: FormListFieldData[];
   form: FormInstance;
@@ -28,7 +25,7 @@ interface IProps {
 const { Column } = Table;
 
 const EditableTableOrder = (props: IProps) => {
-  const { isFormAdd, data, form, add, remove } = props;
+  const { params, isFormAdd, data, form, add, remove } = props;
   const { message } = App.useApp();
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
@@ -44,12 +41,54 @@ const EditableTableOrder = (props: IProps) => {
   const onSave = async () => {
     return form
       .validateFields([
-        // ["discounts", editingIndex, "materialId"],
-        // ["discounts", editingIndex, "endAt"],
+        ["bookingMaterials", editingIndex, "materialId"],
+        ["bookingMaterials", editingIndex, "quantity"],
       ])
       .then(() => {
+        if (editingIndex !== undefined) {
+          const quantity = form.getFieldValue([
+            "bookingMaterials",
+            editingIndex,
+            "quantity",
+          ]);
+          const unitAmount = form.getFieldValue([
+            "bookingMaterials",
+            editingIndex,
+            "unitAmount",
+          ]);
+          const discountAmount = form.getFieldValue([
+            "bookingMaterials",
+            editingIndex,
+            "unitDiscountAmount",
+          ]);
+          form.setFieldsValue({
+            bookingMaterials: {
+              [editingIndex]: {
+                amount: quantity * unitAmount,
+                discountAmount: quantity * discountAmount,
+              },
+            },
+          });
+        }
         setNewService(false);
         setEditingIndex(undefined);
+        const bookingMaterials = form.getFieldValue("bookingMaterials") || [];
+        const totalAmount = bookingMaterials.reduce(
+          (sum: number, bookingMaterial: IDataBookingMaterial) =>
+            sum + (bookingMaterial.amount || 0),
+          0
+        );
+        const materialDiscountAmount = bookingMaterials.reduce(
+          (sum: number, bookingMaterial: IDataBookingMaterial) =>
+            sum + (bookingMaterial.discountAmount || 0),
+          0
+        );
+        form.setFieldsValue({
+          totalAmount,
+          materialDiscountAmount,
+          consumerDiscountAmount: 0,
+          payAmount: totalAmount - materialDiscountAmount,
+        });
         return true;
       })
       .catch((error) => {
@@ -78,7 +117,6 @@ const EditableTableOrder = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
-  //
   const Footer = () => (
     <div className="button-editable-footer" onClick={() => addService()}>
       <div
@@ -116,7 +154,7 @@ const EditableTableOrder = (props: IProps) => {
           dataIndex={"code"}
           render={(_, __, index) => (
             <MaterialSelect
-              materialTypes={[MaterialType.Material]}
+              params={params}
               form={form}
               rules={[{ required: true, message: "Дотоод код заавал" }]}
               name={[index, "materialId"]}
@@ -124,18 +162,29 @@ const EditableTableOrder = (props: IProps) => {
               disabled={!(index === editingIndex)}
               onClear={() => {
                 form.resetFields([
-                  ["test", index, "name"],
-                  ["test", index, "measurement"],
-                  ["test", index, "countPackage"],
+                  ["bookingMaterials", index, "name"],
+                  ["bookingMaterials", index, "measurement"],
+                  ["bookingMaterials", index, "countPackage"],
+                  ["bookingMaterials", index, "lastQty"],
+                  ["bookingMaterials", index, "unitAmount"],
+                  ["bookingMaterials", index, "quantity"],
+                  ["bookingMaterials", index, "amount"],
+                  ["bookingMaterials", index, "discountAmount"],
                 ]);
               }}
               onSelect={(value) => {
                 form.setFieldsValue({
-                  test: {
+                  bookingMaterials: {
                     [index]: {
                       name: value.name,
                       measurement: value.measurementName,
                       countPackage: value.countPackage,
+                      lastQty: value.lastQty,
+                      unitAmount: value.unitAmount,
+                      unitDiscountAmount: value.discountAmount,
+                      quantity: 1,
+                      amount: value.unitAmount,
+                      discountAmount: value.discountAmount,
                     },
                   },
                 });
@@ -172,45 +221,50 @@ const EditableTableOrder = (props: IProps) => {
         />
         <Column
           title="Агуулахын үлдэгдэл"
-          dataIndex={"balance"}
+          dataIndex={"lastQty"}
           render={(_, __, index) => (
-            <Form.Item name={[index, "balance"]}>
+            <Form.Item name={[index, "lastQty"]}>
               <NewInputNumber disabled />
-            </Form.Item>
-          )}
-        />
-        <Column
-          title="Тоо хэмжээ /захиалга/"
-          dataIndex={"order_quantity"}
-          render={(_, __, index) => (
-            <Form.Item name={[index, "order_quantity"]}>
-              <NewInputNumber disabled={!(index === editingIndex)} />
             </Form.Item>
           )}
         />
         <Column
           title="Нэгж үнэ /захиалга/"
-          dataIndex={"order_price"}
+          dataIndex={"unitAmount"}
           render={(_, __, index) => (
-            <Form.Item name={[index, "order_price"]}>
-              <NewInputNumber disabled />
+            <>
+              <Form.Item name={[index, "unitAmount"]}>
+                <NewInputNumber disabled />
+              </Form.Item>
+              <Form.Item name={[index, "unitDiscountAmount"]} hidden>
+                <NewInputNumber disabled />
+              </Form.Item>
+            </>
+          )}
+        />
+        <Column
+          title="Тоо хэмжээ /захиалга/"
+          dataIndex={"quantity"}
+          render={(_, __, index) => (
+            <Form.Item name={[index, "quantity"]}>
+              <NewInputNumber disabled={!(index === editingIndex)} />
             </Form.Item>
           )}
         />
         <Column
           title="Дүн /захиалга/"
-          dataIndex={"order_amount"}
+          dataIndex={"amount"}
           render={(_, __, index) => (
-            <Form.Item name={[index, "order_amount"]}>
+            <Form.Item name={[index, "amount"]}>
               <NewInputNumber disabled />
             </Form.Item>
           )}
         />
         <Column
           title="Бараа үйлчилгээний хөнгөлөлт/захиалга/"
-          dataIndex={"order_discount"}
+          dataIndex={"discountAmount"}
           render={(_, __, index) => (
-            <Form.Item name={[index, "order_discount"]}>
+            <Form.Item name={[index, "discountAmount"]}>
               <NewInputNumber disabled />
             </Form.Item>
           )}

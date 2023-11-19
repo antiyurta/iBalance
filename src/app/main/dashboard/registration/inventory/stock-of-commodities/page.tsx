@@ -12,7 +12,7 @@ import {
   Typography,
 } from "antd";
 import { useState } from "react";
-import { IDataMaterial } from "@/service/material/entities";
+import { IDataMaterial, MaterialType } from "@/service/material/entities";
 import Thumbnail from "./thumbnail";
 import { MaterialResourceSizeService } from "@/service/material/resource-size/service";
 import NewModal from "@/components/modal";
@@ -30,9 +30,7 @@ const StockOfCommoditiesPage = () => {
     {
       label: "Бараа материалын жагсаалт",
       key: "item-1",
-      children: (
-        <Thumbnail onEdit={(row) => openModal(true, row)} />
-      ),
+      children: <Thumbnail onEdit={(row) => openModal(true, row)} />,
     },
     {
       label: "Дэлгэрэнгүй жагсаалт",
@@ -133,7 +131,7 @@ const StockOfCommoditiesPage = () => {
             <div className="inputs-gird-3">
               <Form.Item label="Дотоод код">
                 <MaterialSelect
-                  materialTypes={[]}
+                  params={{ types: [MaterialType.Material] }}
                   form={form}
                   rules={[
                     {

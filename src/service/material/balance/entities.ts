@@ -22,6 +22,8 @@ export interface IFilterBalance {
   materialMeasurementId?: number[]; // Барааны хэмжих нэгж
   materialCountPackage?: number[]; // Багц доторх тоо
   warehouseId?: number[]; // Эхний үлдэгдэл
+  purchaseAt?: string;
+  expirationAt?: string;
   quantity?: number[]; // Эхний үлдэгдэл
 }
 

@@ -13,9 +13,10 @@ interface IProps {
   rules: Rule[];
   /** default => consumerId */
   name?: string;
+  isDisable?: boolean;
 }
 export const ConsumerSelect = (props: IProps) => {
-  const { form, name, rules } = props;
+  const { form, name, rules, isDisable } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const getConsumers = async (params: IParamConsumer) => {
@@ -31,14 +32,16 @@ export const ConsumerSelect = (props: IProps) => {
   return (
     <>
       <Space.Compact>
-        <div className="extraButton" onClick={() => setIsOpenPopOver(true)}>
-          <Image
-            src="/icons/clipboardBlack.svg"
-            width={16}
-            height={16}
-            alt="clipboard"
-          />
-        </div>
+        {isDisable ? null : (
+          <div className="extraButton" onClick={() => setIsOpenPopOver(true)}>
+            <Image
+              src="/icons/clipboardBlack.svg"
+              width={16}
+              height={16}
+              alt="clipboard"
+            />
+          </div>
+        )}
         <Form.Item name={name ? name : "consumerId"} rules={rules}>
           <NewFilterSelect
             style={{
@@ -48,6 +51,7 @@ export const ConsumerSelect = (props: IProps) => {
               value: consumer.id,
               label: `${consumer.code} - ${consumer.name}`,
             }))}
+            disabled={isDisable}
           />
         </Form.Item>
       </Space.Compact>

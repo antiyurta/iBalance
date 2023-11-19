@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { FilteredColumnsUser, IFilterUser, IParamUser, IUser } from "@/service/authentication/entities";
+import {
+  FilteredColumnsUser,
+  IFilterUser,
+  IParamUser,
+  IUser,
+} from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
 import { FormInstance, Space } from "antd";
 import { Rule } from "antd/es/form";
@@ -15,9 +20,10 @@ interface IProps {
   /** default => userId */
   name?: string;
   isMultiple?: boolean;
+  isDisable?: boolean;
 }
 export const UserSelect = (props: IProps) => {
-  const { form, rules, name, isMultiple } = props;
+  const { form, rules, name, isMultiple, isDisable } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [users, setUsers] = useState<IUser[]>([]);
   const [filters, setFilters] = useState<IFilterUser>();
@@ -25,54 +31,54 @@ export const UserSelect = (props: IProps) => {
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [columns, setColumns] = useState<FilteredColumnsUser>({
     email: {
-        label: "Мэйл",
+      label: "Мэйл",
       isView: true,
       isFiltered: false,
       dataIndex: "email",
       type: DataIndexType.MULTI,
     },
     lastName: {
-        label: "Овог",
-        isView: true,
+      label: "Овог",
+      isView: true,
       isFiltered: false,
       dataIndex: "lastName",
       type: DataIndexType.MULTI,
     },
     firstName: {
-        label: "Нэр",
-        isView: true,
+      label: "Нэр",
+      isView: true,
       isFiltered: false,
       dataIndex: "firstName",
       type: DataIndexType.MULTI,
-    }, 
+    },
     phonoNo: {
-        label: "Утасны дугаар",
-        isView: true,
+      label: "Утасны дугаар",
+      isView: true,
       isFiltered: false,
       dataIndex: "phonoNo",
       type: DataIndexType.MULTI,
-    }, 
+    },
     hospitalId: {
-        label: "Байгууллага",
-        isView: true,
+      label: "Байгууллага",
+      isView: true,
       isFiltered: false,
       dataIndex: ["hospital", "name"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
-        label: "Үүсгэсэн огноо",
-        isView: true,
+      label: "Үүсгэсэн огноо",
+      isView: true,
       isFiltered: false,
       dataIndex: "createdAt",
       type: DataIndexType.MULTI,
     },
     isActive: {
-        label: "Идэвхтэй ",
-        isView: true,
+      label: "Идэвхтэй ",
+      isView: true,
       isFiltered: false,
       dataIndex: "isActive",
       type: DataIndexType.BOOLEAN_STRING,
-    }
+    },
   });
   const getUsers = async (params: IParamUser) => {
     await authService.getAllUsers(params).then((response) => {
@@ -87,24 +93,27 @@ export const UserSelect = (props: IProps) => {
   return (
     <>
       <Space.Compact>
-        <div className="extraButton" onClick={() => setIsOpenPopOver(true)}>
-          <Image
-            src="/icons/clipboardBlack.svg"
-            width={16}
-            height={16}
-            alt="clipboard"
-          />
-        </div>
+        {isDisable ? null : (
+          <div className="extraButton" onClick={() => setIsOpenPopOver(true)}>
+            <Image
+              src="/icons/clipboardBlack.svg"
+              width={16}
+              height={16}
+              alt="clipboard"
+            />
+          </div>
+        )}
         <Form.Item name={name ? name : "updatedBy"} rules={rules}>
           <NewFilterSelect
             style={{
               width: "100%",
             }}
-            mode={isMultiple ? "multiple" : undefined }
+            mode={isMultiple ? "multiple" : undefined}
             options={users.map((user) => ({
               value: user.id,
               label: `${user.lastName?.substring(0, 1)}. ${user.firstName}`,
             }))}
+            disabled={isDisable}
           />
         </Form.Item>
       </Space.Compact>

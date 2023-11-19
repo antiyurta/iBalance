@@ -16,7 +16,7 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { MovingStatus } from "@/service/document/entities";
 interface IProps {
-  movingStatus: MovingStatus;
+  movingStatus?: MovingStatus;
 }
 export const TransactionList = (props: IProps) => {
   const { movingStatus } = props;
@@ -27,7 +27,6 @@ export const TransactionList = (props: IProps) => {
   const [params, setParams] = useState<IParamTransaction>({
     page: 1,
     limit: 10,
-    movingStatus,
   });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsTransaction>({
@@ -38,14 +37,14 @@ export const TransactionList = (props: IProps) => {
       dataIndex: "id",
       type: DataIndexType.MULTI,
     },
-    createdAt: {
+    date: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["document", "date"],
       type: DataIndexType.DATE,
     },
-    warehouse: {
+    warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
@@ -66,8 +65,15 @@ export const TransactionList = (props: IProps) => {
       dataIndex: ["material", "name"],
       type: DataIndexType.MULTI,
     },
+    materialMeasurementName: {
+      label: "Хэмжих нэгж",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["material", "measurement", "name"],
+      type: DataIndexType.MULTI,
+    },
     quantity: {
-      label: "Орлогын тоо хэмжээ",
+      label: "Орлогын/Зарлага тоо хэмжээ",
       isView: true,
       isFiltered: false,
       dataIndex: "quantity",
@@ -87,23 +93,10 @@ export const TransactionList = (props: IProps) => {
       dataIndex: ["document", "description"],
       type: DataIndexType.MULTI,
     },
-    sectionName: {
-      label: "Гүйлгээний төрөл",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "section", "name"],
-      type: DataIndexType.MULTI,
-    },
-    endAt: {
-      label: "Дуусах хугацаа",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "endAt"],
-      type: DataIndexType.MULTI,
-    },
   });
   const getData = async (params: IParamTransaction) => {
     blockContext.block();
+    if (movingStatus) params.movingStatus = movingStatus;
     await TransactionService.get(params)
       .then((response) => {
         if (response.success) {

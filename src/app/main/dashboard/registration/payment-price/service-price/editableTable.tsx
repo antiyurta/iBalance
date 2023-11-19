@@ -124,7 +124,7 @@ const EditableTableService = (props: IProps) => {
           title="Дотоод код"
           render={(_, __, index) => (
             <MaterialSelect
-              materialTypes={[MaterialType.Service]}
+              params={{ types: [MaterialType.Service] }}
               form={form}
               rules={[
                 {
