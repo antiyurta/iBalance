@@ -136,6 +136,7 @@ export const EditableTableConverter = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />
@@ -217,6 +218,7 @@ export const EditableTableConverter = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />

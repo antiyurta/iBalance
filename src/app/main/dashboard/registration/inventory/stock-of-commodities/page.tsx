@@ -156,6 +156,7 @@ const StockOfCommoditiesPage = () => {
                       measurement: { name: value.measurementName },
                     });
                   }}
+                  materialTypes={[]}
                 />
               </Form.Item>
               <Form.Item label="Бараа материалын нэр" name="name">

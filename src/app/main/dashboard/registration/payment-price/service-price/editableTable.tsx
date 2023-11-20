@@ -153,6 +153,7 @@ const EditableTableService = (props: IProps) => {
                   },
                 });
               }}
+              materialTypes={[]}
             />
           )}
         />

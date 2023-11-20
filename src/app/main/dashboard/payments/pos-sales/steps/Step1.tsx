@@ -5,7 +5,11 @@ import Membership from "./Step1/Membership";
 import Bonus from "./Step1/Bonus";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
-import { PosStepActions } from "@/feature/core/actions/PosAction";
+import {
+  setIsMembership,
+  setIsSaveAndSetSaveValue,
+  setIsUseSaveAndSetUseValue,
+} from "@/feature/core/reducer/PosReducer";
 
 const { Title } = Typography;
 
@@ -27,13 +31,23 @@ const Step1 = (props: IProps) => {
   const [isBonus, setIsBonus] = useState<boolean>(false);
   //
   const setPosMembership = (state: boolean) => {
-    dispatch(PosStepActions.setIsMembership(state));
+    dispatch(setIsMembership(state));
   };
   //
   useEffect(() => {
     if (!isMembership) {
-      dispatch(PosStepActions.setIsSaveAndSaveValue(true, 0));
-      dispatch(PosStepActions.setIsUseSaveAndSeUseValue(false, 0));
+      dispatch(
+        setIsSaveAndSetSaveValue({
+          isSave: true,
+          saveValue: 0,
+        })
+      );
+      dispatch(
+        setIsUseSaveAndSetUseValue({
+          isUseSave: false,
+          useValue: 0,
+        })
+      );
     }
   }, [isMembership]);
   return (

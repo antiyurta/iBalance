@@ -1,7 +1,14 @@
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { PosStepActions } from "@/feature/core/actions/PosAction";
+import {
+  setConsumer,
+  setIsSaveAndSetSaveValue,
+  setIsUseSaveAndSetUseValue,
+  setMembership,
+  setMembershipId,
+  setRegnoOrPhone,
+} from "@/feature/core/reducer/PosReducer";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { IDataConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerService } from "@/service/consumer/service";
@@ -28,8 +35,8 @@ const Membership = (props: IProps) => {
     await ConsumerService.Byfilter(searchValue)
       .then((response) => {
         if (response.success && response.response) {
-          dispatch(PosStepActions.setRegnoOrPhono(searchValue));
-          dispatch(PosStepActions.setConsumer(response.response));
+          dispatch(setRegnoOrPhone(searchValue));
+          dispatch(setConsumer(response.response));
         } else {
           openNofi("error", "Хайсан үр дүн байхгүй");
         }
@@ -39,14 +46,11 @@ const Membership = (props: IProps) => {
       });
   };
   const getMembershipCard = async (id: number) => {
-    dispatch(PosStepActions.setMembershipId(id));
-    dispatch(
-      PosStepActions.setMembership(
-        consumer?.memberships.find(
-          (membership: IDataConsumerMembership) => membership.id === id
-        )
-      )
+    const membership = consumer?.memberships.find(
+      (membership) => membership.id === id
     );
+    dispatch(setMembershipId(id));
+    if (membership) dispatch(setMembership(membership));
   };
   const Discount = () => {
     if (membership?.membership.isSave && membership.membership.isPercent) {
@@ -108,7 +112,10 @@ const Membership = (props: IProps) => {
             onClick={() => {
               form.validateFields(["pinCode"]).then((values) => {
                 dispatch(
-                  PosStepActions.setIsUseSaveAndSeUseValue(true, amount)
+                  setIsUseSaveAndSetUseValue({
+                    isUseSave: true,
+                    useValue: amount,
+                  })
                 );
               });
             }}
@@ -136,16 +143,16 @@ const Membership = (props: IProps) => {
   useEffect(() => {
     if (membershipId) {
       dispatch(
-        PosStepActions.setIsSaveAndSaveValue(
-          membership?.membership.isSave,
-          (amount / 100) * membership.membership.discount
-        )
+        setIsSaveAndSetSaveValue({
+          isSave: membership?.membership.isSave || false,
+          saveValue: membership?.membership.isSave ? useValue : 0,
+        })
       );
       dispatch(
-        PosStepActions.setIsUseSaveAndSeUseValue(
-          membership?.membership.isSave,
-          membership?.membership.isSave ? useValue : 0
-        )
+        setIsUseSaveAndSetUseValue({
+          isUseSave: membership?.membership.isSave || false,
+          useValue: membership?.membership.isSave ? useValue : 0,
+        })
       );
     }
   }, [membershipId]);

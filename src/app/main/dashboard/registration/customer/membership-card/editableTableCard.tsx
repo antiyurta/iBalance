@@ -44,7 +44,6 @@ const EditableTableCard: React.FC<IProps> = (props) => {
     undefined
   );
   const [isNewService, setNewService] = useState<boolean>(false);
-  
 
   const addService = () => {
     onSave().then((state) => {
@@ -223,7 +222,7 @@ const EditableTableCard: React.FC<IProps> = (props) => {
           <Form.Item name={[index, "endAt"]}>
             <DatePicker
               disabled={!(index === editingIndex)}
-              value={value ? dayjs(value, "YYYY-MM-DD hh:mm:ss") : null}
+              // value={value ? dayjs(value, "YYYY-MM-DD hh:mm:ss") : null}
               locale={mnMN}
             />
           </Form.Item>

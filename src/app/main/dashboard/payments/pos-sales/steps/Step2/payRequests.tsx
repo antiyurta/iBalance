@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { PosStepActions } from "@/feature/core/actions/PosAction";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { Typography } from "antd";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useDispatch } from "react-redux";
+import { removeMethod } from "@/feature/core/reducer/PosReducer";
 
 const { Title } = Typography;
 
@@ -19,15 +19,17 @@ const PayRequests = (props: IProps) => {
   const [balance, setBalance] = useState<number>(paidAmount);
   const { methods } = useTypedSelector((state: RootState) => state.posStep);
   const remove = (id: number) => {
-    dispatch(PosStepActions.removeMethod(id));
+    dispatch(removeMethod(id));
   };
   useEffect(() => {
-    const resultTotal = methods?.reduce(
-      (total, method) => (total += method.amount),
-      0
-    );
-    setBalance(paidAmount - resultTotal);
-    amountDiff(balance);
+    if (methods) {
+      const resultTotal: number = methods?.reduce(
+        (total: number, method) => (total += method.amount),
+        0
+      );
+      setBalance(paidAmount - resultTotal);
+      amountDiff(balance);
+    }
   }, [methods]);
   useEffect(() => {
     amountDiff(balance);

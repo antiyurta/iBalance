@@ -137,6 +137,7 @@ function EditableTableMaterial(props: IProps) {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />

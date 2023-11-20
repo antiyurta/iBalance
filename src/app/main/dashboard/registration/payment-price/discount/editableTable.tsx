@@ -153,6 +153,7 @@ const EditableTableDiscount = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />

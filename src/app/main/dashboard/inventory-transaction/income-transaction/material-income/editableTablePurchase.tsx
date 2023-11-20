@@ -130,6 +130,7 @@ export const EditableTablePurchase = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />

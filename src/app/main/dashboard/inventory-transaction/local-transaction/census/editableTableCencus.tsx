@@ -163,6 +163,7 @@ export const EditableTableCencus = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />

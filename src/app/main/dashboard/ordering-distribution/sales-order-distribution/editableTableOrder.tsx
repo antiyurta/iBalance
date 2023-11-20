@@ -189,6 +189,7 @@ const EditableTableOrder = (props: IProps) => {
                   },
                 });
               }}
+              materialTypes={[]}
             />
           )}
         />

@@ -138,6 +138,7 @@ export const EditableTableMove = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />

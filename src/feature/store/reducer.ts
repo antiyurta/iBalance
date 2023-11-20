@@ -4,14 +4,15 @@ import { coreReducer } from "../core/reducer/CoreReducer";
 import { titleReducer } from "../core/reducer/TitleReducer";
 import { reportReducer } from "../core/reducer/ReportReducer";
 import { tabReducer } from "../core/reducer/TabsReducer";
-import { posStepReducer } from "../core/reducer/PosStepReducer";
+// import { posStepReducer } from "../core/reducer/PosStepReducer";
+import postReducer from "../core/reducer/PosReducer";
 
 const rootReducer = combineReducers({
   core: coreReducer,
   title: titleReducer,
   report: reportReducer,
   tabs: tabReducer,
-  posStep: posStepReducer,
+  posStep: postReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

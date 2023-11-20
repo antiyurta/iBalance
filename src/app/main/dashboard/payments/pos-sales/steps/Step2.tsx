@@ -13,8 +13,8 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import PayRequests from "./Step2/payRequests";
 import { openNofi } from "@/feature/common";
 import { useDispatch } from "react-redux";
-import { PosStepActions } from "@/feature/core/actions/PosAction";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { setMethods } from "@/feature/core/reducer/PosReducer";
 
 const { Title } = Typography;
 
@@ -53,7 +53,7 @@ const Step2 = (props: IProps) => {
       const method = paymentMethods?.find((method) => method.id === activeKey);
       if (method) {
         dispatch(
-          PosStepActions.setMethods({
+          setMethods({
             id: method.id,
             type: method.type,
             imageUrl: method.imageUrl,
