@@ -7,15 +7,10 @@ import {
 import { App, Button, Form, Popconfirm, Table } from "antd";
 import type { FormListFieldData } from "antd";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
+import React, { useState } from "react";
+import { NewInput, NewInputNumber } from "@/components/input";
 import { FormInstance } from "antd/lib";
-import {
-  IDataMaterial,
-  IParamMaterial,
-  MaterialType,
-} from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
+import { MaterialType } from "@/service/material/entities";
 import { MaterialSelect } from "@/components/material-select";
 interface IProps {
   data: FormListFieldData[];
@@ -115,7 +110,7 @@ function EditableTableMaterial(props: IProps) {
         title={"Дотоод код"}
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Service, MaterialType.Material]}
+            params={{ types: [MaterialType.Service, MaterialType.Material] }}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}

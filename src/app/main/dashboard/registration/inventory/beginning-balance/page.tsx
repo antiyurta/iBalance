@@ -24,6 +24,7 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { MaterialSelect } from "@/components/material-select";
+import { IDataMaterial, MaterialType } from "@/service/material/entities";
 
 const { Title } = Typography;
 const BeginningBalancePage = () => {
@@ -32,18 +33,15 @@ const BeginningBalancePage = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [selectedRow, setSelectedRow] = useState<IDataBalance>();
+  const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
   const items = [
     {
       label: "Бараа материалын жагсаалт",
       key: "item-1",
       children: (
         <Thumbnail
-          onReload={isReloadList}
+          isReload={isReloadList}
           onEdit={(row) => openModal(true, row)}
-          onDelete={(id: number) => {
-            throw new Error("Function not implemented.");
-          }}
         />
       ),
     },
@@ -63,14 +61,17 @@ const BeginningBalancePage = () => {
   useEffect(() => {
     getWarehouses({});
   }, []);
-  const openModal = (state: boolean, row?: IDataBalance) => {
+  const openModal = (state: boolean, row?: IDataMaterial) => {
     setIsReloadList(false);
     setEditMode(state);
     form.resetFields();
     if (state && row) {
       setSelectedRow(row);
       form.resetFields();
-      form.setFieldsValue(row);
+      form.setFieldsValue({
+        ...row,
+        materialId: row.id,
+      });
     }
     setIsOpenModal(true);
   };
@@ -79,14 +80,14 @@ const BeginningBalancePage = () => {
       await BalanceService.patch(selectedRow.id, values).then((response) => {
         if (response.success) {
           setIsOpenModal(false);
-          setIsReloadList(true);
+          setIsReloadList(!isReloadList);
         }
       });
     } else {
       await BalanceService.post(values).then((response) => {
         if (response.success) {
           setIsOpenModal(false);
-          setIsReloadList(true);
+          setIsReloadList(!isReloadList);
         }
       });
     }
@@ -152,7 +153,7 @@ const BeginningBalancePage = () => {
             <div className="inputs-gird-2">
               <Form.Item label="Дотоод код">
                 <MaterialSelect
-                  materialTypes={[]}
+                  params={{ types: [MaterialType.Material] }}
                   form={form}
                   rules={[
                     {
@@ -172,9 +173,13 @@ const BeginningBalancePage = () => {
                   onSelect={(value) => {
                     form.setFieldsValue({
                       name: value.name,
-                      measurement: value.measurementName,
                       countPackage: value.countPackage,
-                      section: value.sectionName,
+                      measurement: {
+                        name: value.measurementName,
+                      },
+                      section: {
+                        name: value.sectionName,
+                      },
                     });
                   }}
                 />
@@ -182,20 +187,23 @@ const BeginningBalancePage = () => {
               <Form.Item label="Бараа материалын нэр" name="name">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Хэмжих нэгж" name="measurement">
+              <Form.Item label="Хэмжих нэгж" name={["measurement", "name"]}>
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Бараа материалын бүлэг" name="section">
+              <Form.Item
+                label="Бараа материалын бүлэг"
+                name={["section", "name"]}
+              >
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Багцын доторх тоо" name="countPackage">
                 <InputNumber disabled />
               </Form.Item>
-              <Form.Item label="Эхний үлдэгдэл" name="quantity">
+              <Form.Item label="Эхний үлдэгдэл" name="balanceQty">
                 <InputNumber disabled />
               </Form.Item>
             </div>
-            <Form.List name="materialWarehouseBalances">
+            <Form.List name="balances">
               {(accounts, { add, remove }) => (
                 <EditableTableBalance
                   data={accounts}

@@ -8,38 +8,38 @@ import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Queries } from "@/service/entities";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
-import { message, notification } from "antd";
+import { notification } from "antd";
 import type { DefaultOptionType } from "antd/es/cascader";
 import { ColumnFilterItem } from "antd/es/table/interface";
-import { DataNode } from "antd/es/tree";
 import dayjs from "dayjs";
 import Image from "next/image";
 import React from "react";
 import { NumericFormat } from "react-number-format";
 import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { IDataCountry } from "@/service/reference/country/entities";
+import { MovingStatus } from "@/service/document/entities";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
   description: string,
-  message?: string,
+  message?: string
 ) => {
   notification.config({
     top: 80,
     duration: 4,
   });
   switch (type) {
-    case 'success':
-      message = 'Амжилттай';
+    case "success":
+      message = "Амжилттай";
       break;
-    case 'error':
-      message = 'Амжилтгүй';
+    case "error":
+      message = "Амжилтгүй";
       break;
-    case 'warning':
-      message = 'Анхаар';
+    case "warning":
+      message = "Анхаар";
       break;
-    case 'info':
-      message = 'Мэдээлэл';
+    case "info":
+      message = "Мэдээлэл";
       break;
     default:
       break;
@@ -120,6 +120,40 @@ function renderCheck(text: any, type: DataIndexType) {
           thousandSeparator=","
         />
       );
+    case DataIndexType.VALUE:
+      return (
+        <NumericFormat
+          value={text}
+          prefix={"₮"}
+          displayType="text"
+          thousandSeparator=","
+        />
+      );
+    case DataIndexType.TRANSACTION:
+      switch (text) {
+        case MovingStatus.ActAmortization:
+          return "Акт хорогдол";
+        case MovingStatus.Cencus:
+          return "Тооллого";
+        case MovingStatus.InOperation:
+          return "Үйл ажиллагаанд";
+        case MovingStatus.ItemConversion:
+          return "Барааны хөрвүүлэг";
+        case MovingStatus.Mixture:
+          return "Хольц";
+        case MovingStatus.MovementInWarehouse:
+          return "Агуулах доторх хөдөлгөөн";
+        case MovingStatus.Purchase:
+          return "Татан авалт/Худалдан авалт";
+        case MovingStatus.PurchaseReturn:
+          return "Худалдан авалтын буцаалт";
+        case MovingStatus.SaleReturn:
+          return "Борлуулалтын буцаалт";
+        case MovingStatus.Sales:
+          return "Борлуулалт";
+        default:
+          return;
+      }
     default:
       return text;
   }
@@ -458,10 +492,10 @@ const getFile = async (id: number) => {
 interface FieldData {
   [key: string]: any;
 }
-/** формийн field set хийх 
+/** формийн field set хийх
  * @example
  * form.setFieldsValue(fieldValue([etc...], value));
-*/
+ */
 function fieldValue(dataIndex: (string | number)[], value: number): FieldData {
   const result: FieldData = {};
   let temp = result;

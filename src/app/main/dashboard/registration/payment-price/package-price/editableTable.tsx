@@ -1,12 +1,5 @@
 import Image from "next/image";
-import {
-  App,
-  Button,
-  Form,
-  FormInstance,
-  Popconfirm,
-  Table,
-} from "antd";
+import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useContext, useEffect, useState } from "react";
 import {
@@ -191,7 +184,7 @@ const EditableTablePackage = (props: IProps) => {
           title="Дотоод код"
           render={(_, __, index) => (
             <MaterialSelect
-              materialTypes={[MaterialType.Package]}
+              params={{ types: [MaterialType.Package] }}
               form={form}
               rules={[{ required: true, message: "Дотоод код заавал" }]}
               name={[index, "materialId"]}

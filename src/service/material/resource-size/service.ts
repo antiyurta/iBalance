@@ -1,11 +1,11 @@
 import { api } from "@/feature/interceptor/interceptor";
 import {
-  IDataResourceSize,
   IResponseResourceSize,
   IResponseResourceSizes,
   IParamResourceSize,
 } from "./entities";
 import { GenericResponse } from "@/service/entities";
+import { IDataMaterial } from "../entities";
 
 function get(params: IParamResourceSize): Promise<IResponseResourceSizes> {
   return api.get("material-resource-size", { params });
@@ -15,15 +15,15 @@ function getById(id: number): Promise<IResponseResourceSize> {
   return api.get("material-resource-size/" + id);
 }
 
-function post(body: IDataResourceSize): Promise<IResponseResourceSize> {
+function post(body: IDataMaterial): Promise<IResponseResourceSize> {
   return api.post("material-resource-size", body);
 }
 
 function patch(
-  id: number,
-  body: IDataResourceSize
+  materialId: number,
+  body: IDataMaterial
 ): Promise<IResponseResourceSize> {
-  return api.patch("material-resource-size/" + id, body);
+  return api.patch("material-resource-size/" + materialId, body);
 }
 
 function remove(materialId: number): Promise<GenericResponse> {

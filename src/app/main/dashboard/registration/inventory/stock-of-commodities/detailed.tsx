@@ -1,33 +1,55 @@
+import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
+import ColumnSettings from "@/components/columnSettings";
+import Description from "@/components/description";
+import NewDirectoryTree from "@/components/directoryTree";
+import Filtered from "@/components/filtered";
+import { NewSelect } from "@/components/input";
+import { NewTable } from "@/components/table";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { ComponentType, DataIndexType, Meta } from "@/service/entities";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-
-//components
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { NewTable } from "@/components/table";
-import { DataIndexType, Meta } from "@/service/entities";
-//service
-import { Col, Row, Space } from "antd";
 import {
-  FilteredColumnsBalance,
-  IDataBalance,
-  IFilterBalance,
-  IParamBalance,
-} from "@/service/material/balance/entities";
-import { BalanceService } from "@/service/material/balance/service";
+  FilteredColumnsMaterial,
+  IDataMaterial,
+  IFilterMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
+import { IDataMaterialSection } from "@/service/material/section/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { MaterialService } from "@/service/material/service";
+import { MaterialResourceSizeService } from "@/service/material/resource-size/service";
+import { MaterialSectionService } from "@/service/material/section/service";
+import {
+  FilteredColumnsResourceSize,
+  IDataResourceSize,
+  IFilterResourceSize,
+  IParamResourceSize,
+} from "@/service/material/resource-size/entities";
 
-const Detailed = () => {
+const { Title } = Typography;
+
+const DetailList = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [data, setData] = useState<IDataBalance[]>([]);
-  const [params, setParams] = useState<IParamBalance>({
+  const [data, setData] = useState<IDataResourceSize[]>([]);
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [filters, setFilters] = useState<IFilterResourceSize>();
+  const [params, setParams] = useState<IParamResourceSize>({
     page: 1,
     limit: 10,
   });
-  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterBalance>();
-  const [columns, setColumns] = useState<FilteredColumnsBalance>({
+  const [columns, setColumns] = useState<FilteredColumnsResourceSize>({
     materialCode: {
       label: "Дотоод код",
       isView: true,
@@ -49,7 +71,7 @@ const Detailed = () => {
       dataIndex: ["material", "section", "name"],
       type: DataIndexType.MULTI,
     },
-    materialMeasurementId: {
+    materialMeasurementName: {
       label: "Хэмжих нэгж",
       isView: true,
       isFiltered: false,
@@ -63,38 +85,38 @@ const Detailed = () => {
       dataIndex: ["material", "countPackage"],
       type: DataIndexType.MULTI,
     },
-    warehouseId: {
+    warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
       dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
-    purchaseAt: {
-      label: "Худалдан авсан огноо",
+    downloadDay: {
+      label: "Эргэц /хоногоор/",
       isView: true,
       isFiltered: false,
-      dataIndex: "purchaseAt",
-      type: DataIndexType.DATE,
+      dataIndex: "downloadDay",
+      type: DataIndexType.NUMBER,
     },
-    expirationAt: {
-      label: "Хугацаа дуусах огноо",
+    minResourceSize: {
+      label: "Заавал байлгах хамгийн бага нөөцийн хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "expirationAt",
-      type: DataIndexType.DATE,
+      dataIndex: "minResourceSize",
+      type: DataIndexType.NUMBER,
     },
-    quantity: {
-      label: "Эхний үлдэгдэл",
+    minDownloadSize: {
+      label: "Дараагийн татан авалтын хамгийн бага хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: "minDownloadSize",
       type: DataIndexType.NUMBER,
     },
   });
-  const getData = async (params: IParamBalance) => {
+  const getData = async (params: IParamResourceSize) => {
     blockContext.block();
-    await BalanceService.get(params)
+    await MaterialResourceSizeService.get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -188,4 +210,4 @@ const Detailed = () => {
     </Row>
   );
 };
-export default Detailed;
+export default DetailList;

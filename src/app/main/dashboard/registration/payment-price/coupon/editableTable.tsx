@@ -122,11 +122,13 @@ const EditableTableCoupon = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[
-              MaterialType.Service,
-              MaterialType.Material,
-              MaterialType.Package,
-            ]}
+            params={{
+              types: [
+                MaterialType.Service,
+                MaterialType.Material,
+                MaterialType.Package,
+              ],
+            }}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}

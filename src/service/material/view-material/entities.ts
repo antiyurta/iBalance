@@ -16,7 +16,7 @@ export interface IDataViewMaterial {
   countPackage: number; // Багц доторх тоо
   sectionName: string; // Бараа материалын бүлэг
   coupon: IDataCoupon; // urushuulal
-  discount: IDataDiscount; // hongololt
+  discountAmount: number; // барааны хөнгөлөлт
   unitAmount: number; // Нэгжийн үнэ
   lastQty: number;
 }
@@ -41,6 +41,8 @@ export interface IParamViewMaterial extends Meta, IParam, IFilterViewMaterial {
   ids?: number[];
   types: MaterialType[]; // Төрөл
   sectionId?: number;
+  consumerId?: number; // Харилцагчийн id
+  warehouseId?: number; // Байршлийн id
 }
 
 export interface IResponseViewMaterialOne extends GenericResponse {

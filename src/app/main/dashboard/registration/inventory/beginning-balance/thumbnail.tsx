@@ -13,88 +13,98 @@ import { TreeSectionType } from "@/service/reference/tree-section/entities";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { Col, Row, Space } from "antd";
-import {
-  FilteredColumnsBalance,
-  IDataBalance,
-  IFilterBalance,
-  IParamBalance,
-} from "@/service/material/balance/entities";
-import { BalanceService } from "@/service/material/balance/service";
 import { IDataMaterialSection } from "@/service/material/section/entities";
 import { MaterialSectionService } from "@/service/material/section/service";
-import { MaterialType } from "@/service/material/entities";
+import { FilteredColumnsMaterial, IDataMaterial, IFilterMaterial, IParamMaterial, MaterialType } from "@/service/material/entities";
+import { MaterialService } from "@/service/material/service";
+import { BalanceService } from "@/service/material/balance/service";
 
 interface IProps {
-  onReload: boolean;
-  onEdit: (row: IDataBalance) => void;
-  onDelete: (id: number) => void;
+  isReload: boolean;
+  onEdit: (row: IDataMaterial) => void;
 }
 
 const Thumbnail = (props: IProps) => {
-  const { onReload, onEdit, onDelete } = props;
+  const { isReload, onEdit } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [newParams, setNewParams] = useState<IParamBalance>({
+  const [params, setParams] = useState<IParamMaterial>({
     page: 1,
     limit: 10,
   });
-  const [data, setData] = useState<IDataBalance[]>([]);
+  const [data, setData] = useState<IDataMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterBalance>();
+  const [filters, setFilters] = useState<IFilterMaterial>();
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
-  const [columns, setColumns] = useState<FilteredColumnsBalance>({
-    materialCode: {
+  const [columns, setColumns] = useState<FilteredColumnsMaterial>({
+    code: {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "code"],
+      dataIndex: "code",
       type: DataIndexType.MULTI,
     },
-    materialName: {
+    name: {
       label: "Бараа материалын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "name"],
+      dataIndex: "name",
       type: DataIndexType.MULTI,
     },
     materialSectionId: {
       label: "Бараа материалын бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "section", "name"],
+      dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
     },
-    materialMeasurementId: {
+    measurementId: {
       label: "Хэмжих нэгж",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "measurement", "name"],
-      type: DataIndexType.MEASUREMENT,
+      dataIndex: ["measurement", "name"],
+      type: DataIndexType.MULTI,
     },
-    materialCountPackage: {
+    countPackage: {
       label: "Багц доторх тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["material", "countPackage"],
+      dataIndex: "countPackage",
       type: DataIndexType.NUMBER,
     },
-    quantity: {
+    balanceQty: {
       label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: ["quantity"],
+      dataIndex: "balanceQty",
       type: DataIndexType.NUMBER,
     },
+    updatedAt: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: "updatedAt",
+      type: DataIndexType.DATE,
+    },
+    updatedBy: {
+      label: "Өөрчлөлт хийсэн огноо",
+      isView: false,
+      isFiltered: false,
+      dataIndex: ["updatedUser", "firstName"],
+      type: DataIndexType.USER,
+    },
   });
-  const getData = async (params: IParamBalance) => {
+  const getData = async (params: IParamMaterial) => {
     blockContext.block();
-    await BalanceService.get(params).then((response) => {
+    params.isBalanceRel = true;
+    await MaterialService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
         setFilters(response.response.filter);
       }
+    }).finally(() => {
+      blockContext.unblock();
     });
-    blockContext.unblock();
   };
   const getMaterialSection = async () => {
     await MaterialSectionService.get({
@@ -103,15 +113,20 @@ const Thumbnail = (props: IProps) => {
       setSections(response.response.data);
     });
   };
+  const onDeleteBeginingBalance = async (id: number) => {
+    await BalanceService.remove(id).then((response) => {
+      if (response.success) {
+        getData(params);
+      }
+    });
+  };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    getData(params);
     getMaterialSection();
   }, []);
   useEffect(() => {
-    if (onReload) {
-      getData({ page: 1, limit: 10 });
-    }
-  }, [onReload]);
+    getData(params);
+  }, [isReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -149,10 +164,10 @@ const Thumbnail = (props: IProps) => {
                       state: state,
                       column: columns,
                       onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
+                      params: params,
+                      onParams: (params) => setParams(params),
                     });
-                    getData(newParams);
+                    getData(params);
                   }}
                 />
                 <Space
@@ -170,8 +185,8 @@ const Thumbnail = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
+                        params: params,
+                        onParams: (params) => setParams(params),
                         getData: (params) => getData(params),
                       })
                     }
@@ -208,11 +223,13 @@ const Thumbnail = (props: IProps) => {
                 columns={columns}
                 onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
+                newParams={params}
+                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
+                isEdit={true}
+                isDelete={true}
                 onEdit={(row) => onEdit(row)}
-                onDelete={(id) => onDelete(id)}
+                onDelete={(id) => onDeleteBeginingBalance(id)}
               />
             </Col>
           </Row>

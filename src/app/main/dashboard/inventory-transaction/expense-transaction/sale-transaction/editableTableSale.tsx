@@ -100,11 +100,13 @@ export const EditableTableSale = (props: IProps) => {
     quantity: number,
     discount: IDataDiscount
   ) => {
-    const amount = unitAmount * quantity;
-    if (discount.percent > 0) {
-      return (amount * discount.percent) / 100;
-    } else if (discount.amount > 0) {
-      return discount.amount * quantity;
+    if (discount) {
+      const amount = unitAmount * quantity;
+      if (discount.percent > 0) {
+        return (amount * discount.percent) / 100;
+      } else if (discount.amount > 0) {
+        return discount.amount * quantity;
+      }
     }
   };
   useEffect(() => {
@@ -172,7 +174,7 @@ export const EditableTableSale = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Material]}
+            params={{ types: [MaterialType.Material] }}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}

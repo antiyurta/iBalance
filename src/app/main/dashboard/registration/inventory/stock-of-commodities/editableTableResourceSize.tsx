@@ -16,14 +16,18 @@ import {
   Table,
 } from "antd";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "dayjs/locale/mn";
-import { IDataWarehouse } from "@/service/reference/warehouse/entities";
-import { NewDatePicker, NewFilterSelect } from "@/components/input";
+import {
+  IDataWarehouse,
+  IParamWarehouse,
+} from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
+import { NewFilterSelect } from "@/components/input";
 
 interface IProps {
   data: FormListFieldData[];
-  warehouses: IDataWarehouse[];
+  // warehouses: IDataWarehouse[];
   form: FormInstance;
   editMode: boolean;
   add: () => void;
@@ -33,18 +37,19 @@ interface IProps {
 const { Column } = Table;
 const { Option } = Select;
 
-const EditableTableBalance: React.FC<IProps> = (props) => {
+const EditableTableResourseSize: React.FC<IProps> = (props) => {
   const { message } = App.useApp();
-  const { data, warehouses, form, editMode, add, remove } = props;
+  const { data, form, editMode, add, remove } = props;
   const [editingIndex, setEditingIndex] = useState<number | undefined>(
     undefined
   );
   const [isNewService, setNewService] = useState<boolean>(false);
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const addService = () => {
     form
       .validateFields([
-        ["materialWarehouseBalances", editingIndex, "warehouseId"],
-        ["materialWarehouseBalances", editingIndex, "quantity"],
+        ["resourceSizes", editingIndex, "warehouseId"],
+        ["resourceSizes", editingIndex, "quantity"],
       ])
       .then(() => {
         add();
@@ -61,8 +66,8 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
   const onSave = () => {
     form
       .validateFields([
-        ["materialWarehouseBalances", editingIndex, "warehouseId"],
-        ["materialWarehouseBalances", editingIndex, "quantity"],
+        ["resourceSizes", editingIndex, "warehouseId"],
+        ["resourceSizes", editingIndex, "quantity"],
       ])
       .then(() => {
         setNewService(false);
@@ -84,13 +89,24 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
       remove(index);
     } else {
       form.resetFields([
-        ["materialWarehouseBalances", editingIndex, "warehouseId"],
-        ["materialWarehouseBalances", editingIndex, "quantity"],
+        ["resourceSizes", editingIndex, "warehouseId"],
+        ["resourceSizes", editingIndex, "quantity"],
       ]);
     }
     setNewService(false);
     setEditingIndex(undefined);
   };
+  const getWarehouses = () => {
+    const params: IParamWarehouse = { isActive: [true] };
+    WarehouseService.get(params).then((response) => {
+      if (response.success) {
+        setWarehouses(response.response.data);
+      }
+    });
+  };
+  useEffect(() => {
+    getWarehouses();
+  }, []);
   return (
     <Table
       dataSource={data}
@@ -144,37 +160,28 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
         )}
       />
       <Column
-        dataIndex="purchaseAt"
-        title="Худалдан авсан огноо"
+        dataIndex="downloadDay"
+        title="Эргэц /хоногоор/"
         render={(_, __, index) => (
-          <Form.Item
-            name={[index, "purchaseAt"]}
-            rules={[{ required: true, message: "Худалдан авсан огноо заавал" }]}
-          >
-            <NewDatePicker disabled={editingIndex !== index} />
+          <Form.Item name={[index, "downloadDay"]}>
+            <InputNumber disabled={editingIndex !== index} />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex="expirationAt"
-        title="Хугацаа дуусах огноо"
+        dataIndex="minResourceSize"
+        title="Заавал байх хамгийн байлгах хамгийн бага нөөцийн хэмжээ"
         render={(_, __, index) => (
-          <Form.Item
-            name={[index, "expirationAt"]}
-            rules={[{ required: true, message: "Хугацаа дуусах огноо заавал" }]}
-          >
-            <NewDatePicker disabled={editingIndex !== index} />
+          <Form.Item name={[index, "minResourceSize"]}>
+            <InputNumber disabled={editingIndex !== index} />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex="quantity"
-        title="Эхний үлдэгдэл"
+        dataIndex="minDownloadSize"
+        title="Дараагийн татан авалтын хамгийн бага хэмжээ"
         render={(_, __, index) => (
-          <Form.Item
-            name={[index, "quantity"]}
-            rules={[{ required: true, message: "Эхний үлдэгдэл заавал" }]}
-          >
+          <Form.Item name={[index, "minDownloadSize"]}>
             <InputNumber disabled={editingIndex !== index} />
           </Form.Item>
         )}
@@ -233,4 +240,4 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
   );
 };
 
-export default EditableTableBalance;
+export default EditableTableResourseSize;

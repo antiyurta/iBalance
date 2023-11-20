@@ -16,7 +16,7 @@ import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 interface IProps {
-  movingStatus: MovingStatus;
+  movingStatus?: MovingStatus;
 }
 export const DocumentList = (props: IProps) => {
   const { movingStatus } = props;
@@ -24,7 +24,7 @@ export const DocumentList = (props: IProps) => {
   const [data, setData] = useState<IDataDocument[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
-  const [params, setParams] = useState<IParamDocument>({ page: 1, limit: 10, movingStatus });
+  const [params, setParams] = useState<IParamDocument>({ page: 1, limit: 10 });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsDocument>({
     id: {
@@ -34,14 +34,14 @@ export const DocumentList = (props: IProps) => {
       dataIndex: "id",
       type: DataIndexType.MULTI,
     },
-    createdAt: {
+    date: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
       dataIndex: "date",
       type: DataIndexType.DATE,
     },
-    warehouse: {
+    warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
@@ -69,7 +69,14 @@ export const DocumentList = (props: IProps) => {
       dataIndex: "expenseQuantity",
       type: DataIndexType.MULTI,
     },
-    consumer: {
+    consumerCode: {
+      label: "Харилцагчийн код",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumer", "code"],
+      type: DataIndexType.MULTI,
+    },
+    consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
@@ -81,18 +88,19 @@ export const DocumentList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "isLock",
-      type: DataIndexType.MULTI,
+      type: DataIndexType.BOOLEAN_STRING,
     },
-    description: {
-      label: "Гүйлгээ утга",
+    movingStatus: {
+      label: "Гүйлгээний цонх",
       isView: true,
       isFiltered: false,
-      dataIndex: "description",
-      type: DataIndexType.MULTI,
+      dataIndex: "movingStatus",
+      type: DataIndexType.TRANSACTION,
     },
   });
   const getData = async (params: IParamDocument) => {
     blockContext.block();
+    if (movingStatus) params.movingStatus = movingStatus;
     await DocumentService.get(params)
       .then((response) => {
         if (response.success) {

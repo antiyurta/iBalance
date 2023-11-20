@@ -24,10 +24,12 @@ export interface IDataTransaction extends IData {
 
 export interface IFilterTransaction extends IFilter {
   documentId?: number[];
+  documentDate?: string[];
   createdAt?: number[];
-  warehouse?: number[];
+  warehouseName?: string[];
   materialCode?: string[];
-  materialName?: number[];
+  materialName?: string[];
+  materialMeasurementName?: string[];
   quantity?: number[];
   consumerName?: string[];
   description?: string[];

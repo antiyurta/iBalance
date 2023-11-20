@@ -4,19 +4,19 @@ import { NewSearch } from "@/components/input";
 import { Col, Row, Space, Tabs, Typography } from "antd";
 
 const { Title } = Typography;
-
-//
-import ListOfReceipt from "./listOfReceipt";
+import { DocumentList } from "../document-list";
+import { TransactionList } from "../transaction-list";
 const page = () => {
   const items = [
     {
       label: "Баримтын жагсаалт",
       key: "item-1",
-      children: <ListOfReceipt />,
+      children: <DocumentList />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-2",
+      children: <TransactionList />,
     },
   ];
   return (

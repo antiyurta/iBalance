@@ -20,8 +20,8 @@ import {
 import { ViewMaterialService } from "@/service/material/view-material/service";
 
 interface IProps {
-  materialTypes: MaterialType[];
   form: FormInstance;
+  params: IParamViewMaterial;
   rules: Rule[];
   name: string | (string | number)[];
   listName?: string;
@@ -31,16 +31,8 @@ interface IProps {
 }
 
 export const MaterialSelect = (props: IProps) => {
-  const {
-    materialTypes,
-    form,
-    name,
-    rules,
-    listName,
-    disabled,
-    onClear,
-    onSelect,
-  } = props;
+  const { form, params, name, rules, listName, disabled, onClear, onSelect } =
+    props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
   const [viewMaterialDictionary, setViewMaterialDictionary] =
@@ -54,7 +46,7 @@ export const MaterialSelect = (props: IProps) => {
   };
 
   useEffect(() => {
-    getViewMaterials({ types: materialTypes });
+    getViewMaterials(params);
   }, []);
   useEffect(() => {
     setViewMaterialDictionary(
@@ -113,7 +105,7 @@ export const MaterialSelect = (props: IProps) => {
             if (material) onSelect?.(material);
             setIsOpenPopOver(false);
           }}
-          materialTypes={materialTypes}
+          materialTypes={params.types}
         />
       </NewModal>
     </>

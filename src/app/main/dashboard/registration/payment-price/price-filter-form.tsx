@@ -112,11 +112,13 @@ export const PriceFilterForm = (props: IProps) => {
           <MaterialSelect
             form={form}
             rules={[]}
-            materialTypes={[
-              MaterialType.Material,
-              MaterialType.Package,
-              MaterialType.Service,
-            ]}
+            params={{
+              types: [
+                MaterialType.Material,
+                MaterialType.Package,
+                MaterialType.Service,
+              ],
+            }}
             name="materialId"
           />
         </Form.Item>
