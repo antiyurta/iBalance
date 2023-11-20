@@ -72,7 +72,7 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: "name",
       type: DataIndexType.MULTI,
     },
-    sectionIds: {
+    sectionId: {
       label: "Байршлын бүлэг",
       isView: true,
       isFiltered: false,
@@ -477,7 +477,12 @@ const StoragiesRegistration = (props: IProps) => {
               />
             </Form.Item>
             <Form.Item label="Хариуцсан нярав">
-              <UserSelect form={form} rules={[]} name="userIds" isMultiple={true} />
+              <UserSelect
+                form={form}
+                rules={[]}
+                name="userIds"
+                isMultiple={true}
+              />
             </Form.Item>
             <Form.Item label="Байршлын хаяг" name="address">
               <TextArea />

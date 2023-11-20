@@ -167,7 +167,7 @@ const InventoriesRegistration = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["measurement", "name"],
-      type: DataIndexType.MEASUREMENT,
+      type: DataIndexType.MULTI,
     },
     countPackage: {
       label: "Багц доторх тоо",
@@ -250,7 +250,6 @@ const InventoriesRegistration = (props: IProps) => {
   };
   const getData = async (param: IParamMaterial) => {
     blockContext.block();
-
     var prm: IParamMaterial = {
       ...params,
       ...param,

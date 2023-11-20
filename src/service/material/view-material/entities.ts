@@ -4,6 +4,7 @@ import { ColumnType, GenericResponse, IParam, Meta } from "@/service/entities";
 import { IDataDiscount } from "@/service/command/discount/entities";
 
 export interface IDataViewMaterial {
+  discount: any;
   id: number;
   type: MaterialType; // төрөл
   code: string; // Дотоод код

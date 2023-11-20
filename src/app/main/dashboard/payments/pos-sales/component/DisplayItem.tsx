@@ -14,6 +14,13 @@ import { NumericFormat } from "react-number-format";
 import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 
+import {
+  displayDiscount,
+  checkDiscount,
+  displayCoupon,
+  checkCoupon,
+} from "../injection";
+
 interface IProps {
   type: TypeSegment;
   material: IDataViewMaterial;
@@ -40,12 +47,19 @@ const DisplayItem = (props: IProps) => {
     const { item } = props;
     var amount: number = 0;
     if (item.discount) {
-      if (item.discount.percent > 0) {
-        amount =
-          item.unitAmount - (item.unitAmount * item.discount.percent) / 100;
-      } else {
-        amount = item.unitAmount - item.discount.amount;
-      }
+      amount = checkDiscount({
+        unitAmount: item.unitAmount,
+        percent: item.discount.percent,
+        amount: item.discount.amount,
+      });
+    }
+    if (item.coupon) {
+      amount = checkCoupon({
+        unitAmount: item.unitAmount,
+        conditionValue: item.coupon.conditionValue,
+        percent: item.coupon.percent,
+        quantity: item.coupon.quantity,
+      });
     }
     if (amount > 0) {
       return (
@@ -114,8 +128,20 @@ const DisplayItem = (props: IProps) => {
                 <div className="price">
                   <p className="p-top">{item.sectionName}</p>
                   <div className="p-bottom">
-                    <p>2100₮</p>
-                    <p>2100₮</p>
+                    <p
+                      className={
+                        item.discount || item.coupon ? "text-line-through" : ""
+                      }
+                    >
+                      <NumericFormat
+                        value={item.unitAmount}
+                        thousandSeparator=","
+                        fixedDecimalScale
+                        displayType="text"
+                        suffix="₮"
+                      />
+                    </p>
+                    <GetNewAmount item={item} />
                   </div>
                 </div>
               </div>
@@ -124,29 +150,21 @@ const DisplayItem = (props: IProps) => {
               <>
                 {item.coupon ? (
                   <div className="extra-bottom">
-                    {item.coupon.percent > 0 ? (
-                      <>
-                        {item.coupon.conditionValue +
-                          "+" +
-                          item.coupon.percent +
-                          "%"}
-                      </>
-                    ) : (
-                      <>
-                        {item.coupon.conditionValue +
-                          "+" +
-                          item.coupon.quantity}
-                      </>
-                    )}
+                    {displayCoupon({
+                      conditionValue: item.coupon?.conditionValue,
+                      percent: item.coupon?.percent,
+                      quantity: item.coupon?.quantity,
+                    })}
                   </div>
                 ) : null}
                 {item.discount ? (
                   <div className="extra-top">
-                    {item.discount.amount > 0 ? (
-                      <p>{item.discount.amount}₮</p>
-                    ) : (
-                      <p>{item.discount.percent}%</p>
-                    )}
+                    <p>
+                      {displayDiscount({
+                        amount: item.discount.amount,
+                        percent: item.discount.percent,
+                      })}
+                    </p>
                   </div>
                 ) : null}
               </>
@@ -159,19 +177,22 @@ const DisplayItem = (props: IProps) => {
                   {item.coupon ? (
                     <div className="coupon">
                       <p>
-                        {item.coupon?.conditionValue +
-                          "+" +
-                          item.coupon?.quantity}
+                        {displayCoupon({
+                          conditionValue: item.coupon?.conditionValue,
+                          percent: item.coupon?.percent,
+                          quantity: item.coupon?.quantity,
+                        })}
                       </p>
                     </div>
                   ) : null}
                   {item.discount ? (
                     <div className="discount">
-                      {item.discount.amount > 0 ? (
-                        <p>{item.discount.amount}₮</p>
-                      ) : (
-                        <p>{item.discount.percent}%</p>
-                      )}
+                      <p>
+                        {displayDiscount({
+                          amount: item.discount.amount,
+                          percent: item.discount.percent,
+                        })}
+                      </p>
                     </div>
                   ) : null}
                 </div>
@@ -211,7 +232,11 @@ const DisplayItem = (props: IProps) => {
               <div className="price">
                 <p className="top">{item.sectionName}</p>
                 <div className="bottom">
-                  <p className={item.discount ? "text-line-through" : ""}>
+                  <p
+                    className={
+                      item.discount || item.coupon ? "text-line-through" : ""
+                    }
+                  >
                     <NumericFormat
                       value={item.unitAmount}
                       thousandSeparator=","

@@ -120,10 +120,11 @@ export const PriceFilterForm = (props: IProps) => {
               ],
             }}
             name="materialId"
+            materialTypes={[]}
           />
         </Form.Item>
         <Form.Item label="Бараа үйлчилгээний бүлэг">
-          <MaterialSectionSelect form={form} rules={[]} />
+          <MaterialSectionSelect form={form} rules={[]} isLeaf={false} />
         </Form.Item>
         <Form.Item label="Нэгж үнэ">
           <ConsumerSelect form={form} rules={[]} />

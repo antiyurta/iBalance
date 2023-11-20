@@ -22,21 +22,13 @@ import { authService } from "@/service/authentication/service";
 const TransactionCencus = () => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [warehouseDict, setWarehouseDict] =
-    useState<Map<number, IDataWarehouse>>();
   const [users, setUsers] = useState<IUser[]>([]);
-  const warehouseId = Form.useWatch("warehouseId", form);
+  const warehouseId: number = Form.useWatch("warehouseId", form);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
-        setWarehouseDict(
-          warehouses.reduce((dict, warehouse) => {
-            dict.set(warehouse.id, warehouse);
-            return dict;
-          }, new Map<number, IDataWarehouse>())
-        );
       }
     });
   };
@@ -72,15 +64,6 @@ const TransactionCencus = () => {
   useEffect(() => {
     getWarehouses({});
   }, []);
-  useEffect(() => {
-    getMaterials({
-      warehouseId,
-      types: [MaterialType.Material],
-    });
-    if ((warehouseDict?.get(warehouseId)?.userIds || []).length > 0) {
-      getUsers({ ids: warehouseDict?.get(warehouseId)?.userIds });
-    }
-  }, [warehouseId]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -128,6 +111,22 @@ const TransactionCencus = () => {
                 rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
                 <NewFilterSelect
+                  onChange={(id) => {
+                    form.resetFields(["userId"]);
+                    setUsers([]);
+                    const userIds = warehouses.find(
+                      (warehouse) => warehouse.id === id
+                    )?.userIds;
+                    if (userIds) {
+                      getUsers({
+                        ids: userIds,
+                      });
+                    }
+                    getMaterials({
+                      warehouseId,
+                      types: [MaterialType.Material],
+                    });
+                  }}
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
                     label: warehouse.name,
@@ -137,7 +136,9 @@ const TransactionCencus = () => {
               <Form.Item
                 label="Хариуцсан нярав"
                 name="userId"
-                rules={[{ required: true, message: "Хариуцсан нярав оруулна уу" }]}
+                rules={[
+                  { required: true, message: "Хариуцсан нярав оруулна уу" },
+                ]}
               >
                 <NewFilterSelect
                   options={users.map((user) => ({

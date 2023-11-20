@@ -47,6 +47,7 @@ const Groups = () => {
     await MaterialSectionService.get({
       isExpand: false,
       isSale: [true],
+      materialTypes: [],
     }).then(async (response) => {
       const result: IGroup[] = [];
       await Promise.all(

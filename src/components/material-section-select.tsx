@@ -12,14 +12,18 @@ interface IProps {
   rules: Rule[];
   /** default => sectionId */
   name?: string;
+  isLeaf: boolean;
 }
+
 export const MaterialSectionSelect = (props: IProps) => {
-  const { form, rules, name } = props;
+  const { form, rules, name, isLeaf } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
 
   const getMaterialSection = async () => {
-    await MaterialSectionService.get({}).then((response) => {
+    await MaterialSectionService.get({
+      materialTypes: [],
+    }).then((response) => {
       setSections(response.response.data);
     });
   };
@@ -36,15 +40,22 @@ export const MaterialSectionSelect = (props: IProps) => {
           content={
             <NewDirectoryTree
               data={sections}
-              isLeaf={true}
+              isLeaf={isLeaf}
               extra="HALF"
               onClick={(keys, isLeaf) => {
-                if (!isLeaf) {
-                  setIsOpenPopOver(false);
+                console.log("end", isLeaf);
+                if (isLeaf === false) {
+                  console.log("end", isLeaf);
                   form.setFieldsValue({
                     [name ? `${name}` : "sectionId"]: keys![0],
                   });
+                } else {
+                  console.log(keys, isLeaf);
+                  form.setFieldsValue({
+                    [name ? `${name}` : "sectionId"]: keys,
+                  });
                 }
+                setIsOpenPopOver(false);
               }}
             />
           }
@@ -61,6 +72,7 @@ export const MaterialSectionSelect = (props: IProps) => {
         rules={rules}
       >
         <NewSelect
+          mode={!isLeaf ? "multiple" : undefined}
           disabled={true}
           style={{
             width: "100%",

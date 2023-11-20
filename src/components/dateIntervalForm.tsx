@@ -1,6 +1,6 @@
 import { CSSProperties, useState } from "react";
 import { FormInstance } from "antd/lib";
-import { Form } from "antd";
+import { Form, Space } from "antd";
 import { NewDatePicker, NewRangePicker, NewSelect } from "./input";
 import locale from "antd/es/date-picker/locale/mn_MN";
 import { NewMultipleDatePicker } from "./multiDatePicker";
@@ -31,7 +31,7 @@ const DateIntervalForm = (props: IProps) => {
     itemname,
     label,
   } = props;
-  const [selectedValue, setSelectedValue] = useState<ISelectValueType>();
+  const [selectedValue, setSelectedValue] = useState<ISelectValueType>("that");
   const RenderDateFormItem = () => {
     if (
       selectedValue === "that" ||
@@ -59,10 +59,19 @@ const DateIntervalForm = (props: IProps) => {
           label="Огноо сонгох"
           name={[itemname, "dates"]}
         >
-          <NewRangePicker locale={locale} />
+          <NewRangePicker
+            style={{
+              width: "100%",
+            }}
+            locale={locale}
+          />
         </Form.Item>
       );
-    } else if (selectedValue === "month" || selectedValue === "quarter" || selectedValue === "year") {
+    } else if (
+      selectedValue === "month" ||
+      selectedValue === "quarter" ||
+      selectedValue === "year"
+    ) {
       return (
         <Form.Item
           style={dateStyle}
@@ -74,14 +83,18 @@ const DateIntervalForm = (props: IProps) => {
       );
     } else if (selectedValue === "selection") {
       return (
-        <Form.Item style={dateStyle} label="Огноо сонгох" name={[itemname, "dates"]}>
+        <Form.Item
+          style={dateStyle}
+          label="Огноо сонгох"
+          name={[itemname, "dates"]}
+        >
           <NewMultipleDatePicker multiple />
         </Form.Item>
       );
     }
   };
   return (
-    <>
+    <Space.Compact>
       <Form.Item
         style={intervalStyle}
         label={label ? label : "Интерваль"}
@@ -133,7 +146,7 @@ const DateIntervalForm = (props: IProps) => {
         />
       </Form.Item>
       <RenderDateFormItem />
-    </>
+    </Space.Compact>
   );
 };
 export default DateIntervalForm;

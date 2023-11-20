@@ -111,38 +111,6 @@ const Login = () => {
           </Form>
         </div>
       </div>
-      <div className="bottom">
-        <div className="box">
-          <Image
-            src={"/icons/facebook.png"}
-            loading="eager"
-            priority={true}
-            alt="facebook"
-            width={36}
-            height={36}
-          />
-        </div>
-        <div className="box">
-          <Image
-            src={"/icons/facebook.png"}
-            loading="eager"
-            priority={true}
-            alt="facebook"
-            width={36}
-            height={36}
-          />
-        </div>
-        <div className="box">
-          <Image
-            src={"/icons/facebook.png"}
-            loading="eager"
-            priority={true}
-            alt="facebook"
-            width={36}
-            height={36}
-          />
-        </div>
-      </div>
     </div>
   );
 };

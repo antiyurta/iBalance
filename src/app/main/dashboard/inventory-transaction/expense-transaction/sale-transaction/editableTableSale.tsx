@@ -14,6 +14,7 @@ import {
 import { MaterialType } from "@/service/material/entities";
 import { IDataDiscount } from "@/service/command/discount/entities";
 import { IDataTransaction } from "@/service/document/transaction/entities";
+import { IParamViewMaterial } from "@/service/material/view-material/entities";
 
 interface IProps {
   data: FormListFieldData[];
@@ -100,13 +101,11 @@ export const EditableTableSale = (props: IProps) => {
     quantity: number,
     discount: IDataDiscount
   ) => {
-    if (discount) {
-      const amount = unitAmount * quantity;
-      if (discount.percent > 0) {
-        return (amount * discount.percent) / 100;
-      } else if (discount.amount > 0) {
-        return discount.amount * quantity;
-      }
+    const amount = unitAmount * quantity;
+    if (discount.percent > 0) {
+      return (amount * discount.percent) / 100;
+    } else if (discount.amount > 0) {
+      return discount.amount * quantity;
     }
   };
   useEffect(() => {
@@ -134,6 +133,9 @@ export const EditableTableSale = (props: IProps) => {
       }
     }
   }, [quantity, editingIndex]);
+
+  const [test, setTest] = useState<IParamViewMaterial>();
+
   return (
     <Table
       dataSource={data}
@@ -174,7 +176,7 @@ export const EditableTableSale = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            params={{ types: [MaterialType.Material] }}
+            materialTypes={[MaterialType.Material]}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
@@ -216,6 +218,7 @@ export const EditableTableSale = (props: IProps) => {
                 },
               });
             }}
+            params={test}
           />
         )}
       />

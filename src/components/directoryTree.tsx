@@ -228,7 +228,6 @@ const NewDirectoryTree = (props: IProps) => {
           />
         </div>
         <Tree
-          rootClassName="dd"
           rootStyle={{
             padding: "0 12px",
           }}

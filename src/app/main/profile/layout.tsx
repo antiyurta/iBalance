@@ -39,10 +39,10 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
         <Header />
         <div className="body">
           <div className="menu">
-            <Link className="app-button" href={"/profile/general"}>
+            <Link className="app-button" href={"/main/profile/general"}>
               Ерөнхий мэдээлэл
             </Link>
-            <Link className="app-button" href={"/profile/change-password"}>
+            <Link className="app-button" href={"/main/profile/change-password"}>
               Нууц үг солих
             </Link>
             <button className="app-button" onClick={() => onFinish()}>
