@@ -137,6 +137,7 @@ export const EditableTableAction = (props: IProps) => {
                 },
               });
             }}
+            materialTypes={[]}
           />
         )}
       />
