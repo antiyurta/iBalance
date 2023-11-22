@@ -8,7 +8,7 @@ import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Queries } from "@/service/entities";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
-import { notification } from "antd";
+import { notification, message } from "antd";
 import type { DefaultOptionType } from "antd/es/cascader";
 import { ColumnFilterItem } from "antd/es/table/interface";
 import dayjs from "dayjs";
@@ -22,31 +22,32 @@ type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
   description: string,
-  message?: string
+  messge?: string
 ) => {
-  notification.config({
-    top: 80,
+  message.config({
     duration: 4,
   });
   switch (type) {
     case "success":
-      message = "Амжилттай";
+      messge = "Амжилттай";
       break;
     case "error":
-      message = "Амжилтгүй";
+      messge = "Амжилтгүй";
       break;
     case "warning":
-      message = "Анхаар";
+      messge = "Анхаар";
       break;
     case "info":
-      message = "Мэдээлэл";
+      messge = "Мэдээлэл";
       break;
     default:
       break;
   }
-  return notification[type]({
-    message: message,
-    description: description,
+  return message[type]({
+    content: description,
+
+    // message: messge,
+    // description: description,
   });
 };
 

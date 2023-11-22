@@ -106,6 +106,10 @@ const Groups = () => {
                   slidesPerView: 5,
                   spaceBetween: 10,
                 },
+                1366: {
+                  slidesPerView: 6,
+                  spaceBetween: 10,
+                },
                 1441: {
                   slidesPerView: 5,
                   spaceBetween: 10,

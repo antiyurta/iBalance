@@ -20,7 +20,7 @@ export interface IDataMaterialSection {
   type: MaterialType;
   materialAccountId: number;
   materialAccount?: IDataMaterialAccount;
-  fileId?: number;
+  fileId: number;
   file?: IDataFile;
 }
 

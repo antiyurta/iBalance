@@ -89,6 +89,9 @@ const Item = (props: IProps) => {
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
+        boxShadow: "0px 4px 8px 0px rgba(0, 0, 0, 0.15)",
+        borderRadius: 5,
+        padding: "6px 2px",
       }}
     >
       <div
@@ -177,6 +180,7 @@ const Item = (props: IProps) => {
             flexDirection: "column",
             alignItems: "flex-start",
             gap: 8,
+            justifyContent: "space-between",
           }}
         >
           <p
@@ -216,54 +220,6 @@ const Item = (props: IProps) => {
             />
           </p>
         </div>
-      </div>
-      <div
-        style={{
-          alignSelf: "end",
-        }}
-      >
-        {discount ? (
-          <p
-            style={{
-              margin: 0,
-              color: "#142A38",
-              textAlign: "start",
-              fontSize: 12,
-              fontWeight: 500,
-            }}
-          >
-            Хямдарсан үнэ:{" "}
-            <NumericFormat
-              value={unitAmount * quantity - amount}
-              thousandSeparator=","
-              decimalScale={2}
-              fixedDecimalScale
-              displayType="text"
-              suffix="₮"
-            />
-          </p>
-        ) : null}
-        {coupon?.conditionValue < quantity ? (
-          <p
-            style={{
-              margin: 0,
-              color: "#142A38",
-              textAlign: "start",
-              fontSize: 12,
-              fontWeight: 500,
-            }}
-          >
-            Хямдарсан үнэ:{" "}
-            <NumericFormat
-              value={amount / quantity}
-              thousandSeparator=","
-              decimalScale={2}
-              fixedDecimalScale
-              displayType="text"
-              suffix="₮"
-            />
-          </p>
-        ) : null}
       </div>
       <div
         style={{
@@ -402,6 +358,55 @@ const Item = (props: IProps) => {
               />
             }
           />
+        </div>
+        <div
+          style={{
+            alignSelf: "end",
+          }}
+        >
+          {discount ? (
+            <p
+              style={{
+                margin: 0,
+                color: "#142A38",
+                textAlign: "start",
+                fontSize: 12,
+                fontWeight: 500,
+              }}
+            >
+              Хямдарсан үнэ:{" "}
+              <NumericFormat
+                // value={unitAmount * quantity - amount}
+                value={amount / quantity}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
+            </p>
+          ) : null}
+          {coupon?.conditionValue < quantity ? (
+            <p
+              style={{
+                margin: 0,
+                color: "#142A38",
+                textAlign: "start",
+                fontSize: 12,
+                fontWeight: 500,
+              }}
+            >
+              Хямдарсан үнэ:{" "}
+              <NumericFormat
+                value={amount / quantity}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

@@ -196,7 +196,7 @@ const BeginningBalance = () => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>Үндсэн бүртгэл / Харилцагч / Эхний үлдэгдэл</Title>
+            <Title level={3}>Үндсэн бүртгэл / Харилцагч / Эхний үлдэгдэл</Title>
             <Button
               type="primary"
               onClick={() => {

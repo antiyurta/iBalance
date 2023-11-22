@@ -240,7 +240,9 @@ const MembershipCard = () => {
     }
   };
   useEffect(() => {
-    getConsumers({});
+    getConsumers({
+      isActive: [true],
+    });
     getWarehouses();
   }, []);
   useEffect(() => {
@@ -256,7 +258,7 @@ const MembershipCard = () => {
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>
+            <Title level={3}>
               Үндсэн бүртгэл / Харилцагч / Гишүүнчлэлийн бүртгэл
             </Title>
             <Button

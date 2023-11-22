@@ -32,6 +32,7 @@ import type { UploadFile } from "antd/es/upload/interface";
 import { MaterialService } from "@/service/material/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { MaterialType } from "@/service/material/entities";
+import { getFile } from "@/feature/common";
 
 const { Title } = Typography;
 
@@ -101,7 +102,9 @@ const InventoriesGroup = (props: IProps) => {
   };
   const onFinish = async (values: IDataMaterialSection) => {
     values.isExpand = !values.isExpand;
-    values.fileId = fileList?.response?.response.id;
+    if (fileList?.response?.response.id) {
+      values.fileId = fileList?.response?.response.id;
+    }
     values.type = type;
     if (editMode) {
       await MaterialSectionService.patch(selectedGroupId, values).then(
@@ -171,15 +174,15 @@ const InventoriesGroup = (props: IProps) => {
       }
     });
   };
-  const checkEdit = (row: IDataMaterialSection) => {
+  const checkEdit = async (row: IDataMaterialSection) => {
     if (!row.isExpand) {
       checkSectionInMaterial(row.id);
     } else {
       checkTreeIn(row.id);
     }
+    setFileList(undefined);
     setSelectedGroupId(row.id);
     setSelectedSectionId(row.sectionId);
-    console.log(row.id);
     addForm.setFieldsValue({
       name: row.name,
       sectionId: row.sectionId,
@@ -187,6 +190,25 @@ const InventoriesGroup = (props: IProps) => {
       isSale: row.isSale,
       materialAccountId: row.materialAccountId,
     });
+    if (row.fileId) {
+      const blobImage = await getFile(row.fileId);
+      setFileList({
+        uid: row.id.toString(),
+        name: row.fileId.toString(),
+        status: "done",
+        url: blobImage,
+        response: {
+          message: "success",
+          response: {
+            id: row.id,
+            filename: "image",
+            mimetype: "asdas",
+            path: "sadsad",
+          },
+          success: true,
+        },
+      });
+    }
     setEditMode(true);
     setIsOpenAddModal(true);
   };

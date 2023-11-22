@@ -2,6 +2,8 @@ import { DataIndexType, DescMode } from "@/service/entities";
 import AntImage from "antd/es/image/index";
 import Image from "next/image";
 import { App } from "antd";
+import { getFile } from "@/feature/common";
+import { useEffect, useState } from "react";
 
 interface IDescription {
   mode?: DescMode;
@@ -26,6 +28,7 @@ const Description = (props: IDescription) => {
     onDelete,
     onCancel,
   } = props;
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const warning = () => {
     modal.error({
       title: "Устгах",
@@ -78,6 +81,19 @@ const Description = (props: IDescription) => {
       }
     }
   };
+  const renderImage = async () => {
+    var blobImages: string[] = [];
+    await Promise.all(
+      selectedRow?.fileIds?.map(async (fileId: number) => {
+        const blobImage = await getFile(fileId);
+        blobImages.push(blobImage);
+      })
+    );
+    setImageUrls(blobImages);
+  };
+  useEffect(() => {
+    renderImage();
+  }, []);
   if (open) {
     return (
       <div className="extra-description">
@@ -111,14 +127,14 @@ const Description = (props: IDescription) => {
             }}
           >
             <AntImage.PreviewGroup>
-              {selectedRow?.files?.map((file: any, index: number) => {
+              {imageUrls?.map((url: string, index: number) => {
                 return (
                   <AntImage
                     key={index}
                     width={70}
                     height={70}
-                    src={`http://192.168.5.102:8000/${file.path}`}
-                    alt={"asd"}
+                    src={url}
+                    alt={`${index}`}
                   />
                 );
               })}

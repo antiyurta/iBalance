@@ -1,17 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import {
-  PlusCircleOutlined,
-  CreditCardOutlined,
-  FileTextOutlined,
-  LeftOutlined,
-  BellOutlined,
-} from "@ant-design/icons";
-import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
+import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import Item from "./component/Item";
-import { Badge, Button, Form, Typography } from "antd";
+import { Button, Typography } from "antd";
 import StepIndex from "./steps/StepIndex";
-import OpenClose from "../open-close/openClose";
 import ShoppingGoods from "./component/ShoppingGoods";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
@@ -25,10 +17,6 @@ const { Title } = Typography;
 const PayController = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const { isReload, setReload } = usePaymentGroupContext();
-  const [isOpenModalTransfer, setIsOpenModalTransfer] =
-    useState<boolean>(false);
-  const [isOpenModalClose, setIsOpenModalClose] = useState<boolean>(false);
-  const [isOpenModalExtra, setIsOpenModalExtra] = useState<boolean>(false);
   const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
   const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
   //
@@ -142,7 +130,8 @@ const PayController = () => {
             display: "flex",
             flexDirection: "column",
             gap: 12,
-            paddingRight: 20,
+            paddingLeft: 4,
+            paddingRight: 14,
             width: "100%",
             height: "calc(100% - 280px)",
             overflowY: "auto",
@@ -294,154 +283,6 @@ const PayController = () => {
           </div>
         </div>
       </div>
-      <NewModal
-        title=" "
-        width={500}
-        open={isOpenModalExtra}
-        onCancel={() => setIsOpenModalExtra(false)}
-        footer={false}
-      >
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: 20,
-            fontWeight: 500,
-          }}
-        >
-          Нэмэлт үйлдлүүд
-        </p>
-        <div className="form-grid-3">
-          <div
-            onClick={() => {
-              setIsOpenModalTransfer(true);
-              setIsOpenModalExtra(false);
-            }}
-            className="payment-type-box"
-          >
-            <CreditCardOutlined
-              style={{
-                color: "#86909C",
-                fontSize: 24,
-              }}
-            />
-            <Title
-              level={4}
-              style={{
-                fontWeight: 700,
-                color: "#86909C",
-              }}
-            >
-              Мөнгө нэмэх, хасах, шилжүүлэг
-            </Title>
-          </div>
-          <div>1</div>
-          <div>1</div>
-        </div>
-        <div className="form-grid-2">
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              textAlign: "center",
-              gap: 12,
-            }}
-          >
-            <Title
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-              }}
-            >
-              Менежерийн эрх
-            </Title>
-            <div className="form-grid-2">
-              <div className="payment-type-box">1</div>
-              <div className="payment-type-box">1</div>
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              textAlign: "center",
-              gap: 12,
-            }}
-          >
-            <Title
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-              }}
-            >
-              Кассчины эрх
-            </Title>
-            <div className="form-grid-2">
-              <div
-                onClick={() => {
-                  setIsOpenModalTransfer(true);
-                  setIsOpenModalExtra(false);
-                }}
-                className="payment-type-box"
-              >
-                <CreditCardOutlined
-                  style={{
-                    color: "#86909C",
-                    fontSize: 24,
-                  }}
-                />
-                <Title
-                  level={4}
-                  style={{
-                    fontWeight: 700,
-                    color: "#86909C",
-                  }}
-                >
-                  Мөнгө нэмэх, хасах, шилжүүлэг
-                </Title>
-              </div>
-              <div className="payment-type-box">
-                <CreditCardOutlined
-                  style={{
-                    color: "#86909C",
-                    fontSize: 24,
-                  }}
-                />
-                <Title
-                  level={4}
-                  style={{
-                    fontWeight: 700,
-                    color: "#86909C",
-                  }}
-                >
-                  Бэлэн мөнгө
-                </Title>
-              </div>
-              <div
-                onClick={() => {
-                  setIsOpenModalClose(true);
-                }}
-                className="payment-type-box"
-              >
-                <FileTextOutlined
-                  style={{
-                    color: "#DC3545",
-                    fontSize: 24,
-                  }}
-                />
-                <Title
-                  level={4}
-                  style={{
-                    fontWeight: 700,
-                    color: "#DC3545",
-                  }}
-                >
-                  Хаалт хийх
-                </Title>
-              </div>
-            </div>
-          </div>
-        </div>
-      </NewModal>
       <NewModal
         title=" "
         open={isOpenModalSteps}

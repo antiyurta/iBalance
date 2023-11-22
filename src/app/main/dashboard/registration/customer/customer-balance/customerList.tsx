@@ -37,7 +37,10 @@ interface IProps {
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [newParams, setNewParams] = useState<IParamInitialBalance>({ page: 1, limit: 10 });
+  const [newParams, setNewParams] = useState<IParamInitialBalance>({
+    page: 1,
+    limit: 10,
+  });
   const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterInitialBalance>();
@@ -121,12 +124,13 @@ const CustomerList = (props: IProps) => {
           <NewDirectoryTree
             extra="HALF"
             data={sections}
-            isLeaf={true}
-            onClick={(key, isLeaf) => {
-              if (!isLeaf) {
-                setNewParams({...newParams, consumerSectionId: key });
-                getData(newParams);
-              }
+            isLeaf={false}
+            onClick={(keys) => {
+              getData({
+                page: 1,
+                limit: 10,
+                consumerSectionId: keys,
+              });
             }}
           />
         </Col>

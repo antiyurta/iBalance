@@ -16,6 +16,7 @@ import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
+  getFile,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -46,7 +47,7 @@ import {
   Upload,
 } from "antd";
 import Image from "next/image";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import { IDataUnitOfMeasure } from "@/service/material/unitOfMeasure/entities";
 import UnitOfMeasure from "../unit-of-measure/unitOfMeasure";
@@ -64,14 +65,27 @@ import { MaterialSectionService } from "@/service/material/section/service";
 import InventoriesBrand from "../inventories-brand/inventoriesBrand";
 import { UnitCodeService } from "@/service/reference/unit-code/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { MaterialAccountService } from "@/service/material/account/service";
 import { IDataMaterialAccount } from "@/service/material/account/entities";
 import InventoriesType from "../inventories-type/inventoriesType";
-
+import type { UploadFile } from "antd/es/upload/interface";
+import type { UploadProps } from "antd";
 interface IProps {
   ComponentType: ComponentType;
   materialTypes: MaterialType[];
   onClickModal?: (row: any) => void;
+}
+
+interface MyUploadFile extends UploadFile {
+  response?: {
+    message: string;
+    response: {
+      filename: string;
+      id: number;
+      mimetype: string;
+      path: string;
+    };
+    success: true;
+  };
 }
 
 const { Title } = Typography;
@@ -88,6 +102,8 @@ const InventoriesRegistration = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [params, setParams] = useState<IParamMaterial>({
     types: materialTypes,
+    page: 1,
+    limit: 10,
   });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
@@ -124,7 +140,7 @@ const InventoriesRegistration = (props: IProps) => {
   const [isOpenModalConsumer, setIsOpenModalConsumer] =
     useState<boolean>(false);
   const [imageIds, setImageIds] = useState<number[]>([]);
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<MyUploadFile[]>([]);
   const [columns, setColumns] = useState<FilteredColumns>({
     code: {
       label: "Дотоод код",
@@ -230,6 +246,26 @@ const InventoriesRegistration = (props: IProps) => {
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
     []
   );
+  const renderImage = async (fileIds: number[]) => {
+    var blobImages: UploadFile[] = [];
+    await Promise.all(
+      fileIds?.map(async (fileId, index) => {
+        const blobImage = await getFile(fileId);
+        blobImages.push({
+          uid: index.toString(),
+          name: fileId.toString(),
+          status: "done",
+          url: blobImage,
+          response: {
+            response: {
+              id: fileId,
+            },
+          },
+        });
+      })
+    );
+    setFileList(blobImages);
+  };
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataMaterial) => {
     setEditMode(state);
@@ -243,6 +279,7 @@ const InventoriesRegistration = (props: IProps) => {
       form.resetFields();
       form.setFieldsValue({ isActive: true });
     } else {
+      if (row?.fileIds) renderImage(row?.fileIds);
       form.setFieldsValue(row);
     }
     setIsOpenModal(true);
@@ -303,26 +340,28 @@ const InventoriesRegistration = (props: IProps) => {
     Authorization: `Bearer ${accessToken}`,
     "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
   };
-  const onChange = (info: any) => {
-    console.log(info);
+  const onChange: UploadProps["onChange"] = (info) => {
     setFileList(info.fileList);
     if (info.file.status === "done" || info.file.status === "removed") {
-      const ids: number[] = info.fileList?.map((file: any) => {
+      const ids: number[] = info.fileList?.map((file) => {
         return file.response.response.id;
       });
       setImageIds(ids);
     }
   };
-  const onPreview = (info: any) => {
+  const onPreview = (info: UploadFile) => {
     var my = window.open("about:blank", "_blank");
     my?.document.write(`<image src="${info.thumbUrl}" alt="any" />`);
   };
-  const handleRemove = async (info: any) => {
-    const id = info.response.response.id;
-    await ReferenceService.removeUploadImage(id).then((response) => {
-      if (response.success) {
-      }
-    });
+  const handleRemove = async (info: MyUploadFile) => {
+    if (info.response?.response.id) {
+      const id = info.response.response.id;
+      await ReferenceService.removeUploadImage(id).then((response) => {
+        if (response.success) {
+          console.log(response);
+        }
+      });
+    }
   };
   const handleRemoveAll = async () => {
     try {

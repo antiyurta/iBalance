@@ -180,6 +180,9 @@ const Step2 = (props: IProps) => {
                     parser={(value) => value!.replace(/(,*)/g, "")}
                     max={checkMaxAmount()}
                     step="0.1"
+                    onDoubleClick={() => {
+                      form.setFieldValue("amount", amountDiff);
+                    }}
                   />
                 </Form.Item>
                 <Button

@@ -83,7 +83,7 @@ export interface IFilterMaterial extends IFilter {
   countPackage?: number;
   brandId?: number;
   rankId?: number;
-  isActive?: boolean;
+  isActive?: boolean[];
   description?: string;
   name?: string;
   barCode?: string;

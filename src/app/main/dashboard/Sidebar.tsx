@@ -3,9 +3,9 @@
 import { Button, Menu } from "antd";
 import type { MenuProps } from "antd/es/menu";
 import {
-  AppstoreOutlined,
-  MailOutlined,
-  UserOutlined,
+  CalculatorOutlined,
+  AreaChartOutlined,
+  UserAddOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   WindowsOutlined,
@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { TitleActions } from "@/feature/core/actions/TitleAction";
 import { useState } from "react";
 import { TabsActions } from "@/feature/core/actions/TabsActions";
+import Image from "next/image";
 
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
@@ -32,79 +33,168 @@ function getItem(
     children,
   } as MenuItem;
 }
+
+{
+  /* <Image
+        src="/images/menu/dashboard.svg"
+        width={20}
+        height={20}
+        alt="dashboard"
+      /> */
+}
+
 const Sidebar = () => {
   const dispatch = useDispatch();
   const items = [
-    getItem("Хянах самбар", "/main/dashboard", <MailOutlined />),
-    getItem("Үндсэн бүртгэл", "/registration", <AppstoreOutlined />, [
-      getItem("Харилцагч", "/customer", <UserOutlined />, [
-        getItem("Бүртгэл", "/information"),
-        getItem("Бүлэг", "/group"),
-        getItem("Авлага дансны бүртгэл", "/receivable-account"),
-        getItem("Гишүүнчлэлийн бүртгэл", "/membership-card"),
-        getItem("Зээлийн лимит", "/limit-of-loans"),
-        getItem("Эхний үлдэгдэл", "/customer-balance"),
-      ]),
-      getItem("Бараа материал", "/inventory", <AppstoreOutlined />, [
-        getItem("Бүртгэл", "/inventories-registration"),
-        getItem("Данс", "/inventories-type"),
-        getItem("Бүлэг", "/inventories-group"),
-        getItem("Брэнд", "/inventories-brand"),
-        getItem("Хэмжих нэгж", "/unit-of-measure"),
-        getItem("Байршлын бүртгэл", "/storagies-registration"),
-        getItem("Үйлчилгээний бүртгэл", "/services-registration"),
-        getItem("Багцын бүртгэл", "/package-registration"),
-        getItem("Эхний үлдэгдэл", "/beginning-balance"),
-        getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
-        getItem("Буцаалтын шалтгаан", "/refund-reason"),
-      ]),
-      getItem("Төлбөр, үнэ", "/payment-price", <AppstoreOutlined />, [
-        getItem("Үндсэн үнэ", "/product-price"),
-        getItem("Үйлчилгээний үнэ", "/service-price"),
-        getItem("Багц үнэ", "/package-price"),
-        getItem("Хөнгөлөлт", "/discount"),
-        getItem("Урамшуулал", "/coupon"),
-        getItem("Төлбөрийн хэлбэр", "/payment-method"),
-      ]),
-    ]),
+    getItem(
+      "Хянах самбар",
+      "/main/dashboard",
+      <AreaChartOutlined
+        style={{
+          fontSize: 18,
+        }}
+      />
+    ),
+    getItem(
+      "Үндсэн бүртгэл",
+      "/registration",
+      <Image
+        src="/images/menu/register.svg"
+        width={18}
+        height={18}
+        alt="register"
+      />,
+      [
+        getItem(
+          "Харилцагч",
+          "/customer",
+          <UserAddOutlined
+            style={{
+              fontSize: 18,
+            }}
+          />,
+          [
+            getItem("Бүртгэл", "/information"),
+            getItem("Бүлэг", "/group"),
+            getItem("Авлага дансны бүртгэл", "/receivable-account"),
+            getItem("Гишүүнчлэлийн бүртгэл", "/membership-card"),
+            getItem("Зээлийн лимит", "/limit-of-loans"),
+            getItem("Эхний үлдэгдэл", "/customer-balance"),
+          ]
+        ),
+        getItem(
+          "Бараа материал",
+          "/inventory",
+          <Image
+            src="/images/menu/material.svg"
+            width={18}
+            height={18}
+            alt="material"
+          />,
+          [
+            getItem("Бүртгэл", "/inventories-registration"),
+            getItem("Данс", "/inventories-type"),
+            getItem("Бүлэг", "/inventories-group"),
+            getItem("Брэнд", "/inventories-brand"),
+            getItem("Хэмжих нэгж", "/unit-of-measure"),
+            getItem("Байршлын бүртгэл", "/storagies-registration"),
+            getItem("Үйлчилгээний бүртгэл", "/services-registration"),
+            getItem("Багцын бүртгэл", "/package-registration"),
+            getItem("Эхний үлдэгдэл", "/beginning-balance"),
+            getItem("Зохистой нөөцийн хэмжээ", "/stock-of-commodities"),
+            getItem("Буцаалтын шалтгаан", "/refund-reason"),
+          ]
+        ),
+        getItem(
+          "Төлбөр, үнэ",
+          "/payment-price",
+          <Image
+            src="/images/menu/price.svg"
+            width={18}
+            height={18}
+            alt="price"
+          />,
+          [
+            getItem("Үндсэн үнэ", "/product-price"),
+            getItem("Үйлчилгээний үнэ", "/service-price"),
+            getItem("Багц үнэ", "/package-price"),
+            getItem("Хөнгөлөлт", "/discount"),
+            getItem("Урамшуулал", "/coupon"),
+            getItem("Төлбөрийн хэлбэр", "/payment-method"),
+          ]
+        ),
+      ]
+    ),
     getItem(
       "Захиалга, хуваарилалт",
       "/ordering-distribution",
-      <WindowsOutlined />,
+      <Image src="/images/menu/order.svg" width={18} height={18} alt="order" />,
       [
         getItem("Борлуулалт", "/sales-order-distribution"),
         getItem("Дотоод", "/order-distribution"),
       ]
     ),
-    getItem("Бараа материал", "/inventory-transaction", <WindowsOutlined />, [
-      getItem("Бараа материалын жагсаалт", "/jurnal"),
-      getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
-        getItem("Бараа материалын орлого", "/material-income"),
-        getItem("Борлуулалтын буцаалт", "/sale-return"),
-      ]),
-      getItem("Зарлагын гүйлгээ", "/expense-transaction", <></>, [
-        getItem("Борлуулалт", "/sale-transaction"),
-        getItem("Худалдан авалтын буцаалт", "/refund-purchase"),
-        getItem("Үйл ажиллагаанд", "/action-transaction"),
-        getItem("Акт, хорогдол, устгал", "/act-transaction"),
-        getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
-      ]),
-      getItem("Дотоод гүйлгээ", "/local-transaction", <></>, [
-        getItem("Бараа материалын хөрвүүлэг", "/converter"),
-        getItem("Бараа материалын хольц", "/mixture"),
-        getItem("Тооллого", "/census"),
-      ]),
-    ]),
-    getItem("Төлбөр тооцоо", "/payments", <WindowsOutlined />, [
-      getItem("Поссын борлуулалт", "/pos-sales"),
-      getItem("Баримтын жагсаалт", "/list-of-receipt"),
-    ]),
+    getItem(
+      "Бараа материал",
+      "/inventory-transaction",
+      <Image
+        src="/images/menu/inventory.svg"
+        width={18}
+        height={18}
+        alt="inventory"
+      />,
+      [
+        getItem("Бараа материалын жагсаалт", "/jurnal"),
+        getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
+          getItem("Бараа материалын орлого", "/material-income"),
+          getItem("Борлуулалтын буцаалт", "/sale-return"),
+        ]),
+        getItem("Зарлагын гүйлгээ", "/expense-transaction", <></>, [
+          getItem("Борлуулалт", "/sale-transaction"),
+          getItem("Худалдан авалтын буцаалт", "/refund-purchase"),
+          getItem("Үйл ажиллагаанд", "/action-transaction"),
+          getItem("Акт, хорогдол, устгал", "/act-transaction"),
+          getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
+        ]),
+        getItem("Дотоод гүйлгээ", "/local-transaction", <></>, [
+          getItem("Бараа материалын хөрвүүлэг", "/converter"),
+          getItem("Бараа материалын хольц", "/mixture"),
+          getItem("Тооллого", "/census"),
+        ]),
+      ]
+    ),
+    getItem(
+      "Төлбөр тооцоо",
+      "/payments",
+      <CalculatorOutlined
+        style={{
+          fontSize: 18,
+        }}
+      />,
+      [
+        getItem("Поссын борлуулалт", "/pos-sales"),
+        getItem("Баримтын жагсаалт", "/list-of-receipt"),
+      ]
+    ),
+    getItem(
+      "Тайлан",
+      "/main/dashboard/reports",
+      <Image
+        src="/images/menu/report.svg"
+        width={18}
+        height={18}
+        alt="report"
+      />
+    ),
     getItem(
       "Тайлан үеийн хаалт",
       "/main/dashboard/current-period-close-off",
-      <LockOutlined />
+      <LockOutlined
+        style={{
+          fontSize: 18,
+        }}
+      />
     ),
-    getItem("Тайлан", "/main/dashboard/reports", <SnippetsOutlined />),
   ];
   // fuctions
   const fillter = (array: any, key: string) => {
@@ -146,23 +236,29 @@ const Sidebar = () => {
         backgroundColor: "white",
       }}
     >
-      <Button
-        type="primary"
-        onClick={toggleCollapsed}
+      <div
         style={{
-          display: "flex",
-          margin: "auto",
-          marginTop: 10,
+          padding: 10,
+          backgroundColor: "transparent",
         }}
       >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </Button>
+        <Button
+          type="primary"
+          onClick={toggleCollapsed}
+          style={{
+            display: "flex",
+            margin: "auto",
+          }}
+        >
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </Button>
+      </div>
       <Menu
         style={{
           background: "transparent",
           border: "none",
           overflow: "auto",
-          height: 570,
+          height: 700,
           minWidth: collapsed ? "" : 240,
         }}
         onClick={(e) => menuClick(e.keyPath)}

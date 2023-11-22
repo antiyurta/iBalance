@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Form, Space } from "antd";
 import { NewFilterSelect } from "./input";
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import NewModal from "./modal";
 import { FormInstance, SelectProps } from "antd/lib";
 import { Rule } from "antd/es/form";
@@ -29,11 +29,21 @@ interface IProps {
   disabled?: boolean;
   onClear?: () => void;
   onSelect?: (value: IDataViewMaterial) => void;
+  style?: CSSProperties;
 }
 
 export const MaterialSelect = (props: IProps) => {
-  const { form, params, name, rules, listName, disabled, onClear, onSelect } =
-    props;
+  const {
+    form,
+    params,
+    name,
+    rules,
+    listName,
+    disabled,
+    onClear,
+    onSelect,
+    style,
+  } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
   const [viewMaterialDictionary, setViewMaterialDictionary] =
@@ -74,9 +84,13 @@ export const MaterialSelect = (props: IProps) => {
         ) : null}
         <Form.Item name={name ? name : "materialId"} rules={rules}>
           <NewFilterSelect
-            style={{
-              width: "100%",
-            }}
+            style={
+              style
+                ? style
+                : {
+                    width: "100%",
+                  }
+            }
             options={viewMaterials.map((material) => ({
               value: material.id,
               label: `${material.code} - ${material.name}`,

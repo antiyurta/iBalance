@@ -126,6 +126,7 @@ const Thumbnail = (props: IProps) => {
   const getData = async (params: IParamMaterial) => {
     blockContext.block();
     params.isResourceSizeRel = true;
+    params.isActive = [true];
     await MaterialService.get(params)
       .then((response) => {
         if (response.success) {
