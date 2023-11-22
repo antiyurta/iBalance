@@ -350,8 +350,9 @@ const InventoriesRegistration = (props: IProps) => {
     }
   };
   const onPreview = (info: UploadFile) => {
+    const url = info.url || info.thumbUrl;
     var my = window.open("about:blank", "_blank");
-    my?.document.write(`<image src="${info.thumbUrl}" alt="any" />`);
+    my?.document.write(`<image src="${url}" alt="any" />`);
   };
   const handleRemove = async (info: MyUploadFile) => {
     if (info.response?.response.id) {
