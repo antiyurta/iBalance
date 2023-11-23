@@ -54,7 +54,7 @@ export interface IDataDocument extends IData {
   consumer?: IDataConsumer;
   sectionId: number;
   section: IDataReference; // гүйлгээний төрөл
-  date: Date;
+  documentAt: string;
   description: string; // гүйлгээний утга
   paymentMethodId: number;
   paymentMethod?: IDataReferencePaymentMethod; // Төлбөрийн хэлбэр
@@ -68,7 +68,7 @@ export interface IDataDocument extends IData {
 
 export interface IFilterDocument extends IFilter {
   id?: number;
-  date?: string;
+  documentAt?: string;
   refundAt?: string;
   relDocumentId?: number[];
   relDocumentWarehouseName?: string[];
@@ -121,7 +121,7 @@ export const getDocumentColumns = (
       dataIndex: "id",
       type: DataIndexType.MULTI,
     },
-    date: {
+    documentAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
@@ -315,7 +315,7 @@ export const getDocumentColumns = (
     dataIndex: "createdAt",
     type: DataIndexType.DATETIME,
   };
-  columns.updatedAt = {
+  columns.updatedBy = {
     label: "Түгжсэн хэрэглэгч",
     isView: false,
     isFiltered: true,

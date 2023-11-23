@@ -9,6 +9,7 @@ import {
   IDataTransaction,
   IFilterTransaction,
   IParamTransaction,
+  getTransactionColumns,
 } from "@/service/document/transaction/entities";
 import { TransactionService } from "@/service/document/transaction/service";
 import { Col, Row } from "antd";
@@ -29,71 +30,9 @@ export const TransactionList = (props: IProps) => {
     limit: 10,
   });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [columns, setColumns] = useState<FilteredColumnsTransaction>({
-    documentId: {
-      label: "Баримтын дугаар",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "id",
-      type: DataIndexType.MULTI,
-    },
-    date: {
-      label: "Баримтын огноо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "date"],
-      type: DataIndexType.DATE,
-    },
-    warehouseName: {
-      label: "Байршил",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "warehouse", "name"],
-      type: DataIndexType.MULTI,
-    },
-    materialCode: {
-      label: "Дотоод код",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["material", "code"],
-      type: DataIndexType.MULTI,
-    },
-    materialName: {
-      label: "Бараа материалын нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["material", "name"],
-      type: DataIndexType.MULTI,
-    },
-    materialMeasurementName: {
-      label: "Хэмжих нэгж",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["material", "measurement", "name"],
-      type: DataIndexType.MULTI,
-    },
-    quantity: {
-      label: "Орлогын/Зарлага тоо хэмжээ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "quantity",
-      type: DataIndexType.MULTI,
-    },
-    consumerName: {
-      label: "Харилцагчийн нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "consumer", "name"],
-      type: DataIndexType.MULTI,
-    },
-    description: {
-      label: "Гүйлгээний утга",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "description"],
-      type: DataIndexType.MULTI,
-    },
-  });
+  const [columns, setColumns] = useState<FilteredColumnsTransaction>(
+    getTransactionColumns(movingStatus)
+  );
   const getData = async (params: IParamTransaction) => {
     blockContext.block();
     if (movingStatus) params.movingStatus = movingStatus;
