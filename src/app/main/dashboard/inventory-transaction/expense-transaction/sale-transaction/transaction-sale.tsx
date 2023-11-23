@@ -6,18 +6,37 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space } from "antd";
-import { useEffect, useState } from "react";
+import { Button, Col, Form, Row, Space, Typography, message } from "antd";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
-import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
+import {
+  NewDatePicker,
+  NewFilterSelect,
+  NewInput,
+  NewInputNumber,
+} from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableRefundPurchase } from "./editableTableRefundPurchase";
-
-const TransactionRefundPurchase = () => {
+import { EditableTableSale } from "./editableTableSale";
+import {
+  IDataReferencePaymentMethod,
+  IParamPaymentMethod,
+} from "@/service/reference/payment-method/entities";
+import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+const TransactionSale = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<
+    IDataReferencePaymentMethod[]
+  >([]);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -26,13 +45,35 @@ const TransactionRefundPurchase = () => {
       }
     });
   };
-  const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postPurchaseReturn(values).then((response) => {
-      if (response.success) form.resetFields();
+  const getPaymentMethods = (params: IParamPaymentMethod) => {
+    ReferencePaymentMethodService.get(params).then((response) => {
+      if (response.success) {
+        setPaymentMethods(response.response.data);
+      }
     });
+  };
+  const onFinish = async (values: IDataDocument) => {
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postSale(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getWarehouses({});
+    getPaymentMethods({});
   }, []);
   return (
     <Row gutter={[12, 24]}>
@@ -87,28 +128,63 @@ const TransactionRefundPurchase = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Нийлүүлэгчийн нэр">
+              <Form.Item label="Харилцагчийн код, нэр">
                 <ConsumerSelect
                   form={form}
                   rules={[
                     {
                       required: true,
-                      message: "Нийлүүлэгчийн нэр оруулна уу.",
+                      message: "Харилцагчийн код, нэр оруулна уу.",
                     },
                   ]}
                 />
               </Form.Item>
               <Form.Item
-                label="Буцаалтын шалтгаан"
+                label="Гүйлгээний утга"
                 name="description"
                 rules={[
                   {
                     required: true,
-                    message: "Буцаалтын шалтгаан оруулна уу.",
+                    message: "Гүйлгээний утга оруулна уу.",
                   },
                 ]}
               >
                 <NewInput />
+              </Form.Item>
+              <Form.Item
+                label="Төлбөрийн хэлбэр"
+                name="paymentMethodId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Төлбөрийн хэлбэр оруулна уу.",
+                  },
+                ]}
+              >
+                <NewFilterSelect
+                  options={paymentMethods.map((paymentMethod) => ({
+                    value: paymentMethod.id,
+                    label: paymentMethod.name,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item label="Нийт дүн" name="amount" shouldUpdate>
+                <NewInputNumber disabled />
+              </Form.Item>
+              <Form.Item
+                label="Бараа материалын үнийн хөнгөлөлт"
+                name="discountAmount"
+              >
+                <NewInputNumber disabled />
+              </Form.Item>
+              <Form.Item
+                label="Харилцагчийн хөнгөлөлт"
+                name="consumerDiscountAmount"
+              >
+                <NewInputNumber disabled />
+              </Form.Item>
+              <Form.Item label="Төлөх дүн" name="payAmount">
+                <NewInputNumber disabled />
               </Form.Item>
             </div>
             <Space size={12} wrap></Space>
@@ -124,7 +200,7 @@ const TransactionRefundPurchase = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableRefundPurchase
+                  <EditableTableSale
                     data={items}
                     form={form}
                     add={add}
@@ -159,4 +235,4 @@ const TransactionRefundPurchase = () => {
     </Row>
   );
 };
-export default TransactionRefundPurchase;
+export default TransactionSale;

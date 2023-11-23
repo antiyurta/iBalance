@@ -9,6 +9,9 @@ import {
 function get(params: IParamDocument): Promise<IResponseDocuments> {
   return api.get("transaction-document", { params });
 }
+function getById(id: number): Promise<IResponseDocument> {
+  return api.get(`transaction-document/${id}`);
+}
 
 function postIncome(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/income", body);
@@ -49,6 +52,7 @@ function remove(id: number): Promise<IResponseDocument> {
 }
 export const DocumentService = {
   get,
+  getById,
   postIncome,
   postRefund,
   postSale,

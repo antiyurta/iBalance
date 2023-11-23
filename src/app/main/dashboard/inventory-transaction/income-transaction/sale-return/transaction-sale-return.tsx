@@ -1,60 +1,73 @@
-"use client";
-import { IDataDocument } from "@/service/document/entities";
-import { DocumentService } from "@/service/document/service";
+import NewCard from "@/components/Card";
+import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
+import { Button, Col, Form, Row, Space } from "antd";
+import mnMN from "antd/es/calendar/locale/mn_MN";
+import Image from "next/image";
+import { EditableTableSaleReturn } from "./editableTableSaleReturn";
+import { useContext, useEffect, useState } from "react";
 import {
   IDataWarehouse,
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Typography, message } from "antd";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import NewCard from "@/components/Card";
-import {
-  NewDatePicker,
-  NewFilterSelect,
-  NewInput,
-  NewInputNumber,
-} from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableSale } from "./editableTableSale";
 import {
-  IDataReferencePaymentMethod,
-  IParamPaymentMethod,
-} from "@/service/reference/payment-method/entities";
-import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
-
-const TransactionSale = () => {
+  IDataDocument,
+  IParamDocument,
+  MovingStatus,
+} from "@/service/document/entities";
+import { DocumentService } from "@/service/document/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+export const TransactionSaleReturn = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<
-    IDataReferencePaymentMethod[]
-  >([]);
+  const [refundDocuments, setRefundDocuments] = useState<IDataDocument[]>([]);
 
-  const getWarehouses = (params: IParamWarehouse) => {
+  const getWarehouse = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
     });
   };
-  const getPaymentMethods = (params: IParamPaymentMethod) => {
-    ReferencePaymentMethodService.get(params).then((response) => {
+  const getRefundDocuments = (params: IParamDocument) => {
+    DocumentService.get(params).then((response) => {
       if (response.success) {
-        setPaymentMethods(response.response.data);
+        setRefundDocuments(response.response.data);
       }
     });
   };
-  const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postSale(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
-  };
   useEffect(() => {
-    getWarehouses({});
-    getPaymentMethods({});
+    getWarehouse({});
+    getRefundDocuments({
+      movingStatus: MovingStatus.SaleReturn,
+    });
   }, []);
+  const onFinish = async (values: IDataDocument) => {
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postRefund(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
+  };
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -86,7 +99,7 @@ const TransactionSale = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(5,1fr)",
+                gridTemplateColumns: "repeat(7,1fr)",
                 gap: 12,
               }}
             >
@@ -99,7 +112,12 @@ const TransactionSale = () => {
               <Form.Item
                 label="Байршил"
                 name="warehouseId"
-                rules={[{ required: true, message: "Байршил оруулна уу" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Тушаалын дугаар оруулна уу.",
+                  },
+                ]}
               >
                 <NewFilterSelect
                   options={warehouses.map((warehouse) => ({
@@ -108,63 +126,49 @@ const TransactionSale = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Харилцагчийн код, нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Харилцагчийн код, нэр оруулна уу.",
-                    },
-                  ]}
-                />
+              <Form.Item label="Харилцагчийн нэр">
+                <ConsumerSelect form={form} rules={[]} />
               </Form.Item>
               <Form.Item
-                label="Гүйлгээний утга"
-                name="description"
+                label="Буцаах баримтын дугаар"
+                name="refundDocumentId"
                 rules={[
                   {
                     required: true,
-                    message: "Гүйлгээний утга оруулна уу.",
-                  },
-                ]}
-              >
-                <NewInput />
-              </Form.Item>
-              <Form.Item
-                label="Төлбөрийн хэлбэр"
-                name="paymentMethodId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Төлбөрийн хэлбэр оруулна уу.",
+                    message: "Заавал",
                   },
                 ]}
               >
                 <NewFilterSelect
-                  options={paymentMethods.map((paymentMethod) => ({
-                    value: paymentMethod.id,
-                    label: paymentMethod.name,
+                  options={refundDocuments.map((document) => ({
+                    value: document.id,
+                    label: document.description,
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Нийт дүн" name="amount" shouldUpdate>
-                <NewInputNumber disabled />
+              <Form.Item
+                label="Буцаалт хийх огноо"
+                name="refundAt"
+                rules={[
+                  {
+                    required: true,
+                    message: "Заавал",
+                  },
+                ]}
+              >
+                <NewDatePicker />
               </Form.Item>
               <Form.Item
-                label="Бараа материалын үнийн хөнгөлөлт"
-                name="discountAmount"
+                label="Буцаалт хийх шалтгаан"
+                name="description"
+                rules={[
+                  {
+                    required: true,
+                    message: "Заавал",
+                  },
+                ]}
               >
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item
-                label="Харилцагчийн хөнгөлөлт"
-                name="consumerDiscountAmount"
-              >
-                <NewInputNumber disabled />
-              </Form.Item>
-              <Form.Item label="Төлөх дүн" name="payAmount">
-                <NewInputNumber disabled />
+                <NewInput />
               </Form.Item>
             </div>
             <Space size={12} wrap></Space>
@@ -180,7 +184,7 @@ const TransactionSale = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableSale
+                  <EditableTableSaleReturn
                     data={items}
                     form={form}
                     add={add}
@@ -215,4 +219,3 @@ const TransactionSale = () => {
     </Row>
   );
 };
-export default TransactionSale;

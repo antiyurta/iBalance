@@ -6,26 +6,22 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Typography, message } from "antd";
-import { useEffect, useState } from "react";
+import { Button, Col, Form, Row, Space } from "antd";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
-import {
-  NewDatePicker,
-  NewFilterSelect,
-  NewInput,
-  NewInputNumber,
-} from "@/components/input";
+import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTableAction } from "./editableTableAction";
-import {
-  IDataReferencePaymentMethod,
-  IParamPaymentMethod,
-} from "@/service/reference/payment-method/entities";
-import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
-
-const TransactionAction = () => {
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+const TransactionAction = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
 
@@ -37,9 +33,23 @@ const TransactionAction = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postOperation(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postOperation(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getWarehouses({});

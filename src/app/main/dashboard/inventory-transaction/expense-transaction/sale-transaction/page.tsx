@@ -1,7 +1,7 @@
 "use client";
 import { Col, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import TransactionSale from "./sale";
+import TransactionSale from "./transaction-sale";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";

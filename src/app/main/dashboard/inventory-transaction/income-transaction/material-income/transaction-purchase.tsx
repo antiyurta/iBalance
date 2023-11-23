@@ -4,7 +4,7 @@ import { Button, Col, Form, Row, Space } from "antd";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import Image from "next/image";
 import { EditableTablePurchase } from "./editableTablePurchase";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   IDataWarehouse,
   IParamWarehouse,
@@ -19,8 +19,14 @@ import {
 import { ReferenceService } from "@/service/reference/reference";
 import { IDataDocument } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
-
-export const Purchase = () => {
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+export const TransactionPurchase = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [incomeTypes, setIncomeTypes] = useState<IDataReference[]>([]);
@@ -39,17 +45,31 @@ export const Purchase = () => {
       }
     });
   };
+  const onFinish = async (values: IDataDocument) => {
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postIncome(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
+  };
   useEffect(() => {
     getWarehouses({});
     getIncomeTypes({
       type: IType.MATERIAL_INCOME_TYPE,
     });
   }, []);
-  const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postIncome(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
-  };
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>

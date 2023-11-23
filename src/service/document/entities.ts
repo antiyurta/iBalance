@@ -37,7 +37,7 @@ export enum MovingStatus {
   Cencus = "CENCUS",
 }
 export interface IDataDocument extends IData {
-  id?: number;
+  id: number;
   refundAt: string;
   relDocumentId: number;
   relDocument: IDataDocument;

@@ -5,7 +5,7 @@ import { PlusCircleOutlined } from "@ant-design/icons";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
-import TransactionConverter from "./TransactionConverter";
+import TransactionConverter from "./transaction-converter";
 
 const { Title } = Typography;
 
