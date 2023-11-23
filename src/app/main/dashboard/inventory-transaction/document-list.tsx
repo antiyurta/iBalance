@@ -16,6 +16,7 @@ import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+import { DocumentEdit } from "./document-edit";
 interface IProps {
   movingStatus?: MovingStatus;
 }
@@ -27,6 +28,7 @@ export const DocumentList = (props: IProps) => {
   const [filters, setFilters] = useState<IFilterDocument>();
   const [params, setParams] = useState<IParamDocument>({ page: 1, limit: 10 });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
+  const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
   const [columns, setColumns] = useState<FilteredColumnsDocument>(
     getDocumentColumns(movingStatus)
   );
@@ -41,9 +43,27 @@ export const DocumentList = (props: IProps) => {
           setFilters(response.response.filter);
         }
       })
-      .finally(() => {
-        blockContext.unblock();
-      });
+      .finally(() => blockContext.unblock());
+  };
+  const editDocument = async (row: IDataDocument) => {
+    blockContext.block();
+    await DocumentService.getById(row.id)
+      .then((response) => {
+        if (response.success) {
+          setSelectedDocument(response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await DocumentService.remove(id)
+      .then((response) => {
+        if (response.success) {
+          getData(params);
+        }
+      })
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     getData(params);
@@ -122,8 +142,8 @@ export const DocumentList = (props: IProps) => {
               incomeFilters={filters}
               isEdit
               isDelete
-              onEdit={(row) => {}}
-              onDelete={(id) => {}}
+              onEdit={editDocument}
+              onDelete={onDelete}
             />
           </div>
         </Col>
@@ -134,6 +154,10 @@ export const DocumentList = (props: IProps) => {
           /> */}
         </Col>
       </Row>
+      <DocumentEdit
+        selectedDocument={selectedDocument}
+        movingStatus={movingStatus}
+      />
     </div>
   );
 };
