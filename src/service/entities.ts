@@ -86,6 +86,7 @@ export interface IFilters {
   description: string[];
 }
 export interface IFilter {
+  createdAt?: string[];
   createdBy?: string[];
   updatedAt?: string[];
   updatedBy?: string[];
@@ -124,6 +125,7 @@ export enum DataIndexType {
   MULTI = "MULTI", // too bolon string
   STRING_SECTION = "STRING_SECTION",
   DATE = "DATE",
+  DATETIME = "DATETIME",
   COUNTRY = "COUNTRY",
   //
   USER = "USER",

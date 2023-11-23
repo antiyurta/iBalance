@@ -413,11 +413,6 @@ const MembershipCard = () => {
               rules={[
                 {
                   validator: async (_, cards) => {
-                    if (!cards) {
-                      return Promise.reject(
-                        new Error("Харилцагчийн картын мэдээллийг оруулна уу!")
-                      );
-                    }
                     const arr = Array.isArray(cards)
                       ? cards.map((card) => card?.cardno)
                       : [];

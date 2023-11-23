@@ -9,6 +9,7 @@ import {
   IFilterDocument,
   IParamDocument,
   MovingStatus,
+  getDocumentColumns,
 } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { DataIndexType, Meta } from "@/service/entities";
@@ -26,78 +27,9 @@ export const DocumentList = (props: IProps) => {
   const [filters, setFilters] = useState<IFilterDocument>();
   const [params, setParams] = useState<IParamDocument>({ page: 1, limit: 10 });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [columns, setColumns] = useState<FilteredColumnsDocument>({
-    id: {
-      label: "Баримтын дугаар",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "id",
-      type: DataIndexType.MULTI,
-    },
-    date: {
-      label: "Баримтын огноо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "date",
-      type: DataIndexType.DATE,
-    },
-    warehouseName: {
-      label: "Байршил",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["warehouse", "name"],
-      type: DataIndexType.MULTI,
-    },
-    incomeQuantity: {
-      label: "Орлогын тоо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "incomeQuantity",
-      type: DataIndexType.MULTI,
-    },
-    incomeCount: {
-      label: "Орлогын тоо хэмжээ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "incomeCount",
-      type: DataIndexType.MULTI,
-    },
-    expenseQuantity: {
-      label: "Зарлагын тоо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "expenseQuantity",
-      type: DataIndexType.MULTI,
-    },
-    consumerCode: {
-      label: "Харилцагчийн код",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "code"],
-      type: DataIndexType.MULTI,
-    },
-    consumerName: {
-      label: "Харилцагчийн нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "name"],
-      type: DataIndexType.MULTI,
-    },
-    isLock: {
-      label: "Гүйлгээ түгжсэн эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isLock",
-      type: DataIndexType.BOOLEAN_STRING,
-    },
-    movingStatus: {
-      label: "Гүйлгээний цонх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "movingStatus",
-      type: DataIndexType.TRANSACTION,
-    },
-  });
+  const [columns, setColumns] = useState<FilteredColumnsDocument>(
+    getDocumentColumns(movingStatus)
+  );
   const getData = async (params: IParamDocument) => {
     blockContext.block();
     if (movingStatus) params.movingStatus = movingStatus;

@@ -111,23 +111,18 @@ function renderCheck(text: any, type: DataIndexType) {
       }
       return "Идэвхгүй";
     case DataIndexType.DATE:
+      return dayjs(text).format("YYYY/MM/DD");
+    case DataIndexType.DATETIME:
       return dayjs(text).format("YYYY/MM/DD HH:mm");
     case DataIndexType.VALUE:
       return (
         <NumericFormat
           value={text}
-          prefix={"₮"}
+          suffix={"₮"}
           displayType="text"
           thousandSeparator=","
-        />
-      );
-    case DataIndexType.VALUE:
-      return (
-        <NumericFormat
-          value={text}
-          prefix={"₮"}
-          displayType="text"
-          thousandSeparator=","
+          fixedDecimalScale
+          decimalScale={2}
         />
       );
     case DataIndexType.TRANSACTION:

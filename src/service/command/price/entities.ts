@@ -31,7 +31,6 @@ export interface IFilterPrice extends IFilterCommand {
   unitAmount?: number; // Нэгжийн үнэ
   lumpQuantity?: number; // Бөөний тоо ширхэг
   lumpAmount?: number; // Бөөний үнэ
-  isAll?: boolean;
 }
 export interface IParamPrice extends Meta, IParam, IFilterPrice {
   type: CommandType;

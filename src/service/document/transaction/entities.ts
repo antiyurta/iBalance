@@ -25,7 +25,6 @@ export interface IDataTransaction extends IData {
 export interface IFilterTransaction extends IFilter {
   documentId?: number[];
   documentDate?: string[];
-  createdAt?: number[];
   warehouseName?: string[];
   materialCode?: string[];
   materialName?: string[];

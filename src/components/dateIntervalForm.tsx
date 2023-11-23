@@ -44,12 +44,7 @@ const DateIntervalForm = (props: IProps) => {
           label="Огноо сонгох"
           name={[itemname, "date"]}
         >
-          <NewDatePicker
-            style={{
-              width: "100%",
-            }}
-            locale={locale}
-          />
+          <NewDatePicker />
         </Form.Item>
       );
     } else if (selectedValue === "between") {
@@ -94,7 +89,7 @@ const DateIntervalForm = (props: IProps) => {
     }
   };
   return (
-    <Space.Compact>
+    <div>
       <Form.Item
         style={intervalStyle}
         label={label ? label : "Интерваль"}
@@ -146,7 +141,7 @@ const DateIntervalForm = (props: IProps) => {
         />
       </Form.Item>
       <RenderDateFormItem />
-    </Space.Compact>
+    </div>
   );
 };
 export default DateIntervalForm;

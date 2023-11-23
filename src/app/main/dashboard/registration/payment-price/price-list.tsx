@@ -65,7 +65,7 @@ const PriceList = (props: IProps) => {
       dataIndex: ["command", "ruleAt"],
       type: DataIndexType.DATE,
     },
-    isAll: {
+    isAlls: {
       label: "Нийтэд мөрдөх",
       isView: true,
       isFiltered: false,
