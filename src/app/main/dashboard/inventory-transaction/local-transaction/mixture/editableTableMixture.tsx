@@ -132,6 +132,7 @@ export const EditableTableMixture = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
+                    lastQty: value.lastQty,
                     quantity: 1,
                   },
                 },
@@ -169,10 +170,10 @@ export const EditableTableMixture = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"countPackage"}
+        dataIndex={"lastQty"}
         title="Агуулахын үлдэгдэл"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
+          <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

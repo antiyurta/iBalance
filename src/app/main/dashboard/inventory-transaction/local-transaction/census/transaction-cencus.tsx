@@ -11,7 +11,6 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { EditableTableCencus } from "./editableTableCencus";
 import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
@@ -19,6 +18,7 @@ import { MaterialType } from "@/service/material/entities";
 import { IParamUser, IUser } from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -84,6 +84,26 @@ const TransactionCencus = (props: IProps) => {
   useEffect(() => {
     getWarehouses({});
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          unitAmount: transaction.unitAmount,
+          lastQty: transaction.lastQty,
+          quantity: transaction.quantity,
+          excessOrDeficiency: transaction.excessOrDeficiency,
+          amount: transaction.amount,
+          description: transaction.description,
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -122,8 +142,8 @@ const TransactionCencus = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"

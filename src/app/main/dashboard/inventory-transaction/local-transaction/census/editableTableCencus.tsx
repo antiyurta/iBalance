@@ -157,6 +157,7 @@ export const EditableTableCencus = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
+                    unitAmount: value.unitAmount,
                     lastQty: value.lastQty,
                     quantity: 1,
                   },

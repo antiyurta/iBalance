@@ -25,6 +25,7 @@ import {
 } from "@/service/reference/payment-method/entities";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -75,6 +76,25 @@ const TransactionSale = (props: IProps) => {
     getWarehouses({});
     getPaymentMethods({});
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          lastQty: transaction.lastQty,
+          unitAmount: transaction.unitAmount,
+          quantity: transaction.quantity,
+          amount: transaction.amount,
+          discountAmount: transaction.discountAmount,
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -113,8 +133,8 @@ const TransactionSale = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"

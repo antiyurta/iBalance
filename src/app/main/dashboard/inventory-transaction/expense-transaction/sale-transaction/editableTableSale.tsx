@@ -187,6 +187,7 @@ export const EditableTableSale = (props: IProps) => {
                 ["transactions", index, "name"],
                 ["transactions", index, "measurement"],
                 ["transactions", index, "countPackage"],
+                ["transactions", index, "lastQty"],
                 ["transactions", index, "unitAmount"],
               ]);
             }}
@@ -206,6 +207,7 @@ export const EditableTableSale = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
+                    lastQty: value.lastQty,
                     unitAmount: value.unitAmount,
                     amount: value.unitAmount,
                     quantity: 1,
@@ -250,7 +252,7 @@ export const EditableTableSale = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"countPackage"}
+        dataIndex={"lastQty"}
         title="Агуулахын үлдэгдэл"
         render={(_, __, index) => (
           <Form.Item name={[index, "countPackage"]}>

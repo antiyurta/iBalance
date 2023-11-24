@@ -1,7 +1,6 @@
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space } from "antd";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import Image from "next/image";
 import { EditableTablePurchase } from "./editableTablePurchase";
 import { useContext, useEffect, useState } from "react";
@@ -20,6 +19,7 @@ import { ReferenceService } from "@/service/reference/reference";
 import { IDataDocument } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -70,6 +70,22 @@ export const TransactionPurchase = (props: IProps) => {
       type: IType.MATERIAL_INCOME_TYPE,
     });
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          quantity: transaction.quantity,
+          transactionAt: dayjs(transaction.transactionAt),
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -104,8 +120,8 @@ export const TransactionPurchase = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Огноо" name="date">
-                  <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+                <Form.Item label="Огноо" name="documentAt">
+                  <NewDatePicker format={"YYYY-MM-DD"} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>

@@ -16,6 +16,7 @@ export interface IDataTransaction extends IData {
   material?: IDataMaterial;
   documentId: number;
   document?: IDataDocument;
+  lastQty: number;
   quantity: number;
   unitAmount: number;
   amount: number;
@@ -26,6 +27,7 @@ export interface IDataTransaction extends IData {
   convertMaterial?: IDataMaterial;
   convertQuantity: number;
   convertLastQty?: number;
+  description?: string;
 }
 
 export interface IFilterTransaction extends IFilterDocument {

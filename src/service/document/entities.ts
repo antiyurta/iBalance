@@ -68,6 +68,9 @@ export interface IDataDocument extends IData {
 
 export interface IFilterDocument extends IFilter {
   id?: number;
+  movingStatus?: MovingStatus;
+  warehouseId?: number;
+  consumerId?: number;
   documentAt?: string;
   refundAt?: string;
   relDocumentId?: number[];
@@ -81,9 +84,7 @@ export interface IFilterDocument extends IFilter {
   consumerCode?: string;
   consumerName?: string;
   paymentMethodName?: string[];
-  movingStatus?: MovingStatus;
   bookingId?: number[];
-  warehouseId?: number[];
   description?: string[];
   userId?: number[];
   isLock?: number[];
@@ -125,7 +126,7 @@ export const getDocumentColumns = (
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "date",
+      dataIndex: "documentAt",
       type: DataIndexType.DATE,
     },
     warehouseName: {

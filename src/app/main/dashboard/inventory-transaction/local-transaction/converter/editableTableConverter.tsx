@@ -213,6 +213,7 @@ export const EditableTableConverter = (props: IProps) => {
                     convertName: value.name,
                     convertMeasurement: value.measurementName,
                     convertCountPackage: value.countPackage,
+                    convertLastQty: value.lastQty,
                     quantity: 1,
                   },
                 },
@@ -250,10 +251,10 @@ export const EditableTableConverter = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"convertCountPackage"}
+        dataIndex={"convertLastQty"}
         title="Агуулахын үлдэгдэл"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
+          <Form.Item name={[index, "convertLastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

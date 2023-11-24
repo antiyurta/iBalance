@@ -1,7 +1,6 @@
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space } from "antd";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import Image from "next/image";
 import { EditableTableSaleReturn } from "./editableTableSaleReturn";
 import { useContext, useEffect, useState } from "react";
@@ -18,6 +17,7 @@ import {
 } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -26,8 +26,10 @@ export const TransactionSaleReturn = (props: IProps) => {
   const { selectedDocument, onSave } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
+  const warehouseId = Form.useWatch("warehouseId", form);
+  const consumerId = Form.useWatch("consumerId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [refundDocuments, setRefundDocuments] = useState<IDataDocument[]>([]);
+  const [saleDocuments, setSaleDocuments] = useState<IDataDocument[]>([]);
 
   const getWarehouse = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -36,18 +38,15 @@ export const TransactionSaleReturn = (props: IProps) => {
       }
     });
   };
-  const getRefundDocuments = (params: IParamDocument) => {
+  const getSaleDocuments = (params: IParamDocument) => {
     DocumentService.get(params).then((response) => {
       if (response.success) {
-        setRefundDocuments(response.response.data);
+        setSaleDocuments(response.response.data);
       }
     });
   };
   useEffect(() => {
     getWarehouse({});
-    getRefundDocuments({
-      movingStatus: MovingStatus.SaleReturn,
-    });
   }, []);
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
@@ -68,6 +67,30 @@ export const TransactionSaleReturn = (props: IProps) => {
         .finally(() => blockContext.unblock());
     }
   };
+  useEffect(() => {
+    getSaleDocuments({
+      warehouseId,
+      consumerId,
+      movingStatus: MovingStatus.Sales,
+    });
+  }, [warehouseId, consumerId]);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        refundAt: dayjs(selectedDocument.refundAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          quantity: transaction.quantity,
+          transactionAt: dayjs(transaction.transactionAt),
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -106,8 +129,8 @@ export const TransactionSaleReturn = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"
@@ -131,7 +154,7 @@ export const TransactionSaleReturn = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Буцаах баримтын дугаар"
-                name="refundDocumentId"
+                name="relDocumentId"
                 rules={[
                   {
                     required: true,
@@ -140,7 +163,7 @@ export const TransactionSaleReturn = (props: IProps) => {
                 ]}
               >
                 <NewFilterSelect
-                  options={refundDocuments.map((document) => ({
+                  options={saleDocuments.map((document) => ({
                     value: document.id,
                     label: document.description,
                   }))}

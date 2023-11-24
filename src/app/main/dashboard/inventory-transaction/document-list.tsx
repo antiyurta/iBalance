@@ -12,7 +12,7 @@ import {
   getDocumentColumns,
 } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
-import { DataIndexType, Meta } from "@/service/entities";
+import { Meta } from "@/service/entities";
 import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";

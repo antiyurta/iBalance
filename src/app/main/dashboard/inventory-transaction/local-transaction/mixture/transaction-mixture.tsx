@@ -11,9 +11,9 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { EditableTableMixture } from "./editableTableMixture";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -53,6 +53,32 @@ const TransactionMixture = (props: IProps) => {
   useEffect(() => {
     getWarehouses({});
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        ingredients: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          lastQty: transaction.lastQty,
+          quantity: transaction.quantity,
+        })),
+        exits: selectedDocument.relDocument?.transactions?.map(
+          (transaction) => ({
+            materialId: transaction.materialId,
+            name: transaction.material?.name,
+            measurement: transaction.material?.measurement.name,
+            countPackage: transaction.material?.countPackage,
+            lastQty: transaction.lastQty,
+            quantity: transaction.quantity,
+          })
+        ),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -91,8 +117,8 @@ const TransactionMixture = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"
