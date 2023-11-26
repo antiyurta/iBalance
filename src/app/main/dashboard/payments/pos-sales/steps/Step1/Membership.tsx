@@ -142,10 +142,12 @@ const Membership = (props: IProps) => {
   };
   useEffect(() => {
     if (membershipId) {
+      const discountPercentage: number = membership?.membership.discount || 0;
+      const discountAmount = (discountPercentage / 100) * amount;
       dispatch(
         setIsSaveAndSetSaveValue({
           isSave: membership?.membership.isSave || false,
-          saveValue: membership?.membership.isSave ? useValue : 0,
+          saveValue: membership?.membership.isSave ? useValue : discountAmount,
         })
       );
       dispatch(
