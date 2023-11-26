@@ -12,24 +12,25 @@ import { IDataDocument, IFilterDocument, MovingStatus } from "../entities";
 
 export interface IDataTransaction extends IData {
   id?: number;
-  materialId: number;
+  materialId?: number;
   material?: IDataMaterial;
   documentId: number;
   document?: IDataDocument;
   lastQty: number;
   incomeQty: number;
   expenseQty: number;
-  unitAmount: number;
-  totalAmount: number;
-  amount: number;
-  discountAmount: number;
-  transactionAt: string;
-  excessOrDeficiency: number;
-  convertMaterialId: number;
+  unitAmount?: number;
+  totalAmount?: number;
+  amount?: number;
+  discountAmount?: number;
+  transactionAt?: string;
+  excessOrDeficiency?: number;
+  convertMaterialId?: number;
   convertMaterial?: IDataMaterial;
   convertQuantity: number;
   convertLastQty?: number;
   description?: string;
+  refundDocumentId?: number;
 }
 
 export interface IFilterTransaction extends IFilterDocument {
@@ -265,8 +266,19 @@ export const getTransactionColumns = (
     dataIndex: "updatedAt",
     type: DataIndexType.DATETIME,
   };
-  if (status == MovingStatus.Sales) {
-    if (columns.incomeQty) columns.incomeQty.isView = false;
+  switch (status) {
+    case MovingStatus.Sales ||
+      MovingStatus.PurchaseReturn ||
+      MovingStatus.InOperation ||
+      MovingStatus.ActAmortization ||
+      MovingStatus.MovementInWarehouse:
+      if (columns.incomeQty) columns.incomeQty.isView = false;
+      break;
+    case MovingStatus.Purchase || MovingStatus.SaleReturn:
+      if (columns.expenseQty) columns.expenseQty.isView = false;
+      break;
+    default:
+      break;
   }
   return columns;
 };

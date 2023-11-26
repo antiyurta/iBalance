@@ -23,6 +23,7 @@ const TransactionMixture = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -54,26 +55,35 @@ const TransactionMixture = (props: IProps) => {
     getWarehouses({});
   }, []);
   useEffect(() => {
-    if (selectedDocument) {
+    if (!selectedDocument) {
+      setIsEdit(false);
+    } else {
+      setIsEdit(true);
+      const ingredients = selectedDocument.transactions?.filter(
+        (transaction) => transaction.expenseQty > 0
+      );
+      const exits = selectedDocument.transactions?.filter(
+        (transaction) => transaction.incomeQty > 0
+      );
       form.setFieldsValue({
         ...selectedDocument,
         documentAt: dayjs(selectedDocument.documentAt),
-        ingredients: selectedDocument.transactions?.map((transaction) => ({
+        ingredients: ingredients?.map((transaction) => ({
           materialId: transaction.materialId,
           name: transaction.material?.name,
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
           lastQty: transaction.lastQty,
-          quantity: transaction.quantity,
+          expenseQty: transaction.expenseQty,
         })),
-        exits: selectedDocument.relDocument?.transactions?.map(
+        exits: exits?.map(
           (transaction) => ({
             materialId: transaction.materialId,
             name: transaction.material?.name,
             measurement: transaction.material?.measurement.name,
             countPackage: transaction.material?.countPackage,
             lastQty: transaction.lastQty,
-            quantity: transaction.quantity,
+            incomeQty: transaction.incomeQty,
           })
         ),
       });
@@ -171,6 +181,7 @@ const TransactionMixture = (props: IProps) => {
                             listName="ingredients"
                             add={add}
                             remove={remove}
+                            isEdit={isEdit}
                           />
                           <div style={{ color: "#ff4d4f" }}>{errors}</div>
                         </>
@@ -191,6 +202,7 @@ const TransactionMixture = (props: IProps) => {
                             listName="exits"
                             add={add}
                             remove={remove}
+                            isEdit={isEdit}
                           />
                           <div style={{ color: "#ff4d4f" }}>{errors}</div>
                         </>

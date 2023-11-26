@@ -15,6 +15,7 @@ import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTableAction } from "./editableTableAction";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -24,6 +25,7 @@ const TransactionAction = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -54,6 +56,27 @@ const TransactionAction = (props: IProps) => {
   useEffect(() => {
     getWarehouses({});
   }, []);
+  useEffect(() => {
+    if (!selectedDocument) {
+      setIsEdit(false);
+    } else {
+      setIsEdit(true);
+      form.setFieldsValue({
+        ...selectedDocument,
+        discountAmount: Number(selectedDocument.discountAmount),
+        documentAt: dayjs(selectedDocument.documentAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          lastQty: transaction.lastQty,
+          unitAmount: Number(transaction.unitAmount),
+          expenseQty: transaction.expenseQty,
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -92,8 +115,8 @@ const TransactionAction = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} disabled />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"
@@ -149,6 +172,7 @@ const TransactionAction = (props: IProps) => {
                     form={form}
                     add={add}
                     remove={remove}
+                    isEdit={isEdit}
                   />
                   <div style={{ color: "#ff4d4f" }}>{errors}</div>
                 </>

@@ -12,17 +12,18 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
-
+type mixture = "ingredients" | "exits";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
-  listName: string;
+  listName: mixture;
   add: () => void;
   remove: (index: number) => void;
+  isEdit: boolean;
 }
 export const EditableTableMixture = (props: IProps) => {
   const { message } = App.useApp();
-  const { data, form, listName, add, remove } = props;
+  const { data, form, listName, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
 
@@ -33,7 +34,9 @@ export const EditableTableMixture = (props: IProps) => {
         [listName, editingIndex, "materialId"],
         [listName, editingIndex, "name"],
         [listName, editingIndex, "countPackage"],
-        [listName, editingIndex, "quantity"],
+        listName == "exits"
+          ? [listName, editingIndex, "incomeQty"]
+          : [listName, editingIndex, "expenseQty"],
       ])
       .then(() => {
         setNewService(false);
@@ -116,7 +119,7 @@ export const EditableTableMixture = (props: IProps) => {
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex)}
+            disabled={!(index === editingIndex) || isEdit}
             listName={listName}
             onClear={() => {
               form.resetFields([
@@ -133,7 +136,8 @@ export const EditableTableMixture = (props: IProps) => {
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
                     lastQty: value.lastQty,
-                    quantity: 1,
+                    expenseQty: 0,
+                    incomeQty: 0,
                   },
                 },
               });
@@ -178,12 +182,15 @@ export const EditableTableMixture = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={listName == "exits" ? "incomeQty" : "expenseQty"}
         title="Тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
-            rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
+            name={[
+              index,
+              listName == "exits" ? "incomeQty" : "expenseQty",
+            ]}
+            rules={[{ required: true, message: "Тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />
           </Form.Item>

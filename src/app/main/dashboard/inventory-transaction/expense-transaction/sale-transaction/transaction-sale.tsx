@@ -92,7 +92,7 @@ const TransactionSale = (props: IProps) => {
           countPackage: transaction.material?.countPackage,
           lastQty: transaction.lastQty,
           unitAmount: Number(transaction.unitAmount),
-          quantity: transaction.quantity,
+          expenseQty: transaction.expenseQty,
           totalAmount: Number(transaction.totalAmount),
           discountAmount: Number(transaction.discountAmount),
         })),

@@ -19,10 +19,11 @@ interface IProps {
   form: FormInstance;
   add: () => void;
   remove: (index: number) => void;
+  isEdit: boolean;
 }
 export const EditableTableSaleReturn = (props: IProps) => {
   const { message } = App.useApp();
-  const { data, form, add, remove } = props;
+  const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
   const onSave = async () => {
@@ -32,7 +33,7 @@ export const EditableTableSaleReturn = (props: IProps) => {
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "incomeQty"],
         ["transactions", editingIndex, "endAt"],
       ])
       .then(() => {
@@ -110,7 +111,7 @@ export const EditableTableSaleReturn = (props: IProps) => {
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex)}
+            disabled={!(index === editingIndex) || isEdit}
             listName="transactions"
             onClear={() => {
               form.resetFields([
@@ -170,11 +171,11 @@ export const EditableTableSaleReturn = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"incomeQty"}
         title="Орлогын тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
+            name={[index, "incomeQty"]}
             rules={[{ required: true, message: "Орлогын тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />

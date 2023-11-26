@@ -36,7 +36,7 @@ export const EditableTableSale = (props: IProps) => {
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "expenseQty"],
         ["transactions", editingIndex, "endAt"],
       ])
       .then(() => {
@@ -46,16 +46,16 @@ export const EditableTableSale = (props: IProps) => {
             editingIndex,
             "unitAmount",
           ]);
-          const quantity = form.getFieldValue([
+          const expenseQty = form.getFieldValue([
             "transactions",
             editingIndex,
-            "quantity",
+            "expenseQty",
           ]);
           const discount = discountDictionary?.get(editingIndex);
           if (discount) {
             const discountAmount = getDiscountAmount(
               unitAmount,
-              quantity,
+              expenseQty,
               discount
             );
             form.setFieldValue(
@@ -63,10 +63,9 @@ export const EditableTableSale = (props: IProps) => {
               discountAmount
             );
           }
-          console.log("unitAmount", "quantity", unitAmount, quantity);
           form.setFieldValue(
             ["transactions", editingIndex, "totalAmount"],
-            unitAmount * quantity
+            unitAmount * expenseQty
           );
         }
         setNewService(false);
@@ -126,14 +125,14 @@ export const EditableTableSale = (props: IProps) => {
   };
   const getDiscountAmount = (
     unitAmount: number,
-    quantity: number,
+    expenseQty: number,
     discount: IDataDiscount
   ) => {
-    const amount = unitAmount * quantity;
+    const amount = unitAmount * expenseQty;
     if (discount.percent > 0) {
       return (amount * discount.percent) / 100;
     } else if (discount.amount > 0) {
-      return discount.amount * quantity;
+      return discount.amount * expenseQty;
     }
   };
   return (
@@ -209,7 +208,7 @@ export const EditableTableSale = (props: IProps) => {
                     lastQty: value.lastQty,
                     unitAmount: value.unitAmount,
                     totalAmount: value.unitAmount,
-                    quantity: 1,
+                    expenseQty: 1,
                     discountAmount: discountAmount,
                   },
                 },
@@ -265,11 +264,11 @@ export const EditableTableSale = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"expenseQty"}
         title="Борлуулах тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
+            name={[index, "expenseQty"]}
             rules={[{ required: true, message: "Борлуулах тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />
