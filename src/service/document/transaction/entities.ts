@@ -17,7 +17,8 @@ export interface IDataTransaction extends IData {
   documentId: number;
   document?: IDataDocument;
   lastQty: number;
-  quantity: number;
+  incomeQty: number;
+  expenseQty: number;
   unitAmount: number;
   totalAmount: number;
   amount: number;
@@ -36,7 +37,8 @@ export interface IFilterTransaction extends IFilterDocument {
   materialCode?: string[];
   materialName?: string[];
   materialMeasurementName?: string[];
-  quantity?: number[];
+  incomeQty?: number[];
+  expenseQty?: number[];
   transactionAt?: string;
   unitAmount?: number[];
   totalAmount?: number[];
@@ -116,11 +118,18 @@ export const getTransactionColumns = (
       dataIndex: ["material", "measurement", "name"],
       type: DataIndexType.MULTI,
     },
-    quantity: {
-      label: "Орлогын/Зарлага тоо хэмжээ",
+    incomeQty: {
+      label: "Орлогын тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: "incomeQty",
+      type: DataIndexType.MULTI,
+    },
+    expenseQty: {
+      label: "Зарлагын тоо хэмжээ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "expenseQty",
       type: DataIndexType.MULTI,
     },
     consumerName: {
@@ -161,35 +170,35 @@ export const getTransactionColumns = (
       isFiltered: false,
       dataIndex: ["document", "paymentMethod", "name"],
       type: DataIndexType.MULTI,
-    }
+    };
     columns.unitAmount = {
       label: "Нэгжийн үнэ",
       isView: true,
       isFiltered: false,
       dataIndex: "unitAmount",
       type: DataIndexType.VALUE,
-    }
+    };
     columns.totalAmount = {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
       dataIndex: "totalAmount",
       type: DataIndexType.VALUE,
-    }
+    };
     columns.discountAmount = {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: false,
       isFiltered: false,
       dataIndex: "discountAmount",
       type: DataIndexType.VALUE,
-    }
+    };
     columns.amount = {
       label: "Төлөх дүн",
       isView: true,
       isFiltered: false,
       dataIndex: "amount",
       type: DataIndexType.VALUE,
-    }
+    };
   }
   if (status == MovingStatus.ItemConversion) {
     columns.convertMaterialName = {
@@ -197,36 +206,36 @@ export const getTransactionColumns = (
       isView: true,
       isFiltered: true,
       dataIndex: ["convertMaterial", "name"],
-      type: DataIndexType.MULTI,  
-    }
+      type: DataIndexType.MULTI,
+    };
     columns.convertMaterialName = {
       label: "Хөрвүүлсэн барааны хэмжих нэгж",
       isView: true,
       isFiltered: true,
       dataIndex: ["convertMaterial", "measurement", "name"],
-      type: DataIndexType.MULTI,  
-    }
+      type: DataIndexType.MULTI,
+    };
     columns.convertMaterialCountPackage = {
       label: "Хөрвүүлсэн барааны багц доторх тоо",
       isView: true,
       isFiltered: true,
       dataIndex: ["convertMaterial", "countPackage"],
-      type: DataIndexType.MULTI,  
-    }
+      type: DataIndexType.MULTI,
+    };
     columns.convertLastQty = {
       label: "Хөрвүүлсэн барааны эцсийн үлдэгдэл",
       isView: true,
       isFiltered: true,
       dataIndex: "convertLastQty",
-      type: DataIndexType.MULTI,  
-    }
+      type: DataIndexType.MULTI,
+    };
     columns.convertQuantity = {
       label: "Хөрвүүлсэн барааны тоо ширхэг",
       isView: true,
       isFiltered: true,
       dataIndex: "convertQuantity",
-      type: DataIndexType.MULTI,  
-    }
+      type: DataIndexType.MULTI,
+    };
   }
   columns.createdBy = {
     label: "Бүртгэсэн хэрэглэгч",
@@ -256,5 +265,8 @@ export const getTransactionColumns = (
     dataIndex: "updatedAt",
     type: DataIndexType.DATETIME,
   };
+  if (status == MovingStatus.Sales) {
+    if (columns.incomeQty) columns.incomeQty.isView = false;
+  }
   return columns;
 };
