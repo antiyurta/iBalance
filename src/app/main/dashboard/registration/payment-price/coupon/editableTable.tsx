@@ -156,7 +156,6 @@ const EditableTableCoupon = (props: IProps) => {
                 },
               });
             }}
-            materialTypes={[]}
           />
         )}
       />

@@ -7,18 +7,20 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
-import {
-  NewDatePicker,
-  NewFilterSelect,
-  NewInput,
-} from "@/components/input";
+import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
 import { EditableTableMove } from "./editableTableMove";
-
-const TransactionMove = () => {
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+const TransactionMove = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
 
@@ -30,9 +32,23 @@ const TransactionMove = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postMove(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postMove(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getWarehouses({});

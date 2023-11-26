@@ -130,7 +130,6 @@ export const EditableTableSaleReturn = (props: IProps) => {
                 },
               });
             }}
-            materialTypes={[]}
           />
         )}
       />
@@ -183,11 +182,11 @@ export const EditableTableSaleReturn = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"endAt"}
+        dataIndex={"transactionAt"}
         title="Дуусах хугацаа"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "endAt"]}
+            name={[index, "transactionAt"]}
             rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
           >
             <NewDatePicker

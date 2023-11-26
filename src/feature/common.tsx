@@ -111,55 +111,52 @@ function renderCheck(text: any, type: DataIndexType) {
       }
       return "Идэвхгүй";
     case DataIndexType.DATE:
+      return dayjs(text).format("YYYY/MM/DD");
+    case DataIndexType.DATETIME:
       return dayjs(text).format("YYYY/MM/DD HH:mm");
     case DataIndexType.VALUE:
       return (
         <NumericFormat
           value={text}
-          prefix={"₮"}
+          suffix={"₮"}
           displayType="text"
           thousandSeparator=","
-        />
-      );
-    case DataIndexType.VALUE:
-      return (
-        <NumericFormat
-          value={text}
-          prefix={"₮"}
-          displayType="text"
-          thousandSeparator=","
+          fixedDecimalScale
+          decimalScale={2}
         />
       );
     case DataIndexType.TRANSACTION:
-      switch (text) {
-        case MovingStatus.ActAmortization:
-          return "Акт хорогдол";
-        case MovingStatus.Cencus:
-          return "Тооллого";
-        case MovingStatus.InOperation:
-          return "Үйл ажиллагаанд";
-        case MovingStatus.ItemConversion:
-          return "Барааны хөрвүүлэг";
-        case MovingStatus.Mixture:
-          return "Хольц";
-        case MovingStatus.MovementInWarehouse:
-          return "Агуулах доторх хөдөлгөөн";
-        case MovingStatus.Purchase:
-          return "Татан авалт/Худалдан авалт";
-        case MovingStatus.PurchaseReturn:
-          return "Худалдан авалтын буцаалт";
-        case MovingStatus.SaleReturn:
-          return "Борлуулалтын буцаалт";
-        case MovingStatus.Sales:
-          return "Борлуулалт";
-        default:
-          return;
-      }
+      getTransactionTranslate(text);
     default:
       return text;
   }
 }
-
+const getTransactionTranslate = (text?: MovingStatus): string => {
+  switch (text) {
+    case MovingStatus.ActAmortization:
+      return "Акт хорогдол";
+    case MovingStatus.Cencus:
+      return "Тооллого";
+    case MovingStatus.InOperation:
+      return "Үйл ажиллагаанд";
+    case MovingStatus.ItemConversion:
+      return "Барааны хөрвүүлэг";
+    case MovingStatus.Mixture:
+      return "Хольц";
+    case MovingStatus.MovementInWarehouse:
+      return "Агуулах доторх хөдөлгөөн";
+    case MovingStatus.Purchase:
+      return "Татан авалт/Худалдан авалт";
+    case MovingStatus.PurchaseReturn:
+      return "Худалдан авалтын буцаалт";
+    case MovingStatus.SaleReturn:
+      return "Борлуулалтын буцаалт";
+    case MovingStatus.Sales:
+      return "Борлуулалт";
+    default:
+      return "";
+  }
+}
 function removeDuplicates(set: any[]) {
   const uniqueIds = new Set(set.map((item) => item.value));
   const clone: ColumnFilterItem[] = [...uniqueIds];
@@ -521,4 +518,5 @@ export {
   filterCascader,
   getFile,
   fieldValue,
+  getTransactionTranslate,
 };

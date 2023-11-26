@@ -6,15 +6,22 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Tabs } from "antd";
-import { useEffect, useState } from "react";
+import { Button, Col, Form, Row, Space } from "antd";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import mnMN from "antd/es/calendar/locale/mn_MN";
-import { EditableTableMixture } from "./editableTableMixture";
-
-const TransactionMixture = () => {
+import { ConsumerSelect } from "@/components/consumer-select";
+import { EditableTableRefundPurchase } from "./editableTableRefundPurchase";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+const TransactionRefundPurchase = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
 
@@ -26,9 +33,23 @@ const TransactionMixture = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postMixture(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postPurchaseReturn(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getWarehouses({});
@@ -64,7 +85,7 @@ const TransactionMixture = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4,1fr)",
+                gridTemplateColumns: "repeat(5,1fr)",
                 gap: 12,
               }}
             >
@@ -86,13 +107,24 @@ const TransactionMixture = () => {
                   }))}
                 />
               </Form.Item>
+              <Form.Item label="Нийлүүлэгчийн нэр">
+                <ConsumerSelect
+                  form={form}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Нийлүүлэгчийн нэр оруулна уу.",
+                    },
+                  ]}
+                />
+              </Form.Item>
               <Form.Item
-                label="Гүйлгээний утга"
+                label="Буцаалтын шалтгаан"
                 name="description"
                 rules={[
                   {
                     required: true,
-                    message: "Гүйлгээний утга оруулна уу.",
+                    message: "Буцаалтын шалтгаан оруулна уу.",
                   },
                 ]}
               >
@@ -109,51 +141,19 @@ const TransactionMixture = () => {
                 background: "#DEE2E6",
               }}
             />
-            <Tabs
-              className="lineTop"
-              items={[
-                {
-                  label: "Орц",
-                  key: "item-1",
-                  children: (
-                    <Form.List name="ingredients" rules={[]}>
-                      {(items, { add, remove }, { errors }) => (
-                        <>
-                          <EditableTableMixture
-                            data={items}
-                            form={form}
-                            listName="ingredients"
-                            add={add}
-                            remove={remove}
-                          />
-                          <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                        </>
-                      )}
-                    </Form.List>
-                  ),
-                },
-                {
-                  label: "Гарц",
-                  key: "item-2",
-                  children: (
-                    <Form.List name="exits" rules={[]}>
-                      {(items, { add, remove }, { errors }) => (
-                        <>
-                          <EditableTableMixture
-                            data={items}
-                            form={form}
-                            listName="exits"
-                            add={add}
-                            remove={remove}
-                          />
-                          <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                        </>
-                      )}
-                    </Form.List>
-                  ),
-                },
-              ]}
-            />
+            <Form.List name="transactions" rules={[]}>
+              {(items, { add, remove }, { errors }) => (
+                <>
+                  <EditableTableRefundPurchase
+                    data={items}
+                    form={form}
+                    add={add}
+                    remove={remove}
+                  />
+                  <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                </>
+              )}
+            </Form.List>
           </Form>
           <div
             style={{
@@ -179,4 +179,4 @@ const TransactionMixture = () => {
     </Row>
   );
 };
-export default TransactionMixture;
+export default TransactionRefundPurchase;

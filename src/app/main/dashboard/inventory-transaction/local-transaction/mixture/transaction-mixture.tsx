@@ -6,20 +6,19 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space } from "antd";
+import { Button, Col, Form, Row, Space, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
-import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableAct } from "./editableTableAct";
+import { EditableTableMixture } from "./editableTableMixture";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
 }
-const TransactionAct = (props: IProps) => {
+const TransactionMixture = (props: IProps) => {
   const { selectedDocument, onSave } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
@@ -44,7 +43,7 @@ const TransactionAct = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postAct(values)
+      await DocumentService.postMixture(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
@@ -54,6 +53,32 @@ const TransactionAct = (props: IProps) => {
   useEffect(() => {
     getWarehouses({});
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        ingredients: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          lastQty: transaction.lastQty,
+          quantity: transaction.quantity,
+        })),
+        exits: selectedDocument.relDocument?.transactions?.map(
+          (transaction) => ({
+            materialId: transaction.materialId,
+            name: transaction.material?.name,
+            measurement: transaction.material?.measurement.name,
+            countPackage: transaction.material?.countPackage,
+            lastQty: transaction.lastQty,
+            quantity: transaction.quantity,
+          })
+        ),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -85,15 +110,15 @@ const TransactionAct = (props: IProps) => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(5,1fr)",
+                gridTemplateColumns: "repeat(4,1fr)",
                 gap: 12,
               }}
             >
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"
@@ -105,17 +130,6 @@ const TransactionAct = (props: IProps) => {
                     value: warehouse.id,
                     label: warehouse.name,
                   }))}
-                />
-              </Form.Item>
-              <Form.Item label="Харилцагчийн код, нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Харилцагчийн код, нэр оруулна уу.",
-                    },
-                  ]}
                 />
               </Form.Item>
               <Form.Item
@@ -141,19 +155,51 @@ const TransactionAct = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[]}>
-              {(items, { add, remove }, { errors }) => (
-                <>
-                  <EditableTableAct
-                    data={items}
-                    form={form}
-                    add={add}
-                    remove={remove}
-                  />
-                  <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                </>
-              )}
-            </Form.List>
+            <Tabs
+              className="lineTop"
+              items={[
+                {
+                  label: "Орц",
+                  key: "item-1",
+                  children: (
+                    <Form.List name="ingredients" rules={[]}>
+                      {(items, { add, remove }, { errors }) => (
+                        <>
+                          <EditableTableMixture
+                            data={items}
+                            form={form}
+                            listName="ingredients"
+                            add={add}
+                            remove={remove}
+                          />
+                          <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                        </>
+                      )}
+                    </Form.List>
+                  ),
+                },
+                {
+                  label: "Гарц",
+                  key: "item-2",
+                  children: (
+                    <Form.List name="exits" rules={[]}>
+                      {(items, { add, remove }, { errors }) => (
+                        <>
+                          <EditableTableMixture
+                            data={items}
+                            form={form}
+                            listName="exits"
+                            add={add}
+                            remove={remove}
+                          />
+                          <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                        </>
+                      )}
+                    </Form.List>
+                  ),
+                },
+              ]}
+            />
           </Form>
           <div
             style={{
@@ -179,4 +225,4 @@ const TransactionAct = (props: IProps) => {
     </Row>
   );
 };
-export default TransactionAct;
+export default TransactionMixture;

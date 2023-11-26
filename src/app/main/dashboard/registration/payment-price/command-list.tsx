@@ -65,7 +65,7 @@ const CommandList = (props: IProps) => {
       dataIndex: "ruleAt",
       type: DataIndexType.DATE,
     },
-    isAll: {
+    isAlls: {
       label: "Нийтэд мөрдөх",
       isView: true,
       isFiltered: false,
@@ -98,7 +98,7 @@ const CommandList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "createdAt",
-      type: DataIndexType.DATE,
+      type: DataIndexType.DATETIME,
     },
     createdBy: {
       label: "Үүсгэсэн хэрэглэгч",
@@ -112,7 +112,7 @@ const CommandList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "updatedAt",
-      type: DataIndexType.DATE,
+      type: DataIndexType.DATETIME,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",

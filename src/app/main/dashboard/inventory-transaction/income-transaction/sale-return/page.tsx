@@ -1,7 +1,7 @@
 "use client";
 import { Col, Input, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { SaleReturn } from "./sale-return";
+import { TransactionSaleReturn } from "./transaction-sale-return";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
@@ -16,7 +16,7 @@ const TransactionRefundPage = () => {
         </div>
       ),
       key: "item-1",
-      children: <SaleReturn />,
+      children: <TransactionSaleReturn />,
     },
     {
       label: "Баримтын жагсаалт",

@@ -61,7 +61,7 @@ const CardList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "discount",
-      type: DataIndexType.MULTI,
+      type: DataIndexType.VALUE,
     },
     isActive: {
       label: "Төлөв",

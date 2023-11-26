@@ -19,6 +19,7 @@ import type { InputNumberProps } from "antd/es/input-number";
 import type { TextAreaProps } from "antd/es/input/TextArea";
 import type { SearchProps } from "antd/es/input/Search";
 import type { CheckboxProps } from "antd/es/checkbox/Checkbox";
+import locale from "antd/es/date-picker/locale/mn_MN";
 
 const { RangePicker } = DatePicker;
 
@@ -50,6 +51,7 @@ function NewDatePicker(props: DatePickerProps) {
       style={{
         width: "100%",
       }}
+      locale={locale}
       {...props}
     />
   );

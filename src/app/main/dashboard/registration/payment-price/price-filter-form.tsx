@@ -120,7 +120,6 @@ export const PriceFilterForm = (props: IProps) => {
               ],
             }}
             name="materialId"
-            materialTypes={[]}
           />
         </Form.Item>
         <Form.Item label="Бараа үйлчилгээний бүлэг">

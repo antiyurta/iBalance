@@ -163,7 +163,6 @@ export const EditableTableRefundPurchase = (props: IProps) => {
                 },
               });
             }}
-            materialTypes={[]}
           />
         )}
       />

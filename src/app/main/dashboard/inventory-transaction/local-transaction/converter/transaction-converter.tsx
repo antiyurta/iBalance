@@ -7,15 +7,20 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
-import { ConsumerSelect } from "@/components/consumer-select";
-import { EditableTableRefundPurchase } from "./editableTableRefundPurchase";
-
-const TransactionRefundPurchase = () => {
+import { EditableTableConverter } from "./editableTableConverter";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+const TransactionConverter = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
 
@@ -27,13 +32,48 @@ const TransactionRefundPurchase = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postPurchaseReturn(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postConversion(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getWarehouses({});
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          quantity: transaction.quantity,
+          convertMaterialId: transaction.convertMaterialId,
+          convertName: transaction.convertMaterial?.name,
+          convertMeasurement: transaction.convertMaterial?.measurement.name,
+          convertCountPackage: transaction.convertMaterial?.countPackage,
+          convertLastQty: transaction.convertLastQty,
+          convertQuantity: transaction.convertQuantity,
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -65,15 +105,15 @@ const TransactionRefundPurchase = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(5,1fr)",
+                gridTemplateColumns: "repeat(4,1fr)",
                 gap: 12,
               }}
             >
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"
@@ -87,24 +127,13 @@ const TransactionRefundPurchase = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Нийлүүлэгчийн нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Нийлүүлэгчийн нэр оруулна уу.",
-                    },
-                  ]}
-                />
-              </Form.Item>
               <Form.Item
-                label="Буцаалтын шалтгаан"
+                label="Гүйлгээний утга"
                 name="description"
                 rules={[
                   {
                     required: true,
-                    message: "Буцаалтын шалтгаан оруулна уу.",
+                    message: "Гүйлгээний утга оруулна уу.",
                   },
                 ]}
               >
@@ -124,7 +153,7 @@ const TransactionRefundPurchase = () => {
             <Form.List name="transactions" rules={[]}>
               {(items, { add, remove }, { errors }) => (
                 <>
-                  <EditableTableRefundPurchase
+                  <EditableTableConverter
                     data={items}
                     form={form}
                     add={add}
@@ -159,4 +188,4 @@ const TransactionRefundPurchase = () => {
     </Row>
   );
 };
-export default TransactionRefundPurchase;
+export default TransactionConverter;

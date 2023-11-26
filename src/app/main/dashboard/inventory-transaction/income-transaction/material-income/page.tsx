@@ -1,7 +1,7 @@
 "use client";
 import { Col, Input, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Purchase } from "./purchase";
+import { TransactionPurchase } from "./transaction-purchase";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
@@ -16,7 +16,7 @@ const TransactionIncomePage = () => {
         </div>
       ),
       key: "item-1",
-      children: <Purchase />,
+      children: <TransactionPurchase />,
     },
     {
       label: "Баримтын жагсаалт",

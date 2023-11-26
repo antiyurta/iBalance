@@ -138,7 +138,6 @@ export const EditableTableAct = (props: IProps) => {
                 },
               });
             }}
-            materialTypes={[]}
           />
         )}
       />

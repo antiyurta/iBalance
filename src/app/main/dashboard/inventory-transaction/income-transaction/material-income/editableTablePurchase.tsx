@@ -3,9 +3,8 @@ import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
 import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import {
   SaveOutlined,
   CloseOutlined,
@@ -33,7 +32,7 @@ export const EditableTablePurchase = (props: IProps) => {
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
         ["transactions", editingIndex, "quantity"],
-        ["transactions", editingIndex, "endAt"],
+        ["transactions", editingIndex, "transactionAt"],
       ])
       .then(() => {
         setNewService(false);
@@ -130,7 +129,6 @@ export const EditableTablePurchase = (props: IProps) => {
                 },
               });
             }}
-            materialTypes={[]}
           />
         )}
       />
@@ -183,17 +181,16 @@ export const EditableTablePurchase = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"endAt"}
+        dataIndex={"transactionAt"}
         title="Дуусах хугацаа"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "endAt"]}
+            name={[index, "transactionAt"]}
             rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
           >
             <NewDatePicker
               disabled={!(index === editingIndex)}
               format={"YYYY-MM-DD"}
-              locale={mnMN}
             />
           </Form.Item>
         )}

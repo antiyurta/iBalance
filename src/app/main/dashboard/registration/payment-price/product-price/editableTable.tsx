@@ -143,10 +143,6 @@ const EditableTableProduct = (props: IProps) => {
                   },
                 });
               }}
-              materialTypes={[]}
-              style={{
-                width: 150,
-              }}
             />
           )}
         />

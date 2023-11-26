@@ -7,19 +7,25 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { EditableTableCencus } from "./editableTableCencus";
 import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { MaterialType } from "@/service/material/entities";
 import { IParamUser, IUser } from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
-
-const TransactionCencus = () => {
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import dayjs from "dayjs";
+interface IProps {
+  selectedDocument?: IDataDocument;
+  onSave?: (state: boolean) => void;
+}
+const TransactionCencus = (props: IProps) => {
+  const { selectedDocument, onSave } = props;
+  const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [users, setUsers] = useState<IUser[]>([]);
@@ -57,13 +63,47 @@ const TransactionCencus = () => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
-    await DocumentService.postCensus(values).then((response) => {
-      if (response.success) form.resetFields();
-    });
+    blockContext.block();
+    if (selectedDocument) {
+      await DocumentService.patch(selectedDocument.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            onSave?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await DocumentService.postCensus(values)
+        .then((response) => {
+          if (response.success) form.resetFields();
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getWarehouses({});
   }, []);
+  useEffect(() => {
+    if (selectedDocument) {
+      form.setFieldsValue({
+        ...selectedDocument,
+        documentAt: dayjs(selectedDocument.documentAt),
+        transactions: selectedDocument.transactions?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          unitAmount: transaction.unitAmount,
+          lastQty: transaction.lastQty,
+          quantity: transaction.quantity,
+          excessOrDeficiency: transaction.excessOrDeficiency,
+          amount: transaction.amount,
+          description: transaction.description,
+        })),
+      });
+    }
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -102,8 +142,8 @@ const TransactionCencus = () => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="date">
-                <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
+              <Form.Item label="Огноо" name="documentAt">
+                <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
                 label="Байршил"

@@ -182,7 +182,6 @@ const BeginningBalancePage = () => {
                       },
                     });
                   }}
-                  materialTypes={[]}
                 />
               </Form.Item>
               <Form.Item label="Бараа материалын нэр" name="name">
