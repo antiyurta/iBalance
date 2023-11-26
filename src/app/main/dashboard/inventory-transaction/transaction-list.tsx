@@ -37,6 +37,7 @@ export const TransactionList = (props: IProps) => {
   });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
+  const [isReload, setIsReload] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsTransaction>(
     getTransactionColumns(movingStatus)
   );
@@ -65,7 +66,7 @@ export const TransactionList = (props: IProps) => {
   };
   useEffect(() => {
     getData(params);
-  }, []);
+  }, [isReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -153,6 +154,8 @@ export const TransactionList = (props: IProps) => {
       <DocumentEdit
         selectedDocument={selectedDocument}
         movingStatus={movingStatus}
+        isReload={isReload}
+        setIsReload={setIsReload}
       />
     </div>
   );

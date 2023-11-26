@@ -19,6 +19,7 @@ export interface IDataTransaction extends IData {
   lastQty: number;
   quantity: number;
   unitAmount: number;
+  totalAmount: number;
   amount: number;
   discountAmount: number;
   transactionAt: string;
@@ -158,7 +159,7 @@ export const getTransactionColumns = (
       label: "Төлбөрийн хэлбэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "transactionAt",
+      dataIndex: ["document", "paymentMethod", "name"],
       type: DataIndexType.MULTI,
     }
     columns.unitAmount = {

@@ -1,22 +1,7 @@
-import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
 import NewModal from "@/components/modal";
-import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, getTransactionTranslate, onCloseFilterTag } from "@/feature/common";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  FilteredColumnsDocument,
-  IDataDocument,
-  IFilterDocument,
-  IParamDocument,
-  MovingStatus,
-  getDocumentColumns,
-} from "@/service/document/entities";
-import { DocumentService } from "@/service/document/service";
-import { DataIndexType, Meta } from "@/service/entities";
-import { Col, Row } from "antd";
-import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { getTransactionTranslate } from "@/feature/common";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
+import { useEffect, useState } from "react";
 import TransactionAct from "./expense-transaction/act-transaction/transaction-act";
 import TransactionCencus from "./local-transaction/census/transaction-cencus";
 import TransactionAction from "./expense-transaction/action-transaction/transaction-action";
@@ -30,9 +15,11 @@ import TransactionSale from "./expense-transaction/sale-transaction/transaction-
 interface IProps {
   movingStatus?: MovingStatus;
   selectedDocument?: IDataDocument;
+  isReload: boolean;
+  setIsReload: (isReload: boolean) => void;
 }
 export const DocumentEdit = (props: IProps) => {
-  const { movingStatus, selectedDocument } = props;
+  const { movingStatus, selectedDocument, isReload, setIsReload } = props;
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const getElement = (): JSX.Element => {
     switch (movingStatus) {
@@ -103,7 +90,10 @@ export const DocumentEdit = (props: IProps) => {
         return (
           <TransactionSale
             selectedDocument={selectedDocument}
-            onSave={setIsOpenModal}
+            onSave={(value) => {
+              setIsOpenModal(value);
+              setIsReload(!isReload);
+            }}
           />
         );
       default:

@@ -14,20 +14,19 @@ import {
 import { MaterialType } from "@/service/material/entities";
 import { IDataDiscount } from "@/service/command/discount/entities";
 import { IDataTransaction } from "@/service/document/transaction/entities";
-import { IParamViewMaterial } from "@/service/material/view-material/entities";
 
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
   add: () => void;
   remove: (index: number) => void;
+  isEdit: boolean;
 }
 export const EditableTableSale = (props: IProps) => {
   const { message } = App.useApp();
-  const { data, form, add, remove } = props;
+  const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [quantity, setQuantity] = useState<number>(1);
   const [discountDictionary, setDiscountDictionary] =
     useState<Map<number, IDataDiscount>>();
   const onSave = async () => {
@@ -41,15 +40,44 @@ export const EditableTableSale = (props: IProps) => {
         ["transactions", editingIndex, "endAt"],
       ])
       .then(() => {
+        if (editingIndex !== undefined) {
+          const unitAmount = form.getFieldValue([
+            "transactions",
+            editingIndex,
+            "unitAmount",
+          ]);
+          const quantity = form.getFieldValue([
+            "transactions",
+            editingIndex,
+            "quantity",
+          ]);
+          const discount = discountDictionary?.get(editingIndex);
+          if (discount) {
+            const discountAmount = getDiscountAmount(
+              unitAmount,
+              quantity,
+              discount
+            );
+            form.setFieldValue(
+              ["transactions", editingIndex, "discountAmount"],
+              discountAmount
+            );
+          }
+          console.log("unitAmount", "quantity", unitAmount, quantity);
+          form.setFieldValue(
+            ["transactions", editingIndex, "totalAmount"],
+            unitAmount * quantity
+          );
+        }
         setNewService(false);
         setEditingIndex(undefined);
         const transactions = form.getFieldValue("transactions") || [];
-        const amount = transactions.reduce(
+        const amount: number = transactions.reduce(
           (sum: number, transaction: IDataTransaction) =>
-            sum + (transaction.amount || 0),
+            sum + (transaction.totalAmount || 0),
           0
         );
-        const discountAmount = transactions.reduce(
+        const discountAmount: number = transactions.reduce(
           (sum: number, transaction: IDataTransaction) =>
             sum + (transaction.discountAmount || 0),
           0
@@ -108,34 +136,6 @@ export const EditableTableSale = (props: IProps) => {
       return discount.amount * quantity;
     }
   };
-  useEffect(() => {
-    if (editingIndex !== undefined) {
-      const unitAmount = form.getFieldValue([
-        "transactions",
-        editingIndex,
-        "unitAmount",
-      ]);
-      const discount = discountDictionary?.get(editingIndex);
-      if (discount) {
-        const discountAmount = getDiscountAmount(
-          unitAmount,
-          quantity,
-          discount
-        );
-        form.setFieldsValue({
-          transactions: {
-            [editingIndex]: {
-              amount: unitAmount * quantity,
-              discountAmount: discountAmount,
-            },
-          },
-        });
-      }
-    }
-  }, [quantity, editingIndex]);
-
-  const [test, setTest] = useState<IParamViewMaterial>();
-
   return (
     <Table
       dataSource={data}
@@ -176,11 +176,10 @@ export const EditableTableSale = (props: IProps) => {
         title="Дотоод код"
         render={(_, __, index) => (
           <MaterialSelect
-            materialTypes={[MaterialType.Material]}
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex)}
+            disabled={!(index === editingIndex) || isEdit}
             listName="transactions"
             onClear={() => {
               form.resetFields([
@@ -209,18 +208,14 @@ export const EditableTableSale = (props: IProps) => {
                     countPackage: value.countPackage,
                     lastQty: value.lastQty,
                     unitAmount: value.unitAmount,
-                    amount: value.unitAmount,
+                    totalAmount: value.unitAmount,
                     quantity: 1,
-                    discountAmount: getDiscountAmount(
-                      value.unitAmount,
-                      1,
-                      value.discount
-                    ),
+                    discountAmount: discountAmount,
                   },
                 },
               });
             }}
-            params={test}
+            params={{ types: [MaterialType.Material] }}
           />
         )}
       />
@@ -277,19 +272,15 @@ export const EditableTableSale = (props: IProps) => {
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Борлуулах тоо хэмжээ заавал" }]}
           >
-            <NewInputNumber
-              disabled={!(index === editingIndex)}
-              value={quantity}
-              onChange={(value) => setQuantity(Number(value))}
-            />
+            <NewInputNumber disabled={!(index === editingIndex)} />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"amount"}
+        dataIndex={"totalAmount"}
         title="Нийт үнэ"
         render={(_, __, index) => (
-          <Form.Item name={[index, "amount"]}>
+          <Form.Item name={[index, "totalAmount"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

@@ -32,6 +32,7 @@ export const DocumentList = (props: IProps) => {
   const [columns, setColumns] = useState<FilteredColumnsDocument>(
     getDocumentColumns(movingStatus)
   );
+  const [isReload, setIsReload] = useState<boolean>(false);
   const getData = async (params: IParamDocument) => {
     blockContext.block();
     if (movingStatus) params.movingStatus = movingStatus;
@@ -67,7 +68,7 @@ export const DocumentList = (props: IProps) => {
   };
   useEffect(() => {
     getData(params);
-  }, []);
+  }, [isReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -157,6 +158,8 @@ export const DocumentList = (props: IProps) => {
       <DocumentEdit
         selectedDocument={selectedDocument}
         movingStatus={movingStatus}
+        isReload={isReload}
+        setIsReload={setIsReload}
       />
     </div>
   );

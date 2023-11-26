@@ -3,14 +3,9 @@ import { Form, Space } from "antd";
 import { NewFilterSelect } from "./input";
 import { CSSProperties, useEffect, useState } from "react";
 import NewModal from "./modal";
-import { FormInstance, SelectProps } from "antd/lib";
+import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
-import {
-  IDataMaterial,
-  IParamMaterial,
-  MaterialType,
-} from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
+import { IDataMaterial } from "@/service/material/entities";
 import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
 import { fieldValue } from "@/feature/common";
 import {
@@ -20,30 +15,19 @@ import {
 import { ViewMaterialService } from "@/service/material/view-material/service";
 
 interface IProps {
-  materialTypes: MaterialType[];
   form: FormInstance;
-  params?: IParamViewMaterial;
+  params: IParamViewMaterial;
   rules: Rule[];
   name: string | (string | number)[];
   listName?: string;
   disabled?: boolean;
   onClear?: () => void;
   onSelect?: (value: IDataViewMaterial) => void;
-  style?: CSSProperties;
 }
 
 export const MaterialSelect = (props: IProps) => {
-  const {
-    form,
-    params,
-    name,
-    rules,
-    listName,
-    disabled,
-    onClear,
-    onSelect,
-    style,
-  } = props;
+  const { form, params, name, rules, listName, disabled, onClear, onSelect } =
+    props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
   const [viewMaterialDictionary, setViewMaterialDictionary] =
@@ -84,13 +68,7 @@ export const MaterialSelect = (props: IProps) => {
         ) : null}
         <Form.Item name={name ? name : "materialId"} rules={rules}>
           <NewFilterSelect
-            style={
-              style
-                ? style
-                : {
-                    width: "100%",
-                  }
-            }
+            style={{ minWidth: 150, width: "100%" }}
             options={viewMaterials.map((material) => ({
               value: material.id,
               label: `${material.code} - ${material.name}`,

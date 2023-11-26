@@ -16,7 +16,6 @@ import {
   NewInput,
   NewInputNumber,
 } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTableSale } from "./editableTableSale";
 import {
@@ -38,6 +37,7 @@ const TransactionSale = (props: IProps) => {
   const [paymentMethods, setPaymentMethods] = useState<
     IDataReferencePaymentMethod[]
   >([]);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -77,9 +77,13 @@ const TransactionSale = (props: IProps) => {
     getPaymentMethods({});
   }, []);
   useEffect(() => {
-    if (selectedDocument) {
+    if (!selectedDocument) {
+      setIsEdit(false);
+    } else {
+      setIsEdit(true);
       form.setFieldsValue({
         ...selectedDocument,
+        discountAmount: Number(selectedDocument.discountAmount),
         documentAt: dayjs(selectedDocument.documentAt),
         transactions: selectedDocument.transactions?.map((transaction) => ({
           materialId: transaction.materialId,
@@ -87,10 +91,10 @@ const TransactionSale = (props: IProps) => {
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
           lastQty: transaction.lastQty,
-          unitAmount: transaction.unitAmount,
+          unitAmount: Number(transaction.unitAmount),
           quantity: transaction.quantity,
-          amount: transaction.amount,
-          discountAmount: transaction.discountAmount,
+          totalAmount: Number(transaction.totalAmount),
+          discountAmount: Number(transaction.discountAmount),
         })),
       });
     }
@@ -225,6 +229,7 @@ const TransactionSale = (props: IProps) => {
                     form={form}
                     add={add}
                     remove={remove}
+                    isEdit={isEdit}
                   />
                   <div style={{ color: "#ff4d4f" }}>{errors}</div>
                 </>
