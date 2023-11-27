@@ -36,10 +36,37 @@ export enum MovingStatus {
   /** Тооллого */
   Cencus = "CENCUS",
   /** Посын борлуулалт */
-  Pos = 'POS',
+  Pos = "POS",
   /** Захиалгын борлуулалт */
-  BookingSale = 'BOOKING_SALE',
+  BookingSale = "BOOKING_SALE",
 }
+
+/** Амараа нэмэв */
+
+export interface xIDataTransaction {
+  materialId: number;
+  lastQty: number;
+  expenseQty: number;
+  unitAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  amount: number;
+  transactionAt: Date;
+}
+
+export interface xIDataDocument {
+  paymentMethodId: number;
+  warehouseId: number;
+  consumerId: number;
+  amount: number;
+  discountAmount: number;
+  consumerDiscountAmount: number;
+  payAmount: number;
+  description: string;
+  transactions: xIDataTransaction[];
+  documentAt?: Date;
+}
+
 export interface IDataDocument extends IData {
   id: number;
   refundAt: string;

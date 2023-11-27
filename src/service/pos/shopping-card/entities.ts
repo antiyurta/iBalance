@@ -16,10 +16,12 @@ export interface IDataShoppingCart extends IData {
   quantity: number;
   goodsId: number;
   unitAmount: number;
+  lastQty: number;
 }
 
 export interface IDataShoppingCartPost {
   materialId: number;
+  lastQty: number;
   quantity: number;
   amount: number;
   discountId: number;

@@ -35,6 +35,7 @@ interface IDisplayItem {
   coupon: IDataCoupon;
   discount: IDataDiscount;
   unitAmount: number;
+  lastQty: number;
 }
 
 const DisplayItem = (props: IProps) => {
@@ -88,6 +89,9 @@ const DisplayItem = (props: IProps) => {
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        blockContext.unblock();
       });
   };
   const configureData = async () => {
@@ -103,6 +107,7 @@ const DisplayItem = (props: IProps) => {
       coupon: material.coupon,
       discount: material.discount,
       unitAmount: material.unitAmount,
+      lastQty: material.lastQty,
     });
   };
   useEffect(() => {
@@ -205,6 +210,7 @@ const DisplayItem = (props: IProps) => {
                   onFinish({
                     materialId: item.id,
                     quantity: 1,
+                    lastQty: item.lastQty,
                     amount: item.unitAmount,
                     discountId: item.discount?.id,
                     couponId: item.coupon?.id,
@@ -257,6 +263,7 @@ const DisplayItem = (props: IProps) => {
                   onFinish({
                     materialId: item.id,
                     quantity: 1,
+                    lastQty: item.lastQty,
                     amount: item.unitAmount,
                     discountId: item.discount?.id,
                     couponId: item.coupon?.id,

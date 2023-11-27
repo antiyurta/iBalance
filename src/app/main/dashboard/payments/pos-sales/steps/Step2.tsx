@@ -15,8 +15,23 @@ import { openNofi } from "@/feature/common";
 import { useDispatch } from "react-redux";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { setMethods } from "@/feature/core/reducer/PosReducer";
+import { IDataTransaction } from "@/service/document/transaction/entities";
+import { DocumentService } from "@/service/document/service";
+import { IDataDocument, xIDataDocument } from "@/service/document/entities";
+import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
+
+interface ISale {
+  paymentMethodId: number;
+  amount: number;
+  discountAmount: number;
+  consumerDiscountAmount: number;
+  payAmount: number;
+  transactions: any[];
+}
 
 interface IProps {
   isPrev?: () => void;
@@ -29,10 +44,13 @@ const Step2 = (props: IProps) => {
   const dispatch = useDispatch();
   const { isPrev, isNext, paidAmount } = props;
   const [formMessage, setFormMessage] = useState<string>("");
-  const { methods } = useTypedSelector((state: RootState) => state.posStep);
+  const { methods, saveValue, consumer } = useTypedSelector(
+    (state: RootState) => state.posStep
+  );
   const [amountDiff, setAmountDiff] = useState<number>(paidAmount);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [activeKey, setActiveKey] = useState<number>();
+  const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
   const [paymentMethods, setPaymentMethods] =
     useState<IDataReferencePaymentMethod[]>();
   const getPaymentMethods = async () => {
@@ -81,8 +99,55 @@ const Step2 = (props: IProps) => {
     }
     return 99999999;
   };
+  const getShoppingCarts = async () => {
+    await ShoppingCartService.get()
+      .then((response) => {
+        if (response.success) {
+          setShoppingCarts(response.response);
+          console.log(response.response);
+          // setReload(false);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const sendTransaction = async () => {
+    if (methods && consumer) {
+      Promise.all(
+        methods.map(async (method) => {
+          const body: xIDataDocument = {
+            paymentMethodId: method.id,
+            warehouseId: 8,
+            consumerId: consumer?.id,
+            amount: paidAmount + saveValue,
+            discountAmount: saveValue,
+            consumerDiscountAmount: saveValue,
+            payAmount: method.amount,
+            description: `${method.name}-гүйлгээ`,
+            transactions: shoppingCarts.map((cart) => ({
+              materialId: cart.materialId,
+              lastQty: cart.lastQty,
+              expenseQty: cart.quantity,
+              unitAmount: cart.unitAmount,
+              discountAmount: cart.amount / cart.quantity,
+              totalAmount: cart.amount,
+              amount: method.amount,
+              transactionAt: new Date(),
+            })),
+            documentAt: new Date(),
+          };
+          console.log(body);
+          await DocumentService.postSale(body).then((response) => {
+            console.log("res", response);
+          });
+        })
+      );
+    }
+  };
   useEffect(() => {
     getPaymentMethods();
+    getShoppingCarts();
   }, []);
   return (
     <div
@@ -217,7 +282,7 @@ const Step2 = (props: IProps) => {
             icon={<LeftOutlined />}
           />
           <Button
-            onClick={isNext}
+            onClick={sendTransaction}
             type="primary"
             style={{
               width: "100%",

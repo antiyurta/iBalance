@@ -4,6 +4,7 @@ import {
   IParamDocument,
   IResponseDocument,
   IResponseDocuments,
+  xIDataDocument,
 } from "./entities";
 
 function get(params: IParamDocument): Promise<IResponseDocuments> {
@@ -19,7 +20,9 @@ function postIncome(body: IDataDocument): Promise<IResponseDocuments> {
 function postRefund(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/refund", body);
 }
-function postSale(body: IDataDocument): Promise<IResponseDocuments> {
+function postSale(
+  body: IDataDocument | xIDataDocument
+): Promise<IResponseDocuments> {
   return api.post("transaction-document/sale", body);
 }
 function postOperation(body: IDataDocument): Promise<IResponseDocuments> {
