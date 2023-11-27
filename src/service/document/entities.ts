@@ -55,7 +55,7 @@ export interface xIDataTransaction {
 }
 
 export interface xIDataDocument {
-  paymentMethodId: number;
+  paymentMethodIds: number[];
   warehouseId: number;
   consumerId: number;
   amount: number;
@@ -65,6 +65,7 @@ export interface xIDataDocument {
   description: string;
   transactions: xIDataTransaction[];
   documentAt?: Date;
+  movingStatus: MovingStatus;
 }
 
 export interface IDataDocument extends IData {

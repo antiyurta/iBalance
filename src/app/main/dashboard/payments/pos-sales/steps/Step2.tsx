@@ -17,7 +17,11 @@ import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { setMethods } from "@/feature/core/reducer/PosReducer";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { DocumentService } from "@/service/document/service";
-import { IDataDocument, xIDataDocument } from "@/service/document/entities";
+import {
+  IDataDocument,
+  MovingStatus,
+  xIDataDocument,
+} from "@/service/document/entities";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import dayjs from "dayjs";
@@ -114,35 +118,37 @@ const Step2 = (props: IProps) => {
   };
   const sendTransaction = async () => {
     if (methods && consumer) {
-      Promise.all(
-        methods.map(async (method) => {
-          const body: xIDataDocument = {
-            paymentMethodId: method.id,
-            warehouseId: 8,
-            consumerId: consumer?.id,
-            amount: paidAmount + saveValue,
-            discountAmount: saveValue,
-            consumerDiscountAmount: saveValue,
-            payAmount: method.amount,
-            description: `${method.name}-гүйлгээ`,
-            transactions: shoppingCarts.map((cart) => ({
-              materialId: cart.materialId,
-              lastQty: cart.lastQty,
-              expenseQty: cart.quantity,
-              unitAmount: cart.unitAmount,
-              discountAmount: cart.amount / cart.quantity,
-              totalAmount: cart.amount,
-              amount: method.amount,
-              transactionAt: new Date(),
-            })),
-            documentAt: new Date(),
-          };
-          console.log(body);
-          await DocumentService.postSale(body).then((response) => {
-            console.log("res", response);
-          });
-        })
-      );
+      const body: xIDataDocument = {
+        paymentMethodIds: methods.map((method) => method.id),
+        warehouseId: 8,
+        consumerId: consumer?.id,
+        amount: paidAmount + saveValue,
+        discountAmount: saveValue,
+        consumerDiscountAmount: saveValue,
+        payAmount: methods.reduce(
+          (total: number, method) => total + method.amount,
+          0
+        ),
+        description: methods
+          .map((method) => `${method.name}-гүйлгээ`)
+          .toString(),
+        transactions: shoppingCarts.map((cart) => ({
+          materialId: cart.materialId,
+          lastQty: cart.lastQty,
+          expenseQty: cart.quantity,
+          unitAmount: cart.unitAmount,
+          discountAmount: cart.amount / cart.quantity,
+          totalAmount: cart.amount,
+          amount: cart.amount,
+          transactionAt: new Date(),
+        })),
+        documentAt: new Date(),
+        movingStatus: MovingStatus.Pos,
+      };
+      console.log(body);
+      await DocumentService.postSale(body).then((response) => {
+        console.log("res", response);
+      });
     }
   };
   useEffect(() => {
