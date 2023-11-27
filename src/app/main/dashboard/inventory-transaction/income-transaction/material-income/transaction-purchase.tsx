@@ -30,6 +30,7 @@ export const TransactionPurchase = (props: IProps) => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [incomeTypes, setIncomeTypes] = useState<IDataReference[]>([]);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -71,7 +72,10 @@ export const TransactionPurchase = (props: IProps) => {
     });
   }, []);
   useEffect(() => {
-    if (selectedDocument) {
+    if (!selectedDocument) {
+      setIsEdit(false);
+    } else {
+      setIsEdit(true);
       form.setFieldsValue({
         ...selectedDocument,
         documentAt: dayjs(selectedDocument.documentAt),
@@ -80,7 +84,7 @@ export const TransactionPurchase = (props: IProps) => {
           name: transaction.material?.name,
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
-          quantity: transaction.quantity,
+          incomeQty: transaction.incomeQty,
           transactionAt: dayjs(transaction.transactionAt),
         })),
       });
@@ -199,6 +203,7 @@ export const TransactionPurchase = (props: IProps) => {
                     form={form}
                     add={add}
                     remove={remove}
+                    isEdit={isEdit}
                   />
                   <div style={{ color: "#ff4d4f" }}>{errors}</div>
                 </>

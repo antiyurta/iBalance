@@ -23,6 +23,7 @@ const TransactionConverter = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
@@ -54,7 +55,10 @@ const TransactionConverter = (props: IProps) => {
     getWarehouses({});
   }, []);
   useEffect(() => {
-    if (selectedDocument) {
+    if (!selectedDocument) {
+      setIsEdit(false);
+    } else {
+      setIsEdit(true);
       form.setFieldsValue({
         ...selectedDocument,
         documentAt: dayjs(selectedDocument.documentAt),
@@ -63,7 +67,7 @@ const TransactionConverter = (props: IProps) => {
           name: transaction.material?.name,
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
-          quantity: transaction.quantity,
+          expenseQty: transaction.expenseQty,
           convertMaterialId: transaction.convertMaterialId,
           convertName: transaction.convertMaterial?.name,
           convertMeasurement: transaction.convertMaterial?.measurement.name,
@@ -158,6 +162,7 @@ const TransactionConverter = (props: IProps) => {
                     form={form}
                     add={add}
                     remove={remove}
+                    isEdit={isEdit}
                   />
                   <div style={{ color: "#ff4d4f" }}>{errors}</div>
                 </>

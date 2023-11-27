@@ -32,7 +32,7 @@ export const EditableTableAct = (props: IProps) => {
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "expenseQty"],
       ])
       .then(() => {
         setNewService(false);
@@ -133,7 +133,7 @@ export const EditableTableAct = (props: IProps) => {
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
                     unitAmount: value.unitAmount,
-                    quantity: 1,
+                    expenseQty: 1,
                   },
                 },
               });
@@ -187,11 +187,11 @@ export const EditableTableAct = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"expenseQty"}
         title="Зарлагын тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
+            name={[index, "expenseQty"]}
             rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />

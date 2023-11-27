@@ -29,10 +29,11 @@ interface IProps {
   form: FormInstance;
   add: () => void;
   remove: (index: number) => void;
+  isEdit: boolean;
 }
 export const EditableTableRefundPurchase = (props: IProps) => {
   const { message } = App.useApp();
-  const { data, form, add, remove } = props;
+  const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
   const [documents, setDocuments] = useState<IDataDocument[]>([]);
@@ -44,7 +45,7 @@ export const EditableTableRefundPurchase = (props: IProps) => {
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "expenseQty"],
         ["transactions", editingIndex, "date"],
         ["transactions", editingIndex, "refundDocumentId"],
       ])
@@ -140,7 +141,7 @@ export const EditableTableRefundPurchase = (props: IProps) => {
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex)}
+            disabled={!(index === editingIndex) || isEdit}
             listName="transactions"
             onClear={() => {
               form.resetFields([
@@ -158,7 +159,7 @@ export const EditableTableRefundPurchase = (props: IProps) => {
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
                     lastQty: value.lastQty,
-                    quantity: 1,
+                    expenseQty: 1,
                   },
                 },
               });
@@ -203,11 +204,11 @@ export const EditableTableRefundPurchase = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"expenseQty"}
         title="Зарлагын тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
+            name={[index, "expenseQty"]}
             rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />
@@ -215,11 +216,11 @@ export const EditableTableRefundPurchase = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"date"}
+        dataIndex={"transactionAt"}
         title="Буцаалтын огноо"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "date"]}
+            name={[index, "transactionAt"]}
             rules={[{ required: true, message: "Буцаалтын огноо заавал" }]}
           >
             <NewDatePicker disabled={!(index === editingIndex)} />

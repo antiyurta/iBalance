@@ -35,6 +35,10 @@ export enum MovingStatus {
   Mixture = "MIXTURE",
   /** Тооллого */
   Cencus = "CENCUS",
+  /** Посын борлуулалт */
+  Pos = 'POS',
+  /** Захиалгын борлуулалт */
+  BookingSale = 'BOOKING_SALE',
 }
 export interface IDataDocument extends IData {
   id: number;
@@ -56,8 +60,8 @@ export interface IDataDocument extends IData {
   section: IDataReference; // гүйлгээний төрөл
   documentAt: string;
   description: string; // гүйлгээний утга
-  paymentMethodId: number;
-  paymentMethod?: IDataReferencePaymentMethod; // Төлбөрийн хэлбэр
+  paymentMethodIds: number;
+  paymentMethods?: IDataReferencePaymentMethod[]; // Төлбөрийн хэлбэрүүд
   amount: number; // нийт үнэ
   discountAmount: number; // бараа материалын үнийн хөнгөлөлт
   consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт

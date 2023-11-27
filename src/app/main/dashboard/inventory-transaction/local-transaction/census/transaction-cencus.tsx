@@ -96,7 +96,7 @@ const TransactionCencus = (props: IProps) => {
           countPackage: transaction.material?.countPackage,
           unitAmount: transaction.unitAmount,
           lastQty: transaction.lastQty,
-          quantity: transaction.quantity,
+          quantity: transaction.expenseQty,
           excessOrDeficiency: transaction.excessOrDeficiency,
           amount: transaction.amount,
           description: transaction.description,
