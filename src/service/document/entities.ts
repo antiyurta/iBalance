@@ -35,6 +35,10 @@ export enum MovingStatus {
   Mixture = "MIXTURE",
   /** Тооллого */
   Cencus = "CENCUS",
+  /** Посын борлуулалт */
+  Pos = 'POS',
+  /** Захиалгын борлуулалт */
+  BookingSale = 'BOOKING_SALE',
 }
 export interface IDataDocument extends IData {
   id: number;
