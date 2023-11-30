@@ -6,6 +6,9 @@ module.exports = {
       instances: "max", // Or a number of instances
       script: "node_modules/next/dist/bin/next",
       args: "start",
+      env: {
+        PORT: 3002,
+      },
       env_local: {
         APP_ENV: "local", // APP_ENV=local
       },
