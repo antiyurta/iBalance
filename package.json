@@ -6,7 +6,8 @@
     "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:prod": "export NODE_OPTIONS=--openssl-legacy-provider && next build && pm2 startOrRestart ecosystem.config.js --env production"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
