@@ -1,7 +1,14 @@
 import { IDataConsumer } from "../consumer/entities";
 import { IDataConsumerMembership } from "../consumer/membership/entities";
 import { IDataDocument } from "../document/entities";
-import { ColumnType, GenericResponse, IData, IFilter, IParam, Meta } from "../entities";
+import {
+  ColumnType,
+  GenericResponse,
+  IData,
+  IFilter,
+  IParam,
+  Meta,
+} from "../entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { IDataWarehouse } from "../reference/warehouse/entities";
 import { IDataBookingMaterial } from "./booking-material/entities";
@@ -14,7 +21,7 @@ export enum BookingStatus {
   /** Олгосон */
   Confirm = "CONFIRM",
   /** Цуцалсан */
-  Refund = 'REFUND',
+  Refund = "REFUND",
 }
 export interface IDataBooking extends IData {
   id: number;
@@ -70,7 +77,6 @@ export interface IFilterBooking extends IFilter {
   status: BookingStatus;
   distributeBy: number;
   distributeAt: string;
-  createdAt: string;
   confirmBy: number;
   confirmAt: string;
 }

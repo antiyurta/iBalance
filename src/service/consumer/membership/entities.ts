@@ -46,7 +46,6 @@ export interface IFilterConsumerMembership extends IFilter {
   consumerBankAccountNo?: string[];
   cardno?: string[];
   membershipName?: string[];
-  createdAt?: string;
   branch?: number[];
   isClose?: boolean[];
   endAt?: string;

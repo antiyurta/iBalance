@@ -86,9 +86,9 @@ export interface IFilters {
   description: string[];
 }
 export interface IFilter {
-  createdAt?: string[];
+  createdAt?: string;
   createdBy?: string[];
-  updatedAt?: string[];
+  updatedAt?: string;
   updatedBy?: string[];
 }
 export type ColumnType = {

@@ -44,7 +44,7 @@ export interface ILimitOfLoansAccountResponse extends GenericResponse {
   response: {
     data: IDataLimitOfLoansAccount[];
     meta: Meta;
-    filter: IFilters;
+    filter: IFilterLimitOfLoansAccount;
   };
 }
 export interface ILimitOfLoansAccountResponseUpdate extends GenericResponse {
