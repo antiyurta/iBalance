@@ -18,6 +18,7 @@ import { NumericFormat } from "react-number-format";
 import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { IDataCountry } from "@/service/reference/country/entities";
 import { MovingStatus } from "@/service/document/entities";
+import { authService } from "@/service/authentication/service";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
@@ -76,7 +77,7 @@ const isChecked = (state: boolean) => {
   );
 };
 
-function renderCheck(text: any, type: DataIndexType) {
+async function renderCheck(text: any, type: DataIndexType) {
   switch (type) {
     case DataIndexType.BOOLEAN:
       return isChecked(text);
@@ -127,6 +128,13 @@ function renderCheck(text: any, type: DataIndexType) {
       );
     case DataIndexType.TRANSACTION:
       getTransactionTranslate(text);
+    // case DataIndexType.USER:
+    //   if (Array.isArray(text)) {
+    //     text: number[];
+    //     authService.getAllUsers(text);
+    //   }
+    //   console.log('text ==========>', text);
+    // TODO userids гээд ороод ирхэд текстийг ulzii, amraa, etc... болгох
     default:
       return text;
   }

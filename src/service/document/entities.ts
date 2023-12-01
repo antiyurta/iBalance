@@ -55,7 +55,7 @@ export interface xIDataTransaction {
 }
 
 export interface xIDataDocument {
-  paymentMethodIds: number[];
+  paymentMethodId: number;
   warehouseId: number;
   consumerId: number;
   amount: number;
@@ -88,7 +88,7 @@ export interface IDataDocument extends IData {
   section: IDataReference; // гүйлгээний төрөл
   documentAt: string;
   description: string; // гүйлгээний утга
-  paymentMethodIds: number;
+  paymentMethodIds: number[];
   paymentMethods?: IDataReferencePaymentMethod[]; // Төлбөрийн хэлбэрүүд
   amount: number; // нийт үнэ
   discountAmount: number; // бараа материалын үнийн хөнгөлөлт

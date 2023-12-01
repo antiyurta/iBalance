@@ -48,7 +48,7 @@ const PaymentMethodPage = () => {
           onChange={(value: boolean) =>
             onFinish(record.id, {
               id: record.id,
-              imageUrl: record.imageUrl,
+              logo: record.logo,
               name: record.name,
               type: record.type,
               isActive: value,
@@ -66,7 +66,7 @@ const PaymentMethodPage = () => {
   const getData = async () => {
     await ReferencePaymentMethodService.get({}).then((response) => {
       if (response.success) {
-        setData(response.response.data);
+        setData(response.response);
       }
     });
   };

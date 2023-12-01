@@ -13,6 +13,8 @@ type paymentGroupContext = {
   set: (value: TypeValue) => void;
   isReload: boolean;
   setReload: (state: boolean) => void;
+  isReloadCart: boolean;
+  setReloadCart: () => void;
 };
 
 const paymentGroupContextDefualtValues: paymentGroupContext = {
@@ -20,6 +22,8 @@ const paymentGroupContextDefualtValues: paymentGroupContext = {
   set: () => {},
   isReload: true,
   setReload: () => {},
+  isReloadCart: false,
+  setReloadCart: () => {},
 };
 
 const PaymentGroupContext = createContext<paymentGroupContext>(
@@ -35,14 +39,20 @@ interface IProps {
 export function PaymentGroupProvider(props: IProps) {
   const [value, setValue] = useState<TypeValue>("all");
   const [isReload, setIsReload] = useState<boolean>(true);
+  const [isReloadCart, setIsReloadCart] = useState<boolean>(false);
   const set = (value: TypeValue) => {
     setValue(value);
   };
   const setReload = (state: boolean) => {
     setIsReload(state);
   };
+  const setReloadCart = () => {
+    setIsReloadCart(!isReloadCart);
+  };
   return (
-    <PaymentGroupContext.Provider value={{ value, set, isReload, setReload }}>
+    <PaymentGroupContext.Provider
+      value={{ value, set, isReload, setReload, isReloadCart, setReloadCart }}
+    >
       {props.children}
     </PaymentGroupContext.Provider>
   );

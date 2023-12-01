@@ -11,15 +11,14 @@ import Image from "next/image";
 import { Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { NumericFormat } from "react-number-format";
-import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
-
 import {
   displayDiscount,
   checkDiscount,
   displayCoupon,
   checkCoupon,
 } from "../injection";
+import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
+import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
 
 interface IProps {
   type: TypeSegment;
@@ -81,9 +80,9 @@ const DisplayItem = (props: IProps) => {
       );
     }
   };
-  const onFinish = async (data: IDataShoppingCartPost) => {
+  const onFinish = async (data: CreateGoodsDto) => {
     blockContext.block();
-    await ShoppingCartService.post(data)
+    await ShoppingGoodsService.post(data)
       .finally(() => {
         setReload(true);
       })
@@ -206,16 +205,7 @@ const DisplayItem = (props: IProps) => {
                 style={{
                   width: "100%",
                 }}
-                onClick={() =>
-                  onFinish({
-                    materialId: item.id,
-                    quantity: 1,
-                    lastQty: item.lastQty,
-                    amount: item.unitAmount,
-                    discountId: item.discount?.id,
-                    couponId: item.coupon?.id,
-                  })
-                }
+                onClick={() => onFinish({ materialId: item.id })}
                 icon={<ShoppingCartOutlined />}
               >
                 Сагслах
@@ -259,16 +249,7 @@ const DisplayItem = (props: IProps) => {
                   width: "100%",
                 }}
                 icon={<ShoppingCartOutlined />}
-                onClick={() =>
-                  onFinish({
-                    materialId: item.id,
-                    quantity: 1,
-                    lastQty: item.lastQty,
-                    amount: item.unitAmount,
-                    discountId: item.discount?.id,
-                    couponId: item.coupon?.id,
-                  })
-                }
+                onClick={() => onFinish({ materialId: item.id })}
               >
                 Сагслах
               </Button>

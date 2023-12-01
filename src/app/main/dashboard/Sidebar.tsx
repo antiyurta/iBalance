@@ -156,10 +156,10 @@ const Sidebar = () => {
           getItem("Акт, хорогдол, устгал", "/act-transaction"),
         ]),
         getItem("Дотоод гүйлгээ", "/local-transaction", <></>, [
+          getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
           getItem("Бараа материалын хөрвүүлэг", "/converter"),
           getItem("Бараа материалын хольц", "/mixture"),
           getItem("Тооллого", "/census"),
-          getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
         ]),
       ]
     ),

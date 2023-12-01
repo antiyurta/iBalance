@@ -57,10 +57,13 @@ export interface IParamConsumerMembership
   extends Meta,
     IParam,
     IFilterConsumerMembership {}
-export interface IResponseConsumerMembership extends GenericResponse {
+export interface IResponseConsumerMemberships extends GenericResponse {
   response: {
     data: IDataConsumerMembership[];
     meta: Meta;
     filter: IFilterConsumerMembership;
   };
+}
+export interface IResponseConsumerMembership extends GenericResponse {
+  response: IDataConsumerMembership;
 }

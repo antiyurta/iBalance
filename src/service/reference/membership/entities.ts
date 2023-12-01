@@ -45,10 +45,13 @@ export type FilteredColumnsMembership = {
 };
 export interface IParamMembership extends IFilterMembership, Meta, IParam {}
 
-export interface IResponseMembership extends GenericResponse {
+export interface IResponseMemberships extends GenericResponse {
   response: {
     data: IDataMembership[];
     meta: Meta;
     filter: IParamMembership;
   };
+}
+export interface IResponseMembership extends GenericResponse {
+  response: IDataMembership;
 }

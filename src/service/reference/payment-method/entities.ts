@@ -10,7 +10,7 @@ export enum PaymentType {
 }
 export interface IDataReferencePaymentMethod extends IData {
   id: number;
-  imageUrl: string;
+  logo: string;
   name: string;
   type: PaymentType;
   isActive: boolean;
@@ -21,10 +21,7 @@ export interface IParamPaymentMethod extends IParam {
   isActive?: boolean;
 }
 export interface IResponsePaymentMethods extends GenericResponse {
-  response: {
-    data: IDataReferencePaymentMethod[];
-    meta: Meta;
-  };
+  response: IDataReferencePaymentMethod[];
 }
 export interface IResponsePaymentMethod extends GenericResponse {
   response: {

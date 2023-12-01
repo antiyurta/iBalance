@@ -49,12 +49,13 @@ const TransactionSale = (props: IProps) => {
   const getPaymentMethods = (params: IParamPaymentMethod) => {
     ReferencePaymentMethodService.get(params).then((response) => {
       if (response.success) {
-        setPaymentMethods(response.response.data);
+        setPaymentMethods(response.response);
       }
     });
   };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.paymentMethodIds = [...values.paymentMethodIds];
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
         .then((response) => {
@@ -177,7 +178,7 @@ const TransactionSale = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Төлбөрийн хэлбэр"
-                name="paymentMethodId"
+                name="paymentMethodIds"
                 rules={[
                   {
                     required: true,

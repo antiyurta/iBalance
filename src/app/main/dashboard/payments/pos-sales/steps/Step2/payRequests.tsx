@@ -1,39 +1,27 @@
 import Image from "next/image";
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { Typography } from "antd";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { useDispatch } from "react-redux";
-import { removeMethod } from "@/feature/core/reducer/PosReducer";
+import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
+import { PosInvoiceService } from "@/service/pos/invoice/service";
 
 const { Title } = Typography;
 
 interface IProps {
-  paidAmount: number;
-  amountDiff: (value: number) => void;
+  isReload: () => void;
+  invoices: IDataPaymentInvoice[];
+  amountDiff: number;
 }
 
 const PayRequests = (props: IProps) => {
-  const dispatch = useDispatch();
-  const { paidAmount, amountDiff } = props;
-  const [balance, setBalance] = useState<number>(paidAmount);
-  const { methods } = useTypedSelector((state: RootState) => state.posStep);
-  const remove = (id: number) => {
-    dispatch(removeMethod(id));
+  const { invoices, isReload, amountDiff } = props;
+  const remove = (id: string) => {
+    PosInvoiceService.remove(id).then((response) => {
+      if (response.success) {
+        isReload();
+      }
+    });
   };
-  useEffect(() => {
-    if (methods) {
-      const resultTotal: number = methods?.reduce(
-        (total: number, method) => (total += method.amount),
-        0
-      );
-      setBalance(paidAmount - resultTotal);
-      amountDiff(balance);
-    }
-  }, [methods]);
-  useEffect(() => {
-    amountDiff(balance);
-  }, [balance]);
   return (
     <div
       style={{
@@ -50,7 +38,7 @@ const PayRequests = (props: IProps) => {
           alignSelf: "flex-end",
         }}
       >
-        {methods?.map((method, index) => {
+        {invoices?.map((invoice, index) => {
           return (
             <div
               key={index}
@@ -63,12 +51,12 @@ const PayRequests = (props: IProps) => {
               }}
             >
               <Image
-                src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${method.imageUrl}`}
+                src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${invoice.paymentMethodLogo}`}
                 width={18}
                 height={18}
-                alt={method.name}
+                alt={invoice.paymentMethodName}
               />
-              <Title level={3}>{method.name}</Title>
+              <Title level={3}>{invoice.paymentMethodName}</Title>
               <Title
                 level={3}
                 style={{
@@ -76,7 +64,7 @@ const PayRequests = (props: IProps) => {
                 }}
               >
                 <NumericFormat
-                  value={method.amount}
+                  value={invoice.amount}
                   thousandSeparator=","
                   decimalScale={2}
                   fixedDecimalScale
@@ -87,7 +75,7 @@ const PayRequests = (props: IProps) => {
 
               <button
                 // disabled={method.type === PaymentType.Cash ? false : true}
-                onClick={() => remove(method.id)}
+                onClick={() => remove(invoice.id)}
               >
                 X
               </button>
@@ -100,19 +88,19 @@ const PayRequests = (props: IProps) => {
           level={3}
           style={{
             fontWeight: 400,
-            color: Math.sign(balance) != -1 ? "black" : "red",
+            color: Math.sign(amountDiff) != -1 ? "black" : "red",
           }}
         >
-          {Math.sign(balance) != -1 ? "Үлдэгдэл:" : "Хариулт:"}
+          {Math.sign(amountDiff) != -1 ? "Үлдэгдэл:" : "Хариулт:"}
         </Title>
         <Title
           level={3}
           style={{
-            color: Math.sign(balance) != -1 ? "black" : "red",
+            color: Math.sign(amountDiff) != -1 ? "black" : "red",
           }}
         >
           <NumericFormat
-            value={balance}
+            value={amountDiff}
             thousandSeparator=","
             decimalScale={2}
             fixedDecimalScale

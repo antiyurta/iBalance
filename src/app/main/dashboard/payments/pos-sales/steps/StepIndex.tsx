@@ -3,6 +3,7 @@ import { ReactNode, useState } from "react";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
+import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 
 const { Title } = Typography;
 
@@ -12,13 +13,11 @@ interface IStep {
 }
 
 interface IProps {
-  amount: number;
-  bonus: number;
+  shoppingCart: IDataShoppingCart;
 }
 
 const StepIndex = (props: IProps) => {
-  const { amount, bonus } = props;
-  const [paidAmout, setPaidAmout] = useState<number>(0);
+  const { shoppingCart } = props;
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const prev = () => {
@@ -42,9 +41,8 @@ const StepIndex = (props: IProps) => {
       ),
       content: (
         <Step1
-          data={{ amount: amount, bonus: bonus }}
+          data={shoppingCart}
           isNext={next}
-          paidAmount={(value) => setPaidAmout(value)}
         />
       ),
     },
@@ -59,7 +57,7 @@ const StepIndex = (props: IProps) => {
           Төлөх дүн:
         </Title>
       ),
-      content: <Step2 isPrev={prev} isNext={next} paidAmount={paidAmout} />,
+      content: <Step2 isPrev={prev} isNext={next} shoppingCart={shoppingCart} />,
     },
     {
       label: " ",
