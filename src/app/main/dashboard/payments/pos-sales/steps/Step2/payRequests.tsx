@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { Typography } from "antd";
-import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
 import { PosInvoiceService } from "@/service/pos/invoice/service";

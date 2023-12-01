@@ -1,6 +1,11 @@
 import Image from "next/image";
 import { QRCode } from "antd";
-const Bill = () => {
+import { IDataDocument } from "@/service/document/entities";
+interface IProps {
+  posDocument: IDataDocument;
+}
+const Bill = (props: IProps) => {
+  const { posDocument } = props;
   return (
     <div className="bill">
       <div className="bill-header">
@@ -105,45 +110,25 @@ const Bill = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Өөг тахиа махан шаржигнуур</td>
-              <td>1</td>
-              <td>4,900</td>
-              <td>4,900</td>
-              <td>4,900</td>
-            </tr>
-            <tr>
-              <td>Өөг тахиа махан шаржигнуур</td>
-              <td>1</td>
-              <td>4,900</td>
-              <td>4,900</td>
-              <td>4,900</td>
-            </tr>
-            <tr>
-              <td>Өөг тахиа махан шаржигнуур</td>
-              <td>1</td>
-              <td>4,900</td>
-              <td>4,900</td>
-              <td>4,900</td>
-            </tr>
+            {posDocument.transactions?.map((transaction, index) => (
+              <tr key={index}>
+                <td>{transaction.material?.name}</td>
+                <td>{transaction.expenseQty}</td>
+                <td>{transaction.unitAmount}</td>
+                <td>{transaction.totalAmount}</td>
+                <td>{transaction.amount}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
         <div className="result">
           <div className="items">
             <h4>Нийт үнэ</h4>
-            <h4>7,000</h4>
+            <h4>{posDocument.amount}</h4>
           </div>
           <div className="items">
             <h5>Нийт хөнгөлөлт</h5>
-            <h5>7,000</h5>
-          </div>
-          <div className="items">
-            <h5>Нийт хөнгөлөлт</h5>
-            <h5>7,000</h5>
-          </div>
-          <div className="items">
-            <h5>Нийт хөнгөлөлт</h5>
-            <h5>7,000</h5>
+            <h5>{posDocument.discountAmount}</h5>
           </div>
           <div className="items">
             <h4>Хариулт</h4>
@@ -157,9 +142,9 @@ const Bill = () => {
         </div>
         <div className="ebarimt-info">
           <p>Сугалааны дугаар</p>
-          <p>OV119877166</p>
+          <p>{posDocument.lottery}</p>
           <p>EBarimt-ын дүн</p>
-          <p>7,0006</p>
+          <p>{posDocument.payAmount}</p>
         </div>
       </div>
     </div>

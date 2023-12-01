@@ -53,21 +53,10 @@ export interface xIDataTransaction {
   amount: number;
   transactionAt: Date;
 }
-
-export interface xIDataDocument {
-  paymentMethodId: number;
-  warehouseId: number;
-  consumerId: number;
-  amount: number;
-  discountAmount: number;
-  consumerDiscountAmount: number;
-  payAmount: number;
-  description: string;
-  transactions: xIDataTransaction[];
-  documentAt?: Date;
-  movingStatus: MovingStatus;
+export interface IPosDocumentDto {
+  regno?: string;
+  shoppingCartId: string;
 }
-
 export interface IDataDocument extends IData {
   id: number;
   refundAt: string;
@@ -95,6 +84,11 @@ export interface IDataDocument extends IData {
   consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт
   payAmount: number; // төлөх дүн
   movingStatus: MovingStatus;
+  billId?: string;
+  macAddress?: string;
+  lottery?: string;
+  internalCode?: string;
+  qrData?: string;
   transactions?: IDataTransaction[];
 }
 

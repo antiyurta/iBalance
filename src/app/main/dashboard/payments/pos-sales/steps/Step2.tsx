@@ -77,16 +77,6 @@ const Step2 = (props: IProps) => {
     } else isDisabled = false;
     return isDisabled;
   };
-  // const checkMaxAmount = () => {
-  //   if (
-  //     !paymentMethods?.find(
-  //       (method) => method.id === activeKey && method.type === PaymentType.Cash
-  //     )
-  //   ) {
-  //     return amountDiff;
-  //   }
-  //   return 99999999;
-  // };
   // const getShoppingGoods = async () => {
   //   await ShoppingGoodsService.get()
   //     .then((response) => {
@@ -100,41 +90,6 @@ const Step2 = (props: IProps) => {
   //       blockContext.unblock();
   //     });
   // };
-  const sendTransaction = async () => {
-    // if (methods && consumer) {
-    //   Promise.all(
-    //     methods.map(async (method) => {
-    //       const body: xIDataDocument = {
-    //         paymentMethodId: method.id,
-    //         warehouseId: 8,
-    //         consumerId: consumer?.id,
-    //         amount: 0,
-    //         discountAmount: saveValue,
-    //         consumerDiscountAmount: saveValue,
-    //         payAmount: method.amount,
-    //         description: `${method.name}-гүйлгээ`,
-    //         transactions: shoppingGoods.map((goods) => ({
-    //           materialId: goods.materialId,
-    //           lastQty: goods.lastQty,
-    //           expenseQty: goods.quantity,
-    //           unitAmount: goods.unitAmount,
-    //           discountAmount: goods.discountAmount,
-    //           totalAmount: goods.totalAmount,
-    //           amount: goods.payAmount,
-    //           transactionAt: new Date(),
-    //         })),
-    //         documentAt: new Date(),
-    //         movingStatus: MovingStatus.Pos,
-    //       };
-    //       console.log(body);
-    //       await DocumentService.postSale(body).then((response) => {
-    //         console.log("res", response);
-    //       });
-    //     })
-    //   );
-    // }
-    isNext?.();
-  };
   useEffect(() => {
     getPaymentMethods();
     // getShoppingGoods();
@@ -241,7 +196,7 @@ const Step2 = (props: IProps) => {
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                     }
                     parser={(value) => value!.replace(/(,*)/g, "")}
-                    // max={checkMaxAmount()}
+                    max={amountDiff}
                     step="0.1"
                     onDoubleClick={() => {
                       form.setFieldValue("amount", amountDiff);
@@ -281,7 +236,7 @@ const Step2 = (props: IProps) => {
             icon={<LeftOutlined />}
           />
           <Button
-            onClick={sendTransaction}
+            onClick={isNext}
             type="primary"
             style={{
               width: "100%",

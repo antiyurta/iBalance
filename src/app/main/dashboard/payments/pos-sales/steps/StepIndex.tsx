@@ -61,7 +61,7 @@ const StepIndex = (props: IProps) => {
     },
     {
       label: " ",
-      content: <Step3 isPrev={prev} isNext={next} />,
+      content: <Step3 isPrev={prev} shoppingCart={shoppingCart} />,
     },
   ];
   return (
