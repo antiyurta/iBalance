@@ -77,7 +77,7 @@ const isChecked = (state: boolean) => {
   );
 };
 
-async function renderCheck(text: any, type: DataIndexType) {
+function renderCheck(text: any, type: DataIndexType) {
   switch (type) {
     case DataIndexType.BOOLEAN:
       return isChecked(text);
@@ -128,13 +128,7 @@ async function renderCheck(text: any, type: DataIndexType) {
       );
     case DataIndexType.TRANSACTION:
       getTransactionTranslate(text);
-    // case DataIndexType.USER:
-    //   if (Array.isArray(text)) {
-    //     text: number[];
-    //     authService.getAllUsers(text);
-    //   }
-    //   console.log('text ==========>', text);
-    // TODO userids гээд ороод ирхэд текстийг ulzii, amraa, etc... болгох
+    
     default:
       return text;
   }

@@ -1,13 +1,14 @@
 import { api } from "@/feature/interceptor/interceptor";
 import {
   CreateShoppingCartDto,
+  IParamShoppingCart,
   IResponseShoppingCart,
   IResponseShoppingCarts,
   UpdateShoppingCartDto,
 } from "./entities";
 
-function get(): Promise<IResponseShoppingCarts> {
-  return api.get("pos-shopping-cart");
+function get(params: IParamShoppingCart): Promise<IResponseShoppingCarts> {
+  return api.get("pos-shopping-cart", { params });
 }
 function getById(id: string): Promise<IResponseShoppingCart> {
   return api.get(`pos-shopping-cart/${id}`);

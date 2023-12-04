@@ -17,7 +17,10 @@ export const AntTable = (props: TableProps<any>) => {
 type columns = {
   [T in keyof any]: ColumnType;
 };
-
+export type TableItemType = {
+  key: string;
+  label: React.JSX.Element | string;
+};
 interface ITable {
   componentType?: ComponentType;
   scroll: {
@@ -41,6 +44,8 @@ interface ITable {
   isDelete?: boolean;
   onDelete?: (id: number) => void;
   children?: ReactNode;
+  addItems?: TableItemType[];
+  custom?: (value: string, id: number) => void;
 }
 
 function NewTable(props: ITable) {
@@ -64,6 +69,8 @@ function NewTable(props: ITable) {
     onEdit,
     isDelete = false,
     onDelete,
+    addItems,
+    custom,
   } = props;
   const dragProps = {
     onDragEnd(fromIndex: number, toIndex: number) {
@@ -82,6 +89,13 @@ function NewTable(props: ITable) {
       maskClosable: true,
       onOk: () => onDelete?.(key),
     });
+  };
+  const mergeItems = (): TableItemType[] => {
+    if (addItems && addItems.length > 0) {
+      return addItems;
+    } else {
+      return [];
+    }
   };
   const items = [
     isEdit
@@ -131,6 +145,7 @@ function NewTable(props: ITable) {
           ),
         }
       : null,
+    ...mergeItems(),
   ];
   return (
     <ConfigProvider locale={mnMn}>
@@ -221,7 +236,7 @@ function NewTable(props: ITable) {
             }
           })}
           {props.children}
-          {isEdit || isDelete ? (
+          { items.length > 0 ? (
             <Column
               title=" "
               dataIndex={"id"}
@@ -237,6 +252,8 @@ function NewTable(props: ITable) {
                           warning(text);
                         } else if (key === "edit") {
                           onEdit?.(row);
+                        } else {
+                          custom?.(key, text);
                         }
                       },
                     }}
