@@ -4,15 +4,11 @@ import { ReactNode, createContext, useContext, useState } from "react";
 type authContext = {
   user: IUser | undefined;
   set: (user: IUser) => void;
-  isEdit: boolean | undefined;
-  setEdit: (state: boolean) => void;
 };
 
 const authContextDefualtValues: authContext = {
   user: undefined,
   set: () => {},
-  isEdit: false,
-  setEdit: () => {},
 };
 
 export const AuthContext = createContext<authContext>(authContextDefualtValues);
@@ -33,7 +29,7 @@ export function AuthContextProvider(props: IProps) {
     setIsEdit(state);
   };
   return (
-    <AuthContext.Provider value={{ user, set, isEdit, setEdit }}>
+    <AuthContext.Provider value={{ user, set }}>
       {props.children}
     </AuthContext.Provider>
   );
