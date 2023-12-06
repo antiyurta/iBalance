@@ -16,6 +16,7 @@ interface EditableFormItemProps extends FormItemProps {
 const General = () => {
   const [form] = Form.useForm();
   const { user, set, isEdit, setEdit } = useAuthContext();
+  
   const getProfile = async () => {
     authService.authGet().then((response) => {
       set(response.response);

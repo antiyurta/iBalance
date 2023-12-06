@@ -31,6 +31,7 @@ interface IRole {
 }
 
 export interface IUser {
+  imageId: number;
   createdAt: string;
   dataBase: string;
   deletedAt: string;
@@ -69,6 +70,9 @@ export interface LoginResponse extends GenericResponse {
 export interface LogoutResponse extends GenericResponse {
   statusCode: number;
 }
+export interface IChangeProfile {
+  imageId: number;
+}
 export interface IFilterUser {
   createdAt?: string;
   email?: string;
@@ -85,8 +89,11 @@ export type FilteredColumnsUser = {
 export interface AuthenticationResponse extends GenericResponse {
   response: IUser;
 }
-export interface IResponseUser extends GenericResponse {
+export interface IResponseUsers extends GenericResponse {
   response: IUser[];
+}
+export interface IResponseUser extends GenericResponse {
+  response: IUser;
 }
 export interface IParamUser {
   ids?: number[];

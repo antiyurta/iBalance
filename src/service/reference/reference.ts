@@ -39,9 +39,17 @@ function getImage(id: number): Promise<any> {
     responseType: "blob",
   });
 }
+function getGlobalImage(id: number): Promise<any> {
+  return api.get(`global-files/${id}`, {
+    responseType: "blob",
+  });
+}
 
 function removeUploadImage(id: number): Promise<any> {
   return api.delete("local-files/" + id);
+}
+function removeGlobalImage(id: number): Promise<any> {
+  return api.delete("global-files/" + id);
 }
 
 export const ReferenceService = {
@@ -49,8 +57,10 @@ export const ReferenceService = {
   getCountries,
   getUsers,
   getImage,
+  getGlobalImage,
   post,
   patch,
   remove,
   removeUploadImage,
+  removeGlobalImage,
 };

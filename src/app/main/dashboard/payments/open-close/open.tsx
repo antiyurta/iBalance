@@ -1,4 +1,9 @@
-import { NewDatePicker, NewInput } from "@/components/input";
+import {
+  NewDatePicker,
+  NewInput,
+  NewInputNumber,
+  NewSelect,
+} from "@/components/input";
 import NewModal from "@/components/modal";
 import { Button, Col, Form, Row, Space } from "antd";
 import dayjs from "dayjs";
@@ -6,11 +11,14 @@ import { useContext, useEffect, useState } from "react";
 import EditableTable from "./editableTable";
 import { ReferenceService } from "@/service/reference/reference";
 import { IDataReference, IType } from "@/service/reference/entity";
-import { IDataPosOpener } from "@/service/pos/opener/entities";
-import { OpenerService } from "@/service/pos/opener/service";
+import { IDataPosOpenClose } from "@/service/pos/open-close/entities";
+import { OpenCloseService } from "@/service/pos/open-close/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { useRouter } from "next/navigation";
 import { NumericFormat } from "react-number-format";
+import { IDataPosBankNote } from "@/service/pos/open-close/bank-note/entities";
+import { IDataPos, IParamPos } from "@/service/pos/entities";
+import { PosService } from "@/service/pos/service";
 
 const OpenState = () => {
   const [form] = Form.useForm();
@@ -18,10 +26,10 @@ const OpenState = () => {
   const [moneyForm] = Form.useForm();
   const today = dayjs(new Date());
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [isBankNote, setIsBankNote] = useState<boolean>(false);
   const [isOpenMoneyListModal, setIsOpenMoneyListModal] =
     useState<boolean>(false);
-  const [moneyType, setMoneyType] = useState<IDataReference[]>();
+  const [moneyType, setMoneyType] = useState<IDataReference[]>([]);
+  const [listPos, setListPos] = useState<IDataPos[]>([]);
   const getMoneyTypes = async (type: IType) => {
     await ReferenceService.get({
       type: type,
@@ -45,11 +53,10 @@ const OpenState = () => {
       })),
     });
   };
-  const onFinish = async (values: IDataPosOpener) => {
+  const onFinish = async (values: IDataPosOpenClose) => {
     blockContext.block();
-    values.isBankNote = isBankNote;
-    values.posBankNotes = moneyForm.getFieldValue("moneys");
-    await OpenerService.post(values)
+    values.posBankNotes = [...moneyForm.getFieldValue("moneys")];
+    await OpenCloseService.postOpen(values)
       .then((response) => {
         if (response.success) {
           router.push("/main/dashboard/payments/pos-sales");
@@ -59,8 +66,16 @@ const OpenState = () => {
         blockContext.unblock();
       });
   };
+  const getPos = async (params: IParamPos) => {
+    PosService.get(params).then((response) => {
+      if (response.success) {
+        setListPos(response.response.data);
+      }
+    });
+  };
   useEffect(() => {
     getMoneyTypes(IType.MONEY);
+    getPos({ warehouseId: 5, isAuth: true });
   }, []);
   useEffect(() => {
     setDefualtValues();
@@ -99,12 +114,29 @@ const OpenState = () => {
               size={12}
             >
               <Form.Item
-                label="Нээлт хийх өдөр"
-                name="date"
+                label="Нээх пос"
+                name="posId"
                 rules={[
                   {
                     required: true,
-                    message: "sadsa",
+                    message: "Заавал",
+                  },
+                ]}
+              >
+                <NewSelect
+                  options={listPos.map((pos) => ({
+                    value: pos.id,
+                    label: pos.name,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Нээлт хийх өдөр"
+                name="openerAt"
+                rules={[
+                  {
+                    required: true,
+                    message: "Заавал",
                   },
                 ]}
               >
@@ -123,14 +155,8 @@ const OpenState = () => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Form.Item name="amount">
-                    <NumericFormat
-                      thousandSeparator=","
-                      decimalScale={2}
-                      fixedDecimalScale
-                      displayType="input"
-                      customInput={NewInput}
-                    />
+                  <Form.Item name="openerAmount">
+                    <NewInputNumber />
                   </Form.Item>
                   <Button onClick={() => setIsOpenMoneyListModal(true)}>
                     Дэвсгэрт
@@ -169,14 +195,14 @@ const OpenState = () => {
             type="primary"
             onClick={() =>
               moneyForm.validateFields().then((values) => {
-                setIsBankNote(true);
                 form.setFieldsValue({
-                  amount: values.moneys.reduce(
-                    (total: number, current: IDataPosOpener) => {
+                  openerAmount: values.moneys.reduce(
+                    (total: number, current: IDataPosBankNote) => {
                       return total + current.amount;
                     },
                     0
                   ),
+                  posBankNotes: values,
                 });
                 setIsOpenMoneyListModal(false);
               })

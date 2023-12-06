@@ -1,3 +1,4 @@
+import { IUser } from "../authentication/entities";
 import {
   ColumnType,
   GenericResponse,
@@ -6,10 +7,6 @@ import {
   Meta,
 } from "../entities";
 
-export interface IDataUser {
-  id: number;
-  firstName: string;
-}
 // START => Reference section
 export interface IDataReference {
   id?: number;
@@ -26,7 +23,7 @@ export type FilteredColumnsReference = {
 export interface IParamReference extends Meta, IParam, IFilterReference {}
 // END => Reference section
 export interface IUserResponse extends GenericResponse {
-  response: IDataUser[];
+  response: IUser[];
 }
 
 export interface IResponseReference extends GenericResponse {

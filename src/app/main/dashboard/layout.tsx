@@ -10,6 +10,8 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { NewAvatar, NewDatePicker, NewSelect } from "@/components/input";
 import Sidebar from "./Sidebar";
 import { TabsActions } from "@/feature/core/actions/TabsActions";
+import { authService } from "@/service/authentication/service";
+import { IUser } from "@/service/authentication/entities";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -22,6 +24,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     (state: RootState) => state.tabs
   );
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([]);
+  const [user, setUser] = useState<IUser>();
   const remove = (targetKey: TargetKey) => {
     blockContext.block();
     let newActiveKey = activeKey;
@@ -61,6 +64,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       router.push(activeKey);
     }
   }, [activeKey]);
+  useEffect(() => {
+    authService.authGet().then((response) => {
+      if (response.success) {
+        setUser(response.response);
+      }
+    });
+  }, []);
   return (
     <div
       style={{
@@ -92,7 +102,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             <div className="nav-profile">
               <NewAvatar size={24} src={"/images/navbar/Image.png"} />
-              <p>Б.Бадамхатан #0001</p>
+              <p>{user?.firstName}</p>
             </div>
             <div className="dep">
               <NewSelect

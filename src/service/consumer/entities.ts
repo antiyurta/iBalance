@@ -1,3 +1,4 @@
+import { IUser } from "../authentication/entities";
 import {
   ColumnType,
   GenericResponse,
@@ -5,7 +6,7 @@ import {
   IParam,
   Meta,
 } from "../entities";
-import { IDataReference, IDataUser } from "../reference/entity";
+import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
 import { IDataConsumerMembership } from "./membership/entities";
 
@@ -32,7 +33,7 @@ export interface IDataConsumer {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
-  updatedUser: IDataUser;
+  updatedUser: IUser;
 }
 export interface IFilterConsumer extends IFilter {
   code?: number[];
