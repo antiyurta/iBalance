@@ -73,6 +73,10 @@ export interface LogoutResponse extends GenericResponse {
 export interface IChangeProfile {
   imageId: number;
 }
+export interface IChangePassword {
+  password: string;
+  token: string;
+}
 export interface IFilterUser {
   createdAt?: string;
   email?: string;

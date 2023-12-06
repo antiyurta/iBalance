@@ -1,6 +1,7 @@
 import { api } from "../../feature/interceptor/interceptor";
 import {
   AuthenticationResponse,
+  IChangePassword,
   IChangeProfile,
   IParamUser,
   IResponseUser,
@@ -29,6 +30,9 @@ function updateToken(tokens: Tokens): Promise<LoginResponse> {
     },
   });
 }
+function changePassword(body: IChangePassword): Promise<IResponseUser> {
+  return api.post("/authentication/change-password", body);
+}
 function changeProfile(body: IChangeProfile): Promise<IResponseUser> {
   return api.post("/authentication/change-profile", body);
 }
@@ -41,5 +45,6 @@ export const authService = {
   authLogout,
   updateToken,
   getAllUsers,
+  changePassword,
   changeProfile,
 };
