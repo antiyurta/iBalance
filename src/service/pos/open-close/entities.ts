@@ -46,6 +46,8 @@ export interface IFilterPosOpenClose extends IFilter {
   isClose: boolean;
   closerUserId: number;
   closerAt: number;
+  workingTime: number;
+  balanceAmount: number;
   cashAmount: number;
   nonCashAmount: number;
   lendAmount: number;

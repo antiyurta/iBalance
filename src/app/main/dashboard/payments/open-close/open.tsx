@@ -163,7 +163,7 @@ const OpenState = () => {
                   </Button>
                 </div>
               </Form.Item>
-              <Form.Item label="Нууц үг" name="ppasword">
+              <Form.Item label="Нууц үг" name="password">
                 <NewInput type="password" />
               </Form.Item>
               <Form.Item>

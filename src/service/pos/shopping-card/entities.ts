@@ -9,7 +9,7 @@ import {
 import { IDataShoppingGoods } from "./goods/entites";
 import { IDataDocument } from "@/service/document/entities";
 import { IDataPaymentInvoice } from "../invoice/entities";
-import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { IDataPosOpenClose } from "../open-close/entities";
 
 export interface CreateShoppingCartDto {
   goodsIds: number[];
@@ -22,8 +22,8 @@ export interface UpdateShoppingCartDto {
 export interface IDataShoppingCart extends IData {
   id: string;
   currency: string;
-  warehouseId: number;
-  warehouse: IDataWarehouse;
+  openCloseId: number;
+  openClose: IDataPosOpenClose;
   taxRegno: string;
   consumerMembershipId: number;
   isPaid: boolean;

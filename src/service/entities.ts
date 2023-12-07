@@ -126,6 +126,7 @@ export enum DataIndexType {
   STRING_SECTION = "STRING_SECTION",
   DATE = "DATE",
   DATETIME = "DATETIME",
+  TIME = "TIME",
   COUNTRY = "COUNTRY",
   //
   USER = "USER",

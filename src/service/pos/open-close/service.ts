@@ -10,6 +10,9 @@ import {
 function get(params: IParamOpenClose): Promise<IResponsePosOpenClosers> {
   return api.get("pos-open-close", { params });
 }
+function getById(id: number): Promise<IResponsePosOpenClose> {
+  return api.get(`pos-open-close/${id}`);
+}
 /** Посс нээлт хийх */
 function postOpen(body: IOpenDto): Promise<IResponsePosOpenClose> {
   return api.post("pos-open-close", body);
@@ -23,6 +26,7 @@ function patchClose(
 }
 export const OpenCloseService = {
   get,
+  getById,
   postOpen,
   patchClose,
 };

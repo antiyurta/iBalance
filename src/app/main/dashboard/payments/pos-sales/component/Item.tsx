@@ -202,7 +202,7 @@ const Item = (props: IProps) => {
           >
             Үндсэн үнэ :{" "}
             <NumericFormat
-              value={totalAmount}
+              value={unitAmount}
               thousandSeparator=","
               decimalScale={2}
               fixedDecimalScale

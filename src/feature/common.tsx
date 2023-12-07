@@ -115,6 +115,8 @@ function renderCheck(text: any, type: DataIndexType) {
       return dayjs(text).format("YYYY/MM/DD");
     case DataIndexType.DATETIME:
       return dayjs(text).format("YYYY/MM/DD HH:mm");
+    case DataIndexType.TIME:
+      return dayjs(String(text), 'HH.mm').format("HH:mm");
     case DataIndexType.VALUE:
       return (
         <NumericFormat
