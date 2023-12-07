@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable, TableItemType } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag, openNofi } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  openNofi,
+} from "@/feature/common";
 import {
   FilteredColumnsDocument,
   IDataDocument,
@@ -10,7 +14,7 @@ import {
 import { DocumentService } from "@/service/document/service";
 import { IFilterTransaction } from "@/service/document/transaction/entities";
 import { DataIndexType, Meta } from "@/service/entities";
-import { Col, Row, Space } from "antd";
+import { Col, Form, Row, Space } from "antd";
 import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -31,6 +35,7 @@ import {
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import TransactionPos from "./components/transaction-pos";
 import StepIndex from "../pos-sales/steps/StepIndex";
+import PosRefund from "../pos-sales/component/pos-refund";
 const Jurnal = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsShoppingCart>({
@@ -251,12 +256,14 @@ const Jurnal = () => {
                 setIsBill(true)
               );
             } else {
-              openNofi('warning', 'Гүйлгээний баримт хийгдээгүй байна.');
+              openNofi("warning", "Гүйлгээний баримт хийгдээгүй байна.");
             }
           } else if (key == ItemAction.SHOW_TRANSACTION) {
             setIsTransaction(true);
           } else if (key == ItemAction.SHOW_PAY) {
             setIsPay(true);
+          } else if (key == ItemAction.SHOW_REFUND) {
+            setIsRefund(true);
           }
         }
         blockContext.unblock();
@@ -383,12 +390,12 @@ const Jurnal = () => {
       </NewModal>
       <NewModal
         title="Буцаалт хийх"
-        open={isPay}
-        onCancel={() => setIsPay(false)}
+        open={isRefund}
+        onCancel={() => setIsRefund(false)}
         footer={null}
         destroyOnClose
       >
-        {shoppingCart ? <StepIndex shoppingCart={shoppingCart} /> : null}
+        <PosRefund shoppingCart={shoppingCart} />
       </NewModal>
     </div>
   );

@@ -27,23 +27,18 @@ const ListOfReceipt = () => {
       children: <ReturnList />,
     },
     {
-      label: "Төлбөр төлөлтын жагсаалт",
-      key: "item-3",
-      children: <ListOfPayments />,
-    },
-    {
       label: "Гишүүнчлэлийн картын гүйлгээний жагсаалт",
-      key: "item-4",
+      key: "item-3",
       children: <ListOfMembershipCardTransactions />,
     },
     {
       label: "Бэлгийн картын гүйлгээний жагсаалт",
-      key: "item-5",
+      key: "item-4",
       children: <ListOfGiftCard />,
     },
     {
       label: "Өдрийн нээлт, хаалтын түүх",
-      key: "item-6",
+      key: "item-5",
       children: <OpeningClosingHistory />,
     },
   ];
