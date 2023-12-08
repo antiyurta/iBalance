@@ -8,7 +8,6 @@ export enum GiftType {
 }
 export interface IDataGiftCart extends IData {
   id: string;
-  type: GiftType;
   membershipId: number;
   membership?: IDataMembership;
   warehouseId: number;
@@ -16,11 +15,11 @@ export interface IDataGiftCart extends IData {
   giftAt: string;
   endAt: string;
   quantity: number;
-  unitAmount: number;
   totalAmount: number;
   shoppingCart: IDataShoppingCart;
 }
 export interface ICreateGiftCart {
+  warehouseId: number;
   membershipId: number;
   giftAt: Date;
   quantity: number;
@@ -29,11 +28,11 @@ export interface ICreateGiftCart {
 export interface IFilterGiftCart extends IFilter {
   id?: string;
   giftAt?: string;
-  type?: GiftType;
   warehouseName?: string;
   membershipName?: number;
-  unitAmount?: number;
-  quantity?: number;
+  membershipDiscount?: number;
+  incomeQty?: number;
+  expenseQty?: number;
   totalAmount?: number;
 }
 export type FilteredColumnsGiftCart = {

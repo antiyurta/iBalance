@@ -46,25 +46,25 @@ const ListOfGiftCard = () => {
       dataIndex: ["membership", "name"],
       type: DataIndexType.MULTI,
     },
-    unitAmount: {
+    membershipDiscount: {
       label: "Худалдах нэгж үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "unitAmount",
+      dataIndex: ["membership", "discount"],
       type: DataIndexType.VALUE,
     },
-    type: {
-      label: "Төрөл",
+    incomeQty: {
+      label: "Орлого тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "type",
-      type: DataIndexType.MULTI,
+      dataIndex: "incomeQty",
+      type: DataIndexType.NUMBER,
     },
-    quantity: {
-      label: "Тоо хэмжээ(Орлого, Зарлага)",
+    expenseQty: {
+      label: "Зарлага тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: "expenseQty",
       type: DataIndexType.NUMBER,
     },
     totalAmount: {

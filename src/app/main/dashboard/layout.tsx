@@ -4,7 +4,7 @@ import withAuth from "@/feature/hoc/withAuth";
 import { Tabs, TabsProps, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 //components
 import { NewAvatar, NewDatePicker, NewSelect } from "@/components/input";
@@ -12,19 +12,29 @@ import Sidebar from "./Sidebar";
 import { TabsActions } from "@/feature/core/actions/TabsActions";
 import { authService } from "@/service/authentication/service";
 import { IUser } from "@/service/authentication/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { PosService } from "@/service/pos/service";
+import { getUniqueValues } from "@/feature/common";
+import { AppDispatch } from "@/feature/store/store";
+import { setWarehouse } from "@/feature/store/slice/warehouse.slice";
+import { WarehouseService } from "@/service/reference/warehouse/service";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const title = useTypedSelector((state: RootState) => state.title);
   const blockContext: BlockView = useContext(BlockContext);
   const { activeKey, tabItems } = useTypedSelector(
     (state: RootState) => state.tabs
   );
+  // const warehouses = useTypedSelector((state) => state.warehouses);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([]);
   const [user, setUser] = useState<IUser>();
+  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const warehouse = useTypedSelector((state) => state.warehouse);
+
   const remove = (targetKey: TargetKey) => {
     blockContext.block();
     let newActiveKey = activeKey;
@@ -54,6 +64,27 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const onChange = (key: string) => {
     dispatch(TabsActions.setTabActiveKey(key));
   };
+  const getWarehouses = async () => {
+    await PosService.get({ isAuth: true })
+      .then((response) => {
+        if (response.success) {
+          setWarehouses(getUniqueValues(response.response.data, "warehouse"));
+        }
+      })
+      .finally(() => {
+        const warehouse = warehouses.find(
+          (warehouse) => warehouse.isActive == true
+        );
+        if (warehouse) dispatch(setWarehouse(warehouse));
+      });
+  };
+  const selectWarehouse = async (id: number) => {
+    await WarehouseService.getById(id).then((response) => {
+      if (response.success) {
+        dispatch(setWarehouse(response.response));
+      }
+    })
+  };
   useEffect(() => {
     setTabsItems(tabItems);
   }, [tabItems]);
@@ -70,6 +101,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         setUser(response.response);
       }
     });
+    getWarehouses();
   }, []);
   return (
     <div
@@ -106,30 +138,30 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
             <div className="dep">
               <NewSelect
-                options={[
-                  {
-                    label: (
-                      <div
+                value={warehouse.id}
+                options={warehouses.map((warehouse) => ({
+                  label: (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "12px",
+                        alignItems: "center",
+                      }}
+                    >
+                      <NewAvatar size={32} />
+                      <p
                         style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          gap: "12px",
-                          alignItems: "center",
+                          margin: "0px",
                         }}
                       >
-                        <NewAvatar size={32} />
-                        <p
-                          style={{
-                            margin: "0px",
-                          }}
-                        >
-                          Салбар-1 УИД
-                        </p>
-                      </div>
-                    ),
-                    value: 0,
-                  },
-                ]}
+                        {warehouse.name}
+                      </p>
+                    </div>
+                  ),
+                  value: warehouse.id,
+                }))}
+                onSelect={selectWarehouse}
               ></NewSelect>
             </div>
           </div>

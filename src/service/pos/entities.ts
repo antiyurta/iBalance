@@ -15,7 +15,7 @@ interface IDataPosUser {
   userId: number;
 }
 export interface IParamPos extends Meta, IParam {
-  warehouseId: number;
+  warehouseId?: number;
   isAuth: boolean;
 }
 

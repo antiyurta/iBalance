@@ -41,12 +41,14 @@ import {
 import { IDataMembership } from "@/service/reference/membership/entities";
 import { MembershipService } from "@/service/reference/membership/service";
 import dayjs from "dayjs";
+import { useTypedSelector } from "@/feature/store/reducer";
 type GiftType = "income" | "expense";
 const { Title } = Typography;
 const ListOfReceipt = () => {
   const dispatch = useDispatch();
   const blockContext: BlockView = useContext(BlockContext);
   const [giftForm] = Form.useForm();
+  const warehouse = useTypedSelector((state) => state.warehouse);
   const [memberships, setMemberships] = useState<IDataMembership[]>([]);
   const [isAddAction, setIsAddAction] = useState<boolean>(false);
   const [isGift, setIsGift] = useState<boolean>(false);
@@ -90,6 +92,7 @@ const ListOfReceipt = () => {
   };
   const createGiftCart = async (incomeGift: ICreateGiftCart) => {
     blockContext.block();
+    incomeGift.warehouseId = warehouse.id;
     await GiftCartService.post(incomeGift)
       .then((response) => {
         if (response.success) {
@@ -320,6 +323,7 @@ const ListOfReceipt = () => {
       >
         <Form form={giftForm} layout="vertical" onFinish={createGiftCart} initialValues={{
           giftAt: dayjs(new Date),
+          warehouseName: warehouse.name,
         }}>
           <div
             style={{
@@ -331,7 +335,7 @@ const ListOfReceipt = () => {
             <Form.Item label="Баримтын дугаар">
               <NewInput disabled />
             </Form.Item>
-            <Form.Item label="Байршил" name={"warehouseId"}>
+            <Form.Item label="Байршил" name={"warehouseName"}>
               <NewInput disabled />
             </Form.Item>
             <Form.Item label="Баримтын огноо" name={"giftAt"}>

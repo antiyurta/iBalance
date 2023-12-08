@@ -27,10 +27,10 @@ const General = () => {
       form.setFieldsValue({
         firstName: response.response.firstName,
         lastName: response.response.lastName,
-        registerNumber: response.response.employee.registerNumber,
-        hospitalName: response.response.hospital.name,
-        roleName: response.response.role.name,
-        phoneNo: response.response.employee.phoneNo,
+        registerNumber: response.response.employee?.registerNumber,
+        hospitalName: response.response.hospital?.name,
+        roleName: response.response.role?.name,
+        phoneNo: response.response.employee?.phoneNo,
         email: response.response.email,
       });
     });
@@ -53,12 +53,15 @@ const General = () => {
     );
   };
   const changeProfile = (values: IChangeProfile) => {
-    blockContext.block()
-    authService.changeProfile(values).then((response) => {
-      if (response.success) {
-        set(response.response);
-      }
-    }).finally(() => blockContext.unblock());
+    blockContext.block();
+    authService
+      .changeProfile(values)
+      .then((response) => {
+        if (response.success) {
+          set(response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     getProfile();

@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { CoreActions } from "@/feature/core/actions/CoreAction";
 import { useRouter } from "next/navigation";
 import { NewCheckbox, NewInput, NewInputPassword } from "@/components/input";
+import { AppDispatch } from "@/feature/store/store";
 
 export interface ILoginData {
   email: string;
@@ -18,7 +19,7 @@ export interface ILoginData {
 
 const Login = () => {
   const { notification } = App.useApp();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [loginForm] = Form.useForm();
   const { remember_me } = useTypedSelector((state: RootState) => state.core);
@@ -36,10 +37,12 @@ const Login = () => {
           notification.success({
             message: "Амжилттай нэвтэрлээ",
           });
-          setTimeout(() => router.push("/main/profile/general"), 1000);
         }
       })
-      .finally(() => blockContext.unblock());
+      .finally(() => {
+        setTimeout(() => router.push("/main/profile/general"), 1000);
+        blockContext.unblock();
+      });
   };
   return (
     <div className="login-page">

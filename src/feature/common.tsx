@@ -116,7 +116,7 @@ function renderCheck(text: any, type: DataIndexType) {
     case DataIndexType.DATETIME:
       return dayjs(text).format("YYYY/MM/DD HH:mm");
     case DataIndexType.TIME:
-      return dayjs(String(text), 'HH.mm').format("HH:mm");
+      return dayjs(String(text), "HH.mm").format("HH:mm");
     case DataIndexType.VALUE:
       return (
         <NumericFormat
@@ -130,7 +130,7 @@ function renderCheck(text: any, type: DataIndexType) {
       );
     case DataIndexType.TRANSACTION:
       getTransactionTranslate(text);
-    
+
     default:
       return text;
   }
@@ -160,7 +160,7 @@ const getTransactionTranslate = (text?: MovingStatus): string => {
     default:
       return "";
   }
-}
+};
 function removeDuplicates(set: any[]) {
   const uniqueIds = new Set(set.map((item) => item.value));
   const clone: ColumnFilterItem[] = [...uniqueIds];
@@ -508,6 +508,18 @@ function fieldValue(dataIndex: (string | number)[], value: number): FieldData {
   temp[dataIndex[dataIndex.length - 1]] = value;
   return result;
 }
+function getUniqueValues<T, K extends keyof T>(
+  array: T[],
+  key: K
+): T[K][] {
+  return [
+    ...new Set(
+      array
+        .map((item) => item[key])
+        .filter((value) => value !== null && value !== undefined)
+    ),
+  ] as T[K][];
+}
 export {
   parseNumber,
   isChecked,
@@ -523,4 +535,5 @@ export {
   getFile,
   fieldValue,
   getTransactionTranslate,
+  getUniqueValues,
 };

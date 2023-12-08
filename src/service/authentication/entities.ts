@@ -32,23 +32,23 @@ interface IRole {
 
 export interface IUser {
   imageId: number;
-  createdAt: string;
-  dataBase: string;
-  deletedAt: string;
+  createdAt?: string;
+  dataBase?: string;
+  deletedAt?: string;
   email: string;
-  employee: IEmployee;
+  employee?: IEmployee;
   firstName: string;
-  globalPatient: boolean;
-  hospital: IHospital;
-  hospitalId: number;
+  globalPatient?: boolean;
+  hospital?: IHospital;
+  hospitalId?: number;
   id: number;
-  isActive: boolean;
-  isEmailConfirmed: boolean;
+  isActive?: boolean;
+  isEmailConfirmed?: boolean;
   lastName: string;
-  phonoNo: string;
-  role: IRole;
-  roleId: number;
-  updatedAt: string;
+  phonoNo?: string;
+  role?: IRole;
+  roleId?: number;
+  updatedAt?: string;
 }
 
 export interface Tokens {
