@@ -29,7 +29,6 @@ const Login = () => {
     await authService
       .authLogin(values)
       .then((response) => {
-        console.log(response);
         if (response?.success) {
           dispatch(CoreActions.setLoginData(response));
           dispatch(CoreActions.setRememberMe(values.email));

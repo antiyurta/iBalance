@@ -20,18 +20,11 @@ export interface IDataGiftCart extends IData {
   totalAmount: number;
   shoppingCart: IDataShoppingCart;
 }
-export interface ICreateExpenseGiftCart {
+export interface ICreateGiftCart {
   membershipId: number;
   giftAt: Date;
   quantity: number;
-}
-export interface ICreateIncomeGiftCart extends ICreateExpenseGiftCart {
   endAt: Date;
-}
-export interface ICreateExpenseGiftCart {
-  membershipId: number;
-  giftAt: Date;
-  quantity: number;
 }
 export interface IFilterGiftCart extends IFilter {
   id?: string;
@@ -47,12 +40,25 @@ export type FilteredColumnsGiftCart = {
   [T in keyof IFilterGiftCart]?: ColumnType;
 };
 export interface IParamGiftCart extends Meta {}
+export interface IParamBalanceGift {
+  warehouseId?: number;
+  giftAt: Date;
+  membershipId?: number;
+  isAuth?: boolean;
+}
 
 export interface IResponseGiftCarts extends GenericResponse {
   response: {
     data: IDataGiftCart[],
     meta: Meta;
   };
+}
+export interface IResponseBalanceGift extends GenericResponse {
+  response: {
+    membershipId: number;
+    warehouseId: number;
+    qty: number;
+  }[];
 }
 export interface IResponseGiftCart extends GenericResponse {
   response: IDataGiftCart;

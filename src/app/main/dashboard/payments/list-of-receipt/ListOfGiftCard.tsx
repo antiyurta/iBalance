@@ -36,7 +36,7 @@ const ListOfGiftCard = () => {
       label: "Байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: "giftAt",
+      dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     membershipName: {

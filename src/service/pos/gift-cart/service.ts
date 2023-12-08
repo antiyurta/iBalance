@@ -3,18 +3,19 @@ import {
   IResponseGiftCarts,
   IResponseGiftCart,
   IParamGiftCart,
-  ICreateExpenseGiftCart,
-  ICreateIncomeGiftCart,
+  ICreateGiftCart,
+  IParamBalanceGift,
+  IResponseBalanceGift,
 } from "./entities";
 
 function get(params: IParamGiftCart): Promise<IResponseGiftCarts> {
   return api.get("gift-cart", { params });
 }
-function expense(body: ICreateExpenseGiftCart): Promise<IResponseGiftCart> {
-  return api.post("gift-cart/expense", body);
+function balance(params: IParamBalanceGift): Promise<IResponseBalanceGift> {
+  return api.get("gift-cart/balance", { params });
 }
-function income(body: ICreateIncomeGiftCart): Promise<IResponseGiftCart> {
-  return api.post("gift-cart/income", body);
+function post(body: ICreateGiftCart): Promise<IResponseGiftCart> {
+  return api.post("gift-cart", body);
 }
 
-export const GiftCartService = { get, expense, income };
+export const GiftCartService = { get, balance, post };
