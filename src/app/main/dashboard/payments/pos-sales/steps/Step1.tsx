@@ -69,7 +69,7 @@ const Step1 = (props: IProps) => {
           <Title level={2}>Бэлгийн карттай эсэх:</Title>
           <Switch onChange={setIsBonus} />
         </div>
-        {isBonus ? <Bonus /> : null}
+        {isBonus ? <Bonus data={data} /> : null}
         <div
           style={{
             width: "100%",

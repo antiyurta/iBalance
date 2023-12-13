@@ -12,6 +12,7 @@ import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
+import { IDataShoppingCart } from "../pos/shopping-card/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -37,10 +38,20 @@ export enum MovingStatus {
   Cencus = "CENCUS",
   /** Посын борлуулалт */
   Pos = "POS",
+  /** Пос борлуулалтын буцаалт */
+  PosSaleReturn = 'POS_SALE_RETURN',
   /** Захиалгын борлуулалт */
   BookingSale = "BOOKING_SALE",
 }
-
+/** Гүйлгээний төлвүүд */
+export enum DocumentStatus {
+  /** Төлөлт гүйцэд хийгдсэн */
+  Paid = 'PAID',
+  /** Төлөлт зээлтэй */
+  Lending = 'LENDING',
+  /** Төлөлт буцаагдсан */
+  Refund = 'REFUND',
+}
 /** Амараа нэмэв */
 
 export interface xIDataTransaction {
@@ -84,11 +95,15 @@ export interface IDataDocument extends IData {
   consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт
   payAmount: number; // төлөх дүн
   movingStatus: MovingStatus;
+  isEbarimt: boolean;
   billId?: string;
   macAddress?: string;
   lottery?: string;
   internalCode?: string;
   qrData?: string;
+  shoppingCartId: string;
+  shoppingCart: IDataShoppingCart;
+  status: DocumentStatus;
   transactions?: IDataTransaction[];
 }
 
@@ -117,6 +132,9 @@ export interface IFilterDocument extends IFilter {
   amount?: number[];
   discountAmount?: number[];
   consumerDiscountAmount?: number[];
+  membershipDiscountAmount?: number[];
+  giftAmount?: number[];
+  status?: DocumentStatus;
   payAmount?: number[];
 }
 

@@ -130,6 +130,7 @@ export enum DataIndexType {
   COUNTRY = "COUNTRY",
   //
   USER = "USER",
+  ENUM = "ENUM",
   // measuer ued
   MEASUREMENT = "MEASUREMENT",
   // measuer ued

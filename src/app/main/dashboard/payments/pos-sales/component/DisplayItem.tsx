@@ -11,12 +11,7 @@ import Image from "next/image";
 import { Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { NumericFormat } from "react-number-format";
-import {
-  displayDiscount,
-  checkDiscount,
-  displayCoupon,
-  checkCoupon,
-} from "../injection";
+import { displayCoupon, checkCoupon } from "../injection";
 import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
 
@@ -32,7 +27,8 @@ interface IDisplayItem {
   sectionName: string;
   src: string;
   coupon: IDataCoupon;
-  discount: IDataDiscount;
+  discountName: string;
+  discountAmount: number;
   unitAmount: number;
   lastQty: number;
 }
@@ -46,12 +42,8 @@ const DisplayItem = (props: IProps) => {
   const GetNewAmount = (props: { item: IDisplayItem }) => {
     const { item } = props;
     var amount: number = 0;
-    if (item.discount) {
-      amount = checkDiscount({
-        unitAmount: item.unitAmount,
-        percent: item.discount.percent,
-        amount: item.discount.amount,
-      });
+    if (item.discountAmount > 0) {
+      amount = item.unitAmount - item.discountAmount;
     }
     if (item.coupon) {
       amount = checkCoupon({
@@ -104,7 +96,8 @@ const DisplayItem = (props: IProps) => {
           ? await getFile(material.fileId)
           : "/images/emptyMarket.png",
       coupon: material.coupon,
-      discount: material.discount,
+      discountName: material.discountName,
+      discountAmount: material.discountAmount,
       unitAmount: material.unitAmount,
       lastQty: material.lastQty,
     });
@@ -134,7 +127,9 @@ const DisplayItem = (props: IProps) => {
                   <div className="p-bottom">
                     <p
                       className={
-                        item.discount || item.coupon ? "text-line-through" : ""
+                        item.discountAmount > 0 || item.coupon
+                          ? "text-line-through"
+                          : ""
                       }
                     >
                       <NumericFormat
@@ -161,14 +156,9 @@ const DisplayItem = (props: IProps) => {
                     })}
                   </div>
                 ) : null}
-                {item.discount ? (
+                {item.discountAmount > 0 ? (
                   <div className="extra-top">
-                    <p>
-                      {displayDiscount({
-                        amount: item.discount.amount,
-                        percent: item.discount.percent,
-                      })}
-                    </p>
+                    <p>{item.discountName}</p>
                   </div>
                 ) : null}
               </>
@@ -176,7 +166,7 @@ const DisplayItem = (props: IProps) => {
           </div>
           {type === "list" ? (
             <div className="right">
-              {item.coupon || item.discount ? (
+              {item.coupon || item.discountAmount > 0 ? (
                 <div className="extra">
                   {item.coupon ? (
                     <div className="coupon">
@@ -189,14 +179,9 @@ const DisplayItem = (props: IProps) => {
                       </p>
                     </div>
                   ) : null}
-                  {item.discount ? (
+                  {item.discountAmount > 0 ? (
                     <div className="discount">
-                      <p>
-                        {displayDiscount({
-                          amount: item.discount.amount,
-                          percent: item.discount.percent,
-                        })}
-                      </p>
+                      <p>{item.discountName}</p>
                     </div>
                   ) : null}
                 </div>
@@ -230,7 +215,9 @@ const DisplayItem = (props: IProps) => {
                 <div className="bottom">
                   <p
                     className={
-                      item.discount || item.coupon ? "text-line-through" : ""
+                      item.discountAmount > 0 || item.coupon
+                        ? "text-line-through"
+                        : ""
                     }
                   >
                     <NumericFormat

@@ -10,6 +10,7 @@ import { IDataShoppingGoods } from "./goods/entites";
 import { IDataDocument } from "@/service/document/entities";
 import { IDataPaymentInvoice } from "../invoice/entities";
 import { IDataPosOpenClose } from "../open-close/entities";
+import { IDataGiftCart } from "../gift-cart/entities";
 
 export interface CreateShoppingCartDto {
   goodsIds: number[];
@@ -23,7 +24,7 @@ export interface IDataShoppingCart extends IData {
   id: string;
   currency: string;
   openCloseId: number;
-  openClose: IDataPosOpenClose;
+  openClose?: IDataPosOpenClose;
   taxRegno: string;
   consumerMembershipId: number;
   isPaid: boolean;
@@ -36,7 +37,8 @@ export interface IDataShoppingCart extends IData {
   payAmount: number;
   paidAmount: number;
   goods: IDataShoppingGoods[];
-  transactionDocument: IDataDocument;
+  giftCarts: IDataGiftCart[];
+  transactionDocument?: IDataDocument;
   paymentInvoices: IDataPaymentInvoice[];
 }
 export interface IFilterShoppingCart extends IFilter {

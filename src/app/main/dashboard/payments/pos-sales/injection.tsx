@@ -22,28 +22,6 @@ interface IPropsDisplayCoupon {
   quantity: number;
 }
 
-function checkDiscount(props: IPropsCheckDiscount): number {
-  const { unitAmount, percent, amount } = props;
-  if (percent) {
-    return unitAmount - (unitAmount * percent) / 100;
-  }
-  if (amount) {
-    return unitAmount - amount;
-  }
-  return 0;
-}
-
-function displayDiscount(props: IPropsDisplayDiscount): string {
-  const { amount, percent } = props;
-  if (amount) {
-    return `${amount}₮`;
-  }
-  if (percent) {
-    return `${percent}%`;
-  }
-  return "";
-}
-
 function checkCoupon(props: IPropsCheckCoupon): number {
   const { unitAmount, conditionValue, percent, quantity } = props;
   if (quantity) {
@@ -65,5 +43,5 @@ function displayCoupon(props: IPropsDisplayCoupon): string {
   }
   return "";
 }
-
-export { displayDiscount, checkDiscount, checkCoupon, displayCoupon };
+// checkDiscount
+export { checkCoupon, displayCoupon };

@@ -28,7 +28,7 @@ import {
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
 import { UserSelect } from "@/components/user-select";
 interface IProps {
-  selectedCart: IDataShoppingCart;
+  selectedCart?: IDataShoppingCart;
 }
 const TransactionPos = (props: IProps) => {
   const { selectedCart } = props;

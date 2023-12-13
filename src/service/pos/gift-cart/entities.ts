@@ -8,6 +8,7 @@ export enum GiftType {
 }
 export interface IDataGiftCart extends IData {
   id: string;
+  code: string;
   membershipId: number;
   membership?: IDataMembership;
   warehouseId: number;

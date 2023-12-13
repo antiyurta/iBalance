@@ -15,6 +15,7 @@ export interface IDataShoppingGoods {
   material: IDataMaterial;
   shoppingCartId: number;
   shoppingCart: IDataShoppingCart;
+  discountName: string;
   lastQty: number;
   quantity: number;
   unitAmount: number;

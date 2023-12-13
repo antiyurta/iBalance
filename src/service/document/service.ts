@@ -50,9 +50,11 @@ function postPosDocument(body: IPosDocumentDto): Promise<IResponseDocument> {
 function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
   return api.patch(`transaction-document/${id}`, body);
 }
-
 function remove(id: number): Promise<IResponseDocument> {
   return api.delete(`transaction-document/${id}`);
+}
+function removePosDocument(id: number, description: string): Promise<IResponseDocument> {
+  return api.patch(`pos-document/${id}`, { description });
 }
 export const DocumentService = {
   get,
@@ -70,4 +72,5 @@ export const DocumentService = {
   postPosDocument,
   patch,
   remove,
+  removePosDocument,
 };

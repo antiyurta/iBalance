@@ -3,132 +3,139 @@ import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { DataIndexType, Meta } from "@/service/entities";
 import {
-  FilteredColumnsPosRefund,
-  IDataPosRefund,
-  IFilterPosRefund,
-  IParamPosRefund,
-} from "@/service/pos/refund/entities";
-import { PosRefundService } from "@/service/pos/refund/service";
+  FilteredColumnsDocument,
+  IDataDocument,
+  IFilterDocument,
+  IParamDocument,
+  MovingStatus,
+} from "@/service/document/entities";
+import { DocumentService } from "@/service/document/service";
+import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
 const ReturnList = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [columns, setColumns] = useState<FilteredColumnsPosRefund>({
-    shoppingCartId: {
+  const [columns, setColumns] = useState<FilteredColumnsDocument>({
+    id: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "shoppingCartId",
+      dataIndex: "id",
       type: DataIndexType.MULTI,
     },
-    shoppingCartCreatedAt: {
+    documentAt: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "createdAt"],
-      type: DataIndexType.MULTI,
+      dataIndex: "documentAt",
+      type: DataIndexType.DATETIME,
     },
     warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "pos", "warehouse", "name"],
+      dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "consumerMembership", "consumer", "code"],
+      dataIndex: ["consumer", "code"],
       type: DataIndexType.MULTI,
     },
     consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "consumerMembership", "consumer", "name"],
+      dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
-    shoppingCartCounter: {
+    incomeCount: {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "counter"],
+      dataIndex: "incomeCount",
       type: DataIndexType.MULTI,
     },
-    shoppingCartQuantity: {
-      label: "Борлуулалтын тоо",
+    incomeQuantity: {
+      label: "Борлуулалтын ширхэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "quantity"],
+      dataIndex: "incomeQuantity",
       type: DataIndexType.MULTI,
     },
-    paymentMethodNames: {
-      label: "Төлбөрийн хэлбэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["shoppingCart", "invoices", "name"],
-      type: DataIndexType.MULTI,
-    },
-    totalAmount: {
+    // paymentMethodNames: {
+    //   label: "Төлбөрийн хэлбэр",
+    //   isView: true,
+    //   isFiltered: false,
+    //   dataIndex: ["shoppingCart", "invoices", "name"],
+    //   type: DataIndexType.MULTI,
+    // },
+    amount: {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "totalAmount"],
+      dataIndex: "amount",
       type: DataIndexType.VALUE,
     },
     payAmount: {
       label: "Төлөх дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "payAmount"],
+      dataIndex: "payAmount",
       type: DataIndexType.VALUE,
     },
-    paidAmount: {
-      label: "Төлсөн дүн",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["shoppingCart", "payAmount"],
-      type: DataIndexType.VALUE,
-    },
-    materialDiscountAmount: {
+    // paidAmount: {
+    //   label: "Төлсөн дүн",
+    //   isView: true,
+    //   isFiltered: false,
+    //   dataIndex: ["shoppingCart", "paidAmount"],
+    //   type: DataIndexType.VALUE,
+    // },
+    discountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "materialDiscountAmount"],
+      dataIndex: "discountAmount",
       type: DataIndexType.VALUE,
     },
     membershipDiscountAmount: {
       label: "Ашигласан оноо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "materialDiscountAmount"],
+      dataIndex: ["shoppingCart", "membershipDiscountAmount"],
       type: DataIndexType.VALUE,
     },
-    giftDiscountAmount: {
+    giftAmount: {
       label: "Бэлгийн карт",
       isView: true,
       isFiltered: false,
-      dataIndex: "giftDiscountAmount",
+      dataIndex: ["shoppingCart", "giftAmount"],
       type: DataIndexType.VALUE,
     },
   });
-  const [data, setData] = useState<IDataPosRefund[]>([]);
-  const [filters, setFilters] = useState<IFilterPosRefund>();
-  const [params, setParams] = useState<IParamPosRefund>({ page: 1, limit: 10 });
+  const [data, setData] = useState<IDataDocument[]>([]);
+  const [filters, setFilters] = useState<IFilterDocument>();
+  const [params, setParams] = useState<IParamDocument>({
+    page: 1,
+    limit: 10,
+    movingStatus: MovingStatus.PosSaleReturn,
+  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [refund, setRefund] = useState<IDataPosRefund>();
+  const [refund, setRefund] = useState<IDataDocument>();
 
-  const getData = async (params: IParamPosRefund) => {
+  const getData = async (params: IParamDocument) => {
     blockContext.block();
-    await PosRefundService.get(params)
+    await DocumentService.get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
+          setFilters(response.response.filter);
+          setMeta(response.response.meta);
         }
       })
       .finally(() => blockContext.unblock());

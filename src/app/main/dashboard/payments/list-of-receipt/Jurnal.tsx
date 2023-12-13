@@ -9,12 +9,12 @@ import {
 import {
   FilteredColumnsDocument,
   IDataDocument,
+  IFilterDocument,
   IParamDocument,
 } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
-import { IFilterTransaction } from "@/service/document/transaction/entities";
 import { DataIndexType, Meta } from "@/service/entities";
-import { Col, Form, Row, Space } from "antd";
+import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -26,19 +26,12 @@ import {
 import NewModal from "@/components/modal";
 import Bill from "../pos-sales/steps/Step3/Bill";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  FilteredColumnsShoppingCart,
-  IDataShoppingCart,
-  IFilterShoppingCart,
-  IParamShoppingCart,
-} from "@/service/pos/shopping-card/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import TransactionPos from "./components/transaction-pos";
 import StepIndex from "../pos-sales/steps/StepIndex";
 import PosRefund from "../pos-sales/component/pos-refund";
 const Jurnal = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [columns, setColumns] = useState<FilteredColumnsShoppingCart>({
+  const [columns, setColumns] = useState<FilteredColumnsDocument>({
     id: {
       label: "Баримтын дугаар",
       isView: true,
@@ -46,19 +39,19 @@ const Jurnal = () => {
       dataIndex: "id",
       type: DataIndexType.MULTI,
     },
-    createdAt: {
+    documentAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: "documentAt",
       type: DataIndexType.DATE,
     },
-    isPaid: {
+    status: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isPaid",
-      type: DataIndexType.BOOLEAN_STRING,
+      dataIndex: "status",
+      type: DataIndexType.ENUM,
     },
     warehouseName: {
       label: "Байршил",
@@ -67,62 +60,62 @@ const Jurnal = () => {
       dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
-    membershipConsumerCode: {
+    consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumerMembership", "consumer", "code"],
+      dataIndex: ["consumer", "code"],
       type: DataIndexType.MULTI,
     },
-    membershipConsumerName: {
+    consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumerMembership", "consumer", "name"],
+      dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
-    counter: {
+    expenseCount: {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "counter",
+      dataIndex: "expenseCount",
       type: DataIndexType.MULTI,
     },
-    quantity: {
+    expenseQuantity: {
       label: "Борлуулалтын тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: "expenseQuantity",
       type: DataIndexType.MULTI,
     },
-    totalAmount: {
+    amount: {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "totalAmount",
+      dataIndex: "amount",
       type: DataIndexType.VALUE,
     },
-    materialDiscountAmount: {
+    discountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "materialDiscountAmount",
+      dataIndex: "discountAmount",
       type: DataIndexType.VALUE,
     },
-    membershipDiscountAmount: {
+    consumerDiscountAmount: {
       label: "Харилцагчийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "membershipDiscountAmount",
+      dataIndex: "consumerDiscountAmount",
       type: DataIndexType.VALUE,
     },
-    membershipIncreaseAmount: {
-      label: "Ашигласан оноо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "membershipDiscountAmount",
-      type: DataIndexType.VALUE,
-    },
+    // membershipIncreaseAmount: {
+    //   label: "Ашигласан оноо",
+    //   isView: true,
+    //   isFiltered: false,
+    //   dataIndex: "membershipDiscountAmount",
+    //   type: DataIndexType.VALUE,
+    // },
     payAmount: {
       label: "Төлөх дүн",
       isView: true,
@@ -130,27 +123,26 @@ const Jurnal = () => {
       dataIndex: "payAmount",
       type: DataIndexType.VALUE,
     },
-    paidAmount: {
-      label: "Төлсөн дүн",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "paidAmount",
-      type: DataIndexType.VALUE,
-    },
+    // paidAmount: {
+    //   label: "Төлсөн дүн",
+    //   isView: true,
+    //   isFiltered: false,
+    //   dataIndex: "paidAmount",
+    //   type: DataIndexType.VALUE,
+    // },
   });
-  const [data, setData] = useState<IDataShoppingCart[]>();
-  const [params, setParams] = useState<IParamShoppingCart>({
+  const [data, setData] = useState<IDataDocument[]>();
+  const [params, setParams] = useState<IParamDocument>({
     page: 1,
     limit: 10,
   });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterShoppingCart>();
+  const [filters, setFilters] = useState<IFilterDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
   const [isTransaction, setIsTransaction] = useState<boolean>(false);
   const [isPay, setIsPay] = useState<boolean>(false);
   const [isRefund, setIsRefund] = useState<boolean>(false);
-  const [posDocument, setPosDocument] = useState<IDataDocument>();
-  const [shoppingCart, setShoppingCart] = useState<IDataShoppingCart>();
+  const [document, setDocument] = useState<IDataDocument>();
   enum ItemAction {
     SHOW_DOCUMENT = "show-document",
     SHOW_TRANSACTION = "show-transaction",
@@ -231,8 +223,8 @@ const Jurnal = () => {
       ),
     },
   ];
-  const getData = async (params: IParamShoppingCart) => {
-    await ShoppingCartService.get(params).then((response) => {
+  const getData = async (params: IParamDocument) => {
+    await DocumentService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setFilters(response.response.filter);
@@ -240,24 +232,18 @@ const Jurnal = () => {
       }
     });
   };
-  const itemClick = async (key: string, id: string): Promise<void> => {
+  const itemClick = async (key: string, id: number): Promise<void> => {
     blockContext.block();
-    await ShoppingCartService.getById(id)
+    await DocumentService.getById(id)
       .then((response) => {
         if (response.success) {
-          setShoppingCart(response.response);
+          setDocument(response.response);
         }
       })
       .finally(async () => {
-        if (shoppingCart) {
+        if (document) {
           if (key == ItemAction.SHOW_DOCUMENT) {
-            if (shoppingCart.transactionDocument) {
-              getDocument(shoppingCart.transactionDocument.id).then(() =>
-                setIsBill(true)
-              );
-            } else {
-              openNofi("warning", "Гүйлгээний баримт хийгдээгүй байна.");
-            }
+            setIsBill(true);
           } else if (key == ItemAction.SHOW_TRANSACTION) {
             setIsTransaction(true);
           } else if (key == ItemAction.SHOW_PAY) {
@@ -268,16 +254,6 @@ const Jurnal = () => {
         }
         blockContext.unblock();
       });
-  };
-  const getDocument = async (id: number) => {
-    blockContext.block();
-    DocumentService.getById(id)
-      .then((response) => {
-        if (response.success) {
-          setPosDocument(response.response);
-        }
-      })
-      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     getData(params);
@@ -357,7 +333,7 @@ const Jurnal = () => {
             onParams={setParams}
             incomeFilters={filters}
             addItems={items}
-            custom={(key, id) => itemClick(key, String(id))}
+            custom={(key, id) => itemClick(key, id)}
           />
         </Col>
       </Row>
@@ -367,7 +343,7 @@ const Jurnal = () => {
         open={isBill}
         onCancel={() => setIsBill(false)}
       >
-        {posDocument ? <Bill posDocument={posDocument} /> : null}
+        {document ? <Bill posDocument={document} /> : null}
       </NewModal>
       <NewModal
         width={1500}
@@ -377,7 +353,7 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        {shoppingCart ? <TransactionPos selectedCart={shoppingCart} /> : null}
+        <TransactionPos selectedCart={document?.shoppingCart} />
       </NewModal>
       <NewModal
         title="Төлбөр төлөх"
@@ -386,7 +362,9 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        {shoppingCart ? <StepIndex shoppingCart={shoppingCart} /> : null}
+        {document?.shoppingCart ? (
+          <StepIndex shoppingCart={document.shoppingCart} />
+        ) : null}
       </NewModal>
       <NewModal
         title="Буцаалт хийх"
@@ -395,7 +373,7 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        <PosRefund shoppingCart={shoppingCart} />
+        <PosRefund posDocument={document} onSave={setIsRefund} />
       </NewModal>
     </div>
   );

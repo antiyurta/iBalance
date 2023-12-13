@@ -1,10 +1,8 @@
 import { IDataCoupon } from "@/service/command/coupon/entities";
 import { MaterialType } from "../entities";
 import { ColumnType, GenericResponse, IParam, Meta } from "@/service/entities";
-import { IDataDiscount } from "@/service/command/discount/entities";
 
 export interface IDataViewMaterial {
-  discount: any;
   id: number;
   type: MaterialType; // төрөл
   code: string; // Дотоод код
@@ -17,6 +15,7 @@ export interface IDataViewMaterial {
   countPackage: number; // Багц доторх тоо
   sectionName: string; // Бараа материалын бүлэг
   coupon: IDataCoupon; // urushuulal
+  discountName: string; // Хөнгөлөлт
   discountAmount: number; // барааны хөнгөлөлт
   unitAmount: number; // Нэгжийн үнэ
   lastQty: number;

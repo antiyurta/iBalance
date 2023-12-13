@@ -5,15 +5,15 @@ import { titleReducer } from "../core/reducer/TitleReducer";
 import { reportReducer } from "../core/reducer/ReportReducer";
 import { tabReducer } from "../core/reducer/TabsReducer";
 import WarehouseReducer from "./slice/warehouse.slice";
-// import { warehouseReducer } from "../core/reducer/warehouse-reducer";
+import ShoppingCartReducer from "./slice/shopping-cart.slice";
 
 const rootReducer = combineReducers({
   core: coreReducer,
   title: titleReducer,
   report: reportReducer,
   tabs: tabReducer,
-  // warehouses: warehouseReducer,
   warehouse: WarehouseReducer,
+  shoppingCart: ShoppingCartReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

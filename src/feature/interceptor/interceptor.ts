@@ -21,7 +21,7 @@ export const api = axios.create({
 
 let isRetry: boolean = false;
 let method:string = '';
-export const Interceptor = (api: AxiosInstance, store: any) => {
+export const Interceptor = (api: AxiosInstance, store: any, isAlert?: boolean) => {
   api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = store.getState().core.login_data?.response?.accessToken;
     if (token) {
@@ -33,7 +33,7 @@ export const Interceptor = (api: AxiosInstance, store: any) => {
   api.interceptors.response.use(
     (response: AxiosResponse) => {
       if (method == 'post' && response.status == 201) openNofi('success', 'Амжилттай үүсгэлээ.');
-      if (method == 'patch') openNofi('success', 'Амжилттай заслаа.');
+      if (method == 'patch' && response.status == 200) openNofi('success', 'Амжилттай заслаа.');
       if (method == 'delete') openNofi('success', 'Амжилттай устгалаа.');
       return response.data;
     },

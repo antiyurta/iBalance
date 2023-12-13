@@ -1,9 +1,7 @@
 import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 import { DeleteOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
-import { Button, Popconfirm } from "antd";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import { Button, Popconfirm, Space } from "antd";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { getFile } from "@/feature/common";
@@ -20,9 +18,9 @@ const Item = (props: IProps) => {
     data: {
       id,
       payAmount,
-      totalAmount,
       quantity,
       // coupon,
+      discountName,
       discountAmount,
       material: { section, name, files },
       unitAmount,
@@ -133,7 +131,7 @@ const Item = (props: IProps) => {
                   color: "white",
                 }}
               >
-                {discountAmount}₮
+                {discountName}
               </p>
             </div>
           ) : null}
@@ -186,30 +184,71 @@ const Item = (props: IProps) => {
             {name}
           </p>
           <div>{section?.name}</div>
-          {/* TODO className={
-              discount || coupon?.conditionValue < quantity
-                ? "text-line-through"
-                : ""
-            } */}
-          <p
-            style={{
-              margin: 0,
-              color: "#142A38",
-              textAlign: "start",
-              fontSize: 12,
-              fontWeight: 500,
-            }}
-          >
-            Үндсэн үнэ :{" "}
-            <NumericFormat
-              value={unitAmount}
-              thousandSeparator=","
-              decimalScale={2}
-              fixedDecimalScale
-              displayType="text"
-              suffix="₮"
-            />
-          </p>
+          {discountAmount == 0 ? (
+            <div
+              style={{
+                margin: 0,
+                color: "#142A38",
+                textAlign: "start",
+                fontSize: 12,
+                fontWeight: 500,
+              }}
+            >
+              {/* className nemeh coupon?.conditionValue < quantity */}
+              Үндсэн үнэ :{" "}
+              <NumericFormat
+                value={unitAmount}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
+            </div>
+          ) : (
+            <Space>
+              <div
+                style={{
+                  margin: 0,
+                  color: "#142A38",
+                  textAlign: "start",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  textDecorationLine: "line-through",
+                }}
+              >
+                Үндсэн үнэ :{" "}
+                <NumericFormat
+                  value={unitAmount}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </div>
+              <div
+                style={{
+                  margin: 0,
+                  color: "#142A38",
+                  textAlign: "start",
+                  fontSize: 12,
+                  fontWeight: 500,
+                }}
+              >
+                {/* className nemeh coupon?.conditionValue < quantity */}
+                Хямдарсан үнэ :{" "}
+                <NumericFormat
+                  value={discountAmount}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </div>
+            </Space>
+          )}
         </div>
       </div>
       <div

@@ -18,7 +18,7 @@ import { NumericFormat } from "react-number-format";
 import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { IDataCountry } from "@/service/reference/country/entities";
 import { MovingStatus } from "@/service/document/entities";
-import { authService } from "@/service/authentication/service";
+import { enumTranslation } from "./constraint-translation";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
@@ -130,7 +130,8 @@ function renderCheck(text: any, type: DataIndexType) {
       );
     case DataIndexType.TRANSACTION:
       getTransactionTranslate(text);
-
+    case DataIndexType.ENUM:
+      return enumTranslation(text);
     default:
       return text;
   }
@@ -508,10 +509,16 @@ function fieldValue(dataIndex: (string | number)[], value: number): FieldData {
   temp[dataIndex[dataIndex.length - 1]] = value;
   return result;
 }
-function getUniqueValues<T, K extends keyof T>(
-  array: T[],
-  key: K
-): T[K][] {
+function chunk(items: any[], size: number) {
+  const chunks = [];
+  items = [].concat(...items);
+  while (items.length) {
+    chunks.push(items.splice(0, size));
+  }
+
+  return chunks;
+}
+function getUniqueValues<T, K extends keyof T>(array: T[], key: K): T[K][] {
   return [
     ...new Set(
       array

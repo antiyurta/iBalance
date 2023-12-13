@@ -7,22 +7,26 @@ import StepIndex from "./steps/StepIndex";
 import ShoppingGoods from "./component/ShoppingGoods";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { NumericFormat } from "react-number-format";
 import ExtraIndex from "./extra";
 import { IDataShoppingGoods } from "@/service/pos/shopping-card/goods/entites";
 import { ShoppingTempService } from "@/service/pos/shopping-card/temp/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { setShoppingCart } from "@/feature/store/slice/shopping-cart.slice";
 
 const { Title } = Typography;
 const PayController = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const { isReload, setReload, isReloadCart } =
-    usePaymentGroupContext();
+  const { isReload, setReload, isReloadCart } = usePaymentGroupContext();
+  const dispatch = useDispatch<AppDispatch>();
+  const { shoppingCart } = useTypedSelector((state) => state);
   const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
   const [shoppingGoods, setShoppingGoods] = useState<IDataShoppingGoods[]>([]);
-  const [shoppingCart, setShoppingCart] = useState<IDataShoppingCart>();
+
   const getShoppingGoods = async () => {
     await ShoppingGoodsService.get()
       .then((response) => {
@@ -51,7 +55,7 @@ const PayController = () => {
     }).then((response) => {
       if (response.success) {
         setIsOpenModalSteps(true);
-        setShoppingCart(response.response);
+        dispatch(setShoppingCart(response.response));
       }
     });
   };
@@ -71,41 +75,6 @@ const PayController = () => {
     isReload && getShoppingGoods();
   }, [isReload]);
 
-  const getAll = () => {
-    // return shoppingGoods
-    //   .map((goods) => {
-    //     var backDiscount: number = 0;
-    //     var backCoupon: number = 0;
-    //     if (shoppingGoods.discount) {
-    //       backDiscount = cart.unitAmount * cart.quantity - cart.amount;
-    //     } else {
-    //       backDiscount = 0;
-    //     }
-    //     if (cart.coupon && cart.coupon.conditionValue < cart.quantity) {
-    //       backCoupon = cart.amount / cart.quantity;
-    //     } else {
-    //       backCoupon = 0;
-    //     }
-    //     return backDiscount + backCoupon;
-    //   })
-    //   .reduce((total: number, arg: number) => total + arg, 0);
-    // TODO
-  };
-
-  useEffect(() => {
-    // niit too shirheg bodoh
-    // setTotalQuantity(
-    //   shoppingCarts.reduce((total: number, cart) => total + cart.quantity, 0)
-    // );
-    // niit dun bodoh
-    // setTotalAmount(
-    //   shoppingCarts.reduce((total: number, cart) => total + cart.amount, 0)
-    // );
-    // niit hongololt uruamshuulal bodoh
-    // setTotalDiscountAndCoupon(getAll());
-    // TODO
-  }, [shoppingGoods]);
-  //
   return (
     <>
       <div

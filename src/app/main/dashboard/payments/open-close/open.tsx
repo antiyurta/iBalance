@@ -19,12 +19,14 @@ import { NumericFormat } from "react-number-format";
 import { IDataPosBankNote } from "@/service/pos/open-close/bank-note/entities";
 import { IDataPos, IParamPos } from "@/service/pos/entities";
 import { PosService } from "@/service/pos/service";
+import { useTypedSelector } from "@/feature/store/reducer";
 
 const OpenState = () => {
   const [form] = Form.useForm();
   const router = useRouter();
   const [moneyForm] = Form.useForm();
   const today = dayjs(new Date());
+  const warehouse = useTypedSelector((state) => state.warehouse);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isOpenMoneyListModal, setIsOpenMoneyListModal] =
     useState<boolean>(false);
@@ -75,7 +77,7 @@ const OpenState = () => {
   };
   useEffect(() => {
     getMoneyTypes(IType.MONEY);
-    getPos({ warehouseId: 5, isAuth: true });
+    getPos({ warehouseId: warehouse.id, isAuth: true });
   }, []);
   useEffect(() => {
     setDefualtValues();
