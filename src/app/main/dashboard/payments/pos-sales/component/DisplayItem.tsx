@@ -14,6 +14,8 @@ import { NumericFormat } from "react-number-format";
 import { displayCoupon, checkCoupon } from "../injection";
 import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
+import { Coupon } from "./coupon";
+import { Operator } from "@/service/entities";
 
 interface IProps {
   type: TypeSegment;
@@ -149,11 +151,12 @@ const DisplayItem = (props: IProps) => {
               <>
                 {item.coupon ? (
                   <div className="extra-bottom">
-                    {displayCoupon({
-                      conditionValue: item.coupon?.conditionValue,
-                      percent: item.coupon?.percent,
-                      quantity: item.coupon?.quantity,
-                    })}
+                    <Coupon
+                      condition={item.coupon.condition}
+                      conditionValue={item.coupon.conditionValue}
+                      quantity={item.coupon.quantity}
+                      percent={item.coupon.percent}
+                    />
                   </div>
                 ) : null}
                 {item.discountAmount > 0 ? (
@@ -169,21 +172,16 @@ const DisplayItem = (props: IProps) => {
               {item.coupon || item.discountAmount > 0 ? (
                 <div className="extra">
                   {item.coupon ? (
-                    <div className="coupon">
-                      <p>
-                        {displayCoupon({
-                          conditionValue: item.coupon?.conditionValue,
-                          percent: item.coupon?.percent,
-                          quantity: item.coupon?.quantity,
-                        })}
-                      </p>
-                    </div>
+                    <Coupon
+                      condition={item.coupon.condition}
+                      conditionValue={item.coupon.conditionValue}
+                      quantity={item.coupon.quantity}
+                      percent={item.coupon.percent}
+                    />
                   ) : null}
-                  {item.discountAmount > 0 ? (
-                    <div className="discount">
-                      <p>{item.discountName}</p>
-                    </div>
-                  ) : null}
+                  <div className="discount">
+                    <p>{item.discountName}</p>
+                  </div>
                 </div>
               ) : null}
               <Button

@@ -1,4 +1,4 @@
-import { GenericResponse } from "@/service/entities";
+import { GenericResponse, Operator } from "@/service/entities";
 import { IDataShoppingCart } from "../entities";
 import { IDataMaterial } from "@/service/material/entities";
 
@@ -15,11 +15,15 @@ export interface IDataShoppingGoods {
   material: IDataMaterial;
   shoppingCartId: number;
   shoppingCart: IDataShoppingCart;
-  discountName: string;
   lastQty: number;
   quantity: number;
   unitAmount: number;
+  discountName: string;
   discountAmount: number;
+  couponCondition: Operator;
+  couponConditionValue: number;
+  couponPercent: number;
+  couponQty: number;
   payAmount: number;
   totalAmount: number;
   isSale: boolean;

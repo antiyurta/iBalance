@@ -12,6 +12,7 @@ export interface IDataCoupon extends IData {
   endAt: string; // дуусах огноо
   condition: Operator; // авах нөхцөл
   conditionValue: number; // авах нөхцөл утга
+  isPercent: boolean;
   percent: number; // хувиар
   quantity: number; // тоо
   createdBy: number;

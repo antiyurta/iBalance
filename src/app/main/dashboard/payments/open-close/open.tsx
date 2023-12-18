@@ -20,8 +20,12 @@ import { IDataPosBankNote } from "@/service/pos/open-close/bank-note/entities";
 import { IDataPos, IParamPos } from "@/service/pos/entities";
 import { PosService } from "@/service/pos/service";
 import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { setPosOpenClose } from "@/feature/store/slice/pos-open-close.slice";
 
 const OpenState = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [form] = Form.useForm();
   const router = useRouter();
   const [moneyForm] = Form.useForm();
@@ -61,6 +65,7 @@ const OpenState = () => {
     await OpenCloseService.postOpen(values)
       .then((response) => {
         if (response.success) {
+          dispatch(setPosOpenClose(response.response));
           router.push("/main/dashboard/payments/pos-sales");
         }
       })

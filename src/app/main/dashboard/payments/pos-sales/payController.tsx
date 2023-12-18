@@ -17,6 +17,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { setShoppingCart } from "@/feature/store/slice/shopping-cart.slice";
+import { CodeSearch } from "./component/code-search";
 
 const { Title } = Typography;
 const PayController = () => {
@@ -95,7 +96,7 @@ const PayController = () => {
           }}
         >
           <ExtraIndex />
-          <NewInput placeholder="Хайх" />
+          <CodeSearch />
           <div
             style={{
               display: "flex",
@@ -167,7 +168,7 @@ const PayController = () => {
                 margin: 0,
               }}
             >
-              {shoppingCart?.quantity}
+              {shoppingGoods?.length}
             </Title>
           </div>
           <div
@@ -177,7 +178,6 @@ const PayController = () => {
               justifyContent: "space-between",
             }}
           >
-            <div></div>
             <Title
               level={3}
               style={{
@@ -197,7 +197,12 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={shoppingCart?.membershipDiscountAmount}
+                value={shoppingGoods.reduce(
+                  (total, item) =>
+                    total +
+                    (item.unitAmount - item.discountAmount) * item.quantity,
+                  0
+                )}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -235,7 +240,10 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={shoppingCart?.payAmount}
+                value={shoppingGoods?.reduce(
+                  (total, item) => total + Number(item.payAmount),
+                  0
+                )}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale

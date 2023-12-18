@@ -111,7 +111,7 @@ const Item = (props: IProps) => {
           }}
         >
           {url ? <Image src={url} width={50} height={50} alt={name} /> : null}
-          {discountAmount > 0 ? (
+          {discountAmount !== unitAmount ? (
             <div
               style={{
                 position: "absolute",
@@ -184,7 +184,7 @@ const Item = (props: IProps) => {
             {name}
           </p>
           <div>{section?.name}</div>
-          {discountAmount == 0 ? (
+          {discountAmount == unitAmount ? (
             <div
               style={{
                 margin: 0,

@@ -30,6 +30,7 @@ export interface IFilterGiftCart extends IFilter {
   id?: string;
   giftAt?: string;
   warehouseName?: string;
+  code?: string;
   membershipName?: number;
   membershipDiscount?: number;
   incomeQty?: number;

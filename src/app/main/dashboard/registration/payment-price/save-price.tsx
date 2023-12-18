@@ -135,6 +135,7 @@ const SavePrice = (props: IProps) => {
           endAt: dayjs(coupon.endAt, "YYYY-MM-DD"),
           condition: coupon.condition,
           conditionValue: coupon.conditionValue,
+          isPercent: coupon.isPercent,
           quantity: coupon.quantity,
           percent: coupon.percent,
         })),
@@ -315,7 +316,7 @@ const SavePrice = (props: IProps) => {
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item label="Харилцагчын код, нэр">
-                  <ConsumerSelect form={form} rules={[]} />
+                  <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
                 </Form.Item>
               </Col>
             </Row>

@@ -1,5 +1,5 @@
 import { NewInput } from "@/components/input";
-import { Button, Form, Table } from "antd";
+import { Button, Form, Input, Table } from "antd";
 import { RightOutlined } from "@ant-design/icons";
 import { GiftCartService } from "@/service/pos/gift-cart/service";
 import { IDataGiftCart } from "@/service/pos/gift-cart/entities";

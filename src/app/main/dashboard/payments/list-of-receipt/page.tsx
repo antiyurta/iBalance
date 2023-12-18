@@ -42,6 +42,7 @@ import { IDataMembership } from "@/service/reference/membership/entities";
 import { MembershipService } from "@/service/reference/membership/service";
 import dayjs from "dayjs";
 import { useTypedSelector } from "@/feature/store/reducer";
+import { openNofi } from "@/feature/common";
 type GiftType = "income" | "expense";
 const { Title } = Typography;
 const ListOfReceipt = () => {
@@ -91,15 +92,19 @@ const ListOfReceipt = () => {
     });
   };
   const createGiftCart = async (incomeGift: ICreateGiftCart) => {
-    blockContext.block();
-    incomeGift.warehouseId = warehouse.id;
-    await GiftCartService.post(incomeGift)
-      .then((response) => {
-        if (response.success) {
-          setIsGift(false);
-        }
-      })
-      .finally(() => blockContext.unblock());
+    if (giftType == "expense" && balance == 0) {
+      openNofi("warning", "Үлдэгдэл 0 байна.");
+    } else {
+      blockContext.block();
+      incomeGift.warehouseId = warehouse.id;
+      await GiftCartService.post(incomeGift)
+        .then((response) => {
+          if (response.success) {
+            setIsGift(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    }
   };
   const getBalance = async (params: IParamBalanceGift) => {
     await GiftCartService.balance(params).then((response) => {
@@ -321,10 +326,15 @@ const ListOfReceipt = () => {
         onCancel={() => setIsGift(false)}
         footer={false}
       >
-        <Form form={giftForm} layout="vertical" onFinish={createGiftCart} initialValues={{
-          giftAt: dayjs(new Date),
-          warehouseName: warehouse.name,
-        }}>
+        <Form
+          form={giftForm}
+          layout="vertical"
+          onFinish={createGiftCart}
+          initialValues={{
+            giftAt: dayjs(new Date()),
+            warehouseName: warehouse.name,
+          }}
+        >
           <div
             style={{
               display: "grid",
@@ -356,7 +366,7 @@ const ListOfReceipt = () => {
           </div>
           <div style={{ height: 42, padding: "12, 0, 12, 0", gap: 10 }}>
             <p style={{ fontSize: 16, fontWeight: 500, textAlign: "center" }}>
-              Үлдэгдэл: { balance }
+              Үлдэгдэл: {balance}
             </p>
           </div>
           <div

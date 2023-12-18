@@ -22,7 +22,7 @@ const ListOfGiftCard = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: "docno",
       type: DataIndexType.MULTI,
     },
     giftAt: {
@@ -37,6 +37,13 @@ const ListOfGiftCard = () => {
       isView: true,
       isFiltered: false,
       dataIndex: ["warehouse", "name"],
+      type: DataIndexType.MULTI,
+    },
+    code: {
+      label: "Карын дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "code",
       type: DataIndexType.MULTI,
     },
     membershipName: {

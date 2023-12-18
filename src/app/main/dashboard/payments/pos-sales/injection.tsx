@@ -1,14 +1,3 @@
-interface IPropsCheckDiscount {
-  unitAmount: number;
-  percent: number;
-  amount: number;
-}
-
-interface IPropsDisplayDiscount {
-  amount: number;
-  percent: number;
-}
-
 interface IPropsCheckCoupon {
   unitAmount: number;
   conditionValue: number;

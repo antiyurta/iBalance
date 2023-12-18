@@ -12,7 +12,7 @@ import {
   message,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
@@ -48,8 +48,8 @@ const EditableTableCoupon = (props: IProps) => {
   const onSave = async () => {
     return form
       .validateFields([
-        ["discounts", editingIndex, "materialId"],
-        ["discounts", editingIndex, "endAt"],
+        ["coupons", editingIndex, "materialId"],
+        ["coupons", editingIndex, "endAt"],
       ])
       .then(() => {
         setNewService(false);
@@ -249,10 +249,12 @@ const EditableTableCoupon = (props: IProps) => {
       <Column
         title="Хөнгөлөлт хувь эсэх"
         render={(_, __, index) => (
+          <Form.Item name={[index, "isPercent"]} valuePropName="checked">
           <Switch
             disabled={!(index === editingIndex)}
             onChange={(value) => setIsPercent(value)}
           />
+          </Form.Item>
         )}
       />
       {isPercent ? (
