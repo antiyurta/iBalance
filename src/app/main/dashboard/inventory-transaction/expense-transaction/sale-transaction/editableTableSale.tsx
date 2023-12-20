@@ -27,8 +27,6 @@ export const EditableTableSale = (props: IProps) => {
   const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [discountDictionary, setDiscountDictionary] =
-    useState<Map<number, IDataDiscount>>();
   const onSave = async () => {
     return form
       .validateFields([
@@ -51,18 +49,6 @@ export const EditableTableSale = (props: IProps) => {
             editingIndex,
             "expenseQty",
           ]);
-          const discount = discountDictionary?.get(editingIndex);
-          if (discount) {
-            const discountAmount = getDiscountAmount(
-              unitAmount,
-              expenseQty,
-              discount
-            );
-            form.setFieldValue(
-              ["transactions", editingIndex, "discountAmount"],
-              discountAmount
-            );
-          }
           form.setFieldValue(
             ["transactions", editingIndex, "totalAmount"],
             unitAmount * expenseQty
@@ -190,15 +176,6 @@ export const EditableTableSale = (props: IProps) => {
               ]);
             }}
             onSelect={(value) => {
-              let discountAmount = 0;
-              if (value.discount) {
-                if (value.discount.isPercent)
-                  discountAmount = value.discount.percent;
-                else discountAmount = value.discount.amount;
-                setDiscountDictionary(
-                  new Map(discountDictionary).set(index, value.discount)
-                );
-              }
               form.setFieldsValue({
                 transactions: {
                   [index]: {
@@ -209,7 +186,7 @@ export const EditableTableSale = (props: IProps) => {
                     unitAmount: value.unitAmount,
                     totalAmount: value.unitAmount,
                     expenseQty: 1,
-                    discountAmount: discountAmount,
+                    discountAmount: value.discountAmount,
                   },
                 },
               });

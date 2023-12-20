@@ -11,6 +11,7 @@ import {
   IDataDocument,
   IFilterDocument,
   IParamDocument,
+  MovingStatus,
 } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { DataIndexType, Meta } from "@/service/entities";
@@ -123,6 +124,13 @@ const Jurnal = () => {
       dataIndex: "payAmount",
       type: DataIndexType.VALUE,
     },
+    isEbarimt: {
+      label: "Ибаримтын төлөв",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isEbarimt",
+      type: DataIndexType.BOOLEAN,
+    },
     // paidAmount: {
     //   label: "Төлсөн дүн",
     //   isView: true,
@@ -135,6 +143,7 @@ const Jurnal = () => {
   const [params, setParams] = useState<IParamDocument>({
     page: 1,
     limit: 10,
+    movingStatus: MovingStatus.Pos,
   });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
@@ -257,7 +266,7 @@ const Jurnal = () => {
   };
   useEffect(() => {
     getData(params);
-  }, []);
+  }, [isRefund]);
   return (
     <div>
       <Row gutter={[0, 12]}>

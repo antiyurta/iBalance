@@ -81,8 +81,8 @@ const StoragiesRegistration = (props: IProps) => {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
-      dataIndex: ["userIds"],
-      type: DataIndexType.USER,
+      dataIndex: ["users"],
+      type: DataIndexType.MULTI,
     },
     address: {
       label: "Байршлын хаяг",

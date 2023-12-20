@@ -28,6 +28,7 @@ export const CodeSearch = () => {
   useEffect(() => {
     getMaterials({
       types: [MaterialType.Material],
+      moreUnitAmount: 0,
     });
   }, []);
   const insertGoods = async (data: CreateGoodsDto) => {

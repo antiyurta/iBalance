@@ -19,6 +19,8 @@ import { IParamUser, IUser } from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
+import { IDataTransaction } from "@/service/document/transaction/entities";
+import { hasUniqueValues } from "@/feature/common";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -42,14 +44,16 @@ const TransactionCencus = (props: IProps) => {
     form.validateFields(["warehouseId"]).then(async () => {
       await ViewMaterialService.get(params).then((response) => {
         if (response.success) {
-          const materials = response.response.data.map((response) => ({
-            materialId: response.id,
-            name: response.name,
-            measurement: response.measurementName,
-            countPackage: response.countPackage,
-            unitAmount: response.unitAmount,
-            lastQty: response.lastQty,
-          }));
+          const materials = response.response.data
+            .map((response) => ({
+              materialId: response.id,
+              name: response.name,
+              measurement: response.measurementName,
+              countPackage: response.countPackage,
+              unitAmount: response.unitAmount,
+              lastQty: response.lastQty,
+            }))
+            .filter((item) => item.lastQty !== 0);
           form.setFieldsValue({ transactions: materials });
         }
       });
@@ -96,9 +100,9 @@ const TransactionCencus = (props: IProps) => {
           countPackage: transaction.material?.countPackage,
           unitAmount: transaction.unitAmount,
           lastQty: transaction.lastQty,
-          quantity: transaction.expenseQty,
+          quantity: transaction.lastQty + (transaction.excessOrDeficiency || 0),
           excessOrDeficiency: transaction.excessOrDeficiency,
-          amount: transaction.amount,
+          totalAmount: transaction.amount,
           description: transaction.description,
         })),
       });
@@ -211,7 +215,20 @@ const TransactionCencus = (props: IProps) => {
               }}
             />
             <div style={{ overflow: "auto", maxHeight: "500px" }}>
-              <Form.List name="transactions" rules={[]}>
+              <Form.List name="transactions" rules={[
+                {
+                  validator: async (_, transactions) => {
+                    const arr = Array.isArray(transactions)
+                      ? transactions.map((trans: IDataTransaction) => trans.materialId)
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Барааны код давхардсан байна.")
+                      );
+                    }
+                  }
+                }
+              ]}>
                 {(items, { add, remove }, { errors }) => (
                   <>
                     <EditableTableCencus

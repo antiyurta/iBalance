@@ -52,21 +52,10 @@ export enum DocumentStatus {
   /** Төлөлт буцаагдсан */
   Refund = 'REFUND',
 }
-/** Амараа нэмэв */
-
-export interface xIDataTransaction {
-  materialId: number;
-  lastQty: number;
-  expenseQty: number;
-  unitAmount: number;
-  discountAmount: number;
-  totalAmount: number;
-  amount: number;
-  transactionAt: Date;
-}
 export interface IPosDocumentDto {
   regno?: string;
   shoppingCartId: string;
+  warehouseId: number;
 }
 export interface IDataDocument extends IData {
   id: number;
@@ -136,6 +125,7 @@ export interface IFilterDocument extends IFilter {
   giftAmount?: number[];
   status?: DocumentStatus;
   payAmount?: number[];
+  isEbarimt?: boolean[];
 }
 
 export type FilteredColumnsDocument = {
@@ -217,13 +207,6 @@ export const getDocumentColumns = (
       };
     }
     if (status == MovingStatus.SaleReturn) {
-      columns.relDocumentId = {
-        label: "Буцаах баримтын дугаар",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "relDocumentId",
-        type: DataIndexType.MULTI,
-      };
       columns.refundAt = {
         label: "Буцаалт хийх огноо",
         isView: true,
@@ -263,7 +246,7 @@ export const getDocumentColumns = (
         type: DataIndexType.MULTI,
       };
       columns.amount = {
-        label: "Нийт дүн",
+        label: "Төлөх дүн",
         isView: true,
         isFiltered: false,
         dataIndex: "amount",
@@ -329,7 +312,7 @@ export const getDocumentColumns = (
       isView: true,
       isFiltered: false,
       dataIndex: "movingStatus",
-      type: DataIndexType.TRANSACTION,
+      type: DataIndexType.ENUM,
     };
   }
   columns.description = {

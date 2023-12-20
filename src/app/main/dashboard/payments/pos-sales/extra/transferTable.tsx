@@ -44,7 +44,7 @@ const TransferModal = () => {
           height: 48,
         }}
       >
-        <Badge count={3}>
+        <Badge count={data.length}>
           <BellOutlined
             style={{
               color: "#198754",

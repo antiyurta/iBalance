@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
+  App,
   Button,
   Col,
   Form,
@@ -64,7 +65,10 @@ interface IProps {
 
 const Information = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
+  const { modal } = App.useApp();
   const [form] = Form.useForm(); // add hiih Form
+  const isIndividual = Form.useWatch("isIndividual", form);
+  const isEmployee = Form.useWatch("isEmployee", form);
   const [switchForm] = Form.useForm(); // buleg solih
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [filters, setFilters] = useState<IFilterConsumer>();
@@ -185,9 +189,6 @@ const Information = (props: IProps) => {
   const [isDescription, setIsDescription] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
-    useState<boolean>(false);
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
     []
   );
@@ -301,17 +302,57 @@ const Information = (props: IProps) => {
           blockContext.unblock();
         });
     } else {
-      await ConsumerService.post(values)
-        .then((response) => {
-          if (response.success) {
-            setIsOpenModal(false);
-            getData({ page: 1, limit: 10 });
-          }
-        })
-        .finally(() => {
-          blockContext.unblock();
-        });
+      await ConsumerService.get({ regno: [values.regno] }).then((response) => {
+        if ((response.success && response.response.meta.itemCount) || 0 > 0) {
+          const consumerNames = response.response.data
+            .map((item) => item.name)
+            .toString();
+          modal.confirm({
+            title: " ",
+            icon: null,
+            width: 280,
+            content: (
+              <>
+                <Title
+                  level={2}
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  Өмнө нь бүртгэл үүссэн бол анхааруулга
+                </Title>
+                <Title
+                  level={2}
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  {values.regno} дугаартай регистр {consumerNames} гэсэн
+                  харилцагч дээр үүссэн байна. Уг РД-аар дахин харилцагч
+                  үүсгэхтэй итгэлтэй байна уу?
+                </Title>
+              </>
+            ),
+            onOk: () => {
+              insertConsumer(values);
+            },
+          });
+        }
+      }).finally(() => blockContext.unblock());
     }
+  };
+  const insertConsumer = async (values: IDataConsumer) => {
+    blockContext.block();
+    await ConsumerService.post(values)
+      .then((response) => {
+        if (response.success) {
+          setIsOpenModal(false);
+          getData({ page: 1, limit: 10 });
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   // ustgah
   const onDelete = async (id: number) => {
@@ -326,14 +367,6 @@ const Information = (props: IProps) => {
       .finally(() => {
         blockContext.unblock();
       });
-  };
-  // ajiltan bwal bas huwi hun bolnoo
-  const isisIndividual = (checked: boolean) => {
-    if (checked) {
-      form.setFieldsValue({
-        isIndividual: checked,
-      });
-    }
   };
   // row selection GROUP UED
   const rowSelection = {
@@ -394,6 +427,10 @@ const Information = (props: IProps) => {
     getConsumerSection(TreeSectionType.Consumer);
     getBanks(IType.BANK);
   }, []);
+  useEffect(() => {
+    // ajiltan bwal bas huwi hun bolnoo
+    form.setFieldValue("isIndividual", isEmployee);
+  }, [isEmployee]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -723,9 +760,7 @@ const Information = (props: IProps) => {
                 name="isEmployee"
                 valuePropName="checked"
               >
-                <NewSwitch
-                  onChange={(checked: boolean) => isisIndividual(checked)}
-                />
+                <NewSwitch />
               </Form.Item>
               <Form.Item
                 label="Идэвхтэй эсэх"
@@ -791,7 +826,6 @@ const Information = (props: IProps) => {
                   },
                   {
                     validator: async (_, regno) => {
-                      const isIndividual = form.getFieldValue("isIndividual");
                       if (isIndividual) {
                         if (!regno || regno.length === 10) {
                           return Promise.resolve();

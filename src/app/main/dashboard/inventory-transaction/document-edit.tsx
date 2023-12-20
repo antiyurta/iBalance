@@ -1,5 +1,4 @@
 import NewModal from "@/components/modal";
-import { getTransactionTranslate } from "@/feature/common";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { useEffect, useState } from "react";
 import TransactionAct from "./expense-transaction/act-transaction/transaction-act";
@@ -12,6 +11,7 @@ import { TransactionPurchase } from "./income-transaction/material-income/transa
 import TransactionRefundPurchase from "./expense-transaction/refund-purchase/transaction-refund-purchase";
 import { TransactionSaleReturn } from "./income-transaction/sale-return/transaction-sale-return";
 import TransactionSale from "./expense-transaction/sale-transaction/transaction-sale";
+import { enumTranslation } from "@/feature/constraint-translation";
 interface IProps {
   movingStatus?: MovingStatus;
   selectedDocument?: IDataDocument;
@@ -106,7 +106,7 @@ export const DocumentEdit = (props: IProps) => {
   return (
     <NewModal
       width={1500}
-      title={getTransactionTranslate(movingStatus)}
+      title={""}
       open={isOpenModal}
       footer={false}
       onCancel={() => setIsOpenModal(false)}

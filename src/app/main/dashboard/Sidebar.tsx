@@ -147,7 +147,7 @@ const Sidebar = () => {
         getItem("Бараа материалын жагсаалт", "/jurnal"),
         getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
           getItem("Бараа материалын орлого", "/material-income"),
-          getItem("Борлуулалтын буцаалт", "/sale-return"),
+          getItem("Буцаалт", "/sale-return"),
         ]),
         getItem("Зарлагын гүйлгээ", "/expense-transaction", <></>, [
           getItem("Борлуулалт", "/sale-transaction"),

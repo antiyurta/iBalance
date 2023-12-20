@@ -133,6 +133,7 @@ const TransactionAction = (props: IProps) => {
               <Form.Item label="Харилцагчийн код, нэр">
                 <ConsumerSelect
                   form={form}
+                  name={"consumerId"}
                   rules={[
                     {
                       required: true,

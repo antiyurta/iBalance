@@ -26,7 +26,7 @@ const PosRefund = (props: IProps) => {
       )
         .then((response) => {
           if (response.success) {
-            onSave?.(true);
+            onSave?.(false);
           }
         })
         .finally(() => blockContext.unblock());

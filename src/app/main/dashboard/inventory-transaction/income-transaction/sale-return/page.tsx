@@ -34,7 +34,7 @@ const TransactionRefundPage = () => {
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
           <Title level={3}>
-            Бараа материал /Орлогын гүйлгээ/Борлуулалтын буцаалт
+            Бараа материал /Орлогын гүйлгээ/Буцаалт
           </Title>
         </Space>
       </Col>

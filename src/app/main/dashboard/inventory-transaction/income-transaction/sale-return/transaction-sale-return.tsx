@@ -154,24 +154,7 @@ export const TransactionSaleReturn = (props: IProps) => {
                 />
               </Form.Item>
               <Form.Item label="Харилцагчийн нэр">
-                <ConsumerSelect form={form} rules={[]} />
-              </Form.Item>
-              <Form.Item
-                label="Буцаах баримтын дугаар"
-                name="relDocumentId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Заавал",
-                  },
-                ]}
-              >
-                <NewFilterSelect
-                  options={saleDocuments.map((document) => ({
-                    value: document.id,
-                    label: document.description,
-                  }))}
-                />
+                <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
               </Form.Item>
               <Form.Item
                 label="Буцаалт хийх огноо"

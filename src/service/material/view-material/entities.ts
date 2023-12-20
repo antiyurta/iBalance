@@ -31,6 +31,8 @@ export interface IFilterViewMaterial {
   sectionName?: string; // Бараа материалын бүлэг
   unitAmount?: number; // Нэгжийн үнэ
   warehouseId?: number; // Агуулахын id
+  moreUnitAmount?: number; // нэгжийн үнээс илүү
+  lessUnitAmount?: number; // нэгжийн үнээс бага
 }
 
 export type FilteredColumnsViewMaterial = {

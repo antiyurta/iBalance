@@ -5,8 +5,9 @@ export enum MeasurementType {
   Length = "LENGTH", // urt
   Quantity = "Quantity", // too
   Time = "TIME", // hugtsaa
-  Volume = "VOLUME", // shingen
+  Volume = "VOLUME", // эзэлхүүн
   Weight = "WEIGTH", // jin
+  Other = "OTHER", // Тусгай хэмжих нэгж
 }
 
 export interface IParamUnitOfMeasure {

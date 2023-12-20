@@ -235,7 +235,7 @@ const InventoriesGroup = (props: IProps) => {
             content: (
               <>
                 <p>
-                  Бараа материал бүртгэгдсэн тул &ldquo;{response.response.name}
+                  Барааны бүлэг бүртгэгдсэн тул &ldquo;{response.response.name}
                   &ldquo; бүлгийг устгах боломжгүй байна.
                 </p>
               </>

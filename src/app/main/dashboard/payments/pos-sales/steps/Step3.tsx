@@ -14,6 +14,7 @@ import Bill from "./Step3/Bill";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { DocumentService } from "@/service/document/service";
 import { IDataDocument } from "@/service/document/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
 
 interface IProps {
   isPrev?: () => void;
@@ -33,6 +34,7 @@ const Step3 = (props: IProps) => {
   const [isBill, setIsBill] = useState<boolean>(false);
   const [posDocument, setPosDocument] = useState<IDataDocument>();
   const regno = Form.useWatch("regno", form);
+  const { id } = useTypedSelector((state) => state.warehouse);
   const { isPrev, shoppingCart } = props;
   const getInfo = async (values: { regno: number }) => {
     await EbarimtService.getOrganizationInfo(values.regno).then((response) => {
@@ -48,6 +50,7 @@ const Step3 = (props: IProps) => {
     await DocumentService.postPosDocument({
       shoppingCartId: shoppingCart.id,
       regno: regno,
+      warehouseId: id,
     }).then((response) => {
       if (response.success) {
         setIsBill(true);

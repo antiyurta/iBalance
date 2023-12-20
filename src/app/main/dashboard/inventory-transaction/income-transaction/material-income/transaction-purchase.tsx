@@ -149,7 +149,7 @@ export const TransactionPurchase = (props: IProps) => {
               </Col>
               <Col md={12} lg={8} xl={4}>
                 <Form.Item label="Нийлүүлэгчийн нэр">
-                  <ConsumerSelect form={form} rules={[]} />
+                  <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>

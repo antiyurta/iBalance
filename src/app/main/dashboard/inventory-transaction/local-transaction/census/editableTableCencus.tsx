@@ -46,7 +46,7 @@ export const EditableTableCencus = (props: IProps) => {
         transactions: {
           [editingIndex]: {
             excessOrDeficiency: quantity - lastQty,
-            amount: (quantity - lastQty) * unitAmount,
+            totalAmount: (quantity - lastQty) * unitAmount,
           },
         },
       });
@@ -220,7 +220,7 @@ export const EditableTableCencus = (props: IProps) => {
             name={[index, "quantity"]}
             rules={[{ required: true, message: "Тооллогоор заавал" }]}
           >
-            <NewInputNumber disabled={!(index === editingIndex)} />
+            <NewInputNumber onFocus={() => setEditingIndex(index)} />
           </Form.Item>
         )}
       />
@@ -234,10 +234,10 @@ export const EditableTableCencus = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"amount"}
+        dataIndex={"totalAmount"}
         title="Борлуулалтын үнээрх дүн"
         render={(_, __, index) => (
-          <Form.Item name={[index, "amount"]}>
+          <Form.Item name={[index, "totalAmount"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
@@ -247,7 +247,7 @@ export const EditableTableCencus = (props: IProps) => {
         title="Гүйлгээний утга"
         render={(_, __, index) => (
           <Form.Item name={[index, "description"]}>
-            <NewInput disabled={!(index === editingIndex)} />
+            <NewInput onFocus={() => setEditingIndex(index)} />
           </Form.Item>
         )}
       />
@@ -289,24 +289,26 @@ export const EditableTableCencus = (props: IProps) => {
                   style={{ marginRight: 8 }}
                   onClick={() => setEditingIndex(index)}
                 />
-                <Popconfirm
-                  title="Are you sure？"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={() => onRemove(index)}
-                >
-                  <Button
-                    danger
-                    icon={
-                      <DeleteOutlined
-                        style={{
-                          color: "red",
-                        }}
-                      />
-                    }
-                    shape={"circle"}
-                  />
-                </Popconfirm>
+                {form.getFieldValue(["transactions", index, "lastQty"]) == 0 ? (
+                  <Popconfirm
+                    title="Are you sure？"
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => onRemove(index)}
+                  >
+                    <Button
+                      danger
+                      icon={
+                        <DeleteOutlined
+                          style={{
+                            color: "red",
+                          }}
+                        />
+                      }
+                      shape={"circle"}
+                    />
+                  </Popconfirm>
+                ) : null}
               </Fragment>
             );
           }
