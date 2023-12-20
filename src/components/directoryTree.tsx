@@ -65,7 +65,7 @@ const NewDirectoryTree = (props: IProps) => {
       if (childrenIds.length === 0) {
         onClick?.([Number(info.node.key)]);
       } else {
-        onClick?.(childrenIds);
+        onClick?.([Number(info.node.key), ...childrenIds]);
       }
     } else {
       const selectedNode = data.find((item) => item.id === info.node.key);

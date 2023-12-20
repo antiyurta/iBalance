@@ -356,7 +356,7 @@ const InventoriesGroup = (props: IProps) => {
       >
         <InventoriesRegistration
           ComponentType="LITTLE"
-          onClickModal={(e) => console.log(e)}
+          onClickModal={(e) => setIsOpenChangeModal(e)}
           materialTypes={[type]}
         />
       </NewModal>

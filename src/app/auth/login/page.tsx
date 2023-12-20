@@ -49,15 +49,7 @@ const Login = () => {
       <div className="top">
         <div className="login-form">
           <p className="title">Нэвтрэх</p>
-          <Form
-            form={loginForm}
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{
-              email: "ulziikhutag.gurensoft@gmail.com",
-              password: "WETITr",
-            }}
-          >
+          <Form form={loginForm} layout="vertical" onFinish={onFinish}>
             <div className="login-control">
               <label htmlFor="email">И-мэйл</label>
               <Form.Item noStyle name="email">

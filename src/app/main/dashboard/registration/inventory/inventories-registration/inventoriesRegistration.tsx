@@ -288,6 +288,7 @@ const InventoriesRegistration = (props: IProps) => {
     setSelectedRow(row);
   };
   const getData = async (param: IParamMaterial) => {
+    setTableSelectedRows([]);
     blockContext.block();
     var prm: IParamMaterial = {
       ...params,
@@ -413,6 +414,7 @@ const InventoriesRegistration = (props: IProps) => {
         ids: tableSelectedRows.map((row) => row.id),
       }).then((response) => {
         if (response.success) {
+          switchForm.resetFields();
           onClickModal?.(false);
           setIsReload(!isReload);
         }

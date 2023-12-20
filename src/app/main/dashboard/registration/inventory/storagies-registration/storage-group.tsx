@@ -6,16 +6,7 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import {
-  App,
-  Button,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { App, Button, Col, Form, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { WarehouseService } from "@/service/reference/warehouse/service";
@@ -289,6 +280,7 @@ export const StoragiesGroup = () => {
               }}
             >
               <TreeSectionSelect
+                isLeaf={true}
                 type={TreeSectionType.Warehouse}
                 form={form}
                 rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}
@@ -317,7 +309,7 @@ export const StoragiesGroup = () => {
         <StoragiesRegistration
           ComponentType="LITTLE"
           onClickModal={(row) => {
-            console.log("row =======>", row);
+            setIsOpenChangeModal(row);
           }}
         />
       </NewModal>

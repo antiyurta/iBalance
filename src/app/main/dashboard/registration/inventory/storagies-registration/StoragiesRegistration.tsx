@@ -123,6 +123,7 @@ const StoragiesRegistration = (props: IProps) => {
     setIsOpenModal(true);
   };
   const getData = async (param: IParamWarehouse) => {
+    setTableSelectedRows([]);
     blockContext.block();
     var prm: IParamWarehouse = {
       ...params,
@@ -161,6 +162,9 @@ const StoragiesRegistration = (props: IProps) => {
         ids: tableSelectedRows.map((row) => row.id),
       }).then((response) => {
         if (response.success) {
+          switchForm.resetFields();
+          getData({ page: 1, limit: 10 });
+          setTableSelectedRows([]);
           onClickModal?.(false);
         }
       });
@@ -325,6 +329,7 @@ const StoragiesRegistration = (props: IProps) => {
                       }}
                     >
                       <TreeSectionSelect
+                        isLeaf={true}
                         type={TreeSectionType.Warehouse}
                         form={switchForm}
                         rules={[
@@ -468,6 +473,7 @@ const StoragiesRegistration = (props: IProps) => {
             </Form.Item>
             <Form.Item label="Байршлын бүлэг">
               <TreeSectionSelect
+                isLeaf={true}
                 type={TreeSectionType.Warehouse}
                 form={form}
                 rules={[]}

@@ -302,43 +302,45 @@ const Information = (props: IProps) => {
           blockContext.unblock();
         });
     } else {
-      await ConsumerService.get({ regno: [values.regno] }).then((response) => {
-        if ((response.success && response.response.meta.itemCount) || 0 > 0) {
-          const consumerNames = response.response.data
-            .map((item) => item.name)
-            .toString();
-          modal.confirm({
-            title: " ",
-            icon: null,
-            width: 280,
-            content: (
-              <>
-                <Title
-                  level={2}
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  Өмнө нь бүртгэл үүссэн бол анхааруулга
-                </Title>
-                <Title
-                  level={2}
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  {values.regno} дугаартай регистр {consumerNames} гэсэн
-                  харилцагч дээр үүссэн байна. Уг РД-аар дахин харилцагч
-                  үүсгэхтэй итгэлтэй байна уу?
-                </Title>
-              </>
-            ),
-            onOk: () => {
-              insertConsumer(values);
-            },
-          });
-        }
-      }).finally(() => blockContext.unblock());
+      await ConsumerService.get({ regno: [values.regno] })
+        .then((response) => {
+          if ((response.success && response.response.meta.itemCount) || 0 > 0) {
+            const consumerNames = response.response.data
+              .map((item) => item.name)
+              .toString();
+            modal.confirm({
+              title: " ",
+              icon: null,
+              width: 280,
+              content: (
+                <>
+                  <Title
+                    level={2}
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    Өмнө нь бүртгэл үүссэн бол анхааруулга
+                  </Title>
+                  <Title
+                    level={2}
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    {values.regno} дугаартай регистр {consumerNames} гэсэн
+                    харилцагч дээр үүссэн байна. Уг РД-аар дахин харилцагч
+                    үүсгэхтэй итгэлтэй байна уу?
+                  </Title>
+                </>
+              ),
+              onOk: () => {
+                insertConsumer(values);
+              },
+            });
+          }
+        })
+        .finally(() => blockContext.unblock());
     }
   };
   const insertConsumer = async (values: IDataConsumer) => {
@@ -415,6 +417,9 @@ const Information = (props: IProps) => {
         ids: tableSelectedRows.map((row) => row.id),
       }).then((response) => {
         if (response.success) {
+          switchForm.resetFields();
+          getData({ page: 1, limit: 10 });
+          setTableSelectedRows([]);
           onClickModal?.(false);
         }
       });
@@ -511,6 +516,7 @@ const Information = (props: IProps) => {
                       }}
                     >
                       <TreeSectionSelect
+                        isLeaf={false}
                         type={TreeSectionType.Consumer}
                         form={switchForm}
                         rules={[
@@ -876,6 +882,7 @@ const Information = (props: IProps) => {
                 }}
               >
                 <TreeSectionSelect
+                  isLeaf={true}
                   type={TreeSectionType.Consumer}
                   form={form}
                   rules={[
