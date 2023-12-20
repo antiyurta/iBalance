@@ -5,51 +5,31 @@ import Membership from "./Step1/Membership";
 import Bonus from "./Step1/Bonus";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
-import {
-  setIsMembership,
-  setIsSaveAndSetSaveValue,
-  setIsUseSaveAndSetUseValue,
-} from "@/feature/core/reducer/PosReducer";
+// import {
+//   setIsMembership,
+//   setIsSaveAndSetSaveValue,
+//   setIsUseSaveAndSetUseValue,
+// } from "@/feature/core/reducer/PosReducer";
+import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 
 const { Title } = Typography;
 
 interface IProps {
-  data: {
-    amount: number;
-    bonus: number;
-  };
+  data: IDataShoppingCart;
   isPrev?: () => void;
   isNext?: () => void;
-  paidAmount: (value: number) => void;
 }
 
 const Step1 = (props: IProps) => {
-  const dispatch = useDispatch();
-  const { data, isNext, paidAmount } = props;
-  const { isMembership, isSave, saveValue, isUseSave, useValue } =
-    useTypedSelector((state: RootState) => state.posStep);
+  const { data, isNext } = props;
+  const [isMembership, setIsMembership] = useState<boolean>(false);
   const [isBonus, setIsBonus] = useState<boolean>(false);
-  //
-  const setPosMembership = (state: boolean) => {
-    dispatch(setIsMembership(state));
+  const getMembership = () => {
+    setIsMembership(data.consumerMembershipId !== null);
   };
-  //
   useEffect(() => {
-    if (!isMembership) {
-      dispatch(
-        setIsSaveAndSetSaveValue({
-          isSave: true,
-          saveValue: 0,
-        })
-      );
-      dispatch(
-        setIsUseSaveAndSetUseValue({
-          isUseSave: false,
-          useValue: 0,
-        })
-      );
-    }
-  }, [isMembership]);
+    getMembership()
+  }, [data]);
   return (
     <div>
       <div
@@ -68,9 +48,9 @@ const Step1 = (props: IProps) => {
           }}
         >
           <Title level={2}>Гишүүнчлэлтэй эсэх:</Title>
-          <Switch checked={isMembership} onChange={setPosMembership} />
+          <Switch checked={isMembership} onChange={setIsMembership} />
         </div>
-        {isMembership ? <Membership amount={data.amount} /> : null}
+        {isMembership ? <Membership data={data} /> : null}
         <div
           style={{
             width: "100%",
@@ -89,7 +69,7 @@ const Step1 = (props: IProps) => {
           <Title level={2}>Бэлгийн карттай эсэх:</Title>
           <Switch onChange={setIsBonus} />
         </div>
-        {isBonus ? <Bonus /> : null}
+        {isBonus ? <Bonus data={data} /> : null}
         <div
           style={{
             width: "100%",
@@ -114,7 +94,7 @@ const Step1 = (props: IProps) => {
               }}
             >
               <NumericFormat
-                value={data.amount}
+                value={data.totalAmount}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -123,7 +103,7 @@ const Step1 = (props: IProps) => {
               />
             </Title>
           </div>
-          {isUseSave ? (
+          {/* {isUseSave ? (
             <div className="numbers">
               <Title
                 style={{
@@ -151,8 +131,8 @@ const Step1 = (props: IProps) => {
                 />
               </Title>
             </div>
-          ) : null}
-          {!isSave ? (
+          ) : null} */}
+          {/* {!isSave ? (
             <div className="numbers">
               <Title
                 style={{
@@ -180,7 +160,7 @@ const Step1 = (props: IProps) => {
                 />
               </Title>
             </div>
-          ) : null}
+          ) : null} */}
           {isBonus ? (
             <div className="numbers">
               <Title
@@ -219,9 +199,7 @@ const Step1 = (props: IProps) => {
           >
             Төлөх дүн:
             <NumericFormat
-              value={
-                isUseSave ? data.amount - useValue : data.amount - saveValue
-              }
+              value={data.payAmount}
               thousandSeparator=","
               decimalScale={2}
               fixedDecimalScale
@@ -232,9 +210,9 @@ const Step1 = (props: IProps) => {
           <Button
             type="primary"
             onClick={() => {
-              paidAmount(
-                isUseSave ? data.amount - useValue : data.amount - saveValue
-              );
+              // paidAmount(
+              //   isUseSave ? data.totalAmount - useValue : data.totalAmount - saveValue
+              // );
               isNext?.();
             }}
           >

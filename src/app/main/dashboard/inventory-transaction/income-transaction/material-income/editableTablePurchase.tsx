@@ -36,6 +36,9 @@ export const EditableTablePurchase = (props: IProps) => {
         ["transactions", editingIndex, "transactionAt"],
       ])
       .then(() => {
+        const unitAmount = form.getFieldValue(["transactions", editingIndex, "unitAmount"]);
+        const incomeQty = form.getFieldValue(["transactions", editingIndex, "incomeQty"]);
+        form.setFieldValue(["transactions", editingIndex, "totalAmount"], unitAmount * incomeQty);
         setNewService(false);
         setEditingIndex(undefined);
         return true;
@@ -126,6 +129,7 @@ export const EditableTablePurchase = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
+                    unitAmount: value.unitAmount,
                   },
                 },
               });
@@ -170,6 +174,15 @@ export const EditableTablePurchase = (props: IProps) => {
         )}
       />
       <Column
+        dataIndex={"unitAmount"}
+        title="Нэгж үнэ"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "unitAmount"]}>
+            <NewInputNumber disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
         dataIndex={"incomeQty"}
         title="Орлогын тоо хэмжээ"
         render={(_, __, index) => (
@@ -178,6 +191,15 @@ export const EditableTablePurchase = (props: IProps) => {
             rules={[{ required: true, message: "Орлогын тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"totalAmount"}
+        title="Нийт үнэ"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "totalAmount"]}>
+            <NewInputNumber disabled />
           </Form.Item>
         )}
       />

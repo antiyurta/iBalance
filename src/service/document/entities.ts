@@ -12,6 +12,7 @@ import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
+import { IDataShoppingCart } from "../pos/shopping-card/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -37,37 +38,25 @@ export enum MovingStatus {
   Cencus = "CENCUS",
   /** Посын борлуулалт */
   Pos = "POS",
+  /** Пос борлуулалтын буцаалт */
+  PosSaleReturn = 'POS_SALE_RETURN',
   /** Захиалгын борлуулалт */
   BookingSale = "BOOKING_SALE",
 }
-
-/** Амараа нэмэв */
-
-export interface xIDataTransaction {
-  materialId: number;
-  lastQty: number;
-  expenseQty: number;
-  unitAmount: number;
-  discountAmount: number;
-  totalAmount: number;
-  amount: number;
-  transactionAt: Date;
+/** Гүйлгээний төлвүүд */
+export enum DocumentStatus {
+  /** Төлөлт гүйцэд хийгдсэн */
+  Paid = 'PAID',
+  /** Төлөлт зээлтэй */
+  Lending = 'LENDING',
+  /** Төлөлт буцаагдсан */
+  Refund = 'REFUND',
 }
-
-export interface xIDataDocument {
-  paymentMethodIds: number[];
+export interface IPosDocumentDto {
+  regno?: string;
+  shoppingCartId: string;
   warehouseId: number;
-  consumerId: number;
-  amount: number;
-  discountAmount: number;
-  consumerDiscountAmount: number;
-  payAmount: number;
-  description: string;
-  transactions: xIDataTransaction[];
-  documentAt?: Date;
-  movingStatus: MovingStatus;
 }
-
 export interface IDataDocument extends IData {
   id: number;
   refundAt: string;
@@ -88,13 +77,22 @@ export interface IDataDocument extends IData {
   section: IDataReference; // гүйлгээний төрөл
   documentAt: string;
   description: string; // гүйлгээний утга
-  paymentMethodIds: number;
+  paymentMethodIds: number[];
   paymentMethods?: IDataReferencePaymentMethod[]; // Төлбөрийн хэлбэрүүд
   amount: number; // нийт үнэ
   discountAmount: number; // бараа материалын үнийн хөнгөлөлт
   consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт
   payAmount: number; // төлөх дүн
   movingStatus: MovingStatus;
+  isEbarimt: boolean;
+  billId?: string;
+  macAddress?: string;
+  lottery?: string;
+  internalCode?: string;
+  qrData?: string;
+  shoppingCartId: string;
+  shoppingCart: IDataShoppingCart;
+  status: DocumentStatus;
   transactions?: IDataTransaction[];
 }
 
@@ -123,7 +121,11 @@ export interface IFilterDocument extends IFilter {
   amount?: number[];
   discountAmount?: number[];
   consumerDiscountAmount?: number[];
+  membershipDiscountAmount?: number[];
+  giftAmount?: number[];
+  status?: DocumentStatus;
   payAmount?: number[];
+  isEbarimt?: boolean[];
 }
 
 export type FilteredColumnsDocument = {
@@ -205,13 +207,6 @@ export const getDocumentColumns = (
       };
     }
     if (status == MovingStatus.SaleReturn) {
-      columns.relDocumentId = {
-        label: "Буцаах баримтын дугаар",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "relDocumentId",
-        type: DataIndexType.MULTI,
-      };
       columns.refundAt = {
         label: "Буцаалт хийх огноо",
         isView: true,
@@ -251,7 +246,7 @@ export const getDocumentColumns = (
         type: DataIndexType.MULTI,
       };
       columns.amount = {
-        label: "Нийт дүн",
+        label: "Төлөх дүн",
         isView: true,
         isFiltered: false,
         dataIndex: "amount",
@@ -317,7 +312,7 @@ export const getDocumentColumns = (
       isView: true,
       isFiltered: false,
       dataIndex: "movingStatus",
-      type: DataIndexType.TRANSACTION,
+      type: DataIndexType.ENUM,
     };
   }
   columns.description = {

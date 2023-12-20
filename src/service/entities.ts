@@ -126,15 +126,13 @@ export enum DataIndexType {
   STRING_SECTION = "STRING_SECTION",
   DATE = "DATE",
   DATETIME = "DATETIME",
+  TIME = "TIME",
   COUNTRY = "COUNTRY",
   //
   USER = "USER",
-  // measuer ued
-  MEASUREMENT = "MEASUREMENT",
-  // measuer ued
+  ENUM = "ENUM",
   NUMBER = "NUMBER",
   VALUE = "VALUE",
-  TRANSACTION = "TRANNSACTION",
   STRING = "STRING",
 
   STRING_TREE = "STRING_TREE",

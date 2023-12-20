@@ -147,7 +147,7 @@ const Sidebar = () => {
         getItem("Бараа материалын жагсаалт", "/jurnal"),
         getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
           getItem("Бараа материалын орлого", "/material-income"),
-          getItem("Борлуулалтын буцаалт", "/sale-return"),
+          getItem("Буцаалт", "/sale-return"),
         ]),
         getItem("Зарлагын гүйлгээ", "/expense-transaction", <></>, [
           getItem("Борлуулалт", "/sale-transaction"),
@@ -156,10 +156,10 @@ const Sidebar = () => {
           getItem("Акт, хорогдол, устгал", "/act-transaction"),
         ]),
         getItem("Дотоод гүйлгээ", "/local-transaction", <></>, [
+          getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
           getItem("Бараа материалын хөрвүүлэг", "/converter"),
           getItem("Бараа материалын хольц", "/mixture"),
           getItem("Тооллого", "/census"),
-          getItem("Байршилын хөдөлгөөн", "/warehouse-move-transaction"),
         ]),
       ]
     ),

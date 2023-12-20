@@ -11,15 +11,11 @@ import Image from "next/image";
 import { Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { NumericFormat } from "react-number-format";
-import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
-
-import {
-  displayDiscount,
-  checkDiscount,
-  displayCoupon,
-  checkCoupon,
-} from "../injection";
+import { displayCoupon, checkCoupon } from "../injection";
+import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
+import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
+import { Coupon } from "./coupon";
+import { Operator } from "@/service/entities";
 
 interface IProps {
   type: TypeSegment;
@@ -33,7 +29,8 @@ interface IDisplayItem {
   sectionName: string;
   src: string;
   coupon: IDataCoupon;
-  discount: IDataDiscount;
+  discountName: string;
+  discountAmount: number;
   unitAmount: number;
   lastQty: number;
 }
@@ -47,12 +44,8 @@ const DisplayItem = (props: IProps) => {
   const GetNewAmount = (props: { item: IDisplayItem }) => {
     const { item } = props;
     var amount: number = 0;
-    if (item.discount) {
-      amount = checkDiscount({
-        unitAmount: item.unitAmount,
-        percent: item.discount.percent,
-        amount: item.discount.amount,
-      });
+    if (item.discountAmount > 0) {
+      amount = item.unitAmount - item.discountAmount;
     }
     if (item.coupon) {
       amount = checkCoupon({
@@ -81,9 +74,9 @@ const DisplayItem = (props: IProps) => {
       );
     }
   };
-  const onFinish = async (data: IDataShoppingCartPost) => {
+  const onFinish = async (data: CreateGoodsDto) => {
     blockContext.block();
-    await ShoppingCartService.post(data)
+    await ShoppingGoodsService.post(data)
       .finally(() => {
         setReload(true);
       })
@@ -105,7 +98,8 @@ const DisplayItem = (props: IProps) => {
           ? await getFile(material.fileId)
           : "/images/emptyMarket.png",
       coupon: material.coupon,
-      discount: material.discount,
+      discountName: material.discountName,
+      discountAmount: material.discountAmount,
       unitAmount: material.unitAmount,
       lastQty: material.lastQty,
     });
@@ -135,7 +129,9 @@ const DisplayItem = (props: IProps) => {
                   <div className="p-bottom">
                     <p
                       className={
-                        item.discount || item.coupon ? "text-line-through" : ""
+                        item.discountAmount > 0 || item.coupon
+                          ? "text-line-through"
+                          : ""
                       }
                     >
                       <NumericFormat
@@ -155,21 +151,17 @@ const DisplayItem = (props: IProps) => {
               <>
                 {item.coupon ? (
                   <div className="extra-bottom">
-                    {displayCoupon({
-                      conditionValue: item.coupon?.conditionValue,
-                      percent: item.coupon?.percent,
-                      quantity: item.coupon?.quantity,
-                    })}
+                    <Coupon
+                      condition={item.coupon.condition}
+                      conditionValue={item.coupon.conditionValue}
+                      quantity={item.coupon.quantity}
+                      percent={item.coupon.percent}
+                    />
                   </div>
                 ) : null}
-                {item.discount ? (
+                {item.discountAmount > 0 ? (
                   <div className="extra-top">
-                    <p>
-                      {displayDiscount({
-                        amount: item.discount.amount,
-                        percent: item.discount.percent,
-                      })}
-                    </p>
+                    <p>{item.discountName}</p>
                   </div>
                 ) : null}
               </>
@@ -177,45 +169,26 @@ const DisplayItem = (props: IProps) => {
           </div>
           {type === "list" ? (
             <div className="right">
-              {item.coupon || item.discount ? (
+              {item.coupon || item.discountAmount > 0 ? (
                 <div className="extra">
                   {item.coupon ? (
-                    <div className="coupon">
-                      <p>
-                        {displayCoupon({
-                          conditionValue: item.coupon?.conditionValue,
-                          percent: item.coupon?.percent,
-                          quantity: item.coupon?.quantity,
-                        })}
-                      </p>
-                    </div>
+                    <Coupon
+                      condition={item.coupon.condition}
+                      conditionValue={item.coupon.conditionValue}
+                      quantity={item.coupon.quantity}
+                      percent={item.coupon.percent}
+                    />
                   ) : null}
-                  {item.discount ? (
-                    <div className="discount">
-                      <p>
-                        {displayDiscount({
-                          amount: item.discount.amount,
-                          percent: item.discount.percent,
-                        })}
-                      </p>
-                    </div>
-                  ) : null}
+                  <div className="discount">
+                    <p>{item.discountName}</p>
+                  </div>
                 </div>
               ) : null}
               <Button
                 style={{
                   width: "100%",
                 }}
-                onClick={() =>
-                  onFinish({
-                    materialId: item.id,
-                    quantity: 1,
-                    lastQty: item.lastQty,
-                    amount: item.unitAmount,
-                    discountId: item.discount?.id,
-                    couponId: item.coupon?.id,
-                  })
-                }
+                onClick={() => onFinish({ materialId: item.id })}
                 icon={<ShoppingCartOutlined />}
               >
                 Сагслах
@@ -240,7 +213,9 @@ const DisplayItem = (props: IProps) => {
                 <div className="bottom">
                   <p
                     className={
-                      item.discount || item.coupon ? "text-line-through" : ""
+                      item.discountAmount > 0 || item.coupon
+                        ? "text-line-through"
+                        : ""
                     }
                   >
                     <NumericFormat
@@ -259,16 +234,7 @@ const DisplayItem = (props: IProps) => {
                   width: "100%",
                 }}
                 icon={<ShoppingCartOutlined />}
-                onClick={() =>
-                  onFinish({
-                    materialId: item.id,
-                    quantity: 1,
-                    lastQty: item.lastQty,
-                    amount: item.unitAmount,
-                    discountId: item.discount?.id,
-                    couponId: item.coupon?.id,
-                  })
-                }
+                onClick={() => onFinish({ materialId: item.id })}
               >
                 Сагслах
               </Button>

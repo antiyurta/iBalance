@@ -137,6 +137,7 @@ const TransactionAct = (props: IProps) => {
                       message: "Харилцагчийн код, нэр оруулна уу.",
                     },
                   ]}
+                  name={"consumerId"}
                 />
               </Form.Item>
               <Form.Item

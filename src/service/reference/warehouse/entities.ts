@@ -11,7 +11,7 @@ import { IDataTreeSection } from "../tree-section/entities";
 export interface IDataWarehouse extends IData {
   id: number;
   sectionId: number;
-  section: IDataTreeSection;
+  section?: IDataTreeSection;
   provinceId: number;
   districtId: number;
   userIds: number[]; // Хариуцсан нярав

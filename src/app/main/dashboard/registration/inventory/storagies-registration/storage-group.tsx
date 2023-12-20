@@ -1,5 +1,5 @@
 import NewDirectoryTree from "@/components/directoryTree";
-import { NewInput, NewSelect, NewSwitch } from "@/components/input";
+import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
   IDataTreeSection,
@@ -12,14 +12,12 @@ import {
   Col,
   Form,
   Input,
-  Popover,
   Row,
   Space,
   Typography,
 } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { SignalFilled } from "@ant-design/icons";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import StoragiesRegistration from "./StoragiesRegistration";
@@ -34,7 +32,6 @@ export const StoragiesGroup = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<number>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isModal, setIsModal] = useState<boolean>(false);
-  const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
   const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const getSections = async (type: TreeSectionType) => {

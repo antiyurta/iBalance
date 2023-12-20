@@ -1,12 +1,30 @@
 "use client";
 
 import { NewInputPassword } from "@/components/input";
-import { Col, Form, Row, Typography } from "antd";
+import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { IChangePassword } from "@/service/authentication/entities";
+import { authService } from "@/service/authentication/service";
+import { Button, Col, Form, Row, Typography } from "antd";
+import { useRouter } from "next/navigation";
 
 const { Title } = Typography;
 
 const PasswordChange = () => {
+  const {
+    login_data: {
+      response: { accessToken },
+    },
+  } = useTypedSelector((state: RootState) => state.core);
   const [form] = Form.useForm();
+  const router = useRouter();
+  const onFinish = (values: IChangePassword) => {
+    values.token = accessToken;
+    authService.changePassword(values).then((response) => {
+      if (response.success) {
+        router.push("/auth/login")
+      }
+    });
+  }
   return (
     <div
       style={{
@@ -28,7 +46,7 @@ const PasswordChange = () => {
       </Title>
       <Row>
         <Col span={12}>
-          <Form form={form} layout="vertical">
+          <Form form={form} layout="vertical" onFinish={onFinish}>
             <div
               style={{
                 display: "flex",
@@ -44,6 +62,11 @@ const PasswordChange = () => {
               </Form.Item>
               <Form.Item label="Шинэ нууц үгийг дахин оруулах" name="cpassword">
                 <NewInputPassword />
+              </Form.Item>
+              <Form.Item>
+                <Button htmlType="submit" type="primary">
+                  Шинэчлэх
+                </Button>
               </Form.Item>
             </div>
           </Form>

@@ -31,23 +31,24 @@ interface IRole {
 }
 
 export interface IUser {
-  createdAt: string;
-  dataBase: string;
-  deletedAt: string;
+  imageId: number;
+  createdAt?: string;
+  dataBase?: string;
+  deletedAt?: string;
   email: string;
-  employee: IEmployee;
+  employee?: IEmployee;
   firstName: string;
-  globalPatient: boolean;
-  hospital: IHospital;
-  hospitalId: number;
+  globalPatient?: boolean;
+  hospital?: IHospital;
+  hospitalId?: number;
   id: number;
-  isActive: boolean;
-  isEmailConfirmed: boolean;
+  isActive?: boolean;
+  isEmailConfirmed?: boolean;
   lastName: string;
-  phonoNo: string;
-  role: IRole;
-  roleId: number;
-  updatedAt: string;
+  phonoNo?: string;
+  role?: IRole;
+  roleId?: number;
+  updatedAt?: string;
 }
 
 export interface Tokens {
@@ -69,6 +70,13 @@ export interface LoginResponse extends GenericResponse {
 export interface LogoutResponse extends GenericResponse {
   statusCode: number;
 }
+export interface IChangeProfile {
+  imageId: number;
+}
+export interface IChangePassword {
+  password: string;
+  token: string;
+}
 export interface IFilterUser {
   createdAt?: string;
   email?: string;
@@ -85,8 +93,11 @@ export type FilteredColumnsUser = {
 export interface AuthenticationResponse extends GenericResponse {
   response: IUser;
 }
-export interface IResponseUser extends GenericResponse {
+export interface IResponseUsers extends GenericResponse {
   response: IUser[];
+}
+export interface IResponseUser extends GenericResponse {
+  response: IUser;
 }
 export interface IParamUser {
   ids?: number[];

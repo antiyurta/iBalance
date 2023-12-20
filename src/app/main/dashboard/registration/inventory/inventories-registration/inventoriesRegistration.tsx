@@ -69,6 +69,7 @@ import { IDataMaterialAccount } from "@/service/material/account/entities";
 import InventoriesType from "../inventories-type/inventoriesType";
 import type { UploadFile } from "antd/es/upload/interface";
 import type { UploadProps } from "antd";
+import { ViewMaterialService } from "@/service/material/view-material/service";
 interface IProps {
   ComponentType: ComponentType;
   materialTypes: MaterialType[];
@@ -94,6 +95,7 @@ const InventoriesRegistration = (props: IProps) => {
   const { ComponentType = "FULL", materialTypes, onClickModal } = props;
   const [form] = Form.useForm();
   const [switchForm] = Form.useForm();
+  const isActive = Form.useWatch("isActive", form);
   const {
     login_data: {
       response: { accessToken },
@@ -475,6 +477,19 @@ const InventoriesRegistration = (props: IProps) => {
   useEffect(() => {
     getData(params);
   }, [isReload]);
+  useEffect(() => {
+    if (selectedRow && !isActive) {
+      ViewMaterialService.getById(selectedRow.id).then((response) => {
+        if (response.success && response.response.lastQty > 0) {
+          form.setFieldValue("isActive", true);
+          openNofi(
+            "warning",
+            `${response.response.code} кодтой бараа үлдэгдэлтэй байгаа тул идэвхигүй болгох боломжгүй байна.`
+          );
+        }
+      });
+    }
+  }, [isActive]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>

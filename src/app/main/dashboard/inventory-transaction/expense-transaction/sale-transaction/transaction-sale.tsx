@@ -34,9 +34,6 @@ const TransactionSale = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<
-    IDataReferencePaymentMethod[]
-  >([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
@@ -46,15 +43,11 @@ const TransactionSale = (props: IProps) => {
       }
     });
   };
-  const getPaymentMethods = (params: IParamPaymentMethod) => {
-    ReferencePaymentMethodService.get(params).then((response) => {
-      if (response.success) {
-        setPaymentMethods(response.response.data);
-      }
-    });
-  };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.consumerDiscountAmount = Number(values.consumerDiscountAmount);
+    values.amount = Number(values.amount);
+    values.payAmount = Number(values.payAmount);
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
         .then((response) => {
@@ -74,7 +67,6 @@ const TransactionSale = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses({});
-    getPaymentMethods({});
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -161,6 +153,7 @@ const TransactionSale = (props: IProps) => {
                       message: "Харилцагчийн код, нэр оруулна уу.",
                     },
                   ]}
+                  name={"consumerId"}
                 />
               </Form.Item>
               <Form.Item
@@ -174,23 +167,6 @@ const TransactionSale = (props: IProps) => {
                 ]}
               >
                 <NewInput />
-              </Form.Item>
-              <Form.Item
-                label="Төлбөрийн хэлбэр"
-                name="paymentMethodId"
-                rules={[
-                  {
-                    required: true,
-                    message: "Төлбөрийн хэлбэр оруулна уу.",
-                  },
-                ]}
-              >
-                <NewFilterSelect
-                  options={paymentMethods.map((paymentMethod) => ({
-                    value: paymentMethod.id,
-                    label: paymentMethod.name,
-                  }))}
-                />
               </Form.Item>
               <Form.Item label="Нийт дүн" name="amount" shouldUpdate>
                 <NewInputNumber disabled />

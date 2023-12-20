@@ -132,6 +132,7 @@ const TransactionRefundPurchase = (props: IProps) => {
               <Form.Item label="Нийлүүлэгчийн нэр">
                 <ConsumerSelect
                   form={form}
+                  name={"consumerId"}
                   rules={[
                     {
                       required: true,

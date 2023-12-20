@@ -1,11 +1,17 @@
 import { Button, Form, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CreditCardOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
 import { LeftOutlined } from "@ant-design/icons";
 import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import TransferModal from "./transferTable";
 import { PaymentType } from "@/service/reference/payment-method/entities";
+import { IDataMoneyTransaction } from "@/service/pos/money-transaction/entities";
+import { IDataPos, IParamPos } from "@/service/pos/entities";
+import { PosService } from "@/service/pos/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { MoneyTransactionService } from "@/service/pos/money-transaction/service";
+import { RootState, useTypedSelector } from "@/feature/store/reducer";
 
 const { Title } = Typography;
 
@@ -14,15 +20,13 @@ enum Type {
   REMOVE = "REMOVE",
   TRANSFER = "TRANSFER",
 }
-
-interface IData {
-  paymentType: PaymentType;
-  type: Type;
-  employeeId?: number;
+interface PosTransfer {
+  toPosId: number;
+  type: PaymentType;
+  transactionType: Type;
   amount: number;
   description: string;
 }
-
 const rules = [
   {
     required: true,
@@ -31,18 +35,50 @@ const rules = [
 ];
 
 const Transfer = () => {
-  const [form] = Form.useForm();
-  const TransactionType = Form.useWatch("type", form);
+  const [form] = Form.useForm<PosTransfer>();
+  const blockContext: BlockView = useContext(BlockContext);
+  const { posOpenClose } = useTypedSelector((state: RootState) => state);
+  const TransactionType = Form.useWatch("transactionType", form);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenBadgeModal, setIsOpenBadgeModal] = useState<boolean>(false);
-  const onFinish = (values: IData) => {
-    console.log({
-      ...values,
-      amount: parseFloat(values.amount.toFixed(2)),
-    });
+  const [poses, setPoses] = useState<IDataPos[]>([]);
+
+  const onFinish = async (values: PosTransfer) => {
+    blockContext.block();
+    const data: IDataMoneyTransaction = {
+      posId: posOpenClose.posId,
+      toPosId: values.toPosId,
+      type: values.type,
+      isTransaction: values.transactionType == Type.TRANSFER,
+      description: values.description,
+      increaseAmount: values.transactionType == Type.ADD ? values.amount : 0,
+      decreaseAmount:
+        values.transactionType == Type.REMOVE ||
+        values.transactionType == Type.TRANSFER
+          ? values.amount
+          : 0,
+    };
+    await MoneyTransactionService.post(data)
+      .then((response) => {
+        if (response.success) {
+          setIsOpenModal(false);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
+  const getPoses = async (params: IParamPos) => {
+    blockContext.block();
+    await PosService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setPoses(response.response.data);
+        }
+      })
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     isOpenModal && form.resetFields();
+    getPoses({ isAuth: false });
   }, [isOpenModal]);
   return (
     <>
@@ -102,7 +138,7 @@ const Transfer = () => {
               gap: 12,
             }}
           >
-            <Form.Item label="Бэлэн/Бэлэн бусын хэлбэр" name="paymentType">
+            <Form.Item label="Бэлэн/Бэлэн бусын хэлбэр" name="type">
               <NewSelect
                 options={[
                   {
@@ -116,7 +152,7 @@ const Transfer = () => {
                 ]}
               />
             </Form.Item>
-            <Form.Item label="Нэмэх/Хасах/Шилжүүлэг" name="type">
+            <Form.Item label="Нэмэх/Хасах/Шилжүүлэг" name="transactionType">
               <NewSelect
                 options={[
                   {
@@ -135,14 +171,12 @@ const Transfer = () => {
               />
             </Form.Item>
             {TransactionType === Type.TRANSFER ? (
-              <Form.Item label="Шилжүүлэх кассчны нэр" name="employeeId">
+              <Form.Item label="Шилжүүлэх кассчны нэр" name="toPosId">
                 <NewSelect
-                  options={[
-                    {
-                      label: "test",
-                      value: 0,
-                    },
-                  ]}
+                  options={poses.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  }))}
                 />
               </Form.Item>
             ) : null}

@@ -4,15 +4,18 @@ import { coreReducer } from "../core/reducer/CoreReducer";
 import { titleReducer } from "../core/reducer/TitleReducer";
 import { reportReducer } from "../core/reducer/ReportReducer";
 import { tabReducer } from "../core/reducer/TabsReducer";
-// import { posStepReducer } from "../core/reducer/PosStepReducer";
-import postReducer from "../core/reducer/PosReducer";
+import WarehouseReducer from "./slice/warehouse.slice";
+import ShoppingCartReducer from "./slice/shopping-cart.slice";
+import PosOpenClose from "./slice/pos-open-close.slice";
 
 const rootReducer = combineReducers({
   core: coreReducer,
   title: titleReducer,
   report: reportReducer,
   tabs: tabReducer,
-  posStep: postReducer,
+  warehouse: WarehouseReducer,
+  shoppingCart: ShoppingCartReducer,
+  posOpenClose: PosOpenClose,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

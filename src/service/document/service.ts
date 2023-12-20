@@ -2,9 +2,9 @@ import { api } from "@/feature/interceptor/interceptor";
 import {
   IDataDocument,
   IParamDocument,
+  IPosDocumentDto,
   IResponseDocument,
   IResponseDocuments,
-  xIDataDocument,
 } from "./entities";
 
 function get(params: IParamDocument): Promise<IResponseDocuments> {
@@ -20,9 +20,7 @@ function postIncome(body: IDataDocument): Promise<IResponseDocuments> {
 function postRefund(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/refund", body);
 }
-function postSale(
-  body: IDataDocument | xIDataDocument
-): Promise<IResponseDocuments> {
+function postSale(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/sale", body);
 }
 function postOperation(body: IDataDocument): Promise<IResponseDocuments> {
@@ -46,12 +44,17 @@ function postCensus(body: IDataDocument): Promise<IResponseDocuments> {
 function postPurchaseReturn(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/purchase-return", body);
 }
+function postPosDocument(body: IPosDocumentDto): Promise<IResponseDocument> {
+  return api.post("pos-document", body);
+}
 function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
   return api.patch(`transaction-document/${id}`, body);
 }
-
 function remove(id: number): Promise<IResponseDocument> {
   return api.delete(`transaction-document/${id}`);
+}
+function removePosDocument(id: number, description: string): Promise<IResponseDocument> {
+  return api.patch(`pos-document/${id}`, { description });
 }
 export const DocumentService = {
   get,
@@ -66,6 +69,8 @@ export const DocumentService = {
   postMixture,
   postCensus,
   postPurchaseReturn,
+  postPosDocument,
   patch,
   remove,
+  removePosDocument,
 };

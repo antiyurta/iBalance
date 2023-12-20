@@ -1,8 +1,5 @@
 import { NewInputNumber } from "@/components/input";
-import {
-  IDataReferencePaymentMethod,
-  PaymentType,
-} from "@/service/reference/payment-method/entities";
+import { IDataReferencePaymentMethod } from "@/service/reference/payment-method/entities";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
 import { RightOutlined, LeftOutlined } from "@ant-design/icons";
 import { Button, Form, Space, Typography } from "antd";
@@ -12,149 +9,99 @@ import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import PayRequests from "./Step2/payRequests";
 import { openNofi } from "@/feature/common";
-import { useDispatch } from "react-redux";
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import { setMethods } from "@/feature/core/reducer/PosReducer";
-import { IDataTransaction } from "@/service/document/transaction/entities";
-import { DocumentService } from "@/service/document/service";
-import {
-  IDataDocument,
-  MovingStatus,
-  xIDataDocument,
-} from "@/service/document/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
-import dayjs from "dayjs";
+import { PosInvoiceService } from "@/service/pos/invoice/service";
+import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
 
 const { Title } = Typography;
-
-interface ISale {
-  paymentMethodId: number;
-  amount: number;
-  discountAmount: number;
-  consumerDiscountAmount: number;
-  payAmount: number;
-  transactions: any[];
-}
-
 interface IProps {
   isPrev?: () => void;
   isNext?: () => void;
-  paidAmount: number;
+  shoppingCart: IDataShoppingCart;
 }
 
 const Step2 = (props: IProps) => {
   const [form] = Form.useForm();
-  const dispatch = useDispatch();
-  const { isPrev, isNext, paidAmount } = props;
+  const { isPrev, isNext, shoppingCart } = props;
   const [formMessage, setFormMessage] = useState<string>("");
-  const { methods, saveValue, consumer } = useTypedSelector(
-    (state: RootState) => state.posStep
-  );
-  const [amountDiff, setAmountDiff] = useState<number>(paidAmount);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [activeKey, setActiveKey] = useState<number>();
-  const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
   const [paymentMethods, setPaymentMethods] =
     useState<IDataReferencePaymentMethod[]>();
+  const [invoices, setInvoices] = useState<IDataPaymentInvoice[]>([]);
+  const [isInvoiceReload, setIsInvoiceReload] = useState<boolean>(false);
+  const [amountDiff, setAmountDiff] = useState<number>(0);
   const getPaymentMethods = async () => {
     blockContext.block();
     await ReferencePaymentMethodService.get({})
       .then((response) => {
-        setPaymentMethods(response.response.data);
+        setPaymentMethods(response.response);
       })
       .finally(() => {
         blockContext.unblock();
       });
   };
-  const setRequest = (values: { amount: number }) => {
+  const getInvoices = () => {
+    PosInvoiceService.get({ shoppingCartId: shoppingCart.id }).then(
+      (response) => {
+        if (response.success) {
+          setInvoices(response.response);
+        }
+      }
+    );
+  };
+  const setRequest = async (values: { amount: number }) => {
     if (!activeKey) {
       openNofi("error", "Төлбөрийн хэлбэр сонгоно уу");
     } else {
       form.resetFields();
       const method = paymentMethods?.find((method) => method.id === activeKey);
       if (method) {
-        dispatch(
-          setMethods({
-            id: method.id,
-            type: method.type,
-            imageUrl: method.imageUrl,
-            name: method.name,
-            amount: parseFloat(values.amount.toFixed(2)),
-          })
-        );
+        PosInvoiceService.post({
+          shoppingCartId: shoppingCart.id,
+          paymentMethodId: method.id,
+          amount: values.amount,
+        }).then((response) => {
+          if (response.success) {
+            getInvoices();
+          }
+        });
         setActiveKey(undefined);
       }
     }
   };
-  const isHaveReduxMethod = (id: number) => {
-    if (methods?.find((method) => method.id === id)) {
-      return true;
-    }
-    return false;
+  const isHaveReduxMethod = (id: number): boolean => {
+    let isDisabled = false;
+    if (invoices.find((invoice) => invoice.paymentMethodId === id)) {
+      isDisabled = true;
+    } else isDisabled = false;
+    return isDisabled;
   };
-  const checkMaxAmount = () => {
-    if (
-      !paymentMethods?.find(
-        (method) => method.id === activeKey && method.type === PaymentType.Cash
-      )
-    ) {
-      return amountDiff;
-    }
-    return 99999999;
-  };
-  const getShoppingCarts = async () => {
-    await ShoppingCartService.get()
-      .then((response) => {
-        if (response.success) {
-          setShoppingCarts(response.response);
-          console.log(response.response);
-          // setReload(false);
-        }
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
-  };
-  const sendTransaction = async () => {
-    if (methods && consumer) {
-      const body: xIDataDocument = {
-        paymentMethodIds: methods.map((method) => method.id),
-        warehouseId: 8,
-        consumerId: consumer?.id,
-        amount: paidAmount + saveValue,
-        discountAmount: saveValue,
-        consumerDiscountAmount: saveValue,
-        payAmount: methods.reduce(
-          (total: number, method) => total + method.amount,
-          0
-        ),
-        description: methods
-          .map((method) => `${method.name}-гүйлгээ`)
-          .toString(),
-        transactions: shoppingCarts.map((cart) => ({
-          materialId: cart.materialId,
-          lastQty: cart.lastQty,
-          expenseQty: cart.quantity,
-          unitAmount: cart.unitAmount,
-          discountAmount: cart.amount / cart.quantity,
-          totalAmount: cart.amount,
-          amount: cart.amount,
-          transactionAt: new Date(),
-        })),
-        documentAt: new Date(),
-        movingStatus: MovingStatus.Pos,
-      };
-      console.log(body);
-      await DocumentService.postSale(body).then((response) => {
-        console.log("res", response);
-      });
-    }
-  };
+  // const getShoppingGoods = async () => {
+  //   await ShoppingGoodsService.get()
+  //     .then((response) => {
+  //       if (response.success) {
+  //         setShoppingGoods(response.response);
+  //         console.log(response.response);
+  //         // setReload(false);
+  //       }
+  //     })
+  //     .finally(() => {
+  //       blockContext.unblock();
+  //     });
+  // };
   useEffect(() => {
     getPaymentMethods();
-    getShoppingCarts();
+    // getShoppingGoods();
   }, []);
+  useEffect(() => {
+    getInvoices();
+  }, [isInvoiceReload]);
+  useEffect(() => {
+    setAmountDiff(
+      shoppingCart.payAmount - invoices.reduce((total: number, item) => total + Number(item.amount), 0)
+    );
+  }, [invoices]);
   return (
     <div
       style={{
@@ -179,7 +126,7 @@ const Step2 = (props: IProps) => {
           level={1}
         >
           <NumericFormat
-            value={paidAmount}
+            value={shoppingCart.payAmount}
             thousandSeparator=","
             decimalScale={2}
             fixedDecimalScale
@@ -212,7 +159,7 @@ const Step2 = (props: IProps) => {
                   }
                 >
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${method.imageUrl}`}
+                    src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${method.logo}`}
                     width={24}
                     height={24}
                     alt={method.name}
@@ -249,7 +196,7 @@ const Step2 = (props: IProps) => {
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                     }
                     parser={(value) => value!.replace(/(,*)/g, "")}
-                    max={checkMaxAmount()}
+                    max={amountDiff}
                     step="0.1"
                     onDoubleClick={() => {
                       form.setFieldValue("amount", amountDiff);
@@ -270,8 +217,9 @@ const Step2 = (props: IProps) => {
           </Form>
         ) : null}
         <PayRequests
-          paidAmount={paidAmount}
-          amountDiff={(value) => setAmountDiff(value)}
+          invoices={invoices}
+          isReload={() => setIsInvoiceReload(!isInvoiceReload)}
+          amountDiff={amountDiff}
         />
         <div
           style={{
@@ -283,17 +231,17 @@ const Step2 = (props: IProps) => {
         >
           <Button
             title="Буцах"
-            disabled={methods?.length ? true : false}
+            // disabled={methods?.length ? true : false}
             onClick={isPrev}
             icon={<LeftOutlined />}
           />
           <Button
-            onClick={sendTransaction}
+            onClick={isNext}
             type="primary"
             style={{
               width: "100%",
             }}
-            disabled={amountDiff <= 0 ? false : true}
+            // disabled={amountDiff <= 0 ? false : true}
           >
             Үргэлжлүүлэх
           </Button>

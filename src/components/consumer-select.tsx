@@ -11,8 +11,7 @@ import { Rule } from "antd/es/form";
 interface IProps {
   form: FormInstance;
   rules: Rule[];
-  /** default => consumerId */
-  name?: string;
+  name: string | (string | number)[];
   isDisable?: boolean;
 }
 export const ConsumerSelect = (props: IProps) => {
@@ -42,7 +41,7 @@ export const ConsumerSelect = (props: IProps) => {
             />
           </div>
         )}
-        <Form.Item name={name ? name : "consumerId"} rules={rules}>
+        <Form.Item name={name} rules={rules}>
           <NewFilterSelect
             style={{
               width: "100%",
@@ -65,7 +64,7 @@ export const ConsumerSelect = (props: IProps) => {
           ComponentType="MIDDLE"
           onClickModal={(row: IDataConsumer) => {
             form.setFieldsValue({
-              [name ? `${name}` : "consumerId"]: row.id,
+              name: row.id,
             });
             setIsOpenPopOver(false);
           }}

@@ -70,7 +70,7 @@ const UnitOfMeasure = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: "type",
-      type: DataIndexType.MEASUREMENT,
+      type: DataIndexType.ENUM,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
@@ -351,7 +351,7 @@ const UnitOfMeasure = (props: IProps) => {
                   value: MeasurementType.Length,
                 },
                 {
-                  label: "Эзлэхүүн хэмжих нэгж",
+                  label: "Эзэлхүүн хэмжих нэгж",
                   value: MeasurementType.Volume,
                 },
                 {

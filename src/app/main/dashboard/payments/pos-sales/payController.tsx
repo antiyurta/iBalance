@@ -7,28 +7,32 @@ import StepIndex from "./steps/StepIndex";
 import ShoppingGoods from "./component/ShoppingGoods";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { ShoppingGoodsService } from "@/service/pos/shopping-goods/service";
+import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { NumericFormat } from "react-number-format";
 import ExtraIndex from "./extra";
+import { IDataShoppingGoods } from "@/service/pos/shopping-card/goods/entites";
+import { ShoppingTempService } from "@/service/pos/shopping-card/temp/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { setShoppingCart } from "@/feature/store/slice/shopping-cart.slice";
+import { CodeSearch } from "./component/code-search";
 
 const { Title } = Typography;
 const PayController = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const { isReload, setReload } = usePaymentGroupContext();
+  const { isReload, setReload, isReloadCart } = usePaymentGroupContext();
+  const dispatch = useDispatch<AppDispatch>();
+  const { shoppingCart } = useTypedSelector((state) => state);
   const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
-  const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
-  //
-  const [totalQuantity, setTotalQuantity] = useState<number>(0);
-  const [totalDiscountAndCoupon, setTotalDiscountAndCoupon] =
-    useState<number>(0);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
-  const getShoppingCarts = async () => {
-    await ShoppingCartService.get()
+  const [shoppingGoods, setShoppingGoods] = useState<IDataShoppingGoods[]>([]);
+
+  const getShoppingGoods = async () => {
+    await ShoppingGoodsService.get()
       .then((response) => {
         if (response.success) {
-          setShoppingCarts(response.response);
+          setShoppingGoods(response.response);
           setReload(false);
         }
       })
@@ -36,53 +40,42 @@ const PayController = () => {
         blockContext.unblock();
       });
   };
-  const createShoppingGoods = async () => {
-    await ShoppingGoodsService.post({
-      shoppingCartIds: shoppingCarts.map((cart) => cart.id),
+  const createShoppingTemps = async () => {
+    await ShoppingTempService.post({
+      goodsIds: shoppingGoods.map((goods) => goods.id),
     }).then((response) => {
       if (response.success) {
-        getShoppingCarts();
+        getShoppingGoods();
         setReload(true);
       }
     });
   };
+  const createShoppingCart = async () => {
+    await ShoppingCartService.post({
+      goodsIds: shoppingGoods.map((goods) => goods.id),
+    }).then((response) => {
+      if (response.success) {
+        setIsOpenModalSteps(true);
+        dispatch(setShoppingCart(response.response));
+      }
+    });
+  };
+  const getShoppingCart = async () => {
+    if (shoppingCart) {
+      await ShoppingCartService.getById(shoppingCart.id).then((response) => {
+        if (response.success) {
+          setShoppingCart(response.response);
+        }
+      });
+    }
+  };
   useEffect(() => {
-    isReload && getShoppingCarts();
+    getShoppingCart();
+  }, [isReloadCart]);
+  useEffect(() => {
+    isReload && getShoppingGoods();
   }, [isReload]);
 
-  const getAll = () => {
-    return shoppingCarts
-      .map((cart) => {
-        var backDiscount: number = 0;
-        var backCoupon: number = 0;
-        if (cart.discount) {
-          backDiscount = cart.unitAmount * cart.quantity - cart.amount;
-        } else {
-          backDiscount = 0;
-        }
-        if (cart.coupon && cart.coupon.conditionValue < cart.quantity) {
-          backCoupon = cart.amount / cart.quantity;
-        } else {
-          backCoupon = 0;
-        }
-        return backDiscount + backCoupon;
-      })
-      .reduce((total: number, arg: number) => total + arg, 0);
-  };
-
-  useEffect(() => {
-    // niit too shirheg bodoh
-    setTotalQuantity(
-      shoppingCarts.reduce((total: number, cart) => total + cart.quantity, 0)
-    );
-    // niit dun bodoh
-    setTotalAmount(
-      shoppingCarts.reduce((total: number, cart) => total + cart.amount, 0)
-    );
-    // niit hongololt uruamshuulal bodoh
-    setTotalDiscountAndCoupon(getAll());
-  }, [shoppingCarts]);
-  //
   return (
     <>
       <div
@@ -103,7 +96,7 @@ const PayController = () => {
           }}
         >
           <ExtraIndex />
-          <NewInput placeholder="Хайх" />
+          <CodeSearch />
           <div
             style={{
               display: "flex",
@@ -137,8 +130,8 @@ const PayController = () => {
             overflowY: "auto",
           }}
         >
-          {shoppingCarts?.map((cart) => (
-            <Item key={cart.id} data={cart} />
+          {shoppingGoods?.map((goods) => (
+            <Item key={goods.id} data={goods} />
           ))}
         </div>
         <div
@@ -175,7 +168,7 @@ const PayController = () => {
                 margin: 0,
               }}
             >
-              {totalQuantity}
+              {shoppingGoods?.length}
             </Title>
           </div>
           <div
@@ -185,7 +178,6 @@ const PayController = () => {
               justifyContent: "space-between",
             }}
           >
-            <div></div>
             <Title
               level={3}
               style={{
@@ -205,7 +197,12 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={totalDiscountAndCoupon}
+                value={shoppingGoods.reduce(
+                  (total, item) =>
+                    total +
+                    (item.unitAmount - item.discountAmount) * item.quantity,
+                  0
+                )}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -243,7 +240,10 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={totalAmount}
+                value={shoppingGoods?.reduce(
+                  (total, item) => total + Number(item.payAmount),
+                  0
+                )}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -266,7 +266,7 @@ const PayController = () => {
                 height: 38,
                 minWidth: 120,
               }}
-              onClick={createShoppingGoods}
+              onClick={createShoppingTemps}
             >
               Түр хадгалах
             </button>
@@ -275,8 +275,8 @@ const PayController = () => {
                 width: "100%",
               }}
               type="primary"
-              disabled={shoppingCarts.length > 0 ? false : true}
-              onClick={() => setIsOpenModalSteps(true)}
+              disabled={shoppingGoods.length > 0 ? false : true}
+              onClick={() => createShoppingCart()}
             >
               Үргэлжлүүлэх
             </Button>
@@ -291,7 +291,7 @@ const PayController = () => {
         footer={null}
         destroyOnClose
       >
-        <StepIndex amount={totalAmount} bonus={totalDiscountAndCoupon} />
+        {shoppingCart ? <StepIndex shoppingCart={shoppingCart} /> : null}
       </NewModal>
     </>
   );

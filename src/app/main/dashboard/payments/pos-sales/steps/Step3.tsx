@@ -11,10 +11,14 @@ import {
 import { Button, Form, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
 import Bill from "./Step3/Bill";
+import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
+import { DocumentService } from "@/service/document/service";
+import { IDataDocument } from "@/service/document/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
 
 interface IProps {
   isPrev?: () => void;
-  isNext?: () => void;
+  shoppingCart: IDataShoppingCart;
 }
 
 const { Title } = Typography;
@@ -27,7 +31,11 @@ const Step3 = (props: IProps) => {
   const [merchantInfo, setMerchantInfo] = useState<
     IDataMerchantInfo | undefined
   >();
-  const { isPrev, isNext } = props;
+  const [isBill, setIsBill] = useState<boolean>(false);
+  const [posDocument, setPosDocument] = useState<IDataDocument>();
+  const regno = Form.useWatch("regno", form);
+  const { id } = useTypedSelector((state) => state.warehouse);
+  const { isPrev, shoppingCart } = props;
   const getInfo = async (values: { regno: number }) => {
     await EbarimtService.getOrganizationInfo(values.regno).then((response) => {
       if (response.response.status) {
@@ -38,7 +46,18 @@ const Step3 = (props: IProps) => {
       }
     });
   };
-  const [test, setTest] = useState<boolean>(false);
+  const saveDocument = async () => {
+    await DocumentService.postPosDocument({
+      shoppingCartId: shoppingCart.id,
+      regno: regno,
+      warehouseId: id,
+    }).then((response) => {
+      if (response.success) {
+        setIsBill(true);
+        setPosDocument(response.response);
+      }
+    });
+  };
   useEffect(() => {
     if (isActiveTaxType === "PERSON") {
       form.resetFields();
@@ -107,7 +126,7 @@ const Step3 = (props: IProps) => {
                         rules={[
                           {
                             required: true,
-                            message: "йыбзыйб",
+                            message: "Байгууллагын регистр оруулна уу.",
                           },
                         ]}
                       >
@@ -151,7 +170,7 @@ const Step3 = (props: IProps) => {
             Төлсөн дүн
           </Title>
           <Title level={3} type="secondary">
-            77,000.00
+            {shoppingCart.payAmount}
           </Title>
         </div>
         <div className="numbers">
@@ -159,7 +178,7 @@ const Step3 = (props: IProps) => {
             Ибаримт руу илгээх дүн:
           </Title>
           <Title level={3} type="secondary">
-            77,000.00
+            {shoppingCart.payAmount}
           </Title>
         </div>
         <Title
@@ -168,7 +187,8 @@ const Step3 = (props: IProps) => {
             alignSelf: "center",
           }}
         >
-          НӨАТ: 7,900.00
+          НӨАТ: {"0.00"}
+          {/* TODO НӨАТ: { '0.00' }  */}
         </Title>
         <Title
           level={3}
@@ -176,7 +196,7 @@ const Step3 = (props: IProps) => {
             alignSelf: "center",
           }}
         >
-          НХАТ: 7,900.00
+          НХАТ: 0.00
         </Title>
         <div
           style={{
@@ -194,8 +214,7 @@ const Step3 = (props: IProps) => {
               width: "100%",
             }}
             onClick={() => {
-              console.log("sdas");
-              setTest(true);
+              saveDocument();
             }}
             icon={<PrinterOutlined />}
           >
@@ -205,11 +224,11 @@ const Step3 = (props: IProps) => {
       </div>
       <NewModal
         width={300}
-        title="asdasd"
-        open={test}
-        onCancel={() => setTest(false)}
+        title="Баримт"
+        open={isBill}
+        onCancel={() => setIsBill(false)}
       >
-        <Bill />
+        { posDocument ? <Bill posDocument={posDocument} /> : null }
       </NewModal>
     </>
   );

@@ -29,6 +29,7 @@ const PosSales = () => {
     await ViewMaterialService.get({
       types: [MaterialType.Material],
       sectionId: value === "all" ? undefined : value,
+      moreUnitAmount: 0,
       page: page,
       limit: meta.limit,
     })

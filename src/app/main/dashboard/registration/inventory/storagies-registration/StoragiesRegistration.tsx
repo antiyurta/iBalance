@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewInput, NewSelect, NewSwitch } from "@/components/input";
+import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
@@ -18,7 +18,7 @@ import {
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
-import { Component, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SwapOutlined } from "@ant-design/icons";
 import {
   FilteredColumnsWarehouse,
@@ -52,8 +52,6 @@ const StoragiesRegistration = (props: IProps) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataWarehouse>();
-  const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
-    useState<boolean>(false);
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataWarehouse[]>(
     []
   );
@@ -83,7 +81,7 @@ const StoragiesRegistration = (props: IProps) => {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
-      dataIndex: ["user", "firstName"],
+      dataIndex: ["users"],
       type: DataIndexType.MULTI,
     },
     address: {

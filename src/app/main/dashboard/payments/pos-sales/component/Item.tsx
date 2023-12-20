@@ -1,26 +1,27 @@
 import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 import { DeleteOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
-import { Button, Popconfirm } from "antd";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import { Button, Popconfirm, Space } from "antd";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { getFile } from "@/feature/common";
 import { NumericFormat } from "react-number-format";
+import { IDataShoppingGoods } from "@/service/pos/shopping-card/goods/entites";
+import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 
 interface IProps {
-  data: IDataShoppingCart;
+  data: IDataShoppingGoods;
 }
 
 const Item = (props: IProps) => {
   const {
     data: {
       id,
-      amount,
+      payAmount,
       quantity,
-      coupon,
-      discount,
+      // coupon,
+      discountName,
+      discountAmount,
       material: { section, name, files },
       unitAmount,
     },
@@ -31,7 +32,7 @@ const Item = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const manualInput = async (number: number) => {
     setInputValue(number);
-    await ShoppingCartService.patch(id, {
+    await ShoppingGoodsService.patch(id, {
       quantity: number,
     }).finally(() => {
       blockContext.block();
@@ -39,7 +40,7 @@ const Item = (props: IProps) => {
     });
   };
   const increase = async () => {
-    await ShoppingCartService.patch(id, {
+    await ShoppingGoodsService.patch(id, {
       quantity: quantity + 1,
     })
       .then((response) => {
@@ -51,7 +52,7 @@ const Item = (props: IProps) => {
       });
   };
   const decrease = async () => {
-    await ShoppingCartService.patch(id, {
+    await ShoppingGoodsService.patch(id, {
       quantity: quantity - 1,
     })
       .then((response) => {
@@ -63,7 +64,7 @@ const Item = (props: IProps) => {
       });
   };
   const remove = async () => {
-    await ShoppingCartService.remove(id).then((response) => {
+    await ShoppingGoodsService.remove(id).then((response) => {
       if (response.success) {
         blockContext.block();
         setReload(true);
@@ -110,7 +111,7 @@ const Item = (props: IProps) => {
           }}
         >
           {url ? <Image src={url} width={50} height={50} alt={name} /> : null}
-          {discount ? (
+          {discountAmount !== unitAmount ? (
             <div
               style={{
                 position: "absolute",
@@ -123,30 +124,18 @@ const Item = (props: IProps) => {
                 borderRadius: 6,
               }}
             >
-              {discount.amount > 0 ? (
-                <p
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "white",
-                  }}
-                >
-                  {discount.amount}₮
-                </p>
-              ) : (
-                <p
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "white",
-                  }}
-                >
-                  {discount.percent}%
-                </p>
-              )}
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "white",
+                }}
+              >
+                {discountName}
+              </p>
             </div>
           ) : null}
-          {coupon ? (
+          {/* TODO {coupon ? (
             <div
               style={{
                 position: "absolute",
@@ -165,7 +154,7 @@ const Item = (props: IProps) => {
                 <>{coupon.conditionValue + "+" + coupon.quantity}</>
               )}
             </div>
-          ) : null}
+          ) : null} */}
         </div>
         <div
           style={{
@@ -195,30 +184,71 @@ const Item = (props: IProps) => {
             {name}
           </p>
           <div>{section?.name}</div>
-          <p
-            className={
-              discount || coupon?.conditionValue < quantity
-                ? "text-line-through"
-                : ""
-            }
-            style={{
-              margin: 0,
-              color: "#142A38",
-              textAlign: "start",
-              fontSize: 12,
-              fontWeight: 500,
-            }}
-          >
-            Үндсэн үнэ :{" "}
-            <NumericFormat
-              value={unitAmount}
-              thousandSeparator=","
-              decimalScale={2}
-              fixedDecimalScale
-              displayType="text"
-              suffix="₮"
-            />
-          </p>
+          {discountAmount == unitAmount ? (
+            <div
+              style={{
+                margin: 0,
+                color: "#142A38",
+                textAlign: "start",
+                fontSize: 12,
+                fontWeight: 500,
+              }}
+            >
+              {/* className nemeh coupon?.conditionValue < quantity */}
+              Үндсэн үнэ :{" "}
+              <NumericFormat
+                value={unitAmount}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
+            </div>
+          ) : (
+            <Space>
+              <div
+                style={{
+                  margin: 0,
+                  color: "#142A38",
+                  textAlign: "start",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  textDecorationLine: "line-through",
+                }}
+              >
+                Үндсэн үнэ :{" "}
+                <NumericFormat
+                  value={unitAmount}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </div>
+              <div
+                style={{
+                  margin: 0,
+                  color: "#142A38",
+                  textAlign: "start",
+                  fontSize: 12,
+                  fontWeight: 500,
+                }}
+              >
+                {/* className nemeh coupon?.conditionValue < quantity */}
+                Хямдарсан үнэ :{" "}
+                <NumericFormat
+                  value={discountAmount}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </div>
+            </Space>
+          )}
         </div>
       </div>
       <div
@@ -237,7 +267,7 @@ const Item = (props: IProps) => {
           }}
         >
           <NumericFormat
-            value={amount}
+            value={payAmount}
             thousandSeparator=","
             decimalScale={2}
             fixedDecimalScale
@@ -364,7 +394,7 @@ const Item = (props: IProps) => {
             alignSelf: "end",
           }}
         >
-          {discount ? (
+          {/* {discount ? (
             <p
               style={{
                 margin: 0,
@@ -406,7 +436,7 @@ const Item = (props: IProps) => {
                 suffix="₮"
               />
             </p>
-          ) : null}
+          ) : null} TODO */}
         </div>
       </div>
     </div>

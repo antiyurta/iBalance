@@ -4,8 +4,10 @@ import { NewInput } from "@/components/input";
 import { useAuthContext } from "@/feature/context/AuthContext";
 import { authService } from "@/service/authentication/service";
 import { Button, Col, Form, Row, Typography } from "antd";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FormItemProps } from "antd/lib/form";
+import { IChangeProfile } from "@/service/authentication/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 
 const { Title } = Typography;
 
@@ -15,18 +17,21 @@ interface EditableFormItemProps extends FormItemProps {
 
 const General = () => {
   const [form] = Form.useForm();
-  const { user, set, isEdit, setEdit } = useAuthContext();
+  const { set } = useAuthContext();
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const blockContext: BlockView = useContext(BlockContext);
+
   const getProfile = async () => {
     authService.authGet().then((response) => {
       set(response.response);
       form.setFieldsValue({
         firstName: response.response.firstName,
         lastName: response.response.lastName,
-        registerNumber: response.response.employee.registerNumber,
-        hospitalName: response.response.hospital.name,
-        roleName: response.response.role.name,
-        phoneNo: response.response.employee.phoneNo,
-        email: response.response.employee.email,
+        registerNumber: response.response.employee?.registerNumber,
+        hospitalName: response.response.hospital?.name,
+        roleName: response.response.role?.name,
+        phoneNo: response.response.employee?.phoneNo,
+        email: response.response.email,
       });
     });
   };
@@ -46,6 +51,17 @@ const General = () => {
         {editing ? props.children : <InputValue />}
       </Form.Item>
     );
+  };
+  const changeProfile = (values: IChangeProfile) => {
+    blockContext.block();
+    authService
+      .changeProfile(values)
+      .then((response) => {
+        if (response.success) {
+          set(response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     getProfile();
@@ -86,7 +102,7 @@ const General = () => {
               <FormItem
                 label="Регистерийн дугаар:"
                 name="registerNumber"
-                editing={isEdit}
+                editing={false}
               >
                 <NewInput />
               </FormItem>
@@ -119,10 +135,10 @@ const General = () => {
         <Col span={12}>
           <Form form={form} layout="vertical">
             <div className="form-grid-2">
-              <FormItem label="Гар утас:" name="phoneNo" editing={isEdit}>
+              <FormItem label="Гар утас:" name="phoneNo" editing={false}>
                 <NewInput />
               </FormItem>
-              <FormItem label="Имэйл хаяг:" name="email" editing={isEdit}>
+              <FormItem label="Имэйл хаяг:" name="email" editing={false}>
                 <NewInput />
               </FormItem>
             </div>
@@ -134,9 +150,9 @@ const General = () => {
           width: 400,
         }}
         onClick={() => {
-          setEdit(false);
+          setIsEdit(!isEdit);
           form.validateFields().then((values) => {
-            console.log(values);
+            changeProfile(values);
           });
         }}
       >

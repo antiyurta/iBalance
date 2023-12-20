@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BlockContext, BlockView } from "../context/BlockContext";
-import { OpenerService } from "@/service/pos/opener/service";
+import { OpenCloseService } from "@/service/pos/open-close/service";
 
 type OPEN = "LOADING" | "DONE" | "FAILED";
 
@@ -12,12 +12,12 @@ export default function checkOpener(Component: React.ComponentType<any>) {
     const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
     const getCheck = async () => {
       blockContext.block();
-      OpenerService.getCheckOpen()
+      OpenCloseService.get({ isClose: false })
         .then((response) => {
-          if (response.response) {
-            setIsOpen("DONE");
-          } else {
+          if (response.response.data.length == 0) {
             setIsOpen("FAILED");
+          } else {
+            setIsOpen("DONE");
           }
         })
         .finally(() => {

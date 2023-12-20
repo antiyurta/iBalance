@@ -4,9 +4,11 @@ import {
   IDataMembership,
   IParamMembership,
   IInputMembership,
+  IResponseMemberships,
 } from "./entities";
+import { GenericResponse } from "@/service/entities";
 
-function get(params: IParamMembership): Promise<IResponseMembership> {
+function get(params: IParamMembership): Promise<IResponseMemberships> {
   return api.get("reference-membership", { params });
 }
 function getById(id: number): Promise<IResponseMembership> {
@@ -16,7 +18,7 @@ function post(body: IInputMembership): Promise<IResponseMembership> {
   return api.post("reference-membership", body);
 }
 
-function remove(id: number): Promise<IResponseMembership> {
+function remove(id: number): Promise<GenericResponse> {
   return api.delete("reference-membership/" + id);
 }
 

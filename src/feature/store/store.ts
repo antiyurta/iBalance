@@ -42,7 +42,7 @@ const encryptedTransForm = encryptTransform({
 const persistConfig = {
   key: "root",
   storage: storageConfig as any, // Type assertion to `any` to bypass the type check
-  whitelist: ["core", "title", "report", "tabs", "posStep"],
+  whitelist: ["core", "title", "report", "tabs", "warehouse", "shoppingCart", "posOpenClose"],
   blacklist: [],
   transforms: [encryptedTransForm],
 };
@@ -57,3 +57,4 @@ const store = configureStore({
 const persistor = persistStore(store);
 
 export { persistor, store };
+export type AppDispatch = typeof store.dispatch;

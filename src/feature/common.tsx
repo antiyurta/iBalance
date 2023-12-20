@@ -18,6 +18,8 @@ import { NumericFormat } from "react-number-format";
 import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { IDataCountry } from "@/service/reference/country/entities";
 import { MovingStatus } from "@/service/document/entities";
+import { enumTranslation } from "./constraint-translation";
+import { authService } from "@/service/authentication/service";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
@@ -80,23 +82,6 @@ function renderCheck(text: any, type: DataIndexType) {
   switch (type) {
     case DataIndexType.BOOLEAN:
       return isChecked(text);
-    case DataIndexType.MEASUREMENT:
-      switch (text) {
-        case MeasurementType.Area:
-          return "Талбайн хэмжих нэгж";
-        case MeasurementType.Length:
-          return "Уртын хэмжих нэгж";
-        case MeasurementType.Quantity:
-          return "Тооны хэмжих нэгж";
-        case MeasurementType.Time:
-          return "Цаг хугацааны хэмжих нэгж";
-        case MeasurementType.Volume:
-          return "Шингэний хэмжих нэгж";
-        case MeasurementType.Weight:
-          return "Хүндийн хэмжих нэгж";
-        default:
-          return;
-      }
     case DataIndexType.BOOLEAN_STRING:
       if (text) {
         return (
@@ -114,6 +99,8 @@ function renderCheck(text: any, type: DataIndexType) {
       return dayjs(text).format("YYYY/MM/DD");
     case DataIndexType.DATETIME:
       return dayjs(text).format("YYYY/MM/DD HH:mm");
+    case DataIndexType.TIME:
+      return dayjs(String(text), "HH.mm").format("HH:mm");
     case DataIndexType.VALUE:
       return (
         <NumericFormat
@@ -125,36 +112,10 @@ function renderCheck(text: any, type: DataIndexType) {
           decimalScale={2}
         />
       );
-    case DataIndexType.TRANSACTION:
-      getTransactionTranslate(text);
+    case DataIndexType.ENUM:
+      return enumTranslation(text);
     default:
       return text;
-  }
-}
-const getTransactionTranslate = (text?: MovingStatus): string => {
-  switch (text) {
-    case MovingStatus.ActAmortization:
-      return "Акт хорогдол";
-    case MovingStatus.Cencus:
-      return "Тооллого";
-    case MovingStatus.InOperation:
-      return "Үйл ажиллагаанд";
-    case MovingStatus.ItemConversion:
-      return "Барааны хөрвүүлэг";
-    case MovingStatus.Mixture:
-      return "Хольц";
-    case MovingStatus.MovementInWarehouse:
-      return "Агуулах доторх хөдөлгөөн";
-    case MovingStatus.Purchase:
-      return "Татан авалт/Худалдан авалт";
-    case MovingStatus.PurchaseReturn:
-      return "Худалдан авалтын буцаалт";
-    case MovingStatus.SaleReturn:
-      return "Борлуулалтын буцаалт";
-    case MovingStatus.Sales:
-      return "Борлуулалт";
-    default:
-      return "";
   }
 }
 function removeDuplicates(set: any[]) {
@@ -271,50 +232,6 @@ interface ITypeOfFilters {
 async function typeOfFilters(props: ITypeOfFilters) {
   const { type, filters } = props;
   switch (type) {
-    case DataIndexType.MEASUREMENT:
-      var data: any = [];
-      filters.map((filter: MeasurementType) => {
-        switch (filter) {
-          case MeasurementType.Area:
-            data.push({
-              text: "Талбайн хэмжих нэгж",
-              value: MeasurementType.Area,
-            });
-            break;
-          case MeasurementType.Length:
-            data.push({
-              text: "Уртын хэмжих нэгж",
-              value: MeasurementType.Length,
-            });
-            break;
-          case MeasurementType.Quantity:
-            data.push({
-              text: "Тооны хэмжих нэгж",
-              value: MeasurementType.Quantity,
-            });
-            break;
-          case MeasurementType.Time:
-            data.push({
-              text: "Цаг хугацааны хэмжих нэгж",
-              value: MeasurementType.Time,
-            });
-            break;
-          case MeasurementType.Volume:
-            data.push({
-              text: "Эзлэхүүн хэмжих нэгж",
-              value: MeasurementType.Volume,
-            });
-            break;
-          case MeasurementType.Weight:
-            data.push({
-              text: "Хүндийн хэмжих нэгж",
-              value: MeasurementType.Weight,
-            });
-          default:
-            break;
-        }
-      });
-      return data;
     case DataIndexType.BOOLEAN:
       if (filters) {
         return filters?.map((filter: any) => {
@@ -504,6 +421,15 @@ function fieldValue(dataIndex: (string | number)[], value: number): FieldData {
   temp[dataIndex[dataIndex.length - 1]] = value;
   return result;
 }
+function getUniqueValues<T, K extends keyof T>(array: T[], key: K): T[K][] {
+  return [
+    ...new Set(
+      array
+        .map((item) => item[key])
+        .filter((value) => value !== null && value !== undefined)
+    ),
+  ] as T[K][];
+}
 export {
   parseNumber,
   isChecked,
@@ -518,5 +444,5 @@ export {
   filterCascader,
   getFile,
   fieldValue,
-  getTransactionTranslate,
+  getUniqueValues,
 };

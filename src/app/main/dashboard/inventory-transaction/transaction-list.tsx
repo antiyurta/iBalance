@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  getTransactionTranslate,
-  onCloseFilterTag,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { Meta } from "@/service/entities";
 import {

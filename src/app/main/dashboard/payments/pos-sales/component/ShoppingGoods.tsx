@@ -4,49 +4,48 @@ import { Badge, Button, Popconfirm } from "antd";
 import { SwapOutlined, CloseOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { ShoppingGoodsService } from "@/service/pos/shopping-goods/service";
-import { IDataShoppingGoods } from "@/service/pos/shopping-goods/entites";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { IDataShoppingTemp } from "@/service/pos/shopping-card/temp/entities";
+import { ShoppingTempService } from "@/service/pos/shopping-card/temp/service";
+import { NumericFormat } from "react-number-format";
 const ShoppingGoods = () => {
   const { isReload, setReload } = usePaymentGroupContext();
-  const [data, setData] = useState<IDataShoppingGoods[]>([]);
+  const [data, setData] = useState<IDataShoppingTemp[]>([]);
   const [isOpenModalSave, setIsOpenModalSave] = useState<boolean>(false);
   const getShoppingGoods = async () => {
-    await ShoppingGoodsService.get().then((response) => {
+    await ShoppingTempService.get().then((response) => {
       if (response.success) {
         setData(response.response);
         setReload(false);
       }
     });
   };
-  const transfer = async (id: number) => {
-    await ShoppingGoodsService.patch(id).then((response) => {
-      if (response.success) {
-        setIsOpenModalSave(false);
-        setReload(true);
-      }
-    });
-  };
-  const columns: ColumnsType<IDataShoppingGoods> = [
+  const columns: ColumnsType<IDataShoppingTemp> = [
     {
       title: "№",
       dataIndex: "id",
-      render: (text) => {
+      render: (id: number) => {
         return (
           <Button
             type="dashed"
             icon={<SwapOutlined />}
-            onClick={() => transfer(text)}
+            onClick={() =>
+              ShoppingTempService.empty(id).then((response) => {
+                if (response.success) {
+                  setIsOpenModalSave(false);
+                  setReload(true);
+                }
+              })
+            }
           ></Button>
         );
       },
     },
     {
       title: "Тоо хэмжээ",
-      dataIndex: "quantity",
-      render: (text, row: IDataShoppingGoods) => {
+      render: (row: IDataShoppingTemp) => {
         return (
           <div
             style={{
@@ -66,7 +65,7 @@ const ShoppingGoods = () => {
                 fontWeight: 700,
               }}
             >
-              Бүтээгдэхүүний тоо: {row.materialQuantity}
+              Бүтээгдэхүүний тоо: {row.quantity}
             </p>
             <p
               style={{
@@ -77,7 +76,7 @@ const ShoppingGoods = () => {
                 fontWeight: 400,
               }}
             >
-              Тоо хэмжээ: {text}
+              Тоо хэмжээ: {row.counter}
             </p>
           </div>
         );
@@ -92,17 +91,28 @@ const ShoppingGoods = () => {
     },
     {
       title: "Төлөх дүн",
+      dataIndex: "payAmount",
+      render: (text: string) => (
+        <NumericFormat
+          value={text}
+          thousandSeparator=","
+          decimalScale={2}
+          fixedDecimalScale
+          displayType="text"
+          suffix="₮"
+        />
+      ),
     },
     {
       title: " ",
       dataIndex: "id",
-      render: (text) => {
+      render: (id: number) => {
         return (
           <Popconfirm
             title="Delete the task"
             description="Are you sure to delete this task?"
             onConfirm={() => {
-              ShoppingGoodsService.remove(text).then(() => {
+              ShoppingTempService.remove(id).then(() => {
                 getShoppingGoods();
               });
             }}

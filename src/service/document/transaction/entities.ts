@@ -119,6 +119,13 @@ export const getTransactionColumns = (
       dataIndex: ["material", "measurement", "name"],
       type: DataIndexType.MULTI,
     },
+    unitAmount: {
+      label: "Нэгжийн үнэ",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "unitAmount",
+      type: DataIndexType.VALUE,
+    },
     incomeQty: {
       label: "Орлогын тоо хэмжээ",
       isView: true,
@@ -132,6 +139,13 @@ export const getTransactionColumns = (
       isFiltered: false,
       dataIndex: "expenseQty",
       type: DataIndexType.MULTI,
+    },
+    totalAmount: {
+      label: "Нийт дүн",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "totalAmount",
+      type: DataIndexType.VALUE,
     },
     consumerName: {
       label: "Харилцагчийн нэр",
@@ -165,27 +179,6 @@ export const getTransactionColumns = (
     };
   }
   if (status == MovingStatus.Sales) {
-    columns.paymentMethodName = {
-      label: "Төлбөрийн хэлбэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["document", "paymentMethod", "name"],
-      type: DataIndexType.MULTI,
-    };
-    columns.unitAmount = {
-      label: "Нэгжийн үнэ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "unitAmount",
-      type: DataIndexType.VALUE,
-    };
-    columns.totalAmount = {
-      label: "Нийт дүн",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "totalAmount",
-      type: DataIndexType.VALUE,
-    };
     columns.discountAmount = {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: false,

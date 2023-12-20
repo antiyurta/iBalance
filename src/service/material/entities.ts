@@ -18,6 +18,7 @@ import { IDataViewMaterial } from "./view-material/entities";
 import { IDataCoupon } from "../command/coupon/entities";
 import { IDataDiscount } from "../command/discount/entities";
 import { IDataResourceSize } from "./resource-size/entities";
+import { IDataTransaction } from "../document/transaction/entities";
 
 // Материалын төрөл
 export enum MaterialType {
@@ -69,7 +70,7 @@ export interface IDataMaterial {
   minDownloadSize: number;
   // TODO refunds: Refund[];
   // TODO bookingMaterials: BookingMaterial[];
-  // TODO transactions: Transaction[];
+  transactions: IDataTransaction[];
   memberships: IDataMembership[]; // бэлгийн карт
   fileIds: number[];
   files: IDataFile[];
