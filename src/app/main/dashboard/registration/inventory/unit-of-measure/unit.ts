@@ -22,7 +22,7 @@ export const units: IDataUnit[] = [
   },
   {
     id: 4,
-    name: "Эзэлхүүн хэмжих нэгж",
+    name: "Эзлэхүүн хэмжих нэгж",
     sectionId: 1,
     isExpand: false,
   },
@@ -44,6 +44,12 @@ export const units: IDataUnit[] = [
     sectionId: 1,
     isExpand: false,
   },
+  {
+    id: 8,
+    name: "Тусгай хэмжих нэгж",
+    sectionId: 1,
+    isExpand: false,
+  },
 ];
 
 export const unitSwitch = (id: number) => {
@@ -56,6 +62,7 @@ export const unitSwitch = (id: number) => {
         MeasurementType.Time,
         MeasurementType.Volume,
         MeasurementType.Weight,
+        MeasurementType.Other,
       ];
     case 2:
       return [MeasurementType.Quantity];
@@ -69,6 +76,8 @@ export const unitSwitch = (id: number) => {
       return [MeasurementType.Time];
     case 7:
       return [MeasurementType.Weight];
+    case 8:
+      return [MeasurementType.Other];
     default:
       return;
   }

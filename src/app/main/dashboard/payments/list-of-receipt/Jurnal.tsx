@@ -362,7 +362,7 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        <TransactionPos selectedCart={document?.shoppingCart} />
+        <TransactionPos selectedDocument={document} />
       </NewModal>
       <NewModal
         title="Төлбөр төлөх"

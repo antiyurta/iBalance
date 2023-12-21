@@ -35,6 +35,7 @@ const Step3 = (props: IProps) => {
   const [posDocument, setPosDocument] = useState<IDataDocument>();
   const regno = Form.useWatch("regno", form);
   const { id } = useTypedSelector((state) => state.warehouse);
+  const { posId } = useTypedSelector((state) => state.posOpenClose);
   const { isPrev, shoppingCart } = props;
   const getInfo = async (values: { regno: number }) => {
     await EbarimtService.getOrganizationInfo(values.regno).then((response) => {
@@ -49,8 +50,9 @@ const Step3 = (props: IProps) => {
   const saveDocument = async () => {
     await DocumentService.postPosDocument({
       shoppingCartId: shoppingCart.id,
-      regno: regno,
+      regno,
       warehouseId: id,
+      posId,
     }).then((response) => {
       if (response.success) {
         setIsBill(true);
@@ -228,7 +230,7 @@ const Step3 = (props: IProps) => {
         open={isBill}
         onCancel={() => setIsBill(false)}
       >
-        { posDocument ? <Bill posDocument={posDocument} /> : null }
+        {posDocument ? <Bill posDocument={posDocument} /> : null}
       </NewModal>
     </>
   );

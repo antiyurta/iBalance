@@ -5,6 +5,7 @@ import { IDataMaterial } from "@/service/material/entities";
 
 export interface CreateGoodsDto {
   materialId: number;
+  quantity: number;
 }
 export interface UpdateGoodstDto {
   quantity: number;

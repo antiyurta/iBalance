@@ -13,6 +13,8 @@ import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { IDataShoppingCart } from "../pos/shopping-card/entities";
+import { Dayjs } from "dayjs";
+import { IDataPos } from "../pos/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -56,6 +58,7 @@ export interface IPosDocumentDto {
   regno?: string;
   shoppingCartId: string;
   warehouseId: number;
+  posId: number;
 }
 export interface IDataDocument extends IData {
   id: number;
@@ -75,7 +78,7 @@ export interface IDataDocument extends IData {
   consumer?: IDataConsumer;
   sectionId: number;
   section: IDataReference; // гүйлгээний төрөл
-  documentAt: string;
+  documentAt: string | Dayjs;
   description: string; // гүйлгээний утга
   paymentMethodIds: number[];
   paymentMethods?: IDataReferencePaymentMethod[]; // Төлбөрийн хэлбэрүүд
@@ -93,6 +96,8 @@ export interface IDataDocument extends IData {
   shoppingCartId: string;
   shoppingCart: IDataShoppingCart;
   status: DocumentStatus;
+  posId: number;
+  pos?: IDataPos;
   transactions?: IDataTransaction[];
 }
 

@@ -192,15 +192,15 @@ const ListOfMembershipCardTransactions = () => {
         }
       })
       .finally(async () => {
-        if (shoppingCart) {
+        if (shoppingCart && shoppingCart.transactionDocument) {
           if (key == ItemAction.SHOW_DOCUMENT) {
-            if (shoppingCart.transactionDocument) {
-              getDocument(shoppingCart.transactionDocument.id).then(() =>
-                setIsBill(true)
-              );
-            }
+            getDocument(shoppingCart.transactionDocument.id).then(() =>
+              setIsBill(true)
+            );
           } else if (key == ItemAction.SHOW_TRANSACTION) {
-            setIsTransaction(true);
+            getDocument(shoppingCart.transactionDocument.id).then(() =>
+              setIsTransaction(true)
+            );
           }
         }
         blockContext.unblock();
@@ -304,7 +304,7 @@ const ListOfMembershipCardTransactions = () => {
         footer={null}
         destroyOnClose
       >
-        {shoppingCart ? <TransactionPos selectedCart={shoppingCart} /> : null}
+        {posDocument ? <TransactionPos selectedDocument={posDocument} /> : null}
       </NewModal>
     </div>
   );

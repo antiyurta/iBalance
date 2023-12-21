@@ -41,7 +41,7 @@ export const EditableTablePos = (props: IProps) => {
         dataIndex={"measurement"}
         title="Хэмжих нэгж"
         render={(_, __, index) => (
-          <Form.Item name={[index, "material", "measurement", "name"]}>
+          <Form.Item name={[index, "material", "measurement", "shortName"]}>
             <NewInput disabled />
           </Form.Item>
         )}
@@ -56,10 +56,10 @@ export const EditableTablePos = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"expenseQty"}
         title="Тоо хэмжээ"
         render={(_, __, index) => (
-          <Form.Item name={[index, "quantity"]}>
+          <Form.Item name={[index, "expenseQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
@@ -74,10 +74,10 @@ export const EditableTablePos = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"unitAmount"}
+        dataIndex={"amount"}
         title="Дүн"
         render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
+          <Form.Item name={[index, "amount"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

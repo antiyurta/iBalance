@@ -5,7 +5,7 @@ export enum MeasurementType {
   Length = "LENGTH", // urt
   Quantity = "Quantity", // too
   Time = "TIME", // hugtsaa
-  Volume = "VOLUME", // эзэлхүүн
+  Volume = "VOLUME", // эзлэхүүн
   Weight = "WEIGTH", // jin
   Other = "OTHER", // Тусгай хэмжих нэгж
 }

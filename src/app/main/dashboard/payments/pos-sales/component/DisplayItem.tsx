@@ -188,7 +188,7 @@ const DisplayItem = (props: IProps) => {
                 style={{
                   width: "100%",
                 }}
-                onClick={() => onFinish({ materialId: item.id })}
+                onClick={() => onFinish({ materialId: item.id, quantity: 1 })}
                 icon={<ShoppingCartOutlined />}
               >
                 Сагслах
@@ -234,7 +234,7 @@ const DisplayItem = (props: IProps) => {
                   width: "100%",
                 }}
                 icon={<ShoppingCartOutlined />}
-                onClick={() => onFinish({ materialId: item.id })}
+                onClick={() => onFinish({ materialId: item.id, quantity: 1 })}
               >
                 Сагслах
               </Button>

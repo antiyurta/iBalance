@@ -55,6 +55,7 @@ import {
 import { NewTable } from "@/components/table";
 import Export from "@/components/Export";
 import { TreeSectionSelect } from "@/components/tree-select";
+import { WarningOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -261,6 +262,9 @@ const Information = (props: IProps) => {
     if (params.updatedBy) {
       prm.queries = [...unDuplicate("updatedBy", params)];
     }
+    if (ComponentType !== 'FULL') {
+      prm.isActive = [true];
+    }
     setParams(prm);
     await ConsumerService.get(prm)
       .then((response) => {
@@ -309,30 +313,22 @@ const Information = (props: IProps) => {
               .map((item) => item.name)
               .toString();
             modal.confirm({
-              title: " ",
+              title: (
+                <div
+                  style={{ fontWeight: 400, fontSize: 20, color: "#ffc107" }}
+                >
+                  <WarningOutlined />
+                  {" Анхааруулга"}
+                </div>
+              ),
               icon: null,
               width: 280,
               content: (
-                <>
-                  <Title
-                    level={2}
-                    style={{
-                      textAlign: "center",
-                    }}
-                  >
-                    Өмнө нь бүртгэл үүссэн бол анхааруулга
-                  </Title>
-                  <Title
-                    level={2}
-                    style={{
-                      textAlign: "center",
-                    }}
-                  >
-                    {values.regno} дугаартай регистр {consumerNames} гэсэн
-                    харилцагч дээр үүссэн байна. Уг РД-аар дахин харилцагч
-                    үүсгэхтэй итгэлтэй байна уу?
-                  </Title>
-                </>
+                <div style={{ textAlign: "justify" }}>
+                  {`${values.regno} дугаартай регистр ${consumerNames} гэсэн
+                  харилцагч дээр үүссэн байна. Уг РД-аар дахин харилцагч
+                  үүсгэхтэй итгэлтэй байна уу?`}
+                </div>
               ),
               onOk: () => {
                 insertConsumer(values);
@@ -707,9 +703,9 @@ const Information = (props: IProps) => {
                 newParams={params}
                 onParams={(params) => setParams(params)}
                 incomeFilters={filters}
-                isEdit={true}
+                isEdit={ComponentType == 'FULL' ? true : false }
                 onEdit={(row) => openModal(true, row)}
-                isDelete={true}
+                isDelete={ComponentType == 'FULL' ? true : false }
                 onDelete={(id) => onDelete(id)}
               />
             </Col>

@@ -351,7 +351,7 @@ const UnitOfMeasure = (props: IProps) => {
                   value: MeasurementType.Length,
                 },
                 {
-                  label: "Эзэлхүүн хэмжих нэгж",
+                  label: "Эзлэхүүн хэмжих нэгж",
                   value: MeasurementType.Volume,
                 },
                 {
@@ -365,6 +365,10 @@ const UnitOfMeasure = (props: IProps) => {
                 {
                   label: "Хүндийн хэмжих нэгж",
                   value: MeasurementType.Weight,
+                },
+                {
+                  label: "Тусгай хэмжих нэгж",
+                  value: MeasurementType.Other,
                 },
               ]}
             />

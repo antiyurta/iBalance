@@ -81,15 +81,6 @@ export const TreeSectionSelect = (props: IProps) => {
       <Form.Item name={name} rules={rules}>
         <NewSelect options={filteredSections} />
       </Form.Item>
-      <div
-        style={{
-          marginLeft: 4,
-        }}
-        className="app-button-square"
-        //   onClick={() => setIsOpenModalBrand(true)}
-      >
-        <Image src={"/icons/plusGray.svg"} height={18} width={18} alt="plus" />
-      </div>
     </Space.Compact>
   );
 };

@@ -45,6 +45,7 @@ import Information from "../information/information";
 import CardList from "./cardList";
 import { NumericFormat } from "react-number-format";
 import { hasUniqueValues } from "@/feature/common";
+import { ConsumerSelect } from "@/components/consumer-select";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -62,8 +63,6 @@ const MembershipCard = () => {
   //
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [consumerDictionary, setConsumerDictionary] =
-    useState<Map<number, IDataConsumer>>();
   const [memberships, setMemberships] = useState<IDataMembership[]>([]);
   const [membership, setMembership] = useState<IDataMembership>();
 
@@ -119,7 +118,7 @@ const MembershipCard = () => {
           name: card.membership.name,
         })),
       };
-      consumerFormField(consumer.id);
+      consumerFormField(consumer);
       form.setFieldsValue(data);
     }
     setIsEdit(state);
@@ -156,20 +155,17 @@ const MembershipCard = () => {
       setMemberships(response.response.data);
     }
   };
-  const consumerFormField = (id: number) => {
-    const consumer = consumerDictionary?.get(id);
-    if (consumer) {
-      form.setFieldsValue({
-        name: consumer.name,
-        lastName: consumer.lastName,
-        regno: consumer.regno,
-        sectionName: consumer.section?.name,
-        phone: consumer.phone,
-        isIndividual: consumer.isIndividual,
-        isEmployee: consumer.isEmployee,
-        isActive: consumer.isActive,
-      });
-    }
+  const consumerFormField = (consumer: IDataConsumer) => {
+    form.setFieldsValue({
+      name: consumer.name,
+      lastName: consumer.lastName,
+      regno: consumer.regno,
+      sectionName: consumer.section?.name,
+      phone: consumer.phone,
+      isIndividual: consumer.isIndividual,
+      isEmployee: consumer.isEmployee,
+      isActive: consumer.isActive,
+    });
   };
   const onFinish = async (consumerMemberships: IInputConsumerMembership) => {
     blockContext.block();
@@ -245,14 +241,6 @@ const MembershipCard = () => {
     });
     getWarehouses();
   }, []);
-  useEffect(() => {
-    setConsumerDictionary(
-      consumers.reduce((dict, consumer) => {
-        dict.set(consumer.id, consumer);
-        return dict;
-      }, new Map<number, IDataConsumer>())
-    );
-  }, [consumers]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -325,49 +313,24 @@ const MembershipCard = () => {
           >
             <div className="inputs-gird-3">
               <Form.Item label="Харилцагчийн код">
-                <Space.Compact>
-                  <div
-                    onClick={() => setIsOpenPopOver(true)}
-                    className="extraButton"
-                  >
-                    <Image
-                      src="/icons/clipboardBlack.svg"
-                      width={16}
-                      height={16}
-                      alt="clipboard"
-                    />
-                  </div>
-                  <Form.Item name="consumerId">
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={consumers?.map((consumer) => ({
-                        value: consumer.id,
-                        label: consumer.code,
-                      }))}
-                      onClear={() => {
-                        form.resetFields([
-                          "name",
-                          "lastName",
-                          "regno",
-                          "phone",
-                          "sectionName",
-                          "isIndividual",
-                          "isEmployee",
-                          "isActive",
-                        ]);
-                      }}
-                      onSelect={consumerFormField}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <ConsumerSelect
+                  name={"consumerId"}
+                  form={form}
+                  rules={[]}
+                  onSelect={(consumer) => consumerFormField(consumer)}
+                  onClear={() => {
+                    form.resetFields([
+                      "name",
+                      "lastName",
+                      "regno",
+                      "phone",
+                      "sectionName",
+                      "isIndividual",
+                      "isEmployee",
+                      "isActive",
+                    ]);
+                  }}
+                />
               </Form.Item>
               <Form.Item label="Харилцагчийн нэр" name="name">
                 <NewInput disabled />
