@@ -117,7 +117,7 @@ const EditableTableProduct = (props: IProps) => {
           title="Дотоод код"
           render={(_, __, index) => (
             <MaterialSelect
-              params={{ types: [MaterialType.Material] }}
+              params={{ types: [MaterialType.Material], isSale: true }}
               form={form}
               rules={[{ required: true, message: "Дотоод код заавал" }]}
               name={[index, "materialId"]}

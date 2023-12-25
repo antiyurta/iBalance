@@ -102,7 +102,7 @@ const CustomerList = (props: IProps) => {
       dataIndex: "address",
       type: DataIndexType.MULTI,
     },
-    bankId: {
+    bankName: {
       label: "Банкны нэр",
       isView: true,
       isFiltered: false,

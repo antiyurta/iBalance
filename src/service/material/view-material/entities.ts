@@ -48,6 +48,7 @@ export interface IParamViewMaterial extends Meta, IParam, IFilterViewMaterial {
   sectionId?: number;
   consumerId?: number; // Харилцагчийн id
   warehouseId?: number; // Байршлийн id
+  isSale?: boolean; // Борлуулах эсэх
 }
 
 export interface IResponseViewMaterialOne extends GenericResponse {

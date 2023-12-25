@@ -17,6 +17,7 @@ import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { DocumentEdit } from "./document-edit";
+import LockDocument from "./lock-document";
 interface IProps {
   movingStatus?: MovingStatus;
 }
@@ -116,6 +117,7 @@ export const DocumentList = (props: IProps) => {
                   height={24}
                   alt="downloadIcon"
                 />
+                <LockDocument />
                 <Image
                   onClick={() => setIsFilterToggle(!isFilterToggle)}
                   src={

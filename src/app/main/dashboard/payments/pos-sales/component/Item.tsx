@@ -35,7 +35,7 @@ const Item = (props: IProps) => {
     await ShoppingGoodsService.patch(id, {
       quantity: number,
     }).finally(() => {
-      blockContext.block();
+      // blockContext.block();
       setReload(true);
     });
   };
@@ -47,7 +47,7 @@ const Item = (props: IProps) => {
         setInputValue(response.response.quantity);
       })
       .finally(() => {
-        blockContext.block();
+        // blockContext.block();
         setReload(true);
       });
   };
@@ -59,7 +59,7 @@ const Item = (props: IProps) => {
         setInputValue(response.response.quantity);
       })
       .finally(() => {
-        blockContext.block();
+        // blockContext.block();
         setReload(true);
       });
   };
@@ -83,6 +83,9 @@ const Item = (props: IProps) => {
       setUrl("/images/emptyMarket.png");
     }
   }, [files]);
+  useEffect(() => {
+    setInputValue(quantity);
+  }, [quantity]);
   return (
     <div
       style={{
@@ -339,25 +342,6 @@ const Item = (props: IProps) => {
               fontWeight: 500,
             }}
           >
-            {/* <NumericFormat
-              ref={inputRef}
-              value={inputValue}
-              inputMode="numeric"
-              onFocus={(e) => {
-                console.log(e.currentTarget, inputValue.toString().length);
-                e.currentTarget.setSelectionRange(
-                  inputValue.toString().length,
-                  inputValue.toString().length
-                );
-              }}
-              onChange={(e) => manualInput(Number(e.target.value))}
-              style={{
-                // textAlign: "end",
-                maxWidth: 50,
-                borderRadius: 5,
-                border: "1px solid green",
-              }}
-            /> */}
             <input
               value={inputValue}
               type="number"

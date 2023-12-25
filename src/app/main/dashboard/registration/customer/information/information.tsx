@@ -137,7 +137,7 @@ const Information = (props: IProps) => {
       dataIndex: "phone",
       type: DataIndexType.MULTI,
     },
-    bankId: {
+    bankName: {
       label: "Банкны нэр",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
@@ -244,8 +244,8 @@ const Information = (props: IProps) => {
     if (param.address) {
       prm.queries = [...unDuplicate("address", params)];
     }
-    if (param.bankId) {
-      prm.queries = [...unDuplicate("bankId", params)];
+    if (param.bankName) {
+      prm.queries = [...unDuplicate("bankName", params)];
     }
     if (param.bankAccountNo) {
       prm.queries = [...unDuplicate("bankAccountNo", params)];
