@@ -233,6 +233,7 @@ const PackageRegistration = (props: IProps) => {
   // Өгөгдөлөө хадгалах
   const onFinish = async (data: IDataMaterial) => {
     blockContext.block();
+    data.type = MaterialType.Package;
     if (isEdit && selectedRow) {
       await MaterialService.patchPackage(selectedRow.id, data)
         .then((response) => {

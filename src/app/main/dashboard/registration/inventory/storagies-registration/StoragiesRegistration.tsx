@@ -31,6 +31,7 @@ import { WarehouseService } from "@/service/reference/warehouse/service";
 import TextArea from "antd/es/input/TextArea";
 import { UserSelect } from "@/components/user-select";
 import { TreeSectionSelect } from "@/components/tree-select";
+import { UploadImage } from "@/components/upload-image";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -457,7 +458,7 @@ const StoragiesRegistration = (props: IProps) => {
           })
         }
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
           <div
             style={{
               display: "flex",
@@ -465,6 +466,12 @@ const StoragiesRegistration = (props: IProps) => {
               gap: 12,
             }}
           >
+            <Form.Item label="Зураг" name="logoId">
+              <UploadImage
+                imageId={form.getFieldValue("logoId")}
+                setImage={(id) => form.setFieldValue("logoId", id)}
+              />
+            </Form.Item>
             <Form.Item label="Байршлын код" name="code">
               <NewInput />
             </Form.Item>

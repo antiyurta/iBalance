@@ -1,42 +1,32 @@
-import { ColumnType } from "../entities";
-
+import { IDataEmployee } from "../employee/entities";
+import { ColumnType, Meta } from "../entities";
 interface GenericResponse {
   success: boolean;
   message: string;
   statusCode: number;
 }
-
-type TypeGender = "MAN" | "WOMAN";
-
-interface IEmployee {
-  email: string;
-  firstName: string;
-  gender: TypeGender;
-  homeAddress: string;
-  isWorking: boolean;
-  lastName: string;
-  phoneNo: string;
-  registerNumber: string;
+/** Албан тушаал */
+export enum JobPosition {
+  Treasure = 'TREASURE', // нягтлан
+  Cashier = 'CASHIER', // кассчин
+  Employee = 'EMPLOYEE', // ажилтан
 }
-
 interface IHospital {
   address: string;
   name: string;
 }
-
 interface IRole {
   id: number;
   name: string;
   description: string;
 }
-
 export interface IUser {
   imageId: number;
   createdAt?: string;
   dataBase?: string;
   deletedAt?: string;
   email: string;
-  employee?: IEmployee;
+  employee?: IDataEmployee;
   firstName: string;
   globalPatient?: boolean;
   hospital?: IHospital;
@@ -49,18 +39,16 @@ export interface IUser {
   role?: IRole;
   roleId?: number;
   updatedAt?: string;
+  jobPosition?: JobPosition;
 }
-
 export interface Tokens {
   accessToken: string;
   refreshToken: string;
 }
-
 export interface LoginBody {
   email: string;
   password: string;
 }
-
 export interface LoginResponse extends GenericResponse {
   response: {
     accessToken: string;
@@ -86,6 +74,7 @@ export interface IFilterUser {
   isActive?: boolean;
   lastName?: string;
   phonoNo?: string;
+  jobPosition?: JobPosition;
 }
 export type FilteredColumnsUser = {
   [T in keyof IFilterUser]?: ColumnType;
@@ -93,12 +82,17 @@ export type FilteredColumnsUser = {
 export interface AuthenticationResponse extends GenericResponse {
   response: IUser;
 }
+export interface IResponsePageUsers extends GenericResponse {
+  response: {
+    data: IUser[];
+    meta: Meta;
+    filter: IFilterUser;
+  };
+}
 export interface IResponseUsers extends GenericResponse {
   response: IUser[];
 }
 export interface IResponseUser extends GenericResponse {
   response: IUser;
 }
-export interface IParamUser {
-  ids?: number[];
-}
+export interface IParamUser extends Meta, IFilterUser {}

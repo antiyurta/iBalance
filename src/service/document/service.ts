@@ -50,8 +50,8 @@ function postPosDocument(body: IPosDocumentDto): Promise<IResponseDocument> {
 function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
   return api.patch(`transaction-document/${id}`, body);
 }
-function lock(ids: number[]): Promise<IResponseDocument> {
-  return api.put("transaction-document", { ids });
+function lock(ids: number[], isLock: boolean): Promise<IResponseDocument> {
+  return api.put("transaction-document", { ids, isLock });
 }
 function remove(id: number): Promise<IResponseDocument> {
   return api.delete(`transaction-document/${id}`);

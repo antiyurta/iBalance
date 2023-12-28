@@ -43,8 +43,9 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
   const addService = () => {
     form
       .validateFields([
-        ["materialWarehouseBalances", editingIndex, "warehouseId"],
-        ["materialWarehouseBalances", editingIndex, "quantity"],
+        "balances",
+        ["balances", editingIndex, "warehouseId"],
+        ["balances", editingIndex, "quantity"],
       ])
       .then(() => {
         add();
@@ -61,8 +62,11 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
   const onSave = () => {
     form
       .validateFields([
-        ["materialWarehouseBalances", editingIndex, "warehouseId"],
-        ["materialWarehouseBalances", editingIndex, "quantity"],
+        "balances",
+        ["balances", editingIndex, "warehouseId"],
+        ["balances", editingIndex, "purchaseAt"],
+        ["balances", editingIndex, "expirationAt"],
+        ["balances", editingIndex, "quantity"],
       ])
       .then(() => {
         setNewService(false);
@@ -72,7 +76,6 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
         }
       })
       .catch((error) => {
-        console.log(error);
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
@@ -84,8 +87,8 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
       remove(index);
     } else {
       form.resetFields([
-        ["materialWarehouseBalances", editingIndex, "warehouseId"],
-        ["materialWarehouseBalances", editingIndex, "quantity"],
+        ["balances", editingIndex, "warehouseId"],
+        ["balances", editingIndex, "quantity"],
       ]);
     }
     setNewService(false);
@@ -208,7 +211,6 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
                   icon={<EditOutlined />}
                   shape="circle"
                   style={{ marginRight: 8 }}
-                  disabled={editingIndex !== undefined}
                   onClick={() => setEditingIndex(index)}
                 />
                 <Popconfirm
@@ -221,7 +223,6 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
                     danger
                     icon={<DeleteOutlined style={{ color: "red" }} />}
                     shape="circle"
-                    disabled={editingIndex !== undefined}
                   />
                 </Popconfirm>
               </>

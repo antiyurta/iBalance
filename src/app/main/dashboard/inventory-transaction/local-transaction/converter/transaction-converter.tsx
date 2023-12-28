@@ -14,6 +14,8 @@ import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { EditableTableConverter } from "./editableTableConverter";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
+import { IDataTransaction } from "@/service/document/transaction/entities";
+import { hasUniqueValues } from "@/feature/common";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -154,7 +156,20 @@ const TransactionConverter = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[]}>
+            <Form.List name="transactions" rules={[{
+                  validator: async (_, transactions) => {
+                    const arr = Array.isArray(transactions)
+                      ? transactions.map(
+                          (item: IDataTransaction) => item.materialId
+                        )
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Барааны код давхардсан байна.")
+                      );
+                    }
+                  },
+                },]}>
               {(items, { add, remove }, { errors }) => (
                 <>
                   <EditableTableConverter

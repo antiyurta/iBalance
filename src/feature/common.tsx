@@ -8,16 +8,14 @@ import { ConsumerService } from "@/service/consumer/service";
 import { DataIndexType, Queries } from "@/service/entities";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
-import { notification, message } from "antd";
+import { message } from "antd";
 import type { DefaultOptionType } from "antd/es/cascader";
 import { ColumnFilterItem } from "antd/es/table/interface";
 import dayjs from "dayjs";
 import Image from "next/image";
 import React from "react";
 import { NumericFormat } from "react-number-format";
-import { MeasurementType } from "@/service/material/unitOfMeasure/entities";
 import { IDataCountry } from "@/service/reference/country/entities";
-import { MovingStatus } from "@/service/document/entities";
 import { enumTranslation } from "./constraint-translation";
 import { authService } from "@/service/authentication/service";
 type NotificationType = "success" | "info" | "warning" | "error";
@@ -47,9 +45,6 @@ export const openNofi = (
   }
   return message[type]({
     content: description,
-
-    // message: messge,
-    // description: description,
   });
 };
 
@@ -311,7 +306,7 @@ async function typeOfFilters(props: ITypeOfFilters) {
 
 async function userToFilter(ids: number[]) {
   const outFilters: ColumnFilterItem[] = [];
-  const { response } = await ReferenceService.getUsers({ ids });
+  const { response } = await authService.getAllUsers({ ids });
   response.map((res) => {
     outFilters.push({ text: res.firstName, value: res.id });
   });

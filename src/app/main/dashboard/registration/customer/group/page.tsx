@@ -236,12 +236,6 @@ const Group = () => {
               alt="printIcon"
             />
             <Export docName="TESt" />
-            <Image
-              src={"/images/DownloadIcon.svg"}
-              width={24}
-              height={24}
-              alt="downloadIcon"
-            />
           </Space>
         </Col>
         <Col sm={24}>

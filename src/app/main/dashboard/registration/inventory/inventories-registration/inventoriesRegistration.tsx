@@ -382,6 +382,7 @@ const InventoriesRegistration = (props: IProps) => {
   const onFinish = async (values: IDataMaterial) => {
     blockContext.block();
     values.fileIds = imageIds;
+    values.type = MaterialType.Material;
     if (editMode && selectedRow) {
       await MaterialService.patch(selectedRow.id, values)
         .then((response) => {

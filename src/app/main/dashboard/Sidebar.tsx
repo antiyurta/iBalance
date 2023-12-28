@@ -8,9 +8,8 @@ import {
   UserAddOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  WindowsOutlined,
   LockOutlined,
-  SnippetsOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 // import { PathActions } from "@/feature/core/actions/PathAction";
@@ -144,7 +143,6 @@ const Sidebar = () => {
         alt="inventory"
       />,
       [
-        getItem("Бараа материалын жагсаалт", "/jurnal"),
         getItem("Орлогын гүйлгээ", "/income-transaction", <></>, [
           getItem("Бараа материалын орлого", "/material-income"),
           getItem("Буцаалт", "/sale-return"),
@@ -161,6 +159,7 @@ const Sidebar = () => {
           getItem("Бараа материалын хольц", "/mixture"),
           getItem("Тооллого", "/census"),
         ]),
+        getItem("Бараа материалын жагсаалт", "/jurnal"),
       ]
     ),
     getItem(
@@ -194,6 +193,20 @@ const Sidebar = () => {
           fontSize: 18,
         }}
       />
+    ),
+    getItem(
+      "Админ",
+      "/main/dashboard/admin",
+      <UserOutlined
+        style={{
+          fontSize: 18,
+        }}
+      />,
+      [
+        getItem("Хэрэглэгчийн бүртгэл", "/users"),
+        getItem("Хэрэглэгчийн эрхийн тохиргоо", "/permission"),
+        getItem("POS-ын тохиргоо", "/config-pos"),
+      ]
     ),
   ];
   // fuctions

@@ -1,14 +1,14 @@
 "use client";
 import Image from "next/image";
-import { Meta } from "@/service/entities";
 import { IDataReferencePaymentMethod } from "@/service/reference/payment-method/entities";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
-import { Col, Form, Input, Row, Space, Table } from "antd";
+import { App, Col, Input, Row, Space, Table } from "antd";
 import { useEffect, useState } from "react";
 import Title from "antd/lib/typography/Title";
 import { NewSwitch } from "@/components/input";
 import { ColumnsType } from "antd/es/table";
 const PaymentMethodPage = () => {
+  const { modal } = App.useApp();
   const [data, setData] = useState<IDataReferencePaymentMethod[]>([]);
   const columns: ColumnsType<IDataReferencePaymentMethod> = [
     {
@@ -45,20 +45,13 @@ const PaymentMethodPage = () => {
       render: (_, record) => (
         <NewSwitch
           defaultChecked={record.isActive}
-          onChange={(value: boolean) =>
-            onFinish(record.id, {
-              id: record.id,
-              logo: record.logo,
-              name: record.name,
-              type: record.type,
-              isActive: value,
-              createdBy: record.createdBy,
-              updatedBy: record.updatedBy,
-              createdAt: record.createdAt,
-              updatedAt: record.updatedAt,
-              deletedAt: record.deletedAt,
-            })
-          }
+          onChange={(value: boolean) => {
+            if (!value) {
+              confirm(record.id, value);
+            } else {
+              onFinish(record.id, value);
+            }
+          }}
         />
       ),
     },
@@ -70,8 +63,25 @@ const PaymentMethodPage = () => {
       }
     });
   };
-  const onFinish = async (id: number, value: IDataReferencePaymentMethod) => {
-    await ReferencePaymentMethodService.patch(id, value).then((response) => {
+  const confirm = (id: number, isActive: boolean) => {
+    modal.warning({
+      title: "Анхааруулга",
+      content: (
+        <div>
+          <p>Төлбөрийн хэлбэрийг идэвхгүй болгохдоо итгэлтэй байна уу?</p>
+        </div>
+      ),
+      cancelText: "Болих",
+      okText: "Тийм",
+      closable: true,
+      onOk: () => onFinish(id, isActive),
+    });
+  };
+  const onFinish = async (id: number, isActive: boolean) => {
+    await ReferencePaymentMethodService.patch(id, {
+      id,
+      isActive,
+    }).then((response) => {
       if (response.success) {
         getData();
       }
@@ -84,7 +94,7 @@ const PaymentMethodPage = () => {
     <Row gutter={[12, 24]}>
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
-          <Title level={5}>
+          <Title level={3}>
             Үндсэн бүртгэл / Төлбөр, үнэ / Төлбөрийн хэлбэр
           </Title>
         </Space>

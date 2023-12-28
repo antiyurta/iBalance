@@ -1,6 +1,6 @@
 import { ConsumerSelect } from "@/components/consumer-select";
 import DateIntervalForm from "@/components/dateIntervalForm";
-import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
+import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -9,13 +9,11 @@ import {
   IDataDocument,
   IFilterDocument,
   IParamDocument,
+  MovingStatus,
 } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { DataIndexType, Meta } from "@/service/entities";
-import {
-  IDataWarehouse,
-  IParamWarehouse,
-} from "@/service/reference/warehouse/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Form } from "antd";
 import Image from "next/image";
@@ -93,8 +91,11 @@ const columns: FilteredColumnsDocument = {
     type: DataIndexType.MULTI,
   },
 };
-
-const LockDocument = () => {
+interface IProps {
+  movingStatus?: MovingStatus;
+}
+const LockDocument = (props: IProps) => {
+  const { movingStatus } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
@@ -102,7 +103,8 @@ const LockDocument = () => {
   const [params, setParams] = useState<IParamDocument>({
     page: 1,
     limit: 10,
-    isLock: [false],
+    isLock: false,
+    movingStatus: movingStatus,
   });
   const [data, setData] = useState<IDataDocument[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
@@ -127,7 +129,7 @@ const LockDocument = () => {
   const locking = () => {
     const ids: number[] = selectedRows.map((item) => item.id);
     blockContext.block();
-    DocumentService.lock(ids)
+    DocumentService.lock(ids, !form.getFieldValue('isLock'))
       .then((response) => {
         if (response.success) setIsLockModal(false);
       })
@@ -142,6 +144,9 @@ const LockDocument = () => {
     }
   }, [isLockModal, params]);
   useEffect(() => getWarehouses(), []);
+  useEffect(() => {
+    form.setFieldValue("movingStatus", movingStatus);
+  }, [movingStatus]);
   return (
     <>
       <Image
@@ -172,6 +177,7 @@ const LockDocument = () => {
             gap: 16,
             alignSelf: "stretch",
           }}
+          initialValues={{ isLock: false }}
         >
           <DateIntervalForm
             customStyle={{
@@ -225,6 +231,9 @@ const LockDocument = () => {
                 { value: "BOOKING_SALE", label: "Захиалгын борлуулалт" },
               ]}
             />
+          </Form.Item>
+          <Form.Item label="Гүйлгээ түгжсэн эсэх" name="isLock" valuePropName="checked">
+            <NewSwitch />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

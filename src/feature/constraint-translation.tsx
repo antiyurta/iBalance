@@ -54,6 +54,12 @@ export const enumTranslation = (value: string) => {
     return <div style={{ ...style, color: "green" }}>Хүндийн хэмжих нэгж</div>;
   else if (value == "OTHER")
     return <div style={{ ...style, color: "green" }}>Тусгай хэмжих нэгж</div>;
+  else if (value == "EMPLOYEE")
+    return <div style={{ ...style, color: "green" }}>Ажилтан</div>;
+  else if (value == "TREASURE")
+    return <div style={{ ...style, color: "green" }}>Нягтлан</div>;
+  else if (value == "CASHIER")
+    return <div style={{ ...style, color: "green" }}>Кассчин</div>;
   else
     return <div style={{ ...style, color: "green" }}>{value}</div>;
 };

@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag, openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { Meta } from "@/service/entities";
 import {
@@ -51,14 +51,18 @@ export const TransactionList = (props: IProps) => {
       .finally(() => blockContext.unblock());
   };
   const editDocument = async (transaction: IDataTransaction) => {
-    blockContext.block();
-    await DocumentService.getById(transaction.documentId)
+    if (transaction.document?.isLock) {
+      openNofi('warning', 'Баримт түгжигдсэн байна.')
+    } else {
+      blockContext.block();
+      await DocumentService.getById(transaction.documentId)
       .then((response) => {
         if (response.success) {
           setSelectedDocument(response.response);
         }
       })
       .finally(() => blockContext.unblock());
+    }
   };
   useEffect(() => {
     getData(params);

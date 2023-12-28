@@ -1,18 +1,38 @@
-import { GenericResponse, IData, IParam, Meta } from "@/service/entities";
+import { ColumnType, GenericResponse, IData, IFilter, IParam, Meta } from "@/service/entities";
 import { IDataWarehouse } from "../reference/warehouse/entities";
+export interface ICreatePos {
+  warehouseId: number;
+  name: string;
+  password: string;
+  isActive: boolean;
+  userIds: number[];
+}
 export interface IDataPos extends IData {
   id: number;
   warehouseId: number;
   warehouse: IDataWarehouse;
   name: string;
   password: string;
-  posUsers: IDataPosUser;
+  isActive: boolean;
+  posUsers: IDataPosUser[];
 }
 interface IDataPosUser {
   id: number;
-  pasId: number;
+  posId: number;
   pos: IDataPos;
   userId: number;
+}
+export interface IFilterPos extends IFilter {
+    ids: number[];
+    names: string[];
+    warehouseCodes: string[];
+    warehouseNames: string[];
+    warehouseAddress: string[];
+    warehouseLogos: string[];
+    isActive: string[];
+}
+export type FilteredColumnsPos = {
+  [T in keyof IFilterPos]?: ColumnType;
 }
 export interface IParamPos extends Meta, IParam {
   warehouseId?: number;

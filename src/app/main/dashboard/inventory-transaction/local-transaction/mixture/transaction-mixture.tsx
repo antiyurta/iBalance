@@ -14,6 +14,8 @@ import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { EditableTableMixture } from "./editableTableMixture";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
+import { IDataTransaction } from "@/service/document/transaction/entities";
+import { hasUniqueValues } from "@/feature/common";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -172,7 +174,20 @@ const TransactionMixture = (props: IProps) => {
                   label: "Орц",
                   key: "item-1",
                   children: (
-                    <Form.List name="ingredients" rules={[]}>
+                    <Form.List name="ingredients" rules={[{
+                      validator: async (_, ingredients) => {
+                        const arr = Array.isArray(ingredients)
+                          ? ingredients.map(
+                              (item: IDataTransaction) => item.materialId
+                            )
+                          : [];
+                        if (!hasUniqueValues(arr)) {
+                          return Promise.reject(
+                            new Error("Барааны код давхардсан байна.")
+                          );
+                        }
+                      },
+                    },]}>
                       {(items, { add, remove }, { errors }) => (
                         <>
                           <EditableTableMixture
@@ -193,7 +208,20 @@ const TransactionMixture = (props: IProps) => {
                   label: "Гарц",
                   key: "item-2",
                   children: (
-                    <Form.List name="exits" rules={[]}>
+                    <Form.List name="exits" rules={[{
+                      validator: async (_, exits) => {
+                        const arr = Array.isArray(exits)
+                          ? exits.map(
+                              (item: IDataTransaction) => item.materialId
+                            )
+                          : [];
+                        if (!hasUniqueValues(arr)) {
+                          return Promise.reject(
+                            new Error("Барааны код давхардсан байна.")
+                          );
+                        }
+                      },
+                    },]}>
                       {(items, { add, remove }, { errors }) => (
                         <>
                           <EditableTableMixture

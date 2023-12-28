@@ -93,6 +93,13 @@ const CommandList = (props: IProps) => {
       dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
+    quantity: {
+      label: "Баримтын тоо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "quantity",
+      type: DataIndexType.MULTI,
+    },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,

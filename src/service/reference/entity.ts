@@ -39,5 +39,4 @@ export enum IType {
   MATERIAL_RANK = "MATERIAL_RANK", // Барааны зэрэглэл
   REASON_REFUND = "RETURN", // Буцаалтын шалтгаан
   MONEY = "MONEY", // мөнгөн дэвсгэрт
-  MATERIAL_INCOME_TYPE = 'MATERIAL_INCOME_TYPE', // Бараа материалын орлогын гүйлгээний төрөл
 }

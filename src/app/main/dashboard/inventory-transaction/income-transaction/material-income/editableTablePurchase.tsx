@@ -25,8 +25,9 @@ export const EditableTablePurchase = (props: IProps) => {
   const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const onSave = async () => {
-    return form
+  const validationFields = async (): Promise<boolean> => {
+    let isSuccess: boolean = false;
+    await form
       .validateFields([
         ["transactions"],
         ["transactions", editingIndex, "materialId"],
@@ -36,19 +37,23 @@ export const EditableTablePurchase = (props: IProps) => {
         ["transactions", editingIndex, "transactionAt"],
       ])
       .then(() => {
-        const unitAmount = form.getFieldValue(["transactions", editingIndex, "unitAmount"]);
-        const incomeQty = form.getFieldValue(["transactions", editingIndex, "incomeQty"]);
-        form.setFieldValue(["transactions", editingIndex, "totalAmount"], unitAmount * incomeQty);
-        setNewService(false);
-        setEditingIndex(undefined);
-        return true;
+        isSuccess = true;
       })
       .catch((error) => {
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
-        return false;
+        isSuccess = false;
       });
+    return isSuccess;
+  };
+  const onSave = async () => {
+    if (await validationFields()) {
+      setNewService(false);
+      setEditingIndex(undefined);
+      return true;
+    }
+    return false;
   };
   const onCancel = (index: number) => {
     if (isNewService) {
@@ -74,7 +79,13 @@ export const EditableTablePurchase = (props: IProps) => {
       dataSource={data}
       footer={() => {
         return (
-          <div className="button-editable-footer" onClick={() => add()}>
+          <div
+            className="button-editable-footer"
+            onClick={async () => {
+              await validationFields() && add();
+              setEditingIndex(data.length);
+            }}
+          >
             <div
               style={{
                 display: "flex",
@@ -129,7 +140,6 @@ export const EditableTablePurchase = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
-                    unitAmount: value.unitAmount,
                   },
                 },
               });
@@ -174,15 +184,6 @@ export const EditableTablePurchase = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"unitAmount"}
-        title="Нэгж үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
-            <NewInputNumber disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
         dataIndex={"incomeQty"}
         title="Орлогын тоо хэмжээ"
         render={(_, __, index) => (
@@ -191,15 +192,6 @@ export const EditableTablePurchase = (props: IProps) => {
             rules={[{ required: true, message: "Орлогын тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"totalAmount"}
-        title="Нийт үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "totalAmount"]}>
-            <NewInputNumber disabled />
           </Form.Item>
         )}
       />

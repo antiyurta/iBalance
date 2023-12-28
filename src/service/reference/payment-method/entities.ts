@@ -8,12 +8,12 @@ export enum PaymentType {
   /** Бэлэн бус */
   NotCash = "NOT_CASH",
 }
-export interface IDataReferencePaymentMethod extends IData {
+export interface IDataReferencePaymentMethod {
   id: number;
-  logo: string;
-  name: string;
-  type: PaymentType;
-  isActive: boolean;
+  logo?: string;
+  name?: string;
+  type?: PaymentType;
+  isActive?: boolean;
 }
 export interface IParamPaymentMethod extends IParam {
   name?: string;

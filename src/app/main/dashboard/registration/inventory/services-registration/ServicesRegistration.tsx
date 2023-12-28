@@ -303,6 +303,7 @@ const ServicesRegistration = (props: IProps) => {
   // Өгөгдөлөө хадгалах
   const onFinish = async (data: IDataMaterial) => {
     blockContext.block();
+    data.type = MaterialType.Service;
     if (isEdit && selectedRow) {
       await MaterialService.patch(selectedRow.id, data)
         .then((response) => {
