@@ -9,7 +9,6 @@ import {
   Meta,
 } from "@/service/entities";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
-import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { IDataShoppingCart } from "../pos/shopping-card/entities";
@@ -62,6 +61,7 @@ export interface IPosDocumentDto {
 }
 export interface IDataDocument extends IData {
   id: number;
+  code: string;
   refundAt: string;
   relDocumentId: number;
   relDocument: IDataDocument;
@@ -101,6 +101,7 @@ export interface IDataDocument extends IData {
 
 export interface IFilterDocument extends IFilter {
   id?: number;
+  code?: string;
   movingStatus?: MovingStatus;
   hideMovingStatuses?: MovingStatus[];
   warehouseId?: number;
@@ -148,6 +149,9 @@ export interface IResponseDocuments extends GenericResponse {
 export interface IResponseDocument extends GenericResponse {
   response: IDataDocument;
 }
+export interface IResponseDocumentCode extends GenericResponse {
+  response: string;
+}
 export const getDocumentColumns = (
   status?: MovingStatus
 ): FilteredColumnsDocument => {
@@ -156,7 +160,7 @@ export const getDocumentColumns = (
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: "code",
       type: DataIndexType.MULTI,
     },
     documentAt: {

@@ -40,9 +40,7 @@ const RStorage1Filter = (props: IProps) => {
         );
         const userIds = [...new Set(duplicatedUserIds.flat())].filter(Boolean);
         if (userIds?.length > 0) {
-          getUsers({
-            ids: userIds,
-          });
+          getUsers(userIds);
         }
       }
     });
@@ -52,8 +50,8 @@ const RStorage1Filter = (props: IProps) => {
       setWarehouses(response.response.data);
     });
   };
-  const getUsers = async (params: IParamUser) => {
-    authService.getAllUsers(params).then((response) => {
+  const getUsers = async (ids: number[]) => {
+    authService.getAllUsers({ ids }).then((response) => {
       if (response.success) {
         setUsers(response.response);
       }

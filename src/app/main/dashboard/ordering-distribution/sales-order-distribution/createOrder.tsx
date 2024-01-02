@@ -140,7 +140,7 @@ const CreateOrder = (props: IProps) => {
           />
         </Form.Item>
         <Form.Item label="Харилцагчийн нэр">
-          <ConsumerSelect form={form} rules={[]} />
+          <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
         </Form.Item>
         <Form.Item label="Нийт дүн" name="totalAmount">
           <NewInputNumber disabled />

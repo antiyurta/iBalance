@@ -4,6 +4,7 @@ import {
   IParamDocument,
   IPosDocumentDto,
   IResponseDocument,
+  IResponseDocumentCode,
   IResponseDocuments,
 } from "./entities";
 
@@ -13,21 +14,11 @@ function get(params: IParamDocument): Promise<IResponseDocuments> {
 function getById(id: number): Promise<IResponseDocument> {
   return api.get(`transaction-document/${id}`);
 }
-
-function postIncome(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/income", body);
+function generateCode(): Promise<IResponseDocumentCode> {
+  return api.get("transaction-document/generate/code");
 }
-function postRefund(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/refund", body);
-}
-function postSale(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/sale", body);
-}
-function postOperation(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/in-operation", body);
-}
-function postAct(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/act", body);
+function post(body: IDataDocument): Promise<IResponseDocument> {
+  return api.post("transaction-document", body);
 }
 function postMove(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/move", body);
@@ -40,9 +31,6 @@ function postMixture(body: IDataDocument): Promise<IResponseDocuments> {
 }
 function postCensus(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/census", body);
-}
-function postPurchaseReturn(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/purchase-return", body);
 }
 function postPosDocument(body: IPosDocumentDto): Promise<IResponseDocument> {
   return api.post("pos-document", body);
@@ -65,16 +53,12 @@ function removePosDocument(
 export const DocumentService = {
   get,
   getById,
-  postIncome,
-  postRefund,
-  postSale,
-  postOperation,
-  postAct,
+  generateCode,
+  post,
   postMove,
   postConversion,
   postMixture,
   postCensus,
-  postPurchaseReturn,
   postPosDocument,
   patch,
   lock,

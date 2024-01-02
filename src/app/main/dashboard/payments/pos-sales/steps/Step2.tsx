@@ -147,7 +147,7 @@ const Step2 = (props: IProps) => {
                     if (!isHaveReduxMethod(method.id)) {
                       form.resetFields();
                       setActiveKey(method.id);
-                      setFormMessage(method.name);
+                      setFormMessage(method.name || "");
                     }
                   }}
                   className={
@@ -162,7 +162,7 @@ const Step2 = (props: IProps) => {
                     src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${method.logo}`}
                     width={24}
                     height={24}
-                    alt={method.name}
+                    alt={method.name || ""}
                   />
                   <Title
                     level={4}

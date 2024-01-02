@@ -32,8 +32,8 @@ export const PriceFilterForm = (props: IProps) => {
       }
     });
   };
-  const getUsers = async (params: IParamUser) => {
-    await authService.getAllUsers(params).then((response) => {
+  const getUsers = async (ids: number[]) => {
+    await authService.getAllUsers({ ids }).then((response) => {
       if (response.success) {
         setUsers(response.response);
       }
@@ -41,7 +41,7 @@ export const PriceFilterForm = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses({});
-    getUsers({});
+    getUsers([]);
   }, []);
   const onFinish = (params: IParamCommand) => {
     getData(params);
@@ -99,7 +99,7 @@ export const PriceFilterForm = (props: IProps) => {
           label="Мөрдөж эхлэх огноо"
         />
         <Form.Item label="Харилцагчийн код, нэр">
-          <ConsumerSelect form={form} rules={[]} />
+          <ConsumerSelect form={form} rules={[]} name="consumerId" />
         </Form.Item>
         <Form.Item label="Харилцагчийн бүлэг">
           <ConsumerSectionSelect
@@ -126,10 +126,10 @@ export const PriceFilterForm = (props: IProps) => {
           <MaterialSectionSelect form={form} rules={[]} isLeaf={false} />
         </Form.Item>
         <Form.Item label="Нэгж үнэ">
-          <ConsumerSelect form={form} rules={[]} />
+          <ConsumerSelect form={form} rules={[]} name="consumerId" />
         </Form.Item>
         <Form.Item label="Бөөний нэгж үнэ">
-          <ConsumerSelect form={form} rules={[]} />
+          <ConsumerSelect form={form} rules={[]} name="consumerId" />
         </Form.Item>
         <Form.Item label="Үүсгэсэн хэрэглэгч" name="createdUserId">
           <NewFilterSelect

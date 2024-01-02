@@ -31,7 +31,6 @@ export const TransactionSaleReturn = (props: IProps) => {
   const warehouseId = Form.useWatch("warehouseId", form);
   const consumerId = Form.useWatch("consumerId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [saleDocuments, setSaleDocuments] = useState<IDataDocument[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouse = (params: IParamWarehouse) => {
@@ -41,17 +40,8 @@ export const TransactionSaleReturn = (props: IProps) => {
       }
     });
   };
-  const getSaleDocuments = (params: IParamDocument) => {
-    DocumentService.get(params).then((response) => {
-      if (response.success) {
-        setSaleDocuments(response.response.data);
-      }
-    });
-  };
-  useEffect(() => {
-    getWarehouse({});
-  }, []);
   const onFinish = async (values: IDataDocument) => {
+    values.movingStatus = MovingStatus.SaleReturn;
     blockContext.block();
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
@@ -63,20 +53,26 @@ export const TransactionSaleReturn = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postRefund(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block()
+    await DocumentService.generateCode().then((response) => {
+      if (response.success) {
+        form.setFieldValue('code', response.response);
+      }
+    }).finally(() => blockContext.unblock());
+  }
   useEffect(() => {
-    getSaleDocuments({
-      warehouseId,
-      consumerId,
-      movingStatus: MovingStatus.Sales,
-    });
-  }, [warehouseId, consumerId]);
+    getWarehouse({});
+    generateCode();
+  }, []);
+  
   useEffect(() => {
     if (!selectedDocument) {
       setIsEdit(false);
@@ -128,11 +124,11 @@ export const TransactionSaleReturn = (props: IProps) => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(7,1fr)",
+                gridTemplateColumns: "repeat(6,1fr)",
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">

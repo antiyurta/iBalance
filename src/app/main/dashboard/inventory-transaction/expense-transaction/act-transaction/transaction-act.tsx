@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -37,6 +37,7 @@ const TransactionAct = (props: IProps) => {
   };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.movingStatus = MovingStatus.ActAmortization;
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
         .then((response) => {
@@ -47,15 +48,24 @@ const TransactionAct = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postAct(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode().then((response) => {
+      if (response.success) {
+        form.setFieldValue('code', response.response);
+      }
+    }).finally(() => blockContext.unblock());
+  }
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -104,7 +114,6 @@ const TransactionAct = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -112,7 +121,7 @@ const TransactionAct = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">
