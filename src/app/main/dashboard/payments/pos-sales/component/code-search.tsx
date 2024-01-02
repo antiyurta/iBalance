@@ -47,7 +47,10 @@ export const CodeSearch = () => {
       />
       <NewFilterSelect
         style={{ width: "100%" }}
-        onSelect={(id) => insertGoods({ materialId: id })}
+        onSelect={(id) => insertGoods({
+          materialId: id,
+          quantity: 1
+        })}
         options={materials.map((material) => ({
           value: material.id,
           label: `${material.code}-${material.barCode}-${material.name}`,

@@ -10,7 +10,7 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { ConsumerSelect } from "@/components/consumer-select";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
@@ -36,6 +36,7 @@ export const TransactionPurchase = (props: IProps) => {
   };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.movingStatus = MovingStatus.Purchase;
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
         .then((response) => {
@@ -46,15 +47,24 @@ export const TransactionPurchase = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postIncome(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode().then((response) => {
+      if (response.success) {
+        form.setFieldValue('code', response.response);
+      }
+    }).finally(() => blockContext.unblock());
+  }
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -110,7 +120,7 @@ export const TransactionPurchase = (props: IProps) => {
           <Form form={form} layout="vertical">
             <Row gutter={[12, 12]}>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Баримтын дугаар" name="id">
+                <Form.Item label="Баримтын дугаар" name="code">
                   <NewInput disabled />
                 </Form.Item>
               </Col>

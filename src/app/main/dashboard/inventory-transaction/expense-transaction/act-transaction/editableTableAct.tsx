@@ -132,7 +132,7 @@ export const EditableTableAct = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
-                    unitAmount: value.unitAmount,
+                    unitAmount: value.unitAmount | 0,
                     expenseQty: 1,
                   },
                 },

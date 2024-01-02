@@ -34,7 +34,7 @@ export interface IDataTransaction extends IData {
 }
 
 export interface IFilterTransaction extends IFilterDocument {
-  documentId?: number[];
+  documentCode?: string[];
   materialCode?: string[];
   materialName?: string[];
   materialMeasurementName?: string[];
@@ -79,11 +79,11 @@ export interface IResponseTransaction extends GenericResponse {
   response: IDataTransaction;
 }
 const columns: FilteredColumnsTransaction = {
-  documentId: {
+  documentCode: {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
-    dataIndex: ["document", "id"],
+    dataIndex: ["document", "code"],
     type: DataIndexType.MULTI,
   },
   documentAt: {
@@ -287,7 +287,7 @@ export const getTransactionColumns = (
   movingStatus?: MovingStatus
 ): FilteredColumnsTransaction => {
   const expenseTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentId",
+    "documentCode",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -306,7 +306,7 @@ export const getTransactionColumns = (
     "lockedAt",
   ];
   const incomeTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentId",
+    "documentCode",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -322,7 +322,7 @@ export const getTransactionColumns = (
     "updatedAt",
   ];
   const localTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentId",
+    "documentCode",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -346,7 +346,7 @@ export const getTransactionColumns = (
     [MovingStatus.Purchase]: incomeTransaction,
     [MovingStatus.SaleReturn]: incomeTransaction,
     [MovingStatus.Sales]: [
-      "documentId",
+      "documentCode",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -369,7 +369,7 @@ export const getTransactionColumns = (
       "updatedAt",
     ],
     [MovingStatus.PurchaseReturn]: [
-      "documentId",
+      "documentCode",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -391,7 +391,7 @@ export const getTransactionColumns = (
     [MovingStatus.InOperation]: expenseTransaction,
     [MovingStatus.ActAmortization]: expenseTransaction,
     [MovingStatus.MovementInWarehouse]: [
-      "documentId",
+      "documentCode",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -427,7 +427,7 @@ export const getTransactionColumns = (
   const keys: (keyof FilteredColumnsTransaction)[] = movingStatus
     ? movingStatusMappings[movingStatus]
     : [
-        "documentId",
+        "documentCode",
         "documentAt",
         "warehouseName",
         "consumerCode",

@@ -1,12 +1,12 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-import { Button, Col, Form, Row, Space, Typography, message } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
@@ -18,11 +18,6 @@ import {
 } from "@/components/input";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTableSale } from "./editableTableSale";
-import {
-  IDataReferencePaymentMethod,
-  IParamPaymentMethod,
-} from "@/service/reference/payment-method/entities";
-import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
@@ -47,6 +42,7 @@ const TransactionSale = (props: IProps) => {
   };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.movingStatus = MovingStatus.Sales;
     values.consumerDiscountAmount = Number(values.consumerDiscountAmount);
     values.amount = Number(values.amount);
     values.payAmount = Number(values.payAmount);
@@ -60,15 +56,24 @@ const TransactionSale = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postSale(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode().then((response) => {
+      if (response.success) {
+        form.setFieldValue('code', response.response);
+      }
+    }).finally(() => blockContext.unblock());
+  }
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -128,7 +133,7 @@ const TransactionSale = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">

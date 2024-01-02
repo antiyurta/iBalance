@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -11,7 +11,6 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTableAction } from "./editableTableAction";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -37,6 +36,7 @@ const TransactionAction = (props: IProps) => {
     });
   };
   const onFinish = async (values: IDataDocument) => {
+    values.movingStatus = MovingStatus.InOperation;
     blockContext.block();
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
@@ -48,15 +48,24 @@ const TransactionAction = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postOperation(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode().then((response) => {
+      if (response.success) {
+        form.setFieldValue('code', response.response);
+      }
+    }).finally(() => blockContext.unblock());
+  }
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -114,7 +123,7 @@ const TransactionAction = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">

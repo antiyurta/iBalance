@@ -11,7 +11,6 @@ import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import { EditableTableMove } from "./editableTableMove";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
@@ -54,8 +53,17 @@ const TransactionMove = (props: IProps) => {
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode().then((response) => {
+      if (response.success) {
+        form.setFieldValue('code', response.response);
+      }
+    }).finally(() => blockContext.unblock());
+  }
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -106,7 +114,6 @@ const TransactionMove = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -114,7 +121,7 @@ const TransactionMove = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">
