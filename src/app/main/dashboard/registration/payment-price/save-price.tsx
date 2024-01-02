@@ -197,30 +197,12 @@ const SavePrice = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item
-                  label="Тушаалын огноо"
-                  name="commandAt"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Тушаалын огноо оруулна уу.",
-                    },
-                  ]}
-                >
+                <Form.Item label="Тушаалын огноо" name="commandAt">
                   <NewDatePicker format={"YYYY-MM-DD"} locale={mnMN} />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item
-                  label="Тушаалын дугаар"
-                  name="commandNo"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Тушаалын дугаар оруулна уу.",
-                    },
-                  ]}
-                >
+                <Form.Item label="Тушаалын дугаар" name="commandNo">
                   <NewInput />
                 </Form.Item>
               </Col>

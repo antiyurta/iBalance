@@ -1,6 +1,4 @@
 "use client";
-
-import { MaterialType } from "@/service/material/entities";
 import Price from "../price";
 import { CommandType } from "@/service/command/entities";
 

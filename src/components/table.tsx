@@ -8,7 +8,6 @@ import DropDown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
 import type { TableProps } from "antd/lib";
-
 export const { Column } = Table;
 export const AntTable = (props: TableProps<any>) => {
   return <Table {...props} />;
@@ -21,7 +20,7 @@ export type TableItemType = {
   key: string;
   label: React.JSX.Element | string;
 };
-interface ITable {
+interface ITable{
   componentType?: ComponentType;
   scroll: {
     x?: number;
@@ -236,7 +235,7 @@ function NewTable(props: ITable) {
             }
           })}
           {props.children}
-          { items.length > 0 ? (
+          {items.length > 0 ? (
             <Column
               title=" "
               dataIndex={"id"}

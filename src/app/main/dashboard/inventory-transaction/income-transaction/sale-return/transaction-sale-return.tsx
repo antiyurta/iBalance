@@ -18,6 +18,8 @@ import {
 import { DocumentService } from "@/service/document/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
+import { IDataTransaction } from "@/service/document/transaction/entities";
+import { hasUniqueValues } from "@/feature/common";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -191,7 +193,27 @@ export const TransactionSaleReturn = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[]}>
+            <Form.List
+              name="transactions"
+              rules={[
+                {
+                  validator: async (_, transactions) => {
+                    const arr = Array.isArray(transactions)
+                      ? transactions.map((item: IDataTransaction) => {
+                          return `${item.materialId}-${dayjs(
+                            item.transactionAt
+                          ).format("YYYY/MM/DD")}`;
+                        })
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Барааны код дуусах хугацаа давхардсан байна.")
+                      );
+                    }
+                  },
+                },
+              ]}
+            >
               {(items, { add, remove }, { errors }) => (
                 <>
                   <EditableTableSaleReturn

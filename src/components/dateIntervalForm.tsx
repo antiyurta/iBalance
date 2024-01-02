@@ -89,7 +89,7 @@ const DateIntervalForm = (props: IProps) => {
     }
   };
   return (
-    <div>
+    <>
       <Form.Item
         style={intervalStyle}
         label={label ? label : "Интерваль"}
@@ -141,7 +141,7 @@ const DateIntervalForm = (props: IProps) => {
         />
       </Form.Item>
       <RenderDateFormItem />
-    </div>
+    </>
   );
 };
 export default DateIntervalForm;

@@ -45,7 +45,7 @@ export interface IFilterConsumer extends IFilter {
   regno?: string[];
   phone?: string[];
   address?: string[];
-  bankId?: number[];
+  bankName?: number[];
   bankAccountNo?: string[];
   email?: string[];
   isActive?: boolean[];

@@ -70,6 +70,7 @@ import InventoriesType from "../inventories-type/inventoriesType";
 import type { UploadFile } from "antd/es/upload/interface";
 import type { UploadProps } from "antd";
 import { ViewMaterialService } from "@/service/material/view-material/service";
+import { ConsumerSelect } from "@/components/consumer-select";
 interface IProps {
   ComponentType: ComponentType;
   materialTypes: MaterialType[];
@@ -381,6 +382,7 @@ const InventoriesRegistration = (props: IProps) => {
   const onFinish = async (values: IDataMaterial) => {
     blockContext.block();
     values.fileIds = imageIds;
+    values.type = MaterialType.Material;
     if (editMode && selectedRow) {
       await MaterialService.patch(selectedRow.id, values)
         .then((response) => {
@@ -479,6 +481,9 @@ const InventoriesRegistration = (props: IProps) => {
   useEffect(() => {
     getData(params);
   }, [isReload]);
+  useEffect(() => {
+    getBrands();
+  }, [isOpenModalBrand]);
   useEffect(() => {
     if (selectedRow && !isActive) {
       ViewMaterialService.getById(selectedRow.id).then((response) => {
@@ -1067,34 +1072,7 @@ const InventoriesRegistration = (props: IProps) => {
                 </Space.Compact>
               </Form.Item>
               <Form.Item label="Бэлтгэн нийлүүлэгчийн код, нэр">
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Image
-                      onClick={() => setIsOpenModalConsumer(true)}
-                      src="/icons/clipboardBlack.svg"
-                      width={16}
-                      height={16}
-                      alt="clipboard"
-                    />
-                  </div>
-                  <Form.Item name="consumerSupplierId">
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, label) =>
-                        (label?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={consumers?.map((consumer) => ({
-                        label: consumer.code + "-" + consumer.name,
-                        value: consumer.id,
-                      }))}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <ConsumerSelect form={form} rules={[]} name="consumerSupplierId" />
               </Form.Item>
               <Form.Item label="Дэлгэрэнгүй мэдээлэл" name="description">
                 <NewTextArea />
@@ -1182,6 +1160,7 @@ const InventoriesRegistration = (props: IProps) => {
         title="Брэнд"
         open={isOpenModalBrand}
         onCancel={() => setIsOpenModalBrand(false)}
+        footer={null}
       >
         <InventoriesBrand
           ComponentType="MODAL"

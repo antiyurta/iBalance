@@ -280,7 +280,7 @@ export const StoragiesGroup = () => {
               }}
             >
               <TreeSectionSelect
-                isLeaf={true}
+                isLeaf={false}
                 type={TreeSectionType.Warehouse}
                 form={form}
                 rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}

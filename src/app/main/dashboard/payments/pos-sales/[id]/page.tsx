@@ -14,54 +14,67 @@ import { Badge, Breadcrumb, Button, Col, Row, Space, Typography } from "antd";
 import { useParams } from "next/navigation";
 import { NewInputNumber } from "@/components/input";
 import { useContext, useEffect, useState } from "react";
-import { MaterialService } from "@/service/material/service";
-import { IDataMaterial } from "@/service/material/entities";
 //swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { getFile } from "@/feature/common";
-import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
+// import { IDataShoppingCartPost } from "@/service/pos/shopping-card/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { ViewMaterialService } from "@/service/material/view-material/service";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import SimilarMaterials from "./similar-materials";
+import { NumericFormat } from "react-number-format";
+import NumberInput from "../component/number-input";
+import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
+import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
 
 const { Title } = Typography;
-
-interface xIDataMaterial extends IDataMaterial {
-  resources?: string[];
-}
 
 const MaterialDetail = () => {
   const params = useParams();
   const { setReload } = usePaymentGroupContext();
   const blockContext: BlockView = useContext(BlockContext);
-  const [material, setMaterial] = useState<xIDataMaterial>();
+  const [material, setMaterial] = useState<IDataViewMaterial>();
+  const [images, setImages] = useState<string[]>([]);
+  const [qty, setQty] = useState<number>(0);
   const getMaterial = async (id: number) => {
-    await MaterialService.getById(id).then(async ({ response }) => {
-      var material: xIDataMaterial = response;
-      if (material.fileIds.length > 0) {
-        var resources: string[] = [];
-        await Promise.all(
-          material.fileIds.map(async (fileId) => {
-            const src = await getFile(fileId);
-            resources.push(src);
-          })
-        );
-        material.resources = resources;
-      }
-      setMaterial(material);
-    });
+    const response = await ViewMaterialService.getById(id);
+    if (response.success) {
+      setMaterial(response.response);
+    }
   };
-  const onFinish = async (data: IDataShoppingCartPost) => {
+  const onFinish = async (data: CreateGoodsDto) => {
     blockContext.block();
-    await ShoppingCartService.post(data).then((response) => {
-      if (response.success) {
+    await ShoppingGoodsService.post(data)
+      .finally(() => {
         setReload(true);
-      }
-    });
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const getImages = async () => {
+    if (material) {
+      const listImage: string[] = [];
+      await Promise.all(
+        material.fileIds.map(async (fileId) => {
+          const src = await getFile(fileId);
+          listImage.push(src);
+        })
+      );
+      setImages(listImage);
+    }
   };
   useEffect(() => {
     getMaterial(Number(params.id));
   }, []);
+  useEffect(() => {
+    getImages();
+  }, [material]);
   return (
     <div>
       <Row
@@ -75,7 +88,7 @@ const MaterialDetail = () => {
             separator=">"
             items={[
               {
-                title: material?.section.name,
+                title: material?.sectionName,
                 href: "",
               },
               {
@@ -87,12 +100,26 @@ const MaterialDetail = () => {
         <Col span={24}>
           <Row gutter={[12, 24]}>
             <Col sm={24} md={24} lg={12} xl={10}>
-              <Swiper className="swiper-one-item">
-                {material?.resources?.map((blobUrls, index) => (
-                  <SwiperSlide key={index}>
-                    <Image src={blobUrls} width={0} height={0} alt="dd" />
-                  </SwiperSlide>
-                ))}
+              <Swiper
+                modules={[Autoplay, Pagination, Navigation]}
+                effect="fade"
+                className="swiper-one-item"
+                spaceBetween={30}
+                centeredSlides={true}
+                autoplay={{
+                  delay: 2500,
+                  disableOnInteraction: false,
+                }}
+                pagination={{ clickable: true }}
+                navigation={true}
+              >
+                {images.map((el, i) => {
+                  return (
+                    <SwiperSlide key={i}>
+                      <Image src={el} width={0} height={0} alt="dd" />
+                    </SwiperSlide>
+                  );
+                })}
               </Swiper>
             </Col>
             <Col sm={24} md={24} lg={12} xl={14}>
@@ -133,41 +160,47 @@ const MaterialDetail = () => {
                 </Col>
                 <Col span={24}>
                   <Space size={24} wrap>
-                    {material?.coupons?.map((coupon, index) => (
+                    {material?.coupon ? (
                       <Badge
-                        key={index}
-                        count={`${coupon.conditionValue} + ${coupon.quantity}`}
+                        count={`${material?.coupon?.conditionValue} + ${material?.coupon?.quantity}`}
                       />
-                    ))}
-                    {material?.discounts?.map((discount, index) => (
-                      <Badge
-                        key={index}
-                        count={
-                          discount.percent > 0
-                            ? `${discount.percent}%`
-                            : `${discount.amount}₮`
-                        }
-                        style={{
-                          display: "flex",
-                          padding: 12,
-                          alignItems: "center",
-                          fontSize: 13,
-                        }}
-                      />
-                    ))}
+                    ) : null}
+                    <Badge
+                      count={material?.discountName}
+                      style={{
+                        display: "flex",
+                        padding: 12,
+                        alignItems: "center",
+                        fontSize: 13,
+                      }}
+                    />
                   </Space>
                 </Col>
                 <Col span={24}>
                   <Space size={12} wrap>
-                    <NewInputNumber
-                      style={{
-                        width: 170,
-                      }}
-                      addonBefore={<MinusOutlined />}
-                      addonAfter={<PlusOutlined />}
-                    />
-                    <Title level={3}>Нэгж үнэ: 1400</Title>
-                    <Title level={3}>Нийт үнэ: 4200</Title>
+                    <NumberInput iValue={setQty} />
+                    <Title level={3}>
+                      Нэгж үнэ:
+                      <NumericFormat
+                        value={material?.unitAmount}
+                        thousandSeparator=","
+                        decimalScale={2}
+                        fixedDecimalScale
+                        displayType="text"
+                        suffix="₮"
+                      />
+                    </Title>
+                    <Title level={3}>
+                      Нийт дүн:
+                      <NumericFormat
+                        value={Number(material?.unitAmount || 0) * qty}
+                        thousandSeparator=","
+                        decimalScale={2}
+                        fixedDecimalScale
+                        displayType="text"
+                        suffix="₮"
+                      />
+                    </Title>
                   </Space>
                 </Col>
                 <Col span={24}>
@@ -178,7 +211,14 @@ const MaterialDetail = () => {
                       color: "#212529",
                     }}
                   >
-                    Агуулахад байгаа барааны үлдэгдэл: 1,000ш
+                    Агуулахад байгаа барааны үлдэгдэл:{" "}
+                    <NumericFormat
+                      value={material?.lastQty}
+                      thousandSeparator=","
+                      fixedDecimalScale
+                      displayType="text"
+                      suffix="ш"
+                    />
                   </Title>
                 </Col>
                 <Col span={24}>
@@ -189,13 +229,10 @@ const MaterialDetail = () => {
                     }}
                     onClick={() => {
                       if (material) {
-                        // onFinish({
-                        //   materialId: material.id,
-                        //   quantity: 0,
-                        //   amount: material.unitAmount,
-                        //   discountId: material.discount.id,
-                        //   couponId: material.coupon.id,
-                        // });
+                        onFinish({
+                          materialId: material.id,
+                          quantity: qty,
+                        });
                       }
                     }}
                   >
@@ -286,69 +323,15 @@ const MaterialDetail = () => {
               color: "#142A38",
             }}
           >
-            Төстэй бараанууд:
+            Төстөй бараанууд:
           </Title>
         </Col>
         <Col span={24}>
-          <div className="group">
-            <div className="box-prev">
-              <VerticalRightOutlined
-                style={{
-                  fontSize: 20,
-                }}
-              />
-            </div>
+          {material ? (
             <div className="material-group">
-              <div className="item-group">
-                <div className="image">
-                  <Link href={"/main/dashboard/payments/pos-sales/1"}>
-                    <Image
-                      src="/images/vera.png"
-                      width={120}
-                      height={120}
-                      alt="dd"
-                    />
-                  </Link>
-                  <div className="extra">
-                    <p>1 + 1</p>
-                  </div>
-                </div>
-                <div className="title">
-                  <p className="top">Japonica Koshi Hikiri-2kg</p>
-                  <p className="bottom">#1325 4896 4848 1515</p>
-                </div>
-                <div
-                  style={{
-                    width: "100%",
-                    height: 1,
-                    background: "#DEE2E6",
-                  }}
-                />
-                <div className="price">
-                  <p className="top">Хүнс, ногоо</p>
-                  <div className="bottom">
-                    <p>2100₮</p>
-                    <p>2100₮</p>
-                  </div>
-                </div>
-                <Button
-                  style={{
-                    width: "100%",
-                  }}
-                  icon={<ShoppingCartOutlined />}
-                >
-                  Сагслах
-                </Button>
-              </div>
+              <SimilarMaterials sectionId={material?.sectionId} />
             </div>
-            <div className="box-next">
-              <VerticalLeftOutlined
-                style={{
-                  fontSize: 20,
-                }}
-              />
-            </div>
-          </div>
+          ) : null}
         </Col>
       </Row>
     </div>

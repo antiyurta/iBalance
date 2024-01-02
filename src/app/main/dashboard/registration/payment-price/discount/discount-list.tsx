@@ -3,7 +3,6 @@ import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { IDataPrice } from "@/service/command/price/entities";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row } from "antd";
 import { useContext, useEffect, useState } from "react";

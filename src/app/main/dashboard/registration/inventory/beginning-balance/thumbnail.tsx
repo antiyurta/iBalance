@@ -8,8 +8,6 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
-// interface  types
-import { TreeSectionType } from "@/service/reference/tree-section/entities";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
 import { Col, Row, Space } from "antd";
@@ -132,17 +130,23 @@ const Thumbnail = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            extra="HALF"
             data={sections}
-            isLeaf={true}
-            onClick={(key, isLeaf) => {
-              if (isLeaf) {
-                // getData({
-                //   page: 1,
-                //   limit: 10,
-                //   sectionId: [`${key}`],
-                // });
-              }
+            isLeaf={false}
+            extra="HALF"
+            onClick={(keys) => {
+              onCloseFilterTag({
+                key: "materialSectionId",
+                state: true,
+                column: columns,
+                onColumn: (columns) => setColumns(columns),
+                params: params,
+                onParams: (params) => setParams(params),
+              });
+              getData({
+                page: 1,
+                limit: 10,
+                materialSectionId: keys,
+              });
             }}
           />
         </Col>

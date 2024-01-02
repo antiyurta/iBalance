@@ -4,6 +4,7 @@ import {
   IFilterUser,
   IParamUser,
   IUser,
+  JobPosition,
 } from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
 import { FormInstance, Space } from "antd";
@@ -21,6 +22,7 @@ interface IProps {
   name?: string;
   isMultiple?: boolean;
   isDisable?: boolean;
+  jobPosition?: JobPosition;
 }
 export const UserSelect = (props: IProps) => {
   const { form, rules, name, isMultiple, isDisable } = props;
@@ -81,14 +83,15 @@ export const UserSelect = (props: IProps) => {
     },
   });
   const getUsers = async (params: IParamUser) => {
-    await authService.getAllUsers(params).then((response) => {
+    await authService.getUsers(params).then((response) => {
       if (response.success) {
-        setUsers(response.response);
+        setUsers(response.response.data);
+        setMeta(response.response.meta);
       }
     });
   };
   useEffect(() => {
-    getUsers({});
+    getUsers(params);
   }, []);
   return (
     <>

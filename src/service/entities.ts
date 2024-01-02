@@ -1,4 +1,5 @@
 import { Breakpoint } from "antd";
+import { Dayjs } from "dayjs";
 
 export enum ToolsIcons {
   EQUALS = "/icons/tools/Equals.png",
@@ -117,7 +118,7 @@ export interface IParam {
 export interface IData {
   createdBy: number;
   updatedBy: number;
-  createdAt: string;
+  createdAt: string | Dayjs;
   updatedAt: string;
   deletedAt: string;
 }

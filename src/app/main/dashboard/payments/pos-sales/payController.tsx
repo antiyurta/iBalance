@@ -33,7 +33,7 @@ const PayController = () => {
       .then((response) => {
         if (response.success) {
           setShoppingGoods(response.response);
-          setReload(false);
+          setReload(true);
         }
       })
       .finally(() => {

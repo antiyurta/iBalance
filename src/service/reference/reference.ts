@@ -4,14 +4,7 @@ import {
   IDataReference,
   IParamReference,
   IResponseReference,
-  IUserResponse,
 } from "./entity";
-
-function getUsers(params: { ids: number[] }): Promise<IUserResponse> {
-  return api.get("user", {
-    params: params,
-  });
-}
 
 function getCountries(): Promise<IResponseCountry> {
   return api.get("reference/country", {
@@ -55,7 +48,6 @@ function removeGlobalImage(id: number): Promise<any> {
 export const ReferenceService = {
   get,
   getCountries,
-  getUsers,
   getImage,
   getGlobalImage,
   post,

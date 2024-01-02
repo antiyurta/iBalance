@@ -10,16 +10,12 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { ConsumerSelect } from "@/components/consumer-select";
-import {
-  IDataReference,
-  IParamReference,
-  IType,
-} from "@/service/reference/entity";
-import { ReferenceService } from "@/service/reference/reference";
 import { IDataDocument } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
+import { IDataTransaction } from "@/service/document/transaction/entities";
+import { hasUniqueValues } from "@/feature/common";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -29,20 +25,12 @@ export const TransactionPurchase = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [incomeTypes, setIncomeTypes] = useState<IDataReference[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
-      }
-    });
-  };
-  const getIncomeTypes = (params: IParamReference) => {
-    ReferenceService.get(params).then((response) => {
-      if (response.success) {
-        setIncomeTypes(response.response.data);
       }
     });
   };
@@ -67,9 +55,6 @@ export const TransactionPurchase = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses({});
-    getIncomeTypes({
-      type: IType.MATERIAL_INCOME_TYPE,
-    });
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -112,6 +97,12 @@ export const TransactionPurchase = (props: IProps) => {
             height={24}
             alt="downloadIcon"
           />
+          <Image
+            src={"/images/UploadIcon.svg"}
+            width={24}
+            height={24}
+            alt="downloadIcon"
+          />
         </Space>
       </Col>
       <Col span={24}>
@@ -148,27 +139,8 @@ export const TransactionPurchase = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Нийлүүлэгчийн нэр">
+                <Form.Item label="Нийлүүлэгчийн код нэр">
                   <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
-                </Form.Item>
-              </Col>
-              <Col md={12} lg={8} xl={4}>
-                <Form.Item
-                  label="Гүйлгээний төрөл"
-                  name="sectionId"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Заавал",
-                    },
-                  ]}
-                >
-                  <NewFilterSelect
-                    options={incomeTypes.map((incomeType) => ({
-                      value: incomeType.id,
-                      label: incomeType.name,
-                    }))}
-                  />
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
@@ -195,7 +167,26 @@ export const TransactionPurchase = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[]}>
+            <Form.List
+              name="transactions"
+              rules={[
+                {
+                  validator: async (_, transactions) => {
+                    const arr = Array.isArray(transactions)
+                      ? transactions.map(
+                          (item: IDataTransaction) => {
+                            return `${item.materialId}-${dayjs(item.transactionAt).format("YYYY/MM/DD")}`}
+                        )
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Барааны код дуусах хугацаа давхардсан байна.")
+                      );
+                    }
+                  },
+                },
+              ]}
+            >
               {(items, { add, remove }, { errors }) => (
                 <>
                   <EditableTablePurchase

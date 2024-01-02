@@ -26,27 +26,35 @@ export const EditableTableSaleReturn = (props: IProps) => {
   const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const onSave = async () => {
-    return form
+  const validationFields = async (): Promise<boolean> => {
+    let isSuccess: boolean = false;
+    await form
       .validateFields([
         ["transactions"],
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
         ["transactions", editingIndex, "incomeQty"],
-        ["transactions", editingIndex, "endAt"],
+        ["transactions", editingIndex, "transactionAt"],
       ])
       .then(() => {
-        setNewService(false);
-        setEditingIndex(undefined);
-        return true;
+        isSuccess = true;
       })
       .catch((error) => {
         error.errorFields?.map((errorMsg: any) => {
           message.error(errorMsg.errors[0]);
         });
-        return false;
+        isSuccess = false;
       });
+    return isSuccess
+  };
+  const onSave = async () => {
+    if (await validationFields()) {
+      setNewService(false);
+      setEditingIndex(undefined);
+      return true;
+    }
+    return false;
   };
   const onCancel = (index: number) => {
     if (isNewService) {
@@ -72,7 +80,13 @@ export const EditableTableSaleReturn = (props: IProps) => {
       dataSource={data}
       footer={() => {
         return (
-          <div className="button-editable-footer" onClick={() => add()}>
+          <div
+            className="button-editable-footer"
+            onClick={async () => {
+              setEditingIndex(data.length);
+              await validationFields() && add();
+            }}
+          >
             <div
               style={{
                 display: "flex",
@@ -111,7 +125,7 @@ export const EditableTableSaleReturn = (props: IProps) => {
             form={form}
             rules={[{ required: true, message: "Дотоод код заавал" }]}
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex) || isEdit}
+            disabled={index !== editingIndex}
             listName="transactions"
             onClear={() => {
               form.resetFields([

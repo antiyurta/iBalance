@@ -13,12 +13,15 @@ export interface IDataViewMaterial {
   unitCodeName: string; // Нэгдсэн ангиллалын кодын нэр
   measurementName: string; // Хэмжих нэгж нэр
   countPackage: number; // Багц доторх тоо
+  sectionId: number; // Бараа материалын бүлэг id
   sectionName: string; // Бараа материалын бүлэг
   coupon: IDataCoupon; // urushuulal
   discountName: string; // Хөнгөлөлт
+  description: string; // Тайлбар
   discountAmount: number; // барааны хөнгөлөлт
   unitAmount: number; // Нэгжийн үнэ
   lastQty: number;
+  fileIds: number[];
 }
 export interface IFilterViewMaterial {
   code?: string; // Дотоод код
@@ -45,6 +48,7 @@ export interface IParamViewMaterial extends Meta, IParam, IFilterViewMaterial {
   sectionId?: number;
   consumerId?: number; // Харилцагчийн id
   warehouseId?: number; // Байршлийн id
+  isSale?: boolean; // Борлуулах эсэх
 }
 
 export interface IResponseViewMaterialOne extends GenericResponse {

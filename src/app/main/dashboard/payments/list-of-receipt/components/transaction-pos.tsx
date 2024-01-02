@@ -18,7 +18,6 @@ import {
 } from "@/components/input";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { EditableTablePos } from "./editable-table-pos";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import dayjs from "dayjs";
 import { NumericFormat } from "react-number-format";
 import {
@@ -27,12 +26,13 @@ import {
 } from "@/service/reference/payment-method/entities";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
 import { UserSelect } from "@/components/user-select";
+import { IDataDocument } from "@/service/document/entities";
 interface IProps {
-  selectedCart?: IDataShoppingCart;
+  selectedDocument?: IDataDocument;
 }
 const TransactionPos = (props: IProps) => {
-  const { selectedCart } = props;
-  const [form] = Form.useForm();
+  const { selectedDocument } = props;
+  const [form] = Form.useForm<IDataDocument>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<
     IDataReferencePaymentMethod[]
@@ -55,13 +55,11 @@ const TransactionPos = (props: IProps) => {
     getWarehouses({});
     getPaymentMethods({});
     form.setFieldsValue({
-      ...selectedCart,
-      createdAt: dayjs(selectedCart?.createdAt),
-      paymentMethodIds: selectedCart?.paymentInvoices.map(
-        (invoice) => invoice.paymentMethodId
-      ),
+      ...selectedDocument,
+      documentAt: dayjs(selectedDocument?.documentAt),
+      createdAt: dayjs(selectedDocument?.createdAt),
     });
-  }, [selectedCart]);
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -89,7 +87,6 @@ const TransactionPos = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -100,16 +97,13 @@ const TransactionPos = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="id">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Поссын нэр" name="id">
+              <Form.Item label="Поссын нэр" name={["pos", "name"]}>
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Баримтын огноо" name="createdAt">
+              <Form.Item label="Баримтын огноо" name="documentAt">
                 <NewDatePicker format={"YYYY-MM-DD"} disabled />
               </Form.Item>
-              <Form.Item
-                label="Зарлагын байршил"
-                name={["transactionDocument", "warehouseId"]}
-              >
+              <Form.Item label="Зарлагын байршил" name={["warehouse", "name"]}>
                 <NewFilterSelect
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
@@ -121,12 +115,12 @@ const TransactionPos = (props: IProps) => {
               <Form.Item label="Харилцагчийн код, нэр">
                 <ConsumerSelect
                   form={form}
-                  name={["transactionDocument", "consumerId"]}
+                  name={["consumer", "name"]}
                   rules={[]}
                   isDisable={true}
                 />
               </Form.Item>
-              <Form.Item label="Нийт дүн" name="totalAmount">
+              <Form.Item label="Нийт дүн" name="amount">
                 <NumericFormat
                   thousandSeparator=","
                   decimalScale={2}
@@ -137,7 +131,7 @@ const TransactionPos = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Харилцагчийн хөнгөлөлт"
-                name="membershipDiscountAmount"
+                name="consumerDiscountAmount"
               >
                 <NumericFormat
                   thousandSeparator=","
@@ -149,7 +143,7 @@ const TransactionPos = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Бараа материалын үнийн хөнгөлөлт"
-                name="materialDiscountAmount"
+                name="discountAmount"
               >
                 <NumericFormat
                   thousandSeparator=","
@@ -188,7 +182,7 @@ const TransactionPos = (props: IProps) => {
               <Form.Item label="Төлсөн огноо" name="createdAt">
                 <NewDatePicker format={"YYYY-MM-DD"} disabled />
               </Form.Item>
-              <Form.Item label="Төлсөн дүн" name="paidAmount">
+              <Form.Item label="Төлсөн дүн" name="payAmount">
                 <NumericFormat
                   thousandSeparator=","
                   decimalScale={2}
@@ -197,20 +191,36 @@ const TransactionPos = (props: IProps) => {
                   suffix="₮"
                 />
               </Form.Item>
-              <Form.Item label="Ашигласан огноо" name="payAmount">
+              <Form.Item
+                label="Ашигласан огноо"
+                name={["shoppingCart", "giftDiscountAmount"]}
+              >
                 <NewInputNumber disabled />
               </Form.Item>
-              <Form.Item label="Бэлгийн карт" name="payAmount">
-                <NewInputNumber disabled />
-              </Form.Item>
+              <Form.List name={["shoppingCart", "giftCarts"]}>
+                {(items) => (
+                  <div>
+                    {items.map((item, index) => (
+                      <div key={item.key}>
+                        <Form.Item label="Бэлгийн карт" name={[index, "code"]}>
+                          <NewInput disabled />
+                        </Form.Item>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Form.List>
               <Form.Item
                 label="Ибаримтын төлөв"
-                name={["transactionDocument", "isEbarimt"]}
+                name={"isEbarimt"}
                 valuePropName="checked"
               >
                 <NewSwitch disabled />
               </Form.Item>
-              <Form.Item label="Татвар төлөгчийн РД" name="taxRegno">
+              <Form.Item
+                label="Татвар төлөгчийн РД"
+                name={["shoppingCart", "taxRegno"]}
+              >
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Ибаримт руу илгээх дүн" name={"payAmount"}>
@@ -238,7 +248,7 @@ const TransactionPos = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="goods" rules={[]}>
+            <Form.List name="transactions" rules={[]}>
               {(items) => (
                 <>
                   <EditableTablePos data={items} form={form} />

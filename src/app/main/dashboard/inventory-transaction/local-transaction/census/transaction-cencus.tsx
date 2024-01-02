@@ -59,8 +59,8 @@ const TransactionCencus = (props: IProps) => {
       });
     });
   };
-  const getUsers = async (params: IParamUser) => {
-    authService.getAllUsers(params).then((response) => {
+  const getUsers = async (ids: number[]) => {
+    authService.getAllUsers({ ids }).then((response) => {
       if (response.success) {
         setUsers(response.response);
       }
@@ -162,9 +162,7 @@ const TransactionCencus = (props: IProps) => {
                       (warehouse) => warehouse.id === id
                     )?.userIds;
                     if (userIds) {
-                      getUsers({
-                        ids: userIds,
-                      });
+                      getUsers(userIds);
                     }
                     getMaterials({
                       warehouseId,

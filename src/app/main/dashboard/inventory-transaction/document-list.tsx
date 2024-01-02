@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag, openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   FilteredColumnsDocument,
@@ -17,6 +17,7 @@ import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { DocumentEdit } from "./document-edit";
+import LockDocument from "./lock-document";
 interface IProps {
   movingStatus?: MovingStatus;
 }
@@ -26,7 +27,11 @@ export const DocumentList = (props: IProps) => {
   const [data, setData] = useState<IDataDocument[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
-  const [params, setParams] = useState<IParamDocument>({ page: 1, limit: 10 });
+  const [params, setParams] = useState<IParamDocument>({
+    page: 1,
+    limit: 10,
+    movingStatus: movingStatus,
+  });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
   const [columns, setColumns] = useState<FilteredColumnsDocument>(
@@ -35,6 +40,7 @@ export const DocumentList = (props: IProps) => {
   const [isReload, setIsReload] = useState<boolean>(false);
   const getData = async (params: IParamDocument) => {
     blockContext.block();
+    params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
     if (movingStatus) params.movingStatus = movingStatus;
     await DocumentService.get(params)
       .then((response) => {
@@ -47,14 +53,18 @@ export const DocumentList = (props: IProps) => {
       .finally(() => blockContext.unblock());
   };
   const editDocument = async (row: IDataDocument) => {
-    blockContext.block();
-    await DocumentService.getById(row.id)
+    if (row.isLock) {
+      openNofi('warning', 'Баримт түгжигдсэн байна.')
+    } else {
+      blockContext.block();
+      await DocumentService.getById(row.id)
       .then((response) => {
         if (response.success) {
           setSelectedDocument(response.response);
         }
       })
       .finally(() => blockContext.unblock());
+    }
   };
   const onDelete = async (id: number) => {
     blockContext.block();
@@ -116,6 +126,7 @@ export const DocumentList = (props: IProps) => {
                   height={24}
                   alt="downloadIcon"
                 />
+                <LockDocument movingStatus={movingStatus} />
                 <Image
                   onClick={() => setIsFilterToggle(!isFilterToggle)}
                   src={
@@ -142,7 +153,7 @@ export const DocumentList = (props: IProps) => {
               onParams={setParams}
               incomeFilters={filters}
               isEdit
-              isDelete
+              isDelete={movingStatus ? true : false}
               onEdit={editDocument}
               onDelete={onDelete}
             />
@@ -157,7 +168,7 @@ export const DocumentList = (props: IProps) => {
       </Row>
       <DocumentEdit
         selectedDocument={selectedDocument}
-        movingStatus={movingStatus}
+        movingStatus={selectedDocument?.movingStatus}
         isReload={isReload}
         setIsReload={setIsReload}
       />

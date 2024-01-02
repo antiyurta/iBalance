@@ -4,9 +4,9 @@ import {
   IChangePassword,
   IChangeProfile,
   IParamUser,
+  IResponsePageUsers,
   IResponseUser,
   IResponseUsers,
-  IUser,
   LoginBody,
   LoginResponse,
   LogoutResponse,
@@ -36,8 +36,14 @@ function changePassword(body: IChangePassword): Promise<IResponseUser> {
 function changeProfile(body: IChangeProfile): Promise<IResponseUser> {
   return api.post("/authentication/change-profile", body);
 }
-function getAllUsers(params: IParamUser): Promise<IResponseUsers> {
+function getAllUsers(params: { ids?: number[] }): Promise<IResponseUsers> {
   return api.get("user", { params });
+}
+function getUsers(params: IParamUser): Promise<IResponsePageUsers> {
+  return api.get("user/page", { params });
+}
+function getUserById(id: number): Promise<IResponseUser> {
+  return api.get(`/user/show/${id}`);
 }
 export const authService = {
   authGet,
@@ -45,6 +51,8 @@ export const authService = {
   authLogout,
   updateToken,
   getAllUsers,
+  getUsers,
+  getUserById,
   changePassword,
   changeProfile,
 };

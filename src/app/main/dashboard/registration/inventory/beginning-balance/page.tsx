@@ -25,6 +25,8 @@ import {
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { MaterialSelect } from "@/components/material-select";
 import { IDataMaterial, MaterialType } from "@/service/material/entities";
+import { hasUniqueValues } from "@/feature/common";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 const BeginningBalancePage = () => {
@@ -70,6 +72,11 @@ const BeginningBalancePage = () => {
       form.resetFields();
       form.setFieldsValue({
         ...row,
+        balances: row.balances.map((item) => ({
+          ...item,
+          purchaseAt: dayjs(item.purchaseAt),
+          expirationAt: dayjs(item.expirationAt),
+        })),
         materialId: row.id,
       });
     }
@@ -203,16 +210,37 @@ const BeginningBalancePage = () => {
                 <InputNumber disabled />
               </Form.Item>
             </div>
-            <Form.List name="balances">
-              {(accounts, { add, remove }) => (
-                <EditableTableBalance
-                  data={accounts}
-                  form={form}
-                  editMode={editMode}
-                  add={add}
-                  remove={remove}
-                  warehouses={warehouses}
-                />
+            <Form.List
+              name="balances"
+              rules={[
+                {
+                  validator: async (_, balances) => {
+                    const arr = Array.isArray(balances)
+                      ? balances.map(
+                          (balance: IDataBalance) => balance.warehouseId
+                        )
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Байршил давхардсан байна.")
+                      );
+                    }
+                  },
+                },
+              ]}
+            >
+              {(accounts, { add, remove }, { errors }) => (
+                <>
+                  <EditableTableBalance
+                    data={accounts}
+                    form={form}
+                    editMode={editMode}
+                    add={add}
+                    remove={remove}
+                    warehouses={warehouses}
+                  />
+                  <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                </>
               )}
             </Form.List>
           </div>

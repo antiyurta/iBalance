@@ -13,6 +13,8 @@ import { IDataReference } from "@/service/reference/entity";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { IDataShoppingCart } from "../pos/shopping-card/entities";
+import { Dayjs } from "dayjs";
+import { IDataPos } from "../pos/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -56,6 +58,7 @@ export interface IPosDocumentDto {
   regno?: string;
   shoppingCartId: string;
   warehouseId: number;
+  posId: number;
 }
 export interface IDataDocument extends IData {
   id: number;
@@ -73,9 +76,7 @@ export interface IDataDocument extends IData {
   expenseQuantity: number;
   consumerId: number;
   consumer?: IDataConsumer;
-  sectionId: number;
-  section: IDataReference; // гүйлгээний төрөл
-  documentAt: string;
+  documentAt: string | Dayjs;
   description: string; // гүйлгээний утга
   paymentMethodIds: number[];
   paymentMethods?: IDataReferencePaymentMethod[]; // Төлбөрийн хэлбэрүүд
@@ -93,12 +94,15 @@ export interface IDataDocument extends IData {
   shoppingCartId: string;
   shoppingCart: IDataShoppingCart;
   status: DocumentStatus;
+  posId: number;
+  pos?: IDataPos;
   transactions?: IDataTransaction[];
 }
 
 export interface IFilterDocument extends IFilter {
   id?: number;
   movingStatus?: MovingStatus;
+  hideMovingStatuses?: MovingStatus[];
   warehouseId?: number;
   consumerId?: number;
   documentAt?: string;
@@ -106,7 +110,6 @@ export interface IFilterDocument extends IFilter {
   relDocumentId?: number[];
   relDocumentWarehouseName?: string[];
   warehouseName?: string[];
-  sectionName?: string[];
   incomeQuantity?: number[];
   incomeCount?: number[];
   expenseCount?: number[];
@@ -117,7 +120,7 @@ export interface IFilterDocument extends IFilter {
   bookingId?: number[];
   description?: string[];
   userId?: number[];
-  isLock?: boolean[];
+  isLock?: boolean;
   amount?: number[];
   discountAmount?: number[];
   consumerDiscountAmount?: number[];
@@ -197,15 +200,6 @@ export const getDocumentColumns = (
     status == MovingStatus.SaleReturn ||
     status == undefined
   ) {
-    if (status == MovingStatus.Purchase) {
-      columns.sectionName = {
-        label: "Гүйлгээний төрөл",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["section", "name"],
-        type: DataIndexType.MULTI,
-      };
-    }
     if (status == MovingStatus.SaleReturn) {
       columns.refundAt = {
         label: "Буцаалт хийх огноо",
@@ -327,7 +321,7 @@ export const getDocumentColumns = (
     isView: true,
     isFiltered: false,
     dataIndex: "isLock",
-    type: DataIndexType.BOOLEAN_STRING,
+    type: DataIndexType.BOOLEAN,
   };
   columns.createdBy = {
     label: "Бүртгэсэн хэрэглэгч",
@@ -347,7 +341,7 @@ export const getDocumentColumns = (
     label: "Түгжсэн хэрэглэгч",
     isView: false,
     isFiltered: true,
-    dataIndex: ["updatedUser", "firstName"],
+    dataIndex: ["lockedUser", "firstName"],
     type: DataIndexType.USER,
   };
   columns.updatedAt = {

@@ -41,19 +41,25 @@ export const enumTranslation = (value: string) => {
   else if (value == "BOOKING_SALE")
     return <div style={{ ...style, color: "green" }}>Захиалгын борлуулалт</div>;
   else if (value == "AREA")
-    return <div style={{ ...style, color: "green" }}>Талбай</div>;
+    return <div style={{ ...style, color: "green" }}>Талбайн хэмжих нэгж</div>;
   else if (value == "LENGTH")
-    return <div style={{ ...style, color: "green" }}>Урт</div>;
+    return <div style={{ ...style, color: "green" }}>Уртын хэмжих нэгж</div>;
   else if (value == "Quantity")
-    return <div style={{ ...style, color: "green" }}>Тоо</div>;
+    return <div style={{ ...style, color: "green" }}>Тооны хэмжих нэгж</div>;
   else if (value == "TIME")
-    return <div style={{ ...style, color: "green" }}>Цаг</div>;
+    return <div style={{ ...style, color: "green" }}>Цаг хугацааны хэмжих нэгж</div>;
   else if (value == "VOLUME")
-    return <div style={{ ...style, color: "green" }}>Эзэлхүүн</div>;
+    return <div style={{ ...style, color: "green" }}>Эзлэхүүн хэмжих нэгж</div>;
   else if (value == "WEIGTH")
-    return <div style={{ ...style, color: "green" }}>Жин</div>;
+    return <div style={{ ...style, color: "green" }}>Хүндийн хэмжих нэгж</div>;
   else if (value == "OTHER")
     return <div style={{ ...style, color: "green" }}>Тусгай хэмжих нэгж</div>;
+  else if (value == "EMPLOYEE")
+    return <div style={{ ...style, color: "green" }}>Ажилтан</div>;
+  else if (value == "TREASURE")
+    return <div style={{ ...style, color: "green" }}>Нягтлан</div>;
+  else if (value == "CASHIER")
+    return <div style={{ ...style, color: "green" }}>Кассчин</div>;
   else
     return <div style={{ ...style, color: "green" }}>{value}</div>;
 };
