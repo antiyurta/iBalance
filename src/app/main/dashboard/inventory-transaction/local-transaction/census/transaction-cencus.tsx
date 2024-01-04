@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -15,7 +15,7 @@ import { EditableTableCencus } from "./editableTableCencus";
 import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { MaterialType } from "@/service/material/entities";
-import { IParamUser, IUser } from "@/service/authentication/entities";
+import { IUser } from "@/service/authentication/entities";
 import { authService } from "@/service/authentication/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
@@ -50,7 +50,7 @@ const TransactionCencus = (props: IProps) => {
               name: response.name,
               measurement: response.measurementName,
               countPackage: response.countPackage,
-              unitAmount: response.unitAmount,
+              unitAmount: response.unitAmount | 0,
               lastQty: response.lastQty,
             }))
             .filter((item) => item.lastQty !== 0);
@@ -85,8 +85,21 @@ const TransactionCencus = (props: IProps) => {
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.Cencus,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (selectedDocument) {
@@ -98,7 +111,7 @@ const TransactionCencus = (props: IProps) => {
           name: transaction.material?.name,
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
-          unitAmount: transaction.unitAmount,
+          unitAmount: transaction.unitAmount || 0,
           lastQty: transaction.lastQty,
           quantity: transaction.lastQty + (transaction.excessOrDeficiency || 0),
           excessOrDeficiency: transaction.excessOrDeficiency,
@@ -135,7 +148,6 @@ const TransactionCencus = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -143,7 +155,7 @@ const TransactionCencus = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">
@@ -213,20 +225,25 @@ const TransactionCencus = (props: IProps) => {
               }}
             />
             <div style={{ overflow: "auto", maxHeight: "500px" }}>
-              <Form.List name="transactions" rules={[
-                {
-                  validator: async (_, transactions) => {
-                    const arr = Array.isArray(transactions)
-                      ? transactions.map((trans: IDataTransaction) => trans.materialId)
-                      : [];
-                    if (!hasUniqueValues(arr)) {
-                      return Promise.reject(
-                        new Error("Барааны код давхардсан байна.")
-                      );
-                    }
-                  }
-                }
-              ]}>
+              <Form.List
+                name="transactions"
+                rules={[
+                  {
+                    validator: async (_, transactions) => {
+                      const arr = Array.isArray(transactions)
+                        ? transactions.map(
+                            (trans: IDataTransaction) => trans.materialId
+                          )
+                        : [];
+                      if (!hasUniqueValues(arr)) {
+                        return Promise.reject(
+                          new Error("Барааны код давхардсан байна.")
+                        );
+                      }
+                    },
+                  },
+                ]}
+              >
                 {(items, { add, remove }, { errors }) => (
                   <>
                     <EditableTableCencus

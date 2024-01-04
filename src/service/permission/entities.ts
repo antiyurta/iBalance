@@ -5,14 +5,19 @@ import {
   IParam,
   Meta,
 } from "../entities";
+import { IDataResource } from "./resource/entities";
 import { IDataRole } from "./role/entities";
-
+export interface IEmployeePermission {
+  employeeId: number;
+  permissions: IDataPermission[];
+}
 export interface IDataPermission {
-  id: number;
-  roleId: number;
+  id?: number;
+  roleId?: number;
   role?: IDataRole;
-  userId: number;
-  url: string;
+  userId?: number;
+  resourceId: number;
+  resource: IDataResource;
   isAdd: boolean;
   isView: boolean;
   isEdit: boolean;
@@ -31,13 +36,5 @@ export type FilteredColumnsPermission = {
 export interface IParamPermission extends Meta, IParam, IFilterPermission {}
 
 export interface IResponsePermissions extends GenericResponse {
-  response: {
-    data: IDataPermission[];
-    meta: Meta;
-    filter: IFilterPermission;
-  };
-}
-
-export interface IResponsePermission extends GenericResponse {
-  response: IDataPermission;
+  response: IDataPermission[];
 }

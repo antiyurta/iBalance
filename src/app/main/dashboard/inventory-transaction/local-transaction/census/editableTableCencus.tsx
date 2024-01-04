@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
-import { NewInput, NewInputNumber } from "@/components/input";
+import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
@@ -157,7 +157,7 @@ export const EditableTableCencus = (props: IProps) => {
                     name: value.name,
                     measurement: value.measurementName,
                     countPackage: value.countPackage,
-                    unitAmount: value.unitAmount,
+                    unitAmount: value.unitAmount | 0,
                     lastQty: value.lastQty,
                     quantity: 1,
                   },
@@ -209,6 +209,15 @@ export const EditableTableCencus = (props: IProps) => {
         render={(_, __, index) => (
           <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"transactionAt"}
+        title="Дуусах хугацаа"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "transactionAt"]}>
+            <NewDatePicker />
           </Form.Item>
         )}
       />

@@ -1,61 +1,54 @@
 "use client";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
-import { NewDatePicker, NewInput, NewSelect } from "@/components/input";
+import { NewFilterSelect, NewInput, NewTextArea } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  FilteredColumnsUser,
-  IFilterUser,
-  IParamUser,
-  IUser,
-  JobPosition,
-} from "@/service/authentication/entities";
-import { authService } from "@/service/authentication/service";
-import { EmployeeType, IDataEmployee } from "@/service/employee/entities";
-import { EmployeeService } from "@/service/employee/service";
 import { DataIndexType, Meta } from "@/service/entities";
+import {
+  FilteredColumnsResource,
+  IDataResource,
+  IFilterResource,
+  IParamResource,
+} from "@/service/permission/resource/entities";
+import { ResourceService } from "@/service/permission/resource/service";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+
 const { Title } = Typography;
-const Users = () => {
-  const [columns, setColumns] = useState<FilteredColumnsUser>({
-    email: {
-      label: "Мэйл",
+const ConfigResource = () => {
+  const blockContext: BlockView = useContext(BlockContext);
+  const [form] = Form.useForm<IDataResource>();
+  const [data, setData] = useState<IDataResource[]>([]);
+  const [filters, setFilters] = useState<IFilterResource>();
+  const [params, setParams] = useState<IParamResource>({ page: 1, limit: 10 });
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [isModal, setIsModal] = useState<boolean>(false);
+  const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
+  const [selectedResource, setSelectedResource] = useState<IDataResource>();
+  const [columns, setColumns] = useState<FilteredColumnsResource>({
+    id: {
+      label: "№",
       isView: true,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: "id",
       type: DataIndexType.MULTI,
     },
-    lastName: {
-      label: "Овог",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "lastName",
-      type: DataIndexType.MULTI,
-    },
-    firstName: {
+    name: {
       label: "Нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "firstName",
+      dataIndex: "name",
       type: DataIndexType.MULTI,
     },
-    phonoNo: {
-      label: "Утасны дугаар",
+    description: {
+      label: "Тайлбар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phonoNo",
-      type: DataIndexType.MULTI,
-    },
-    hospitalId: {
-      label: "Байгууллага",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["hospital", "name"],
+      dataIndex: "description",
       type: DataIndexType.MULTI,
     },
     createdAt: {
@@ -65,86 +58,47 @@ const Users = () => {
       dataIndex: "createdAt",
       type: DataIndexType.DATE,
     },
-    isActive: {
-      label: "Идэвхтэй ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isActive",
-      type: DataIndexType.BOOLEAN_STRING,
-    },
-    jobPosition: {
-      label: "Албан тушаал",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "jobPosition",
-      type: DataIndexType.ENUM,
-    },
   });
-  const blockContext: BlockView = useContext(BlockContext);
-  const [form] = Form.useForm<IDataEmployee>();
-  const [data, setData] = useState<IUser[]>([]);
-  const [filters, setFilters] = useState<IFilterUser>();
-  const [params, setParams] = useState<IParamUser>({ page: 1, limit: 10 });
-  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [isAddModal, setIsAddModal] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<IUser>();
-  const getData = async (params: IParamUser) => {
-    await authService.getUsers(params).then((response) => {
+  const getData = async (params: IParamResource) => {
+    await ResourceService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
-        setFilters(response.response.filter);
+        // setFilters(response.response.filter);
       }
     });
   };
-  const edit = async (id: number) => {
+  const onFinish = async (values: IDataResource) => {
     blockContext.block();
-    form.resetFields();
-    authService
-      .getUserById(id)
+    if (selectedResource) {
+      await ResourceService.patch(selectedResource.id, values)
+        .then((response) => {
+          if (response.success) {
+            getData(params);
+            setIsModal(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else {
+      await ResourceService.post(values)
+        .then((response) => {
+          if (response.success) {
+            getData(params);
+            setIsModal(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    }
+  };
+  const onDelete = async (id: number) => {
+    blockContext.block();
+    await ResourceService.remove(id)
       .then((response) => {
         if (response.success) {
-          setSelectedUser(response.response);
+          getData(params);
         }
       })
-      .then(() => {
-        selectedUser?.employee && form.setFieldsValue(selectedUser.employee);
-      })
-      .finally(() => {
-        setIsAddModal(true);
-        blockContext.unblock();
-      });
-  };
-  const onFinish = async (values: IDataEmployee) => {
-    values.type = EmployeeType.NOT_MEDICAL;
-    values.homeAddress = "";
-    values.isWorking = true;
-    values.dateInEmployment = new Date();
-    blockContext.block();
-    if (selectedUser && selectedUser.employee) {
-      await EmployeeService.patch(selectedUser.employee.id, values)
-        .then((response) => {
-          if (response.success) {
-            getData(params);
-          }
-        })
-        .finally(() => {
-          setIsAddModal(false);
-          blockContext.unblock();
-        });
-    } else {
-      await EmployeeService.post(values)
-        .then((response) => {
-          if (response.success) {
-            getData(params);
-          }
-        })
-        .finally(() => {
-          setIsAddModal(false);
-          blockContext.unblock();
-        });
-    }
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     getData(params);
@@ -154,13 +108,13 @@ const Users = () => {
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={3}>Админ / Хэрэглэгчийн бүртгэл</Title>
+            <Title level={3}>Админ / POS-ын тохиргоо</Title>
             <Button
               type="primary"
               onClick={() => {
                 form.resetFields();
-                setSelectedUser(undefined);
-                setIsAddModal(true);
+                setSelectedResource(undefined);
+                setIsModal(true);
               }}
               icon={
                 <Image
@@ -245,15 +199,26 @@ const Users = () => {
               onParams={setParams}
               incomeFilters={filters}
               isEdit
-              onEdit={(row: IUser) => edit(row.id)}
+              onEdit={(row: IDataResource) => {
+                form.resetFields();
+                setSelectedResource(row);
+                form.setFieldsValue({
+                  id: row.id,
+                  name: row.name,
+                  description: row.description,
+                });
+                setIsModal(true);
+              }}
+              isDelete
+              onDelete={onDelete}
             />
           </div>
         </Col>
       </Row>
       <NewModal
-        title={"Хэрэглэгчийн бүртгэл"}
-        open={isAddModal}
-        onCancel={() => setIsAddModal(false)}
+        title={"Цэс"}
+        open={isModal}
+        onCancel={() => setIsModal(false)}
         onOk={() =>
           form.validateFields().then((values) => {
             onFinish(values);
@@ -261,33 +226,15 @@ const Users = () => {
         }
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="И-мэйл" name={"email"}>
+          <Form.Item label="Нэр" name={"name"}>
             <NewInput />
           </Form.Item>
-          <Form.Item label="РД" name={"registerNumber"}>
-            <NewInput />
-          </Form.Item>
-          <Form.Item label="Овог" name={"lastName"}>
-            <NewInput />
-          </Form.Item>
-          <Form.Item label="Нэр" name={"firstName"}>
-            <NewInput />
-          </Form.Item>
-          <Form.Item label="Утас" name={"phoneNo"}>
-            <NewInput />
-          </Form.Item>
-          <Form.Item label="Албан тушаал" name={"jobPosition"}>
-            <NewSelect
-              options={[
-                { value: JobPosition.Employee, label: "Ажилтан" },
-                { value: JobPosition.Treasure, label: "Нярав" },
-                { value: JobPosition.Cashier, label: "Кассчин" },
-              ]}
-            />
+          <Form.Item label="Тайлбар" name={"description"}>
+            <NewTextArea />
           </Form.Item>
         </Form>
       </NewModal>
     </>
   );
 };
-export default Users;
+export default ConfigResource;

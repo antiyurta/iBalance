@@ -61,18 +61,22 @@ export const TransactionSaleReturn = (props: IProps) => {
     }
   };
   const generateCode = async () => {
-    blockContext.block()
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    blockContext.block();
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.SaleReturn,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouse({});
     generateCode();
   }, []);
-  
+
   useEffect(() => {
     if (!selectedDocument) {
       setIsEdit(false);
@@ -203,7 +207,9 @@ export const TransactionSaleReturn = (props: IProps) => {
                       : [];
                     if (!hasUniqueValues(arr)) {
                       return Promise.reject(
-                        new Error("Барааны код дуусах хугацаа давхардсан байна.")
+                        new Error(
+                          "Барааны код дуусах хугацаа давхардсан байна."
+                        )
                       );
                     }
                   },

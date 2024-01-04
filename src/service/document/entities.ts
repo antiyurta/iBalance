@@ -58,6 +58,7 @@ export interface IPosDocumentDto {
   shoppingCartId: string;
   warehouseId: number;
   posId: number;
+  code: string;
 }
 export interface IDataDocument extends IData {
   id: number;

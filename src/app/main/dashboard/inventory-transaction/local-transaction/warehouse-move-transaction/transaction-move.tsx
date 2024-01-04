@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -16,6 +16,9 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
+import { EmployeeSelect } from "@/components/employee-select";
+import { EmployeeService } from "@/service/employee/service";
+import { IDataEmployee } from "@/service/employee/entities";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -25,6 +28,8 @@ const TransactionMove = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [incomeEmployees, setIncomeEmployees] = useState<IDataEmployee[]>([]);
+  const [expenseEmployees, setExpenseEmployees] = useState<IDataEmployee[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const getWarehouses = (params: IParamWarehouse) => {
@@ -55,12 +60,28 @@ const TransactionMove = (props: IProps) => {
   };
   const generateCode = async () => {
     blockContext.block();
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.MovementInWarehouse,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
+  const getEmployee = async (warehouseId: number): Promise<IDataEmployee[]> => {
+    blockContext.block();
+    return await EmployeeService.get({ warehouseId })
+      .then((response) => {
+        if (response.success) {
+          return response.response.data;
+        } else {
+          return [];
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouses({});
     generateCode();
@@ -86,7 +107,7 @@ const TransactionMove = (props: IProps) => {
         })),
       });
     }
-  }, [selectedDocument])
+  }, [selectedDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>
@@ -145,9 +166,21 @@ const TransactionMove = (props: IProps) => {
                 rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
                 <NewFilterSelect
+                  onSelect={async (value) => {
+                    const employees = await getEmployee(value);
+                    setExpenseEmployees(employees);
+                  }}
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
                     label: warehouse.name,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item label="Зарлага гаргах нярав" name="expenseEmployeeId">
+                <NewFilterSelect
+                  options={expenseEmployees.map((item) => ({
+                    value: item.id,
+                    label: item.firstName,
                   }))}
                 />
               </Form.Item>
@@ -157,9 +190,21 @@ const TransactionMove = (props: IProps) => {
                 rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
                 <NewFilterSelect
+                  onSelect={async (value) => {
+                    const employees = await getEmployee(value);
+                    setIncomeEmployees(employees);
+                  }}
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
                     label: warehouse.name,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item label="Орлого авах нярав" name="incomeEmployeeId">
+                <NewFilterSelect
+                  options={incomeEmployees.map((item) => ({
+                    value: item.id,
+                    label: item.firstName,
                   }))}
                 />
               </Form.Item>
@@ -174,7 +219,10 @@ const TransactionMove = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[{
+            <Form.List
+              name="transactions"
+              rules={[
+                {
                   validator: async (_, transactions) => {
                     const arr = Array.isArray(transactions)
                       ? transactions.map(
@@ -187,7 +235,9 @@ const TransactionMove = (props: IProps) => {
                       );
                     }
                   },
-                },]}>
+                },
+              ]}
+            >
               {(items, { add, remove }, { errors }) => (
                 <>
                   <EditableTableMove

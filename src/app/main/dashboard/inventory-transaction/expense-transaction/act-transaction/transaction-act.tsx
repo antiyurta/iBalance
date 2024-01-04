@@ -57,12 +57,16 @@ const TransactionAct = (props: IProps) => {
   };
   const generateCode = async () => {
     blockContext.block();
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.ActAmortization,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouses({});
     generateCode();

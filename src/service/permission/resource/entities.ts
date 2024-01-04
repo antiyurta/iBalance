@@ -2,12 +2,14 @@ import { ColumnType, GenericResponse, IFilter, IParam, Meta } from "@/service/en
 import { IDataPermission } from "../entities";
 
 export interface IDataResource {
+  id: number;
   name: string;
   description: string;
   permissions: IDataPermission[];
 }
 
 export interface IFilterResource extends IFilter {
+  id?: number;
   name?: string;
   description?: string;
 }

@@ -1,11 +1,4 @@
 import Image from "next/image";
-import {
-  FilteredColumnsUser,
-  IFilterUser,
-  IParamUser,
-  IUser,
-} from "@/service/authentication/entities";
-import { authService } from "@/service/authentication/service";
 import { FormInstance, Space } from "antd";
 import { Rule } from "antd/es/form";
 import { useEffect, useState } from "react";
@@ -14,6 +7,14 @@ import { NewFilterSelect } from "./input";
 import NewModal from "./modal";
 import { NewTable } from "./table";
 import { DataIndexType, Meta } from "@/service/entities";
+import {
+  FilteredColumnsEmployee,
+  IDataEmployee,
+  IFilterEmployee,
+  IParamEmployee,
+} from "@/service/employee/entities";
+import { EmployeeService } from "@/service/employee/service";
+import { getUniqueValues, removeDuplicates } from "@/feature/common";
 interface IProps {
   form: FormInstance;
   rules: Rule[];
@@ -22,14 +23,14 @@ interface IProps {
   isMultiple?: boolean;
   isDisable?: boolean;
 }
-export const UserSelect = (props: IProps) => {
+export const EmployeeSelect = (props: IProps) => {
   const { form, rules, name, isMultiple, isDisable } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [users, setUsers] = useState<IUser[]>([]);
-  const [filters, setFilters] = useState<IFilterUser>();
-  const [params, setParams] = useState<IParamUser>({});
+  const [data, setData] = useState<IDataEmployee[]>([]);
+  const [filters, setFilters] = useState<IFilterEmployee>();
+  const [params, setParams] = useState<IParamEmployee>({});
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [columns, setColumns] = useState<FilteredColumnsUser>({
+  const [columns, setColumns] = useState<FilteredColumnsEmployee>({
     email: {
       label: "Мэйл",
       isView: true,
@@ -51,18 +52,11 @@ export const UserSelect = (props: IProps) => {
       dataIndex: "firstName",
       type: DataIndexType.MULTI,
     },
-    phonoNo: {
+    phoneNo: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phonoNo",
-      type: DataIndexType.MULTI,
-    },
-    hospitalId: {
-      label: "Байгууллага",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["hospital", "name"],
+      dataIndex: "phoneNo",
       type: DataIndexType.MULTI,
     },
     createdAt: {
@@ -72,24 +66,17 @@ export const UserSelect = (props: IProps) => {
       dataIndex: "createdAt",
       type: DataIndexType.MULTI,
     },
-    isActive: {
-      label: "Идэвхтэй ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isActive",
-      type: DataIndexType.BOOLEAN_STRING,
-    },
   });
-  const getUsers = async (params: IParamUser) => {
-    await authService.getUsers(params).then((response) => {
+  const getEmployee = async (params: IParamEmployee) => {
+    await EmployeeService.get(params).then((response) => {
       if (response.success) {
-        setUsers(response.response.data);
+        setData(response.response.data);
         setMeta(response.response.meta);
       }
     });
   };
   useEffect(() => {
-    getUsers(params);
+    getEmployee(params);
   }, []);
   return (
     <>
@@ -110,9 +97,9 @@ export const UserSelect = (props: IProps) => {
               width: "100%",
             }}
             mode={isMultiple ? "multiple" : undefined}
-            options={users.map((user) => ({
-              value: user.id,
-              label: `${user.lastName?.substring(0, 1)}. ${user.firstName}`,
+            options={data.map((item) => ({
+              value: item.id,
+              label: `${item.lastName?.substring(0, 1)}. ${item.firstName}`,
             }))}
             disabled={isDisable}
           />
@@ -129,15 +116,22 @@ export const UserSelect = (props: IProps) => {
           rowKey="id"
           doubleClick={true}
           onDClick={(value) => {
-            form.setFieldsValue({
-              [`${name}`]: value.id,
-            });
+            if (isMultiple) {
+              const values = form.getFieldValue(name);
+              form.setFieldsValue({
+                [`${name}`]: [...values, value.id],
+              });
+            } else {
+              form.setFieldsValue({
+                [`${name}`]: value.id,
+              });
+            }
             setIsOpenPopOver(false);
           }}
-          data={users}
+          data={data}
           meta={meta}
           columns={columns}
-          onChange={(params) => getUsers(params)}
+          onChange={(params) => getEmployee(params)}
           onColumns={(columns) => setColumns(columns)}
           newParams={params}
           onParams={(params) => setParams(params)}

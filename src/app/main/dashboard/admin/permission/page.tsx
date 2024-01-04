@@ -3,18 +3,26 @@ import { Col, Row, Space, Tabs, Typography } from "antd";
 import { TabsProps } from "antd/lib";
 import { useState } from "react";
 import { Role } from "./role";
+import ConfigResource from "./resource";
+import PermissionUser from "./user";
 const { Title } = Typography;
 const Permission = () => {
   const [activeKey, setActiveKey] = useState<string>("item-1");
   const items: TabsProps["items"] = [
     {
       key: "item-1",
+      label: "Цэсний тохиргоо",
+      children: <ConfigResource />,
+    },
+    {
+      key: "item-2",
       label: "Эрхийн зөвшөөрөл",
       children: <Role />,
     },
     {
-      key: "item-2",
+      key: "item-3",
       label: "Хэрэглэгчийн зөвшөөрөл",
+      children: <PermissionUser />,
     },
   ];
   return (

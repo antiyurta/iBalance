@@ -203,7 +203,7 @@ const Sidebar = () => {
         }}
       />,
       [
-        getItem("Хэрэглэгчийн бүртгэл", "/users"),
+        getItem("Хэрэглэгчийн бүртгэл", "/employee"),
         getItem("Хэрэглэгчийн эрхийн тохиргоо", "/permission"),
         getItem("POS-ын тохиргоо", "/config-pos"),
       ]
