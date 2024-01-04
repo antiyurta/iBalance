@@ -6,12 +6,10 @@ import TransactionCencus from "./local-transaction/census/transaction-cencus";
 import TransactionAction from "./expense-transaction/action-transaction/transaction-action";
 import TransactionConverter from "./local-transaction/converter/transaction-converter";
 import TransactionMixture from "./local-transaction/mixture/transaction-mixture";
-import TransactionMove from "./local-transaction/warehouse-move-transaction/transaction-move";
 import { TransactionPurchase } from "./income-transaction/material-income/transaction-purchase";
 import TransactionRefundPurchase from "./expense-transaction/refund-purchase/transaction-refund-purchase";
 import { TransactionSaleReturn } from "./income-transaction/sale-return/transaction-sale-return";
 import TransactionSale from "./expense-transaction/sale-transaction/transaction-sale";
-import { enumTranslation } from "@/feature/constraint-translation";
 interface IProps {
   movingStatus?: MovingStatus;
   selectedDocument?: IDataDocument;
@@ -54,13 +52,6 @@ export const DocumentEdit = (props: IProps) => {
       case MovingStatus.Mixture:
         return (
           <TransactionMixture
-            selectedDocument={selectedDocument}
-            onSave={setIsOpenModal}
-          />
-        );
-      case MovingStatus.MovementInWarehouse:
-        return (
-          <TransactionMove
             selectedDocument={selectedDocument}
             onSave={setIsOpenModal}
           />

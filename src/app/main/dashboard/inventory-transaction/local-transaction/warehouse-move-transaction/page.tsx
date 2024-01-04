@@ -5,6 +5,8 @@ import TransactionMove from "./transaction-move";
 import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
+import { WarehouseDocumentList } from "./document-list";
+import { TransactionWarehouseList } from "./transaction-list";
 
 const { Title } = Typography;
 
@@ -23,12 +25,12 @@ const TransactionMovePage = () => {
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
-      children: <DocumentList movingStatus={MovingStatus.MovementInWarehouse} />,
+      children: <WarehouseDocumentList />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <TransactionList movingStatus={MovingStatus.MovementInWarehouse} />,
+      children: <TransactionWarehouseList movingStatus={MovingStatus.MovementInWarehouse} />,
     },
   ];
   return (

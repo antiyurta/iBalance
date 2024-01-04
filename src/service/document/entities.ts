@@ -367,9 +367,5 @@ export const getDocumentColumns = (
     if (columns.description)
       columns.description.label = "Буцаалт хийх шалтгаан";
   }
-  if (status == MovingStatus.MovementInWarehouse) {
-    if (columns.warehouseName)
-      columns.warehouseName.label = "Зарлага гаргах байршил";
-  }
   return columns;
 };

@@ -1,5 +1,4 @@
 "use client";
-import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -16,17 +15,19 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
-import { EmployeeSelect } from "@/components/employee-select";
 import { EmployeeService } from "@/service/employee/service";
 import { IDataEmployee } from "@/service/employee/entities";
+import { IDataWarehouseDocument } from "@/service/document/warehouse-document/entities";
+import { WarehouseDocumentService } from "@/service/document/warehouse-document/service";
+import { MovingStatus } from "@/service/document/entities";
 interface IProps {
-  selectedDocument?: IDataDocument;
+  selectedDocument?: IDataWarehouseDocument;
   onSave?: (state: boolean) => void;
 }
 const TransactionMove = (props: IProps) => {
   const { selectedDocument, onSave } = props;
   const blockContext: BlockView = useContext(BlockContext);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<IDataWarehouseDocument>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [incomeEmployees, setIncomeEmployees] = useState<IDataEmployee[]>([]);
   const [expenseEmployees, setExpenseEmployees] = useState<IDataEmployee[]>([]);
@@ -39,10 +40,10 @@ const TransactionMove = (props: IProps) => {
       }
     });
   };
-  const onFinish = async (values: IDataDocument) => {
+  const onFinish = async (values: IDataWarehouseDocument) => {
     blockContext.block();
     if (selectedDocument) {
-      await DocumentService.patch(selectedDocument.id, values)
+      await WarehouseDocumentService.patch(selectedDocument.id, values)
         .then((response) => {
           if (response.success) {
             form.resetFields();
@@ -51,7 +52,7 @@ const TransactionMove = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postMove(values)
+      await WarehouseDocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
@@ -82,19 +83,16 @@ const TransactionMove = (props: IProps) => {
       })
       .finally(() => blockContext.unblock());
   };
-  useEffect(() => {
-    getWarehouses({});
-    generateCode();
-  }, []);
-  useEffect(() => {
-    if (!selectedDocument) {
-      setIsEdit(false);
-    } else {
-      setIsEdit(true);
+  const onEdit = async () => {
+    blockContext.block();
+    setIsEdit(true);
+    if (selectedDocument) {
+      setExpenseEmployees(
+        await getEmployee(selectedDocument.expenseWarehouseId)
+      );
+      setIncomeEmployees(await getEmployee(selectedDocument.incomeWarehouseId));
       form.setFieldsValue({
         ...selectedDocument,
-        expenseWarehouseId: selectedDocument.warehouseId,
-        incomeWarehouseId: selectedDocument.relDocument.warehouseId,
         documentAt: dayjs(selectedDocument.documentAt),
         transactions: selectedDocument.transactions?.map((transaction) => ({
           materialId: transaction.materialId,
@@ -106,6 +104,18 @@ const TransactionMove = (props: IProps) => {
           expenseQty: transaction.expenseQty,
         })),
       });
+    }
+    blockContext.unblock();
+  };
+  useEffect(() => {
+    getWarehouses({});
+    generateCode();
+  }, []);
+  useEffect(() => {
+    if (!selectedDocument) {
+      setIsEdit(false);
+    } else {
+      onEdit();
     }
   }, [selectedDocument]);
   return (
