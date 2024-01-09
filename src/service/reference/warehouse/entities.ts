@@ -1,3 +1,4 @@
+import { IDataEmployee } from "@/service/employee/entities";
 import {
   ColumnType,
   GenericResponse,
@@ -14,7 +15,7 @@ export interface IDataWarehouse extends IData {
   section?: IDataTreeSection;
   provinceId: number;
   districtId: number;
-  userIds: number[]; // Хариуцсан нярав
+  employees: IDataEmployee[]; // Хариуцсан нярав
   fileId: number;
   code: string;
   name: string;

@@ -14,6 +14,7 @@ export interface IDataTransaction extends IData {
   id?: number;
   materialId?: number;
   material?: IDataMaterial;
+  warehouseDocumentId: number;
   documentId: number;
   document?: IDataDocument;
   lastQty: number;
@@ -34,7 +35,7 @@ export interface IDataTransaction extends IData {
 }
 
 export interface IFilterTransaction extends IFilterDocument {
-  documentCode?: string[];
+  employeeFirstNames?: string[];
   materialCode?: string[];
   materialName?: string[];
   materialMeasurementName?: string[];
@@ -51,8 +52,6 @@ export interface IFilterTransaction extends IFilterDocument {
   convertMaterialCountPackage?: number[];
   convertQuantity?: number[];
   convertLastQty?: number[];
-  lockedBy?: number[];
-  lockedAt?: string;
 }
 
 export type FilteredColumnsTransaction = {
@@ -98,6 +97,13 @@ const columns: FilteredColumnsTransaction = {
     isView: true,
     isFiltered: false,
     dataIndex: ["document", "warehouse", "name"],
+    type: DataIndexType.MULTI,
+  },
+  employeeFirstNames: {
+    label: "Хариуцсан нярав",
+    isView: true,
+    isFiltered: false,
+    dataIndex: ["document", "employee", "firstName"],
     type: DataIndexType.MULTI,
   },
   materialCode: {
@@ -328,6 +334,7 @@ export const getTransactionColumns = (
     "consumerCode",
     "consumerName",
     "materialCode",
+    "materialName",
     "materialMeasurementName",
     "materialCountPackage",
     "incomeQty",
@@ -394,8 +401,7 @@ export const getTransactionColumns = (
       "documentCode",
       "documentAt",
       "warehouseName",
-      "consumerCode",
-      "consumerName",
+      "employeeFirstNames",
       "materialCode",
       "materialMeasurementName",
       "materialCountPackage",

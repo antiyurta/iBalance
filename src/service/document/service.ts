@@ -14,8 +14,8 @@ function get(params: IParamDocument): Promise<IResponseDocuments> {
 function getById(id: number): Promise<IResponseDocument> {
   return api.get(`transaction-document/${id}`);
 }
-function generateCode(): Promise<IResponseDocumentCode> {
-  return api.get("transaction-document/generate/code");
+function generateCode(params: IParamDocument): Promise<IResponseDocumentCode> {
+  return api.get("transaction-document/generate/code", { params });
 }
 function post(body: IDataDocument): Promise<IResponseDocument> {
   return api.post("transaction-document", body);
@@ -28,9 +28,6 @@ function postConversion(body: IDataDocument): Promise<IResponseDocuments> {
 }
 function postMixture(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/mixture", body);
-}
-function postCensus(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/census", body);
 }
 function postPosDocument(body: IPosDocumentDto): Promise<IResponseDocument> {
   return api.post("pos-document", body);
@@ -58,7 +55,6 @@ export const DocumentService = {
   postMove,
   postConversion,
   postMixture,
-  postCensus,
   postPosDocument,
   patch,
   lock,

@@ -37,12 +37,16 @@ const TransactionRefundPurchase = (props: IProps) => {
   };
   const generateCode = async () => {
     blockContext.block();
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.PurchaseReturn,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   const onFinish = async (values: IDataDocument) => {
     values.movingStatus = MovingStatus.PurchaseReturn;
     blockContext.block();
@@ -141,14 +145,14 @@ const TransactionRefundPurchase = (props: IProps) => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Нийлүүлэгчийн нэр">
+              <Form.Item label="Нийлүүлэгчийн код, нэр">
                 <ConsumerSelect
                   form={form}
                   name={"consumerId"}
                   rules={[
                     {
                       required: true,
-                      message: "Нийлүүлэгчийн нэр оруулна уу.",
+                      message: "Нийлүүлэгчийн код, нэр оруулна уу.",
                     },
                   ]}
                 />
@@ -176,7 +180,10 @@ const TransactionRefundPurchase = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[{
+            <Form.List
+              name="transactions"
+              rules={[
+                {
                   validator: async (_, transactions) => {
                     const arr = Array.isArray(transactions)
                       ? transactions.map(
@@ -189,7 +196,9 @@ const TransactionRefundPurchase = (props: IProps) => {
                       );
                     }
                   },
-                },]}>
+                },
+              ]}
+            >
               {(items, { add, remove }, { errors }) => (
                 <>
                   <EditableTableRefundPurchase

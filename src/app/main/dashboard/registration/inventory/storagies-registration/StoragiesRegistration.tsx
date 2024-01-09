@@ -29,9 +29,9 @@ import {
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import TextArea from "antd/es/input/TextArea";
-import { UserSelect } from "@/components/user-select";
 import { TreeSectionSelect } from "@/components/tree-select";
 import { UploadImage } from "@/components/upload-image";
+import { EmployeeSelect } from "@/components/employee-select";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -118,7 +118,10 @@ const StoragiesRegistration = (props: IProps) => {
     setIsEdit(state);
     form.resetFields();
     if (state && row) {
-      form.setFieldsValue(row);
+      form.setFieldsValue({
+        ...row,
+        employeeIds: row.employees.map((item) => item.id),
+      });
       setSelectedRow(row);
     }
     setIsOpenModal(true);
@@ -488,10 +491,10 @@ const StoragiesRegistration = (props: IProps) => {
               />
             </Form.Item>
             <Form.Item label="Хариуцсан нярав">
-              <UserSelect
+              <EmployeeSelect
                 form={form}
                 rules={[]}
-                name="userIds"
+                name="employeeIds"
                 isMultiple={true}
               />
             </Form.Item>

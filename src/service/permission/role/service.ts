@@ -22,7 +22,7 @@ function patch(id: number, body: IDataRole): Promise<IResponseRole> {
   return api.patch(`warehouse-permission/role/${id}`, body);
 }
 function remove(id: number): Promise<GenericResponse> {
-  return api.delete(`material/${id}`);
+  return api.delete(`warehouse-permission/role/${id}`);
 }
 
 export const RoleService = {

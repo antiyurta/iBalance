@@ -1,47 +1,80 @@
-import { NewCheckbox, NewInput } from "@/components/input";
+import { NewCheckbox, NewInput, NewSelect } from "@/components/input";
 import { Column } from "@/components/table";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { IDataPermission, IEmployeePermission } from "@/service/permission/entities";
+import { IDataResource } from "@/service/permission/resource/entities";
+import { ResourceService } from "@/service/permission/resource/service";
 import { IDataRole } from "@/service/permission/role/entities";
 import { Form, Table } from "antd";
 import { FormInstance } from "antd/lib";
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 interface IProps {
-  form: FormInstance<IDataRole>;
+  form: FormInstance<IDataRole | IEmployeePermission>;
+  isEdit: boolean;
 }
 export const PermissionList = (props: IProps) => {
-  const { form } = props;
+  const { form, isEdit } = props;
+  const blockContext: BlockView = useContext(BlockContext);
+  const [resources, setResources] = useState<IDataResource[]>([]);
   const selectAllPermission = (isValue: boolean, index: number) => {
     form.setFieldValue(["permissions", index, "isAdd"], isValue);
     form.setFieldValue(["permissions", index, "isView"], isValue);
     form.setFieldValue(["permissions", index, "isEdit"], isValue);
     form.setFieldValue(["permissions", index, "isDelete"], isValue);
   };
+  const getResource = () => {
+    blockContext.block();
+    const permissions: IDataPermission[] = [];
+    ResourceService.get()
+      .then((response) => {
+        if (response.success) {
+          const { data } = response.response;
+          setResources(data);
+          data.map((resource) => {
+            permissions.push({
+              id: undefined,
+              roleId: undefined,
+              userId: undefined,
+              resourceId: resource.id,
+              resource: resource,
+              isAdd: false,
+              isView: false,
+              isEdit: false,
+              isDelete: false,
+            });
+          });
+          form.setFieldsValue({
+            permissions,
+          });
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
-    console.log("is is working ==>");
-    form.setFieldsValue({
-      permissions: [
-        {
-          roleId: 1,
-          role: {},
-          userId: 1,
-          url: "Hello",
-          isAdd: false,
-          isView: false,
-          isEdit: false,
-          isDelete: false,
-        },
-      ],
-    });
-  }, [form]);
+    if (!isEdit) getResource();
+  }, [form, isEdit]);
   return (
     <Form.List name="permissions">
       {(fields) => (
         <Table dataSource={fields}>
           <Column
-            dataIndex={"url"}
+            dataIndex={"resourceId"}
+            title="Код"
+            width={150}
+            render={(_, __, index) => (
+              <>
+                <Form.Item name={[index, "resourceId"]}>
+                  <NewInput disabled />
+                </Form.Item>
+              </>
+            )}
+          />
+          <Column
+            dataIndex={"name"}
             title="Цэс"
             render={(_, __, index) => (
               <>
-                <Form.Item name={[index, "url"]}>
+                <Form.Item name={[index, "resource", "name"]}>
                   <NewInput
                     disabled
                     suffix={

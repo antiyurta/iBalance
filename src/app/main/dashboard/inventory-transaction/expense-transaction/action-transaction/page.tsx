@@ -36,7 +36,7 @@ const TransactionActionPage = () => {
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
           <Title level={3}>
-            Бараа материал / Зарлагын гүйлгээ/ Борлуулалт
+            Бараа материал / Зарлагын гүйлгээ/ Үйл ажиллагаанд
           </Title>
         </Space>
       </Col>

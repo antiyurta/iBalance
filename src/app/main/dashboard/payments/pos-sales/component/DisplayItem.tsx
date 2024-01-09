@@ -37,7 +37,7 @@ interface IDisplayItem {
 
 const DisplayItem = (props: IProps) => {
   const { type, material } = props;
-  const { setReload } = usePaymentGroupContext();
+  const { isReload, setReload } = usePaymentGroupContext();
   const blockContext: BlockView = useContext(BlockContext);
   const [item, setItem] = useState<IDisplayItem>();
 
@@ -78,7 +78,7 @@ const DisplayItem = (props: IProps) => {
     blockContext.block();
     await ShoppingGoodsService.post(data)
       .finally(() => {
-        setReload(true);
+        setReload(!isReload);
       })
       .catch((error) => {
         console.log(error);

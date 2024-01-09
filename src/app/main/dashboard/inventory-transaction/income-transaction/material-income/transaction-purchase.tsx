@@ -56,12 +56,16 @@ export const TransactionPurchase = (props: IProps) => {
   };
   const generateCode = async () => {
     blockContext.block();
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.Purchase,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouses({});
     generateCode();
@@ -183,14 +187,17 @@ export const TransactionPurchase = (props: IProps) => {
                 {
                   validator: async (_, transactions) => {
                     const arr = Array.isArray(transactions)
-                      ? transactions.map(
-                          (item: IDataTransaction) => {
-                            return `${item.materialId}-${dayjs(item.transactionAt).format("YYYY/MM/DD")}`}
-                        )
+                      ? transactions.map((item: IDataTransaction) => {
+                          return `${item.materialId}-${dayjs(
+                            item.transactionAt
+                          ).format("YYYY/MM/DD")}`;
+                        })
                       : [];
                     if (!hasUniqueValues(arr)) {
                       return Promise.reject(
-                        new Error("Барааны код дуусах хугацаа давхардсан байна.")
+                        new Error(
+                          "Барааны код дуусах хугацаа давхардсан байна."
+                        )
                       );
                     }
                   },

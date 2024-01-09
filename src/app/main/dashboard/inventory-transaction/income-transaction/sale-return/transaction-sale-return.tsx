@@ -61,18 +61,22 @@ export const TransactionSaleReturn = (props: IProps) => {
     }
   };
   const generateCode = async () => {
-    blockContext.block()
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    blockContext.block();
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.SaleReturn,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouse({});
     generateCode();
   }, []);
-  
+
   useEffect(() => {
     if (!selectedDocument) {
       setIsEdit(false);
@@ -151,7 +155,7 @@ export const TransactionSaleReturn = (props: IProps) => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Харилцагчийн нэр">
+              <Form.Item label="Харилцагчийн код, нэр">
                 <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
               </Form.Item>
               <Form.Item
@@ -167,7 +171,7 @@ export const TransactionSaleReturn = (props: IProps) => {
                 <NewDatePicker />
               </Form.Item>
               <Form.Item
-                label="Буцаалт хийх шалтгаан"
+                label="Буцаалтын шалтгаан"
                 name="description"
                 rules={[
                   {
@@ -203,7 +207,9 @@ export const TransactionSaleReturn = (props: IProps) => {
                       : [];
                     if (!hasUniqueValues(arr)) {
                       return Promise.reject(
-                        new Error("Барааны код дуусах хугацаа давхардсан байна.")
+                        new Error(
+                          "Барааны код дуусах хугацаа давхардсан байна."
+                        )
                       );
                     }
                   },

@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import Bill from "./Step3/Bill";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { DocumentService } from "@/service/document/service";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { useTypedSelector } from "@/feature/store/reducer";
 
 interface IProps {
@@ -48,9 +48,16 @@ const Step3 = (props: IProps) => {
     });
   };
   const saveDocument = async () => {
+    let code = '';
+    await DocumentService.generateCode({ movingStatus: MovingStatus.Pos }).then((response) => {
+      if (response.success) {
+        code = response.response;
+      }
+    });
     await DocumentService.postPosDocument({
       shoppingCartId: shoppingCart.id,
       regno,
+      code,
       warehouseId: id,
       posId,
     }).then((response) => {

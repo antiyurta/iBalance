@@ -5,12 +5,6 @@ interface GenericResponse {
   message: string;
   statusCode: number;
 }
-/** Албан тушаал */
-export enum JobPosition {
-  Treasure = 'TREASURE', // нягтлан
-  Cashier = 'CASHIER', // кассчин
-  Employee = 'EMPLOYEE', // ажилтан
-}
 interface IHospital {
   address: string;
   name: string;
@@ -39,7 +33,6 @@ export interface IUser {
   role?: IRole;
   roleId?: number;
   updatedAt?: string;
-  jobPosition?: JobPosition;
 }
 export interface Tokens {
   accessToken: string;
@@ -74,7 +67,6 @@ export interface IFilterUser {
   isActive?: boolean;
   lastName?: string;
   phonoNo?: string;
-  jobPosition?: JobPosition;
 }
 export type FilteredColumnsUser = {
   [T in keyof IFilterUser]?: ColumnType;

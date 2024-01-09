@@ -2,6 +2,7 @@ import { ColumnType, GenericResponse, IFilter, IParam, Meta } from "@/service/en
 import { IDataPermission } from "../entities";
 
 export interface IDataRole {
+  id?: number;
   name: string;
   description: string;
   permissions: IDataPermission[];

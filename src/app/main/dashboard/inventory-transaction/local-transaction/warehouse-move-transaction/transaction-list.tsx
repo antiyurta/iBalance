@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag, openNofi } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  openNofi,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { Meta } from "@/service/entities";
 import {
@@ -15,13 +19,15 @@ import { TransactionService } from "@/service/document/transaction/service";
 import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { IDataDocument, MovingStatus } from "@/service/document/entities";
-import { DocumentService } from "@/service/document/service";
-import { DocumentEdit } from "./document-edit";
+import { MovingStatus } from "@/service/document/entities";
+import { IDataWarehouseDocument } from "@/service/document/warehouse-document/entities";
+import { WarehouseDocumentService } from "@/service/document/warehouse-document/service";
+import NewModal from "@/components/modal";
+import TransactionMove from "./transaction-move";
 interface IProps {
   movingStatus?: MovingStatus;
 }
-export const TransactionList = (props: IProps) => {
+export const TransactionWarehouseList = (props: IProps) => {
   const { movingStatus } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [data, setData] = useState<IDataTransaction[]>([]);
@@ -32,14 +38,14 @@ export const TransactionList = (props: IProps) => {
     limit: 10,
   });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
-  const [isReload, setIsReload] = useState<boolean>(false);
+  const [selectedDocument, setSelectedDocument] =
+    useState<IDataWarehouseDocument>();
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsTransaction>(
     getTransactionColumns(movingStatus)
   );
   const getData = async (params: IParamTransaction) => {
     blockContext.block();
-    params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
     if (movingStatus) params.movingStatus = movingStatus;
     await TransactionService.get(params)
       .then((response) => {
@@ -53,21 +59,22 @@ export const TransactionList = (props: IProps) => {
   };
   const editDocument = async (transaction: IDataTransaction) => {
     if (transaction.document?.isLock) {
-      openNofi('warning', 'Баримт түгжигдсэн байна.')
+      openNofi("warning", "Баримт түгжигдсэн байна.");
     } else {
       blockContext.block();
-      await DocumentService.getById(transaction.documentId)
-      .then((response) => {
-        if (response.success) {
-          setSelectedDocument(response.response);
-        }
-      })
-      .finally(() => blockContext.unblock());
+      await WarehouseDocumentService.getById(transaction.warehouseDocumentId)
+        .then((response) => {
+          if (response.success) {
+            setSelectedDocument(response.response);
+            setIsOpenModal(true);
+          }
+        })
+        .finally(() => blockContext.unblock());
     }
   };
   useEffect(() => {
     getData(params);
-  }, [isReload]);
+  }, [isOpenModal]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -152,12 +159,18 @@ export const TransactionList = (props: IProps) => {
           /> */}
         </Col>
       </Row>
-      <DocumentEdit
-        selectedDocument={selectedDocument}
-        movingStatus={movingStatus}
-        isReload={isReload}
-        setIsReload={setIsReload}
-      />
+      <NewModal
+        width={1500}
+        title={""}
+        open={isOpenModal}
+        footer={false}
+        onCancel={() => setIsOpenModal(false)}
+      >
+        <TransactionMove
+          selectedDocument={selectedDocument}
+          onSave={setIsOpenModal}
+        />
+      </NewModal>
     </div>
   );
 };

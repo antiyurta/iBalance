@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -15,12 +15,12 @@ import { EditableTableCencus } from "./editableTableCencus";
 import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { MaterialType } from "@/service/material/entities";
-import { IParamUser, IUser } from "@/service/authentication/entities";
-import { authService } from "@/service/authentication/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
+import { IDataEmployee } from "@/service/employee/entities";
+import { EmployeeService } from "@/service/employee/service";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -30,7 +30,7 @@ const TransactionCencus = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [employees, setEmployees] = useState<IDataEmployee[]>([]);
   const warehouseId: number = Form.useWatch("warehouseId", form);
 
   const getWarehouses = (params: IParamWarehouse) => {
@@ -50,7 +50,7 @@ const TransactionCencus = (props: IProps) => {
               name: response.name,
               measurement: response.measurementName,
               countPackage: response.countPackage,
-              unitAmount: response.unitAmount,
+              unitAmount: response.unitAmount | 0,
               lastQty: response.lastQty,
             }))
             .filter((item) => item.lastQty !== 0);
@@ -59,15 +59,9 @@ const TransactionCencus = (props: IProps) => {
       });
     });
   };
-  const getUsers = async (ids: number[]) => {
-    authService.getAllUsers({ ids }).then((response) => {
-      if (response.success) {
-        setUsers(response.response);
-      }
-    });
-  };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.movingStatus = MovingStatus.Cencus;
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
         .then((response) => {
@@ -78,15 +72,28 @@ const TransactionCencus = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postCensus(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
         .finally(() => blockContext.unblock());
     }
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.Cencus,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (selectedDocument) {
@@ -98,7 +105,7 @@ const TransactionCencus = (props: IProps) => {
           name: transaction.material?.name,
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
-          unitAmount: transaction.unitAmount,
+          unitAmount: transaction.unitAmount || 0,
           lastQty: transaction.lastQty,
           quantity: transaction.lastQty + (transaction.excessOrDeficiency || 0),
           excessOrDeficiency: transaction.excessOrDeficiency,
@@ -135,7 +142,6 @@ const TransactionCencus = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -143,7 +149,7 @@ const TransactionCencus = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">
@@ -156,14 +162,11 @@ const TransactionCencus = (props: IProps) => {
               >
                 <NewFilterSelect
                   onChange={(id) => {
-                    form.resetFields(["userId"]);
-                    setUsers([]);
-                    const userIds = warehouses.find(
+                    form.resetFields(["employeeId"]);
+                    const employees = warehouses.find(
                       (warehouse) => warehouse.id === id
-                    )?.userIds;
-                    if (userIds) {
-                      getUsers(userIds);
-                    }
+                    )?.employees || [];
+                    setEmployees(employees);
                     getMaterials({
                       warehouseId,
                       types: [MaterialType.Material],
@@ -177,15 +180,15 @@ const TransactionCencus = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Хариуцсан нярав"
-                name="userId"
+                name="employeeId"
                 rules={[
                   { required: true, message: "Хариуцсан нярав оруулна уу" },
                 ]}
               >
                 <NewFilterSelect
-                  options={users.map((user) => ({
-                    value: user.id,
-                    label: `${user.lastName}. ${user.firstName}`,
+                  options={employees.map((item) => ({
+                    value: item.id,
+                    label: `${item.lastName}. ${item.firstName}`,
                   }))}
                 />
               </Form.Item>
@@ -213,20 +216,25 @@ const TransactionCencus = (props: IProps) => {
               }}
             />
             <div style={{ overflow: "auto", maxHeight: "500px" }}>
-              <Form.List name="transactions" rules={[
-                {
-                  validator: async (_, transactions) => {
-                    const arr = Array.isArray(transactions)
-                      ? transactions.map((trans: IDataTransaction) => trans.materialId)
-                      : [];
-                    if (!hasUniqueValues(arr)) {
-                      return Promise.reject(
-                        new Error("Барааны код давхардсан байна.")
-                      );
-                    }
-                  }
-                }
-              ]}>
+              <Form.List
+                name="transactions"
+                rules={[
+                  {
+                    validator: async (_, transactions) => {
+                      const arr = Array.isArray(transactions)
+                        ? transactions.map(
+                            (trans: IDataTransaction) => trans.materialId
+                          )
+                        : [];
+                      if (!hasUniqueValues(arr)) {
+                        return Promise.reject(
+                          new Error("Барааны код давхардсан байна.")
+                        );
+                      }
+                    },
+                  },
+                ]}
+              >
                 {(items, { add, remove }, { errors }) => (
                   <>
                     <EditableTableCencus

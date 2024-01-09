@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -34,6 +34,18 @@ const TransactionMixture = (props: IProps) => {
       }
     });
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.Mixture,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
     if (selectedDocument) {
@@ -55,6 +67,7 @@ const TransactionMixture = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses({});
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -78,16 +91,14 @@ const TransactionMixture = (props: IProps) => {
           lastQty: transaction.lastQty,
           expenseQty: transaction.expenseQty,
         })),
-        exits: exits?.map(
-          (transaction) => ({
-            materialId: transaction.materialId,
-            name: transaction.material?.name,
-            measurement: transaction.material?.measurement.name,
-            countPackage: transaction.material?.countPackage,
-            lastQty: transaction.lastQty,
-            incomeQty: transaction.incomeQty,
-          })
-        ),
+        exits: exits?.map((transaction) => ({
+          materialId: transaction.materialId,
+          name: transaction.material?.name,
+          measurement: transaction.material?.measurement.name,
+          countPackage: transaction.material?.countPackage,
+          lastQty: transaction.lastQty,
+          incomeQty: transaction.incomeQty,
+        })),
       });
     }
   }, [selectedDocument]);
@@ -118,7 +129,6 @@ const TransactionMixture = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -126,7 +136,7 @@ const TransactionMixture = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">
@@ -174,20 +184,25 @@ const TransactionMixture = (props: IProps) => {
                   label: "Орц",
                   key: "item-1",
                   children: (
-                    <Form.List name="ingredients" rules={[{
-                      validator: async (_, ingredients) => {
-                        const arr = Array.isArray(ingredients)
-                          ? ingredients.map(
-                              (item: IDataTransaction) => item.materialId
-                            )
-                          : [];
-                        if (!hasUniqueValues(arr)) {
-                          return Promise.reject(
-                            new Error("Барааны код давхардсан байна.")
-                          );
-                        }
-                      },
-                    },]}>
+                    <Form.List
+                      name="ingredients"
+                      rules={[
+                        {
+                          validator: async (_, ingredients) => {
+                            const arr = Array.isArray(ingredients)
+                              ? ingredients.map(
+                                  (item: IDataTransaction) => item.materialId
+                                )
+                              : [];
+                            if (!hasUniqueValues(arr)) {
+                              return Promise.reject(
+                                new Error("Барааны код давхардсан байна.")
+                              );
+                            }
+                          },
+                        },
+                      ]}
+                    >
                       {(items, { add, remove }, { errors }) => (
                         <>
                           <EditableTableMixture
@@ -208,20 +223,25 @@ const TransactionMixture = (props: IProps) => {
                   label: "Гарц",
                   key: "item-2",
                   children: (
-                    <Form.List name="exits" rules={[{
-                      validator: async (_, exits) => {
-                        const arr = Array.isArray(exits)
-                          ? exits.map(
-                              (item: IDataTransaction) => item.materialId
-                            )
-                          : [];
-                        if (!hasUniqueValues(arr)) {
-                          return Promise.reject(
-                            new Error("Барааны код давхардсан байна.")
-                          );
-                        }
-                      },
-                    },]}>
+                    <Form.List
+                      name="exits"
+                      rules={[
+                        {
+                          validator: async (_, exits) => {
+                            const arr = Array.isArray(exits)
+                              ? exits.map(
+                                  (item: IDataTransaction) => item.materialId
+                                )
+                              : [];
+                            if (!hasUniqueValues(arr)) {
+                              return Promise.reject(
+                                new Error("Барааны код давхардсан байна.")
+                              );
+                            }
+                          },
+                        },
+                      ]}
+                    >
                       {(items, { add, remove }, { errors }) => (
                         <>
                           <EditableTableMixture

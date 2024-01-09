@@ -1,5 +1,11 @@
-import { JobPosition } from "../authentication/entities";
-import { GenericResponse } from "../entities";
+import {
+  ColumnType,
+  GenericResponse,
+  IFilter,
+  IParam,
+  Meta,
+} from "../entities";
+import { IDataRole } from "../permission/role/entities";
 
 type TypeGender = "MAN" | "WOMAN";
 /** Ажилтаны төрөл */
@@ -22,7 +28,31 @@ export interface IDataEmployee {
   isWorking: boolean;
   phoneNo: string;
   roleId: number;
-  jobPosition: JobPosition;
+  warehouseRoleId: number;
+  warehouseRole?: IDataRole;
+  isTreasure: boolean;
+  isCashier: boolean;
+}
+export interface IFilterEmployee extends IFilter {
+  email?: string;
+  phoneNo?: string;
+  registerNumber?: string;
+  firstName?: string;
+  lastName?: string;
+  warehouseRoleId?: number;
+  isTreasure?: boolean;
+  isCashier?: boolean;
+  warehouseId?: number;
+}
+export interface IParamEmployee extends Meta, IParam, IFilterEmployee {}
+export type FilteredColumnsEmployee = {
+  [T in keyof IFilterEmployee]?: ColumnType;
+};
+export interface IResponseEmployees extends GenericResponse {
+  response: {
+    data: IDataEmployee[];
+    meta: Meta;
+  };
 }
 export interface IResponseEmployee extends GenericResponse {
   response: IDataEmployee;

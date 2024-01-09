@@ -65,12 +65,16 @@ const TransactionSale = (props: IProps) => {
   };
   const generateCode = async () => {
     blockContext.block();
-    await DocumentService.generateCode().then((response) => {
-      if (response.success) {
-        form.setFieldValue('code', response.response);
-      }
-    }).finally(() => blockContext.unblock());
-  }
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.Sales,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   useEffect(() => {
     getWarehouses({});
     generateCode();
@@ -204,22 +208,25 @@ const TransactionSale = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <Form.List name="transactions" rules={[
-              {
-                validator: async (_, transactions) => {
-                  const arr = Array.isArray(transactions)
-                    ? transactions.map(
-                        (item: IDataTransaction) => item.materialId
-                      )
-                    : [];
-                  if (!hasUniqueValues(arr)) {
-                    return Promise.reject(
-                      new Error("Барааны код давхардсан байна.")
-                    );
-                  }
+            <Form.List
+              name="transactions"
+              rules={[
+                {
+                  validator: async (_, transactions) => {
+                    const arr = Array.isArray(transactions)
+                      ? transactions.map(
+                          (item: IDataTransaction) => item.materialId
+                        )
+                      : [];
+                    if (!hasUniqueValues(arr)) {
+                      return Promise.reject(
+                        new Error("Барааны код давхардсан байна.")
+                      );
+                    }
+                  },
                 },
-              },
-            ]}>
+              ]}
+            >
               {(items, { add, remove }, { errors }) => (
                 <>
                   <EditableTableSale
