@@ -13,6 +13,7 @@ import { IDataPosOpenClose } from "../open-close/entities";
 import { IDataGiftCart } from "../gift-cart/entities";
 
 export interface CreateShoppingCartDto {
+  openCloseId: number;
   goodsIds: number[];
 }
 export interface UpdateShoppingCartDto {
@@ -44,6 +45,8 @@ export interface IDataShoppingCart extends IData {
 export interface IFilterShoppingCart extends IFilter {
   id?: string;
   isPaid?: boolean;
+  openCloseId?: number;
+  paymentMethodIds: number[];
   warehouseName?: string;
   membershipConsumerCode?: number;
   membershipConsumerName?: string;

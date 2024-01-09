@@ -25,6 +25,7 @@ const PayController = () => {
   const { isReload, setReload, isReloadCart } = usePaymentGroupContext();
   const dispatch = useDispatch<AppDispatch>();
   const { shoppingCart } = useTypedSelector((state) => state);
+  const { posOpenClose } = useTypedSelector((state) => state);
   const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
   const [shoppingGoods, setShoppingGoods] = useState<IDataShoppingGoods[]>([]);
 
@@ -52,6 +53,7 @@ const PayController = () => {
   };
   const createShoppingCart = async () => {
     await ShoppingCartService.post({
+      openCloseId: posOpenClose.id,
       goodsIds: shoppingGoods.map((goods) => goods.id),
     }).then((response) => {
       if (response.success) {

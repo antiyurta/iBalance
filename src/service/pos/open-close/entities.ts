@@ -6,6 +6,7 @@ import {
   Meta,
 } from "@/service/entities";
 import { IDataPosBankNote } from "./bank-note/entities";
+import { IDataShoppingCart } from "../shopping-card/entities";
 
 export interface IOpenDto {
   openerAmount: number;
@@ -36,6 +37,7 @@ export interface IDataPosOpenClose {
   nonCashAmount: number;
   lendAmount: number;
   posBankNotes: IDataPosBankNote[];
+  shoppingCarts: IDataShoppingCart[];
 }
 export interface IFilterPosOpenClose extends IFilter {
   id: number;

@@ -1,7 +1,12 @@
 "use client";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
-import { NewFilterSelect, NewInput, NewSelect } from "@/components/input";
+import {
+  NewFilterSelect,
+  NewInput,
+  NewSelect,
+  NewSwitch,
+} from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
@@ -56,6 +61,20 @@ const Users = () => {
       isFiltered: false,
       dataIndex: ["warehouseRole", "name"],
       type: DataIndexType.MULTI,
+    },
+    isTreasure: {
+      label: "Нярав эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isTreasure",
+      type: DataIndexType.BOOLEAN,
+    },
+    isCashier: {
+      label: "Кассчин эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: "isCashier",
+      type: DataIndexType.BOOLEAN,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
@@ -264,6 +283,20 @@ const Users = () => {
                 label: item.name,
               }))}
             />
+          </Form.Item>
+          <Form.Item
+            label="Нярав эсэх"
+            name={"isTreasure"}
+            valuePropName="checked"
+          >
+            <NewSwitch />
+          </Form.Item>
+          <Form.Item
+            label="Кассчин эсэх"
+            name={"isCashier"}
+            valuePropName="checked"
+          >
+            <NewSwitch />
           </Form.Item>
         </Form>
       </NewModal>

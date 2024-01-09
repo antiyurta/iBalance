@@ -12,7 +12,7 @@ import {
   IParamOpenClose,
 } from "@/service/pos/open-close/entities";
 import { OpenCloseService } from "@/service/pos/open-close/service";
-import { Button, Col, Form, Row, Space, Table } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { IssuesCloseOutlined } from "@ant-design/icons";
@@ -24,7 +24,16 @@ import {
   NewSelect,
 } from "@/components/input";
 import dayjs from "dayjs";
-
+import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
+import { MovingStatus } from "@/service/document/entities";
+import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
+import { PaymentType } from "@/service/reference/payment-method/entities";
+import { ShoppingCartService } from "@/service/pos/shopping-card/service";
+import {
+  CloseTable,
+  StatisticDoc,
+  closeNumber,
+} from "./components/close-table";
 const OpeningClosingHistory = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsPosOpenClose>({
@@ -136,6 +145,8 @@ const OpeningClosingHistory = () => {
   const [filters, setFilters] = useState<IFilterPosOpenClose>();
   const [isClose, setIsClose] = useState<boolean>(false);
   const [openClose, setOpenClose] = useState<IDataPosOpenClose>();
+  const [cashDocuments, setCashDocuments] = useState<StatisticDoc[]>([]);
+  const [isCashLoading, setIsCashLoading] = useState<boolean>(false);
   enum ItemClose {
     SHOW_CLOSE = "show-close",
   }
@@ -174,9 +185,234 @@ const OpeningClosingHistory = () => {
         if (response.success) {
           setOpenClose(response.response);
           setIsClose(true);
+          getStatisticCash(id);
+          response.response.shoppingCarts;
         }
       })
       .finally(() => blockContext.unblock());
+  };
+  const getStatisticSale = (
+    shoppingCarts: IDataShoppingCart[]
+  ): StatisticDoc[] => {
+    const totalSale: StatisticDoc = {
+      state: "Нийт борлуулалт",
+      qty: closeNumber({ value: shoppingCarts.length }),
+      amount: closeNumber({
+        value:
+          shoppingCarts.reduce(
+            (total, item) => total + Number(item.totalAmount),
+            0
+          ),
+      }),
+    };
+    const refundShoppingCarts = shoppingCarts.filter(
+      (item) =>
+        item.transactionDocument?.movingStatus == MovingStatus.PosSaleReturn
+    );
+    const refund: StatisticDoc = {
+      state: "Буцаалт",
+      qty: closeNumber({ value: refundShoppingCarts.length, isBracket: true }),
+      amount: closeNumber({
+        value: refundShoppingCarts.reduce(
+          (total, item) => total + Number(item.transactionDocument?.amount),
+          0
+        ),
+        isBracket: true,
+      }),
+    };
+    const materialShoppingCarts = shoppingCarts.filter(
+      (item) => item.transactionDocument?.discountAmount || 0 > 0
+    );
+    const materialDiscount: StatisticDoc = {
+      state: "Бараа материалын хөнгөлөлт, урамшуулал",
+      qty: closeNumber({ value: materialShoppingCarts.length }),
+      amount: closeNumber({
+        value: materialShoppingCarts.reduce(
+          (total, item) =>
+            total + Number(item.transactionDocument?.discountAmount),
+          0
+        ),
+      }),
+    };
+    const consumerShoppingCarts = shoppingCarts.filter(
+      (item) => Number(item.membershipDiscountAmount) > 0
+    );
+    const consumerDiscount: StatisticDoc = {
+      state: "Харилцагч, гишүүнчлэлийн хөнгөлөлт",
+      qty: closeNumber({ value: consumerShoppingCarts.length }),
+      amount: closeNumber({
+        value: consumerShoppingCarts.reduce(
+          (total, item) => total + Number(item.membershipDiscountAmount),
+          0
+        ),
+      }),
+    };
+    const realShoppingCarts = shoppingCarts.filter(
+      (item) =>
+        item.transactionDocument?.movingStatus !== MovingStatus.PosSaleReturn
+    );
+    const sale: StatisticDoc = {
+      state: <div style={{ fontWeight: "bold" }}>Цэвэр борлуулалт</div>,
+      qty: closeNumber({ value: realShoppingCarts.length, isBold: true }),
+      amount: closeNumber({
+        value: realShoppingCarts.reduce(
+          (total, item) => total + Number(item.payAmount),
+          0
+        ),
+        isBold: true,
+      }),
+    };
+    return [totalSale, refund, materialDiscount, consumerDiscount, sale];
+  };
+  const getStatisticCash = async (openCloseId?: number) => {
+    setIsCashLoading(true);
+    const paymentMethodIds: number[] = await ReferencePaymentMethodService.get({
+      type: PaymentType.Cash,
+    }).then((response) => {
+      if (!response.success) return [];
+      return response.response.map((item) => item.id);
+    });
+    if (!openCloseId) return [];
+    const shoppingCarts = await ShoppingCartService.get({
+      openCloseId,
+      paymentMethodIds,
+    }).then((response) => {
+      if (!response.success) return [];
+      return response.response.data;
+    });
+    const totalCash: StatisticDoc = {
+      state: "Нийт бэлэн борлуулалт",
+      amount: shoppingCarts.reduce(
+        (total, item) => total + Number(item.transactionDocument?.amount),
+        0
+      ),
+    };
+    const beginingCash: StatisticDoc = {
+      state: "Эхэлсэн мөнгө",
+      amount: Number(openClose?.openerAmount),
+    };
+    const addCash: StatisticDoc = {
+      state: "Нэмсэн",
+      amount: 0,
+    };
+    const diffCash: StatisticDoc = {
+      state: "Хассан",
+      amount: 0,
+    };
+    const refundCash: StatisticDoc = {
+      state: "Буцаалт хасах",
+      amount: 0,
+    };
+    const realCash: StatisticDoc = {
+      state: "Байх ёстой үлдэгдэл",
+      amount: 0,
+    };
+    const cencusCash: StatisticDoc = {
+      state: "Тоолсон",
+      amount: 0,
+    };
+    const excessDeficiency: StatisticDoc = {
+      state: (
+        <>
+          <div style={{ display: "flex" }}>
+            Илүүдсэн <div style={{ color: "red" }}>(Дутсан)</div>
+          </div>
+        </>
+      ),
+      amount: 0,
+    };
+    setCashDocuments([
+      totalCash,
+      beginingCash,
+      addCash,
+      diffCash,
+      refundCash,
+      realCash,
+      cencusCash,
+      excessDeficiency,
+    ]);
+    setIsCashLoading(false);
+  };
+  const getPay = (): StatisticDoc[] => {
+    const cash: StatisticDoc = {
+      state: "Бэлэн",
+      amount: 0,
+    };
+    const notCash: StatisticDoc = {
+      state: "Бэлэн бус",
+      amount: 0,
+    };
+    const lend: StatisticDoc = {
+      state: "Зээл",
+      amount: 0,
+    };
+    const gift: StatisticDoc = {
+      state: "Бэлгийн карт, эрхийн бичиг",
+      amount: 0,
+    };
+    const membership: StatisticDoc = {
+      state: "Ашигласан оноогоор /гишүүнчлэл/",
+      amount: 0,
+    };
+    const pre: StatisticDoc = {
+      state: "Урьдчилгаа",
+      amount: 0,
+    };
+    const total: StatisticDoc = {
+      state: "Нийт төлөлт",
+      amount: 0,
+    };
+    return [cash, notCash, lend, gift, membership, pre, total];
+  };
+  const getNotCash = (): StatisticDoc[] => {
+    const cash: StatisticDoc = {
+      state: "Нийт бэлэн бус борлуулалт",
+      amount: 0,
+    };
+    const notCash: StatisticDoc = {
+      state: "Хаан банк",
+      amount: 0,
+    };
+    const lend: StatisticDoc = {
+      state: "Хас банк",
+      amount: 0,
+    };
+    const gift: StatisticDoc = {
+      state: "Голомт банк",
+      amount: 0,
+    };
+    const membership: StatisticDoc = {
+      state: "Нэмсэн",
+      amount: 0,
+    };
+    const pre: StatisticDoc = {
+      state: "Хассан",
+      amount: 0,
+    };
+    const total: StatisticDoc = {
+      state: "Байх ёстой үлдэгдэл",
+      amount: 0,
+    };
+    const settlement: StatisticDoc = {
+      state: "Settlements",
+      amount: 0,
+    };
+    return [cash, notCash, lend, gift, membership, pre, total, settlement];
+  };
+  const getLend = (): StatisticDoc[] => {
+    const cash: StatisticDoc = {
+      state: "Нийт борлуулалт",
+      amount: 0,
+    };
+    const notCash: StatisticDoc = {
+      state: "Тооцоо нийлсэн",
+      amount: 0,
+    };
+    const lend: StatisticDoc = {
+      state: "Илүүдсэн дутсан",
+      amount: 0,
+    };
+    return [cash, notCash, lend];
   };
   const onFinish = async (values: ICloseDto) => {
     if (openClose) {
@@ -290,88 +526,27 @@ const OpeningClosingHistory = () => {
         >
           <Row>
             <Col span={12}>
-              Борлуулалт
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Тоо хэмжээ",
-                    dataIndex: "age",
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
+              <CloseTable
+                title={"Борлуулалт"}
+                isQty={true}
+                dataSource={getStatisticSale(openClose?.shoppingCarts || [])}
               />
             </Col>
             <Col span={12}>
-              Төлөлт-Бэлэн
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
+              <CloseTable
+                title={"Төлөлт-Бэлэн"}
+                dataSource={cashDocuments}
+                isLoading={isCashLoading}
               />
             </Col>
             <Col span={12}>
-              Төлбөр төлөлт
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
+              <CloseTable title={"Төлбөр төлөлт"} dataSource={getPay()} />
             </Col>
             <Col span={12}>
-              Төлөлт-Бэлэн бус
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
+              <CloseTable title="Төлөлт-Бэлэн бус" dataSource={getNotCash()} />
             </Col>
             <Col span={12}>
-              Зээл
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
+              <CloseTable title="Зээл" dataSource={getLend()} />
             </Col>
             <Col span={24}>
               Нийт зөрүү (Бэлэн + Бэлэн бус) = [-5,000.00] + [0.00] =
@@ -391,7 +566,10 @@ const OpeningClosingHistory = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label={"Бэлэн бус (Settlements)"} name={'nonCashAmount'}>
+              <Form.Item
+                label={"Бэлэн бус (Settlements)"}
+                name={"nonCashAmount"}
+              >
                 <NewInputNumber />
               </Form.Item>
             </Col>

@@ -1,11 +1,12 @@
 import { ColumnType, GenericResponse, IData, IFilter, IParam, Meta } from "@/service/entities";
 import { IDataWarehouse } from "../reference/warehouse/entities";
+import { IDataEmployee } from "../employee/entities";
 export interface ICreatePos {
   warehouseId: number;
   name: string;
   password: string;
   isActive: boolean;
-  userIds: number[];
+  employeeIds: number[];
 }
 export interface IDataPos extends IData {
   id: number;
@@ -14,13 +15,7 @@ export interface IDataPos extends IData {
   name: string;
   password: string;
   isActive: boolean;
-  posUsers: IDataPosUser[];
-}
-interface IDataPosUser {
-  id: number;
-  posId: number;
-  pos: IDataPos;
-  userId: number;
+  employees: IDataEmployee[];
 }
 export interface IFilterPos extends IFilter {
     ids: number[];
