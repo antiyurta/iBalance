@@ -29,9 +29,6 @@ function postConversion(body: IDataDocument): Promise<IResponseDocuments> {
 function postMixture(body: IDataDocument): Promise<IResponseDocuments> {
   return api.post("transaction-document/mixture", body);
 }
-function postCensus(body: IDataDocument): Promise<IResponseDocuments> {
-  return api.post("transaction-document/census", body);
-}
 function postPosDocument(body: IPosDocumentDto): Promise<IResponseDocument> {
   return api.post("pos-document", body);
 }
@@ -58,7 +55,6 @@ export const DocumentService = {
   postMove,
   postConversion,
   postMixture,
-  postCensus,
   postPosDocument,
   patch,
   lock,

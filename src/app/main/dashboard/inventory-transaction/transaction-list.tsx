@@ -39,6 +39,7 @@ export const TransactionList = (props: IProps) => {
   );
   const getData = async (params: IParamTransaction) => {
     blockContext.block();
+    params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
     if (movingStatus) params.movingStatus = movingStatus;
     await TransactionService.get(params)
       .then((response) => {

@@ -15,12 +15,12 @@ import { EditableTableCencus } from "./editableTableCencus";
 import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { MaterialType } from "@/service/material/entities";
-import { IUser } from "@/service/authentication/entities";
-import { authService } from "@/service/authentication/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
+import { IDataEmployee } from "@/service/employee/entities";
+import { EmployeeService } from "@/service/employee/service";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -30,7 +30,7 @@ const TransactionCencus = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [employees, setEmployees] = useState<IDataEmployee[]>([]);
   const warehouseId: number = Form.useWatch("warehouseId", form);
 
   const getWarehouses = (params: IParamWarehouse) => {
@@ -59,15 +59,9 @@ const TransactionCencus = (props: IProps) => {
       });
     });
   };
-  const getUsers = async (ids: number[]) => {
-    authService.getAllUsers({ ids }).then((response) => {
-      if (response.success) {
-        setUsers(response.response);
-      }
-    });
-  };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
+    values.movingStatus = MovingStatus.Cencus;
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)
         .then((response) => {
@@ -78,7 +72,7 @@ const TransactionCencus = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.postCensus(values)
+      await DocumentService.post(values)
         .then((response) => {
           if (response.success) form.resetFields();
         })
@@ -168,14 +162,11 @@ const TransactionCencus = (props: IProps) => {
               >
                 <NewFilterSelect
                   onChange={(id) => {
-                    form.resetFields(["userId"]);
-                    setUsers([]);
-                    const userIds = warehouses.find(
+                    form.resetFields(["employeeId"]);
+                    const employees = warehouses.find(
                       (warehouse) => warehouse.id === id
-                    )?.userIds;
-                    if (userIds) {
-                      getUsers(userIds);
-                    }
+                    )?.employees || [];
+                    setEmployees(employees);
                     getMaterials({
                       warehouseId,
                       types: [MaterialType.Material],
@@ -189,15 +180,15 @@ const TransactionCencus = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Хариуцсан нярав"
-                name="userId"
+                name="employeeId"
                 rules={[
                   { required: true, message: "Хариуцсан нярав оруулна уу" },
                 ]}
               >
                 <NewFilterSelect
-                  options={users.map((user) => ({
-                    value: user.id,
-                    label: `${user.lastName}. ${user.firstName}`,
+                  options={employees.map((item) => ({
+                    value: item.id,
+                    label: `${item.lastName}. ${item.firstName}`,
                   }))}
                 />
               </Form.Item>

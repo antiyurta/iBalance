@@ -155,7 +155,7 @@ export const TransactionSaleReturn = (props: IProps) => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Харилцагчийн нэр">
+              <Form.Item label="Харилцагчийн код, нэр">
                 <ConsumerSelect form={form} rules={[]} name={"consumerId"} />
               </Form.Item>
               <Form.Item
@@ -171,7 +171,7 @@ export const TransactionSaleReturn = (props: IProps) => {
                 <NewDatePicker />
               </Form.Item>
               <Form.Item
-                label="Буцаалт хийх шалтгаан"
+                label="Буцаалтын шалтгаан"
                 name="description"
                 rules={[
                   {

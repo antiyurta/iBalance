@@ -48,8 +48,8 @@ export const WarehouseDocumentList = () => {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
-      type: DataIndexType.MULTI,
+      dataIndex: "documentAt",
+      type: DataIndexType.DATE,
     },
     description: {
       label: "Гүйлгээний утга",
@@ -99,13 +99,6 @@ export const WarehouseDocumentList = () => {
       isFiltered: false,
       dataIndex: "quantity",
       type: DataIndexType.NUMBER,
-    },
-    isLock: {
-      label: "Гүйлгээ түгжсэн эсэх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "isLock",
-      type: DataIndexType.BOOLEAN,
     },
     updatedBy: {
       label: "Бүртгэсэн хэрэглэгч",

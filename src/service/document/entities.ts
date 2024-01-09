@@ -40,18 +40,18 @@ export enum MovingStatus {
   /** Посын борлуулалт */
   Pos = "POS",
   /** Пос борлуулалтын буцаалт */
-  PosSaleReturn = 'POS_SALE_RETURN',
+  PosSaleReturn = "POS_SALE_RETURN",
   /** Захиалгын борлуулалт */
   BookingSale = "BOOKING_SALE",
 }
 /** Гүйлгээний төлвүүд */
 export enum DocumentStatus {
   /** Төлөлт гүйцэд хийгдсэн */
-  Paid = 'PAID',
+  Paid = "PAID",
   /** Төлөлт зээлтэй */
-  Lending = 'LENDING',
+  Lending = "LENDING",
   /** Төлөлт буцаагдсан */
-  Refund = 'REFUND',
+  Refund = "REFUND",
 }
 export interface IPosDocumentDto {
   regno?: string;
@@ -102,7 +102,7 @@ export interface IDataDocument extends IData {
 
 export interface IFilterDocument extends IFilter {
   id?: number;
-  code?: string;
+  documentCode?: string[];
   movingStatus?: MovingStatus;
   hideMovingStatuses?: MovingStatus[];
   warehouseId?: number;
@@ -121,7 +121,6 @@ export interface IFilterDocument extends IFilter {
   paymentMethodName?: string[];
   bookingId?: number[];
   description?: string[];
-  userId?: number[];
   isLock?: boolean;
   amount?: number[];
   discountAmount?: number[];
@@ -131,6 +130,8 @@ export interface IFilterDocument extends IFilter {
   status?: DocumentStatus;
   payAmount?: number[];
   isEbarimt?: boolean[];
+  lockedBy?: number[];
+  lockedAt?: string[];
 }
 
 export type FilteredColumnsDocument = {
@@ -153,219 +154,301 @@ export interface IResponseDocument extends GenericResponse {
 export interface IResponseDocumentCode extends GenericResponse {
   response: string;
 }
-export const getDocumentColumns = (
-  status?: MovingStatus
-): FilteredColumnsDocument => {
-  const columns: FilteredColumnsDocument = {
-    id: {
-      label: "Баримтын дугаар",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "code",
-      type: DataIndexType.MULTI,
-    },
-    documentAt: {
-      label: "Баримтын огноо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "documentAt",
-      type: DataIndexType.DATE,
-    },
-    warehouseName: {
-      label: "Байршил",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["warehouse", "name"],
-      type: DataIndexType.MULTI,
-    },
-  };
-  if (
-    status != MovingStatus.MovementInWarehouse &&
-    status != MovingStatus.ItemConversion &&
-    status != MovingStatus.Mixture &&
-    status != MovingStatus.Cencus
-  ) {
-    columns.consumerCode = {
-      label: "Харилцагчийн код",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "code"],
-      type: DataIndexType.MULTI,
-    };
-    columns.consumerName = {
-      label: "Харилцагчийн нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "name"],
-      type: DataIndexType.MULTI,
-    };
-  }
-  if (
-    status == MovingStatus.Purchase ||
-    status == MovingStatus.SaleReturn ||
-    status == undefined
-  ) {
-    if (status == MovingStatus.SaleReturn) {
-      columns.refundAt = {
-        label: "Буцаалт хийх огноо",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "refundAt",
-        type: DataIndexType.MULTI,
-      };
-    }
-    columns.incomeCount = {
-      label: "Орлогын тоо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "incomeCount",
-      type: DataIndexType.MULTI,
-    };
-    columns.incomeQuantity = {
-      label: "Орлогын тоо хэмжээ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "incomeQuantity",
-      type: DataIndexType.MULTI,
-    };
-  } else if (
-    status == MovingStatus.Sales ||
-    status == MovingStatus.PurchaseReturn ||
-    status == MovingStatus.InOperation ||
-    status == MovingStatus.ActAmortization ||
-    status == MovingStatus.MovementInWarehouse ||
-    status == undefined
-  ) {
-    if (status == MovingStatus.Sales) {
-      columns.paymentMethodName = {
-        label: "Төлбөрийн хэлбэр",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["paymentMethod", "name"],
-        type: DataIndexType.MULTI,
-      };
-      columns.amount = {
-        label: "Төлөх дүн",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "amount",
-        type: DataIndexType.VALUE,
-      };
-      columns.discountAmount = {
-        label: "Бараа материалын үнийн хөнгөлөлт",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "discountAmount",
-        type: DataIndexType.VALUE,
-      };
-      columns.consumerDiscountAmount = {
-        label: "Харилцагчийн хөнгөлөлт",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "consumerDiscountAmount",
-        type: DataIndexType.VALUE,
-      };
-      columns.payAmount = {
-        label: "Төлөх дүн",
-        isView: true,
-        isFiltered: false,
-        dataIndex: "payAmount",
-        type: DataIndexType.VALUE,
-      };
-    }
-    if (status == MovingStatus.MovementInWarehouse) {
-      columns.relDocumentWarehouseName = {
-        label: "Орлого авах байршил",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["relDocument", "warehouse", "name"],
-        type: DataIndexType.MULTI,
-      };
-    }
-    columns.expenseCount = {
-      label: "Зарлагын тоо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "expenseCount",
-      type: DataIndexType.MULTI,
-    };
-    columns.expenseQuantity = {
-      label: "Зарлагын тоо хэмжээ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "expenseQuantity",
-      type: DataIndexType.MULTI,
-    };
-  } else if (status == MovingStatus.Cencus) {
-    columns.userId = {
-      label: "Хариуцсан нярав",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["user", "firstName"],
-      type: DataIndexType.USER,
-    };
-  }
-  if (status == undefined) {
-    columns.movingStatus = {
-      label: "Гүйлгээний цонх",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "movingStatus",
-      type: DataIndexType.ENUM,
-    };
-  }
-  columns.description = {
+const columns: FilteredColumnsDocument = {
+  documentCode: {
+    label: "Баримтын дугаар",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "code",
+    type: DataIndexType.MULTI,
+  },
+  documentAt: {
+    label: "Баримтын огноо",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "documentAt",
+    type: DataIndexType.DATE,
+  },
+  warehouseName: {
+    label: "Байршил",
+    isView: true,
+    isFiltered: false,
+    dataIndex: ["warehouse", "name"],
+    type: DataIndexType.MULTI,
+  },
+  consumerCode: {
+    label: "Харилцагчийн код",
+    isView: true,
+    isFiltered: false,
+    dataIndex: ["consumer", "code"],
+    type: DataIndexType.MULTI,
+  },
+  consumerName: {
+    label: "Харилцагчийн нэр",
+    isView: true,
+    isFiltered: false,
+    dataIndex: ["consumer", "name"],
+    type: DataIndexType.MULTI,
+  },
+  refundAt: {
+    label: "Буцаалт хийх огноо",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "refundAt",
+    type: DataIndexType.MULTI,
+  },
+  incomeCount: {
+    label: "Орлогын тоо",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "incomeCount",
+    type: DataIndexType.MULTI,
+  },
+  incomeQuantity: {
+    label: "Орлогын тоо хэмжээ",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "incomeQuantity",
+    type: DataIndexType.MULTI,
+  },
+  amount: {
+    label: "Төлөх дүн",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "amount",
+    type: DataIndexType.VALUE,
+  },
+  discountAmount: {
+    label: "Бараа материалын үнийн хөнгөлөлт",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "discountAmount",
+    type: DataIndexType.VALUE,
+  },
+  consumerDiscountAmount: {
+    label: "Харилцагчийн хөнгөлөлт",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "consumerDiscountAmount",
+    type: DataIndexType.VALUE,
+  },
+  payAmount: {
+    label: "Төлөх дүн",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "payAmount",
+    type: DataIndexType.VALUE,
+  },
+  expenseCount: {
+    label: "Зарлагын тоо",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "expenseCount",
+    type: DataIndexType.MULTI,
+  },
+  expenseQuantity: {
+    label: "Зарлагын тоо хэмжээ",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "expenseQuantity",
+    type: DataIndexType.MULTI,
+  },
+  movingStatus: {
+    label: "Гүйлгээний цонх",
+    isView: true,
+    isFiltered: false,
+    dataIndex: "movingStatus",
+    type: DataIndexType.ENUM,
+  },
+  description: {
     label: "Гүйлгээний утга",
     isView: true,
     isFiltered: true,
     dataIndex: "description",
     type: DataIndexType.MULTI,
-  };
-  columns.isLock = {
+  },
+  isLock: {
     label: "Гүйлгээ түгжсэн эсэх",
     isView: true,
     isFiltered: false,
     dataIndex: "isLock",
     type: DataIndexType.BOOLEAN,
-  };
-  columns.createdBy = {
+  },
+  updatedBy: {
     label: "Бүртгэсэн хэрэглэгч",
     isView: false,
     isFiltered: true,
-    dataIndex: ["createdUser", "firstName"],
+    dataIndex: ["lockedUser", "firstName"],
     type: DataIndexType.USER,
-  };
-  columns.createdAt = {
+  },
+  updatedAt: {
     label: "Бүртгэсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "createdAt",
+    dataIndex: "updatedAt",
     type: DataIndexType.DATETIME,
-  };
-  columns.updatedBy = {
+  },
+  lockedBy: {
     label: "Түгжсэн хэрэглэгч",
     isView: false,
     isFiltered: true,
     dataIndex: ["lockedUser", "firstName"],
     type: DataIndexType.USER,
-  };
-  columns.updatedAt = {
+  },
+  lockedAt: {
     label: "Түгжсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "updatedAt",
+    dataIndex: "lockeddAt",
     type: DataIndexType.DATETIME,
+  },
+  // userId = {
+  //   label: "Хариуцсан нярав",
+  //   isView: true,
+  //   isFiltered: false,
+  //   dataIndex: ["user", "firstName"],
+  //   type: DataIndexType.USER,
+  // }; TODO
+};
+export const getDocumentColumns = (
+  movingStatus?: MovingStatus
+): FilteredColumnsDocument => {
+  const expenseDocument: (keyof FilteredColumnsDocument)[] = [
+    "documentCode",
+    "documentAt",
+    "warehouseName",
+    "consumerCode",
+    "consumerName",
+    "description",
+    "expenseCount",
+    "expenseQuantity",
+    "isLock",
+    "updatedBy",
+    "updatedAt",
+    "lockedBy",
+    "lockedAt",
+  ];
+  const localDocument: (keyof FilteredColumnsDocument)[] = [
+    "documentCode",
+    "documentAt",
+    "warehouseName",
+    "description",
+    "incomeCount",
+    "incomeQuantity",
+    "expenseCount",
+    "expenseQuantity",
+    "isLock",
+    "updatedBy",
+    "updatedAt",
+    "lockedBy",
+    "lockedAt",
+  ];
+  const movingStatusMappings: Record<
+    MovingStatus,
+    (keyof FilteredColumnsDocument)[]
+  > = {
+    [MovingStatus.Purchase]: [
+      "documentCode",
+      "documentAt",
+      "warehouseName",
+      "consumerCode",
+      "consumerName",
+      "description",
+      "incomeCount",
+      "incomeQuantity",
+      "isLock",
+      "updatedBy",
+      "updatedAt",
+      "lockedBy",
+      "lockedAt",
+    ],
+    [MovingStatus.SaleReturn]: [
+      "documentCode",
+      "documentAt",
+      "warehouseName",
+      "consumerCode",
+      "consumerName",
+      "refundAt",
+      "description",
+      "incomeCount",
+      "incomeQuantity",
+      "isLock",
+      "updatedBy",
+      "updatedAt",
+      "lockedBy",
+      "lockedAt",
+    ],
+    [MovingStatus.Sales]: [
+      "documentCode",
+      "documentAt",
+      "warehouseName",
+      "consumerCode",
+      "consumerName",
+      "description",
+      "amount",
+      "discountAmount",
+      "consumerDiscountAmount",
+      "payAmount",
+      "expenseCount",
+      "expenseQuantity",
+      "isLock",
+      "updatedBy",
+      "updatedAt",
+      "lockedBy",
+      "lockedAt",
+    ],
+    [MovingStatus.PurchaseReturn]: expenseDocument,
+    [MovingStatus.InOperation]: expenseDocument,
+    [MovingStatus.ActAmortization]: expenseDocument,
+    [MovingStatus.MovementInWarehouse]: [],
+    [MovingStatus.ItemConversion]: localDocument,
+    [MovingStatus.Mixture]: localDocument,
+    [MovingStatus.Cencus]: localDocument, // TODO тооллогын нярав
+    [MovingStatus.Pos]: [],
+    [MovingStatus.PosSaleReturn]: [],
+    [MovingStatus.BookingSale]: [],
   };
+  const keys: (keyof FilteredColumnsDocument)[] = movingStatus
+    ? movingStatusMappings[movingStatus]
+    : [
+        "documentCode",
+        "documentAt",
+        "warehouseName",
+        "consumerCode",
+        "consumerName",
+        "incomeCount",
+        "incomeQuantity",
+        "expenseCount",
+        "expenseQuantity",
+        "isLock",
+        "description",
+        "movingStatus",
+        "updatedBy",
+        "updatedAt",
+        "lockedBy",
+        "lockedAt",
+      ];
+  const filteredColumns: FilteredColumnsDocument = {};
   if (
-    status == MovingStatus.Purchase ||
-    status == MovingStatus.PurchaseReturn
+    (movingStatus == MovingStatus.Purchase ||
+      movingStatus == MovingStatus.PurchaseReturn) &&
+    columns.consumerCode &&
+    columns.consumerName
   ) {
-    if (columns.consumerCode) columns.consumerCode.label = "Нийлүүлэгчийн код";
-    if (columns.consumerName) columns.consumerName.label = "Нийлүүлэгчийн нэр";
+    columns.consumerCode.label = "Нийлүүлэгчийн код";
+    columns.consumerName.label = "Нийлүүлэгчийн нэр";
   }
-  if (status == MovingStatus.SaleReturn) {
-    if (columns.description)
-      columns.description.label = "Буцаалт хийх шалтгаан";
+  if (
+    (movingStatus == MovingStatus.SaleReturn ||
+      movingStatus == MovingStatus.PurchaseReturn) &&
+    columns.description
+  ) {
+    columns.description.label = "Буцаалтын шалтгаан";
   }
-  return columns;
+  for (const key of keys) {
+    if (columns[key]) {
+      filteredColumns[key] = columns[key];
+    }
+  }
+  return filteredColumns;
 };

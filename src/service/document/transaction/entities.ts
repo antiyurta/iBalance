@@ -35,7 +35,6 @@ export interface IDataTransaction extends IData {
 }
 
 export interface IFilterTransaction extends IFilterDocument {
-  documentCode?: string[];
   employeeFirstNames?: string[];
   materialCode?: string[];
   materialName?: string[];
@@ -53,8 +52,6 @@ export interface IFilterTransaction extends IFilterDocument {
   convertMaterialCountPackage?: number[];
   convertQuantity?: number[];
   convertLastQty?: number[];
-  lockedBy?: number[];
-  lockedAt?: string;
 }
 
 export type FilteredColumnsTransaction = {
@@ -337,6 +334,7 @@ export const getTransactionColumns = (
     "consumerCode",
     "consumerName",
     "materialCode",
+    "materialName",
     "materialMeasurementName",
     "materialCountPackage",
     "incomeQty",

@@ -145,14 +145,14 @@ const TransactionRefundPurchase = (props: IProps) => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Нийлүүлэгчийн нэр">
+              <Form.Item label="Нийлүүлэгчийн код, нэр">
                 <ConsumerSelect
                   form={form}
                   name={"consumerId"}
                   rules={[
                     {
                       required: true,
-                      message: "Нийлүүлэгчийн нэр оруулна уу.",
+                      message: "Нийлүүлэгчийн код, нэр оруулна уу.",
                     },
                   ]}
                 />

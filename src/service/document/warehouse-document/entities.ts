@@ -34,7 +34,6 @@ export interface IFilterWarehouseDocument extends IFilter {
   description?: string; // гүйлгээний утга
   counter?: number;
   quantity?: number;
-  isLock?: boolean;
 }
 
 export type FilteredColumnsWarehouseDocument = {
