@@ -35,13 +35,6 @@ const RStorage1Filter = (props: IProps) => {
       if (response.success) {
         const warehouses = response.response.data;
         setWarehouses(warehouses);
-        const duplicatedUserIds = warehouses.map(
-          (warehouse) => warehouse.userIds
-        );
-        const userIds = [...new Set(duplicatedUserIds.flat())].filter(Boolean);
-        if (userIds?.length > 0) {
-          getUsers(userIds);
-        }
       }
     });
   };
@@ -108,14 +101,14 @@ const RStorage1Filter = (props: IProps) => {
                 width: 100,
               }}
               onChange={(id: number) => {
-                const filtered = warehouses
-                  .filter((warehouse) => {
-                    if (warehouse.userIds.includes(id)) {
-                      return warehouse;
-                    }
-                  })
-                  .filter(Boolean);
-                setUserWarehouses(filtered ? filtered : []);
+                // const filtered = warehouses
+                //   .filter((warehouse) => {
+                //     if (warehouse.userIds.includes(id)) {
+                //       return warehouse;
+                //     }
+                //   })
+                //   .filter(Boolean);
+                // setUserWarehouses(filtered ? filtered : []);
               }}
               options={users.map((user) => ({
                 value: user.id,
@@ -159,9 +152,9 @@ const RStorage1Filter = (props: IProps) => {
               onChange={(id: number) => {
                 const filtered = warehouses
                   .filter((warehouse) => {
-                    if (warehouse.userIds.includes(id)) {
-                      return warehouse;
-                    }
+                    // if (warehouse.userIds.includes(id)) {
+                    //   return warehouse;
+                    // }
                   })
                   .filter(Boolean);
                 setUserWarehouses(filtered ? filtered : []);
