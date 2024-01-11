@@ -14,21 +14,23 @@ import {
   IParamEmployee,
 } from "@/service/employee/entities";
 import { EmployeeService } from "@/service/employee/service";
-import { getUniqueValues, removeDuplicates } from "@/feature/common";
 interface IProps {
   form: FormInstance;
   rules: Rule[];
-  /** default => userId */
-  name?: string;
+  name: string;
+  query?: { isTreasure?: boolean; isCashier?: boolean };
   isMultiple?: boolean;
   isDisable?: boolean;
 }
 export const EmployeeSelect = (props: IProps) => {
-  const { form, rules, name, isMultiple, isDisable } = props;
+  const { form, rules, name, query, isMultiple, isDisable } = props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [data, setData] = useState<IDataEmployee[]>([]);
   const [filters, setFilters] = useState<IFilterEmployee>();
-  const [params, setParams] = useState<IParamEmployee>({});
+  const [params, setParams] = useState<IParamEmployee>({
+    isTreasure: query?.isTreasure,
+    isCashier: query?.isCashier,
+  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [columns, setColumns] = useState<FilteredColumnsEmployee>({
     email: {

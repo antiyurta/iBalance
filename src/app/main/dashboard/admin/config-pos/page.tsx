@@ -1,11 +1,11 @@
 "use client";
 
 import ColumnSettings from "@/components/columnSettings";
+import { EmployeeSelect } from "@/components/employee-select";
 import Filtered from "@/components/filtered";
 import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { UserSelect } from "@/components/user-select";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
@@ -44,7 +44,7 @@ const ConfigPos = () => {
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsPos>({
     ids: {
-      label: "Прсын код",
+      label: "Посын код",
       isView: true,
       isFiltered: false,
       dataIndex: "id",
@@ -254,8 +254,8 @@ const ConfigPos = () => {
                 form.setFieldsValue({
                   warehouseId: row.warehouseId,
                   name: row.name,
-                  password: row.name,
-                  userIds: row.posUsers.map((item) => item.userId),
+                  password: row.password,
+                  employeeIds: row.employees.map((item) => item.id),
                 });
                 setIsModal(true);
               }}
@@ -297,8 +297,14 @@ const ConfigPos = () => {
           >
             <NewSwitch />
           </Form.Item>
-          <Form.Item label="Кассчид" name={"userIds"}>
-            <UserSelect form={form} rules={[]} name="userIds" isMultiple />
+          <Form.Item label="Кассчид" name={"employeeIds"}>
+            <EmployeeSelect
+              form={form}
+              rules={[]}
+              name="employeeIds"
+              query={{ isTreasure: true }}
+              isMultiple
+            />
           </Form.Item>
         </Form>
       </NewModal>

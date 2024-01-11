@@ -11,8 +11,10 @@ import { IDataDocument } from "@/service/document/entities";
 import { IDataPaymentInvoice } from "../invoice/entities";
 import { IDataPosOpenClose } from "../open-close/entities";
 import { IDataGiftCart } from "../gift-cart/entities";
+import { PaymentType } from "@/service/reference/payment-method/entities";
 
 export interface CreateShoppingCartDto {
+  openCloseId: number;
   goodsIds: number[];
 }
 export interface UpdateShoppingCartDto {
@@ -44,6 +46,8 @@ export interface IDataShoppingCart extends IData {
 export interface IFilterShoppingCart extends IFilter {
   id?: string;
   isPaid?: boolean;
+  openCloseId?: number;
+  invoiceType: PaymentType;
   warehouseName?: string;
   membershipConsumerCode?: number;
   membershipConsumerName?: string;

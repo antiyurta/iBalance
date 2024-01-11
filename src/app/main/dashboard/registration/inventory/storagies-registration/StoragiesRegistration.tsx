@@ -495,6 +495,7 @@ const StoragiesRegistration = (props: IProps) => {
                 form={form}
                 rules={[]}
                 name="employeeIds"
+                query={{ isTreasure: true }}
                 isMultiple={true}
               />
             </Form.Item>

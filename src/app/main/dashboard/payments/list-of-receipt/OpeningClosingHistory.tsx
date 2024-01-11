@@ -12,19 +12,13 @@ import {
   IParamOpenClose,
 } from "@/service/pos/open-close/entities";
 import { OpenCloseService } from "@/service/pos/open-close/service";
-import { Button, Col, Form, Row, Space, Table } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { IssuesCloseOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
-import {
-  NewDatePicker,
-  NewInput,
-  NewInputNumber,
-  NewSelect,
-} from "@/components/input";
-import dayjs from "dayjs";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import CloseState from "../open-close/close";
 const OpeningClosingHistory = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsPosOpenClose>({
@@ -178,19 +172,6 @@ const OpeningClosingHistory = () => {
       })
       .finally(() => blockContext.unblock());
   };
-  const onFinish = async (values: ICloseDto) => {
-    if (openClose) {
-      blockContext.block();
-      await OpenCloseService.patchClose(openClose.id, values)
-        .then((response) => {
-          if (response.success) {
-            setIsClose(false);
-            getData(params);
-          }
-        })
-        .finally(() => blockContext.unblock());
-    }
-  };
   useEffect(() => {
     getData(params);
   }, []);
@@ -281,150 +262,10 @@ const OpeningClosingHistory = () => {
         width={1500}
         destroyOnClose
       >
-        <Form
-          layout="vertical"
-          initialValues={{
-            closeAt: dayjs(new Date()),
-          }}
-          onFinish={onFinish}
-        >
-          <Row>
-            <Col span={12}>
-              Борлуулалт
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Тоо хэмжээ",
-                    dataIndex: "age",
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
-            </Col>
-            <Col span={12}>
-              Төлөлт-Бэлэн
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
-            </Col>
-            <Col span={12}>
-              Төлбөр төлөлт
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
-            </Col>
-            <Col span={12}>
-              Төлөлт-Бэлэн бус
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
-            </Col>
-            <Col span={12}>
-              Зээл
-              <Table
-                columns={[
-                  {
-                    title: "Төлөв",
-                    dataIndex: "name",
-                    render: (text: string) => <a>{text}</a>,
-                  },
-                  {
-                    title: "Дүн",
-                    dataIndex: "address",
-                  },
-                ]}
-              />
-            </Col>
-            <Col span={24}>
-              Нийт зөрүү (Бэлэн + Бэлэн бус) = [-5,000.00] + [0.00] =
-              [-5,000.00]
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label={"Бэлэн (тоолсон дүн оруулах)"}
-                name={"cashAmount"}
-              >
-                <NewInputNumber />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item label={"Зээл (Тооцоо нийлэлт)"} name={"lendAmount"}>
-                <NewInputNumber />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item label={"Бэлэн бус (Settlements)"} name={'nonCashAmount'}>
-                <NewInputNumber />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item label={"Бэлэн (тоолсон дүн оруулах)"}>
-                <NewSelect options={[{ value: "1", label: "Хаан банкны" }]} />
-              </Form.Item>
-              <Button type="primary" htmlType="submit">
-                Settlement татах
-              </Button>
-            </Col>
-            <Col span={24}>
-              <Form.Item label={"Бэлэн (тоолсон дүн оруулах)"}>
-                <NewInput />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item label={"Хаах өдөр"} name={"closeAt"}>
-                <NewDatePicker disabled />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Button type="primary" danger htmlType="submit">
-                Хаалт хийх
-              </Button>
-            </Col>
-            <Col span={6}>
-              <Button type="default" htmlType="submit">
-                Тайлан хэвлэх
-              </Button>
-            </Col>
-          </Row>
-        </Form>
+        <CloseState
+          openCloseId={openClose?.id }
+          setIsClose={(value) => setIsClose(!value)}
+        />
       </NewModal>
     </div>
   );

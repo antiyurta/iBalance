@@ -4,18 +4,21 @@ import {
   IFilter,
   Meta,
 } from "@/service/entities";
-import { IDataPos } from "../entities";
 import { PaymentType } from "@/service/reference/payment-method/entities";
+import { IDataPosOpenClose } from "../open-close/entities";
+import { IDataEmployee } from "@/service/employee/entities";
 export interface IParamMoneyTransaction extends Meta {
-  posId?: number;
+  openCloseId?: number;
+  type?: PaymentType;
   isTransaction?: boolean;
 }
 
 export interface IDataMoneyTransaction {
   id?: number;
-  posId: number;
-  pos?: IDataPos;
-  toPosId?: number;
+  openCloseId: number;
+  openClose?: IDataPosOpenClose;
+  toEmployeeId?: number;
+  toEmployee?: IDataEmployee;
   type: PaymentType;
   isTransaction: boolean;
   description: string;
