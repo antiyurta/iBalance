@@ -47,7 +47,7 @@ export interface IFilterShoppingCart extends IFilter {
   id?: string;
   isPaid?: boolean;
   openCloseId?: number;
-  invoiceType: PaymentType;
+  invoiceType?: PaymentType;
   warehouseName?: string;
   membershipConsumerCode?: number;
   membershipConsumerName?: string;
