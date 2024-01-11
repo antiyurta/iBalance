@@ -217,12 +217,15 @@ const BeginningBalancePage = () => {
                   validator: async (_, balances) => {
                     const arr = Array.isArray(balances)
                       ? balances.map(
-                          (balance: IDataBalance) => balance.warehouseId
+                          (balance: IDataBalance) =>
+                            `${balance.warehouseId}-${dayjs(
+                              balance.purchaseAt
+                            ).format("DD/MM/YYYY")}`
                         )
                       : [];
                     if (!hasUniqueValues(arr)) {
                       return Promise.reject(
-                        new Error("Байршил давхардсан байна.")
+                        new Error("Байршил-худалдан авсан огноо давхардсан байна.")
                       );
                     }
                   },

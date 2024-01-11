@@ -21,6 +21,8 @@ import { MoneyTransactionService } from "@/service/pos/money-transaction/service
 import { MovingStatus } from "@/service/document/entities";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import dayjs from "dayjs";
+import { PosInvoiceService } from "@/service/pos/invoice/service";
+import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
 
 const { Title } = Typography;
 interface IProps {
@@ -34,6 +36,12 @@ const CloseState = (props: IProps) => {
   const [openClose, setOpenClose] = useState<IDataPosOpenClose>();
   const [cashDocuments, setCashDocuments] = useState<StatisticDoc[]>([]);
   const [isCashLoading, setIsCashLoading] = useState<boolean>(false);
+  const [cashInvoices, setCashInvoices] = useState<IDataPaymentInvoice[]>([]);
+  const [notcashInvoices, setNotcashInvoices] = useState<IDataPaymentInvoice[]>(
+    []
+  );
+  const [lendInvoices, setLendInvoices] = useState<IDataPaymentInvoice[]>([]);
+
   const getOpenClose = async (id: number) => {
     blockContext.block();
     await OpenCloseService.getById(id)
@@ -44,6 +52,29 @@ const CloseState = (props: IProps) => {
         }
       })
       .finally(() => blockContext.unblock());
+  };
+  const getPayMethod = async () => {
+    PosInvoiceService.get({ openCloseId, type: PaymentType.Cash }).then(
+      (response) => {
+        if (response.success) {
+          setCashInvoices(response.response);
+        }
+      }
+    );
+    PosInvoiceService.get({ openCloseId, type: PaymentType.NotCash }).then(
+      (response) => {
+        if (response.success) {
+          setNotcashInvoices(response.response);
+        }
+      }
+    );
+    PosInvoiceService.get({ openCloseId, type: PaymentType.Lend }).then(
+      (response) => {
+        if (response.success) {
+          setLendInvoices(response.response);
+        }
+      }
+    );
   };
   const getStatisticSale = (
     shoppingCarts: IDataShoppingCart[]
@@ -119,28 +150,15 @@ const CloseState = (props: IProps) => {
   };
   const getStatisticCash = async (openCloseId?: number) => {
     setIsCashLoading(true);
-    const paymentMethodIds: number[] = await ReferencePaymentMethodService.get({
-      type: PaymentType.Cash,
-    }).then((response) => {
-      if (!response.success) return [];
-      return response.response.map((item) => item.id);
-    });
     if (!openCloseId) return [];
-    const shoppingCarts = await ShoppingCartService.get({
-      openCloseId,
-      paymentMethodIds,
-    }).then((response) => {
-      if (!response.success) return [];
-      return response.response.data;
-    });
     const moneyTransactions = await MoneyTransactionService.get({
       openCloseId: openCloseId,
     }).then((response) => {
       if (!response.success) return [];
       return response.response.data;
     });
-    const saleMoney = shoppingCarts.reduce(
-      (total, item) => total + Number(item.transactionDocument?.amount),
+    const saleMoney = cashInvoices.reduce(
+      (total, item) => total + Number(item.amount),
       0
     );
     const beginingMoney = openClose?.openerAmount || 0;
@@ -152,6 +170,10 @@ const CloseState = (props: IProps) => {
       (total, item) => total + Number(item.decreaseAmount),
       0
     );
+    const shoppingCarts = await ShoppingCartService.get({ openCloseId, invoiceType: PaymentType.Cash }).then((response) => {
+      if (!response.success) return [];
+      return response.response.data;
+    });
     const refundShoppingCarts = shoppingCarts.filter(
       (item) =>
         item.transactionDocument?.movingStatus == MovingStatus.PosSaleReturn
@@ -308,6 +330,7 @@ const CloseState = (props: IProps) => {
   useEffect(() => {
     openCloseId && getOpenClose(openCloseId);
     getStatisticCash(openCloseId);
+    getPayMethod();
   }, []);
   return (
     <div

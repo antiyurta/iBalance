@@ -1,8 +1,12 @@
 import { GenericResponse, IData } from "@/service/entities";
 import { IDataShoppingCart } from "../shopping-card/entities";
+import { PaymentType } from "@/service/reference/payment-method/entities";
 
 export interface GetInvoiceDto {
-  shoppingCartId: string;
+  shoppingCartId?: string;
+  openCloseId?: number;
+  type?: PaymentType;
+  isPaid?: boolean;
 }
 export interface CreateInvoiceDto {
   shoppingCartId: string;

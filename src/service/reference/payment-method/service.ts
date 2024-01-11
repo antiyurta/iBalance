@@ -6,7 +6,7 @@ import {
   IParamPaymentMethod,
 } from "./entities";
 
-function get(params: IParamPaymentMethod): Promise<IResponsePaymentMethods> {
+function get(params?: IParamPaymentMethod): Promise<IResponsePaymentMethods> {
   return api.get("payment-method", { params });
 }
 function getById(id: number): Promise<IResponsePaymentMethod> {
