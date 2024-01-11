@@ -13,18 +13,19 @@ import { SaveOutlined } from "@ant-design/icons";
 const { Title } = Typography;
 
 const TransferModal = () => {
-  const { posId } = useTypedSelector((state: RootState) => state.posOpenClose);
+  const { posOpenClose } = useTypedSelector((state: RootState) => state);
   const [data, setData] = useState<IDataMoneyTransaction[]>([]);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
   const getMoneyTransaction = async () => {
-    await MoneyTransactionService.get({ posId, isTransaction: true }).then(
-      (response) => {
-        if (response.success) {
-          setData(response.response.data);
-        }
+    await MoneyTransactionService.get({
+      openCloseId: posOpenClose.id,
+      isTransaction: true,
+    }).then((response) => {
+      if (response.success) {
+        setData(response.response.data);
       }
-    );
+    });
   };
   const transfer = async (id: number) => {
     await MoneyTransactionService.transfer(id).then((response) => {
@@ -81,9 +82,9 @@ const TransferModal = () => {
               render={(_, __, index) => index + 1}
             />
             <Column
-              dataIndex={"pos"}
+              dataIndex={"openClose"}
               title="Касс нэр / ID код"
-              render={(value) => `${value.id} - ${value.name}`}
+              render={(value) => `${value.pos.id} - ${value.pos.name}`}
             />
             <Column
               dataIndex={"decreaseAmount"}

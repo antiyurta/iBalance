@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { CreditCardOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
 import { LeftOutlined } from "@ant-design/icons";
-import { NewInput, NewInputNumber, NewSelect } from "@/components/input";
+import { NewFilterSelect, NewInput, NewInputNumber, NewSelect } from "@/components/input";
 import TransferModal from "./transferTable";
 import { PaymentType } from "@/service/reference/payment-method/entities";
 import { IDataMoneyTransaction } from "@/service/pos/money-transaction/entities";
@@ -12,6 +12,8 @@ import { PosService } from "@/service/pos/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { MoneyTransactionService } from "@/service/pos/money-transaction/service";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { IDataEmployee, IParamEmployee } from "@/service/employee/entities";
+import { EmployeeService } from "@/service/employee/service";
 
 const { Title } = Typography;
 
@@ -21,7 +23,7 @@ enum Type {
   TRANSFER = "TRANSFER",
 }
 interface PosTransfer {
-  toPosId: number;
+  toEmployeeId: number;
   type: PaymentType;
   transactionType: Type;
   amount: number;
@@ -41,13 +43,13 @@ const Transfer = () => {
   const TransactionType = Form.useWatch("transactionType", form);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenBadgeModal, setIsOpenBadgeModal] = useState<boolean>(false);
-  const [poses, setPoses] = useState<IDataPos[]>([]);
+  const [employees, setEmployees] = useState<IDataEmployee[]>([]);
 
   const onFinish = async (values: PosTransfer) => {
     blockContext.block();
     const data: IDataMoneyTransaction = {
-      posId: posOpenClose.posId,
-      toPosId: values.toPosId,
+      openCloseId: posOpenClose.id,
+      toEmployeeId: values.toEmployeeId,
       type: values.type,
       isTransaction: values.transactionType == Type.TRANSFER,
       description: values.description,
@@ -66,19 +68,19 @@ const Transfer = () => {
       })
       .finally(() => blockContext.unblock());
   };
-  const getPoses = async (params: IParamPos) => {
+  const getEmployees = async (params: IParamEmployee) => {
     blockContext.block();
-    await PosService.get(params)
+    await EmployeeService.get(params)
       .then((response) => {
         if (response.success) {
-          setPoses(response.response.data);
+          setEmployees(response.response.data);
         }
       })
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     isOpenModal && form.resetFields();
-    getPoses({ isAuth: false });
+    getEmployees({ isCashier: true });
   }, [isOpenModal]);
   return (
     <>
@@ -171,11 +173,11 @@ const Transfer = () => {
               />
             </Form.Item>
             {TransactionType === Type.TRANSFER ? (
-              <Form.Item label="Шилжүүлэх кассчны нэр" name="toPosId">
-                <NewSelect
-                  options={poses.map((item) => ({
+              <Form.Item label="Шилжүүлэх кассчны нэр" name="toEmployeeId">
+                <NewFilterSelect
+                  options={employees.map((item) => ({
                     value: item.id,
-                    label: item.name,
+                    label: `${item.lastName.substring(0, 1)}.${item.firstName}`,
                   }))}
                 />
               </Form.Item>
