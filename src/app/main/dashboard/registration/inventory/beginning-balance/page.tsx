@@ -219,7 +219,7 @@ const BeginningBalancePage = () => {
                       ? balances.map(
                           (balance: IDataBalance) =>
                             `${balance.warehouseId}-${dayjs(
-                              balance.purchaseAt
+                              balance.expirationAt
                             ).format("DD/MM/YYYY")}`
                         )
                       : [];
