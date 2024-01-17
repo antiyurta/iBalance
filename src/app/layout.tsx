@@ -17,9 +17,7 @@ const ubuntu = Ubuntu({
   subsets: ["latin"],
   display: "swap",
 });
-
 Interceptor(api, store);
-
 export default function RootLayout({
   children,
 }: {

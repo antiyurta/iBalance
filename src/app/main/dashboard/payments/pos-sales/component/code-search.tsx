@@ -1,42 +1,46 @@
-import { NewFilterSelect, NewInput, NewSelect } from "@/components/input";
+import { NewInputNumber } from "@/components/input";
+import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { MaterialType } from "@/service/material/entities";
-import {
-  IDataViewMaterial,
-  IParamViewMaterial,
-} from "@/service/material/view-material/entities";
-import { ViewMaterialService } from "@/service/material/view-material/service";
-import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
+import { MaterialService } from "@/service/material/service";
 import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { BarcodeOutlined, QrcodeOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import { useContext, useEffect, useState } from "react";
-interface IProps {}
+import { KeyboardEvent, useContext, useState } from "react";
 export const CodeSearch = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isCode, setIsCode] = useState<boolean>(false);
-  const { setReload } = usePaymentGroupContext();
-  const [materials, setMaterials] = useState<IDataViewMaterial[]>([]);
-  const getMaterials = (params: IParamViewMaterial) => {
-    ViewMaterialService.get(params).then((response) => {
-      if (response.success) {
-        setMaterials(response.response.data);
-      }
-    });
+  const [barcode, setBarcode] = useState<string>("");
+  const { isReload, setReload } = usePaymentGroupContext();
+  const getBlock = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.ctrlKey && (event.key === "j" || event.key === "р")) {
+      event.preventDefault();
+    }
   };
-  useEffect(() => {
-    getMaterials({
-      types: [MaterialType.Material],
-      moreUnitAmount: 0,
-    });
-  }, []);
-  const insertGoods = async (data: CreateGoodsDto) => {
+  const getMaterial = async () => {
     blockContext.block();
-    await ShoppingGoodsService.post(data).finally(() => {
-        setReload(true);
+    const material = await MaterialService.get({ barCode: [barcode] })
+      .then((response) => {
+        if (!response.success) blockContext.unblock();
+        if (response.success && response.response.data.length > 0) {
+          return response.response.data[0];
+        } else {
+          blockContext.unblock();
+          openNofi("warning", "Бараа олдсонгүй!");
+          return;
+        }
+      })
+      .finally(() => blockContext.unblock());
+    if (material) {
+      await ShoppingGoodsService.post({
+        materialId: material.id,
+        quantity: 1,
+      }).finally(() => {
+        setReload(!isReload);
         blockContext.unblock();
-    });
+      });
+    }
+    setBarcode("");
   };
   return (
     <div style={{ display: "flex", background: "white" }}>
@@ -45,16 +49,12 @@ export const CodeSearch = () => {
         icon={isCode ? <QrcodeOutlined /> : <BarcodeOutlined />}
         onClick={() => setIsCode(!isCode)}
       />
-      <NewFilterSelect
+      <NewInputNumber
         style={{ width: "100%" }}
-        onSelect={(id) => insertGoods({
-          materialId: id,
-          quantity: 1
-        })}
-        options={materials.map((material) => ({
-          value: material.id,
-          label: `${material.code}-${material.barCode}-${material.name}`,
-        }))}
+        value={barcode}
+        onChange={(e) => setBarcode(e as string)}
+        onKeyDown={getBlock}
+        onPressEnter={() => getMaterial()}
       />
     </div>
   );

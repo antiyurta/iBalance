@@ -1,6 +1,7 @@
 import { useTypedSelector } from "@/feature/store/reducer";
 import CloseState from "./close";
 import OpenState from "./open";
+import { useRouter } from "next/navigation";
 
 type Type = "open" | "close";
 
@@ -11,6 +12,7 @@ interface IProps {
 const OpenClose = (props: IProps) => {
   const { type } = props;
   const { posOpenClose } = useTypedSelector((state) => state);
+  const router = useRouter();
   if (type === "open") {
     return <OpenState />;
   }
@@ -18,9 +20,7 @@ const OpenClose = (props: IProps) => {
     return (
       <CloseState
         openCloseId={posOpenClose.id}
-        setIsClose={() => {
-          throw new Error("Function not implemented.");
-        }}
+        setIsClose={() => { router.push("/main/profile/general"); }}
       />
     );
   }

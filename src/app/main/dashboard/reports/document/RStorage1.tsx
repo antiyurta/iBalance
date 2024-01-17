@@ -1,18 +1,37 @@
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import { Typography } from "antd";
+import {
+  SearchOutlined,
+  AreaChartOutlined,
+  UserAddOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+  LockOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { Button, Divider, Typography } from "antd";
 import { useRef } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
-import { s } from "./excelSupport";
 import * as headerJSON from "./excel/RStorage1";
-
+import { DocumentService } from "@/service/document/service";
+import { GetServerSideProps, NextPage } from "next";
+import { IDataDocument } from "@/service/document/entities";
+import Image from "next/image";
+import { Tools } from "@/components/tools";
 const { Title } = Typography;
-
-const RStorage1 = () => {
+interface SSRProps {
+  data: IDataDocument[];
+}
+export const getServerSideProps: GetServerSideProps<SSRProps> = async () => {
+  return await DocumentService.get({}).then((response) => {
+    if (!response.success) return { props: { data: [] } };
+    return { props: { data: response.response.data } };
+  });
+};
+const RStorage1: NextPage<SSRProps> = ({ data }) => {
   const tableRef = useRef(null);
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
   const { RStorage1 } = useTypedSelector((state: RootState) => state.report);
-  console.log("=========>", RStorage1);
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
     const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([]);
@@ -54,8 +73,23 @@ const RStorage1 = () => {
   };
   return (
     <div className="report-document">
+      <Tools />
       <div className="report-filter">
         <Title level={3}>Хэрэгслүүд</Title>
+        <Button
+          type="default"
+          icon={
+            <Image
+              src={"/images/filterFalse.svg"}
+              width={24}
+              height={24}
+              alt="filter"
+            />
+          }
+          style={{ width: "100%" }}
+        >
+          Бүлэглэлт
+        </Button>
         <button onClick={() => toPDF()}>TO PDF</button>
         <button onClick={() => toExcel()}>TO EXCEL</button>
         <div
@@ -81,7 +115,7 @@ const RStorage1 = () => {
               fontStyle: "italic",
             }}
           >
-            Жаргалант яармаг проперти ХХК
+            {RStorage1.warehouseId}
           </p>
         </div>
         <div

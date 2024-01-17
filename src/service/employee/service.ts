@@ -6,7 +6,7 @@ import {
   IResponseEmployees,
 } from "./entities";
 
-function get(params: IParamEmployee): Promise<IResponseEmployees> {
+function get(params?: IParamEmployee): Promise<IResponseEmployees> {
   return api.get("/organization/employee", { params });
 }
 function post(body: IDataEmployee): Promise<IResponseEmployee> {

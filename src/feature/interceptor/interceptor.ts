@@ -1,5 +1,4 @@
 "use client";
-import { notification } from "antd";
 import axios, {
   AxiosError,
   AxiosInstance,

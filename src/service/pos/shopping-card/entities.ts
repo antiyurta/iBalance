@@ -38,6 +38,7 @@ export interface IDataShoppingCart extends IData {
   membershipIncreaseAmount: number;
   payAmount: number;
   paidAmount: number;
+  giftAmount: number;
   goods: IDataShoppingGoods[];
   giftCarts: IDataGiftCart[];
   transactionDocument?: IDataDocument;

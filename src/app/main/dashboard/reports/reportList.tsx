@@ -1,9 +1,9 @@
 import { NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
-import { useReportContext } from "@/feature/context/ReportsContext";
+// import { useReportContext } from "@/feature/context/ReportsContext";
 import { useDispatch } from "react-redux";
 import { ReportActions } from "@/feature/core/actions/ReportActions";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 const { Title } = Typography;
 
 //Бараа материалын товчоо тайлан
@@ -75,20 +75,29 @@ import RStorage22Filter from "./filters/RStorage22Filter";
 // Бараа материалын үлдэгдэл тайлан /дуусах хугацаагаар/
 import RStorage23 from "./document/RStorage23";
 import RStorage23Filter from "./filters/RStorage23Filter";
-
+import {
+  IDataDocument,
+  IParamDocument,
+  getDocumentColumns,
+} from "@/service/document/entities";
+import { DocumentService } from "@/service/document/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { useReportContext } from "@/feature/context/ReportsContext";
 const ReportList = () => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<IParamDocument>();
   const dispatch = useDispatch();
-  const { set } = useReportContext();
+  const { tabs, setTabs, tabKey, setTabKey } = useReportContext();
   const [activeKey, setActiveKey] = useState<number>(0);
   const [searchField, setSearchField] = useState<string>("");
+  const blockContext: BlockView = useContext(BlockContext);
+  const [documents, setDocuments] = useState<IDataDocument[]>([]);
   const listNames = [
     {
       key: 0,
       title: "Бараа материалын товчоо тайлан",
       filterName: "RStorage1",
       filter: <RStorage1Filter form={form} />,
-      children: <RStorage1 />,
+      children: <RStorage1 data={documents} />,
     },
     {
       key: 1,
@@ -249,7 +258,19 @@ const ReportList = () => {
   const filteredNames = listNames?.filter((name) =>
     name.title?.toLowerCase().includes(searchField.toLowerCase())
   );
-
+  const getDocument = (params: IParamDocument) => {
+    blockContext.block();
+    DocumentService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setDocuments(response.response.data);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
+  useEffect(() => {
+    getDocument(form.getFieldsValue());
+  }, [form]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -319,11 +340,15 @@ const ReportList = () => {
                     },
                   })
                 );
-                set({
-                  title: listNames[activeKey].title,
-                  key: `items-${activeKey + 2}`,
-                  children: listNames[activeKey].children,
-                });
+                setTabs((prevTabs) =>[
+                  ...prevTabs,
+                  {
+                    label: listNames[activeKey].title,
+                    key: `items-${activeKey + 2}`,
+                    children: listNames[activeKey].children,
+                  },
+                ]);
+                setTabKey(`items-${activeKey + 2}`);
               }}
               style={{
                 width: 500,

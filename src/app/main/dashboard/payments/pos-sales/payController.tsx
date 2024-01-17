@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import Item from "./component/Item";
 import { Button, Typography } from "antd";
@@ -75,7 +74,7 @@ const PayController = () => {
     getShoppingCart();
   }, [isReloadCart]);
   useEffect(() => {
-    isReload && getShoppingGoods();
+    getShoppingGoods();
   }, [isReload]);
 
   return (
