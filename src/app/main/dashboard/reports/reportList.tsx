@@ -1,32 +1,29 @@
 import { NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
-// import { useReportContext } from "@/feature/context/ReportsContext";
-import { useDispatch } from "react-redux";
-import { ReportActions } from "@/feature/core/actions/ReportActions";
-import { useContext, useEffect, useState } from "react";
+import { FilterOutlined } from "@ant-design/icons";
+import { useState } from "react";
 const { Title } = Typography;
 
 //Бараа материалын товчоо тайлан
 import RStorage1 from "./document/RStorage1";
 import RStorage1Filter from "./filters/RStorage1Filter";
+import RStorage2Filter from "./filters/RStorage2Filter";
+import RStorage3Filter from "./filters/RStorage3Filter";
+import RStorage4Filter from "./filters/RStorage4Filter";
+import RStorage5Filter from "./filters/RStorage5Filter";
+import RStorage6Filter from "./filters/RStorage6Filter";
+
 //Бараа материалын товчоо тайлан (хураангуй)
 import RStorage2 from "./document/RStorage2";
-import RStorage2Filter from "./filters/RStorage2Filter";
 //Бараа материалын гүйлгээний тайлан
 import RStorage3 from "./document/RStorage3";
-import RStorage3Filter from "./filters/RStorage3Filter";
 //Агуулахын бүртгэл (гүйлгээний цонхоор)
-import RStorage4 from "./document/RStorage4";
-import RStorage4Filter from "./filters/RStorage4Filter";
 //Агуулахын бүртгэл (гүйлгээний утгаар)
 import RStorage5 from "./document/RStorage5";
-import RStorage5Filter from "./filters/RStorage5Filter";
 //Татан авалтын дэлгэрэнгүй тайлан (бараагаар)
 import RStorage6 from "./document/RStorage6";
-import RStorage6Filter from "./filters/RStorage6Filter";
 //Татан авалтын дэлгэрэнгүй тайлан (гүйлгээгээр)
 import RStorage7 from "./document/RStorage7";
-import RStorage7Filter from "./filters/RStorage7Filter";
 //Агуулах хоорондын хөдөлгөөний хураангуй тайлан
 import RStorage8 from "./document/RStorage8";
 import RStorage8Filter from "./filters/RStorage8Filter";
@@ -44,7 +41,6 @@ import RStorage12 from "./document/RStorage12";
 import RStorage12Filter from "./filters/RStorage12Filter";
 //Материал хольц, найруулгын тайлан (гүйлгээгээр)
 import RStorage13 from "./document/RStorage13";
-import RStorage13Filter from "./filters/RStorage13Filter";
 //Акт, хорогдол, устгалын товчоо тайлан
 import RStorage14 from "./document/RStorage14";
 import RStorage14Filter from "./filters/RStorage14Filter";
@@ -75,77 +71,67 @@ import RStorage22Filter from "./filters/RStorage22Filter";
 // Бараа материалын үлдэгдэл тайлан /дуусах хугацаагаар/
 import RStorage23 from "./document/RStorage23";
 import RStorage23Filter from "./filters/RStorage23Filter";
-import {
-  IDataDocument,
-  IParamDocument,
-  getDocumentColumns,
-} from "@/service/document/entities";
-import { DocumentService } from "@/service/document/service";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { useReportContext } from "@/feature/context/ReportsContext";
+import { removeDuplicates } from "@/feature/common";
 const ReportList = () => {
-  const [form] = Form.useForm<IParamDocument>();
-  const dispatch = useDispatch();
-  const { tabs, setTabs, tabKey, setTabKey } = useReportContext();
+  const { setTabs, setTabKey, form, formStyle } = useReportContext();
   const [activeKey, setActiveKey] = useState<number>(0);
   const [searchField, setSearchField] = useState<string>("");
-  const blockContext: BlockView = useContext(BlockContext);
-  const [documents, setDocuments] = useState<IDataDocument[]>([]);
   const listNames = [
     {
       key: 0,
       title: "Бараа материалын товчоо тайлан",
       filterName: "RStorage1",
-      filter: <RStorage1Filter form={form} />,
-      children: <RStorage1 data={documents} />,
+      filter: <RStorage1Filter />,
+      children: <RStorage1 />,
     },
     {
       key: 1,
       title: "Бараа материалын товчоо тайлан (хураангуй)",
       filterName: "RStorage2",
-      filter: <RStorage1Filter form={form} />,
+      filter: <RStorage1Filter />,
       children: <RStorage2 />,
     },
     {
       key: 2,
       title: "Бараа материалын гүйлгээний тайлан",
       filterName: "RStorage3",
-      filter: <RStorage3Filter />,
+      filter: <RStorage2Filter />,
       children: <RStorage3 />,
     },
     {
       key: 3,
       title: "Агуулахын бүртгэл (гүйлгээний цонхоор)",
       filterName: "RStorage4",
-      filter: <RStorage4Filter />,
-      children: <RStorage4 />,
+      filter: <RStorage2Filter />,
+      children: <RStorage2 />,
     },
     {
       key: 4,
       title: "Агуулахын бүртгэл (гүйлгээний утгаар)",
       filterName: "RStorage5",
-      filter: <RStorage5Filter />,
+      filter: <RStorage2Filter />,
       children: <RStorage5 />,
     },
     {
       key: 5,
       title: "Татан авалтын дэлгэрэнгүй тайлан (бараагаар)",
       filterName: "RStorage6",
-      filter: <RStorage6Filter />,
+      filter: <RStorage3Filter />,
       children: <RStorage6 />,
     },
     {
       key: 6,
       title: "Татан авалтын дэлгэрэнгүй тайлан (гүйлгээгээр)",
       filterName: "RStorage7",
-      filter: <RStorage7Filter />,
+      filter: <RStorage5Filter />,
       children: <RStorage7 />,
     },
     {
       key: 7,
       title: "Агуулах хоорондын хөдөлгөөний хураангуй тайлан",
       filterName: "RStorage8",
-      filter: <RStorage8Filter />,
+      filter: <RStorage6Filter />,
       children: <RStorage8 />,
     },
     {
@@ -180,7 +166,7 @@ const ReportList = () => {
       key: 12,
       title: "Материал хольц, найруулгын тайлан (гүйлгээгээр)",
       filterName: "RStorage13",
-      filter: <RStorage13Filter />,
+      filter: <RStorage4Filter />,
       children: <RStorage13 />,
     },
     {
@@ -258,19 +244,6 @@ const ReportList = () => {
   const filteredNames = listNames?.filter((name) =>
     name.title?.toLowerCase().includes(searchField.toLowerCase())
   );
-  const getDocument = (params: IParamDocument) => {
-    blockContext.block();
-    DocumentService.get(params)
-      .then((response) => {
-        if (response.success) {
-          setDocuments(response.response.data);
-        }
-      })
-      .finally(() => blockContext.unblock());
-  };
-  useEffect(() => {
-    getDocument(form.getFieldsValue());
-  }, [form]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -331,29 +304,28 @@ const ReportList = () => {
             </Title>
             <Form
               form={form}
-              layout="vertical"
-              onFinish={(values) => {
-                dispatch(
-                  ReportActions.setFilterValues({
-                    [`${listNames[activeKey].filterName}`]: {
-                      ...values,
-                    },
-                  })
-                );
-                setTabs((prevTabs) =>[
-                  ...prevTabs,
-                  {
-                    label: listNames[activeKey].title,
-                    key: `items-${activeKey + 2}`,
-                    children: listNames[activeKey].children,
-                  },
-                ]);
+              labelCol={{ span: 4 }}
+              labelAlign="left"
+              labelWrap
+              wrapperCol={{ span: 20 }}
+              onFinish={() => {
+                setTabs((prevTabs) => {
+                  const uniqueValues = removeDuplicates(
+                    [
+                      ...prevTabs,
+                      {
+                        label: listNames[activeKey].title,
+                        key: `items-${activeKey + 2}`,
+                        children: listNames[activeKey].children,
+                      },
+                    ],
+                    "key"
+                  );
+                  return uniqueValues;
+                });
                 setTabKey(`items-${activeKey + 2}`);
               }}
-              style={{
-                width: 500,
-                margin: "auto",
-              }}
+              style={formStyle}
             >
               <div
                 style={{
@@ -363,8 +335,18 @@ const ReportList = () => {
                 }}
               >
                 {listNames[activeKey].filter}
-                <Form.Item>
-                  <Button htmlType="submit">Шүүх</Button>
+                <Form.Item
+                  style={{
+                    alignSelf: "end",
+                  }}
+                >
+                  <Button
+                    icon={<FilterOutlined />}
+                    type="primary"
+                    htmlType="submit"
+                  >
+                    Шүүх
+                  </Button>
                 </Form.Item>
               </div>
             </Form>

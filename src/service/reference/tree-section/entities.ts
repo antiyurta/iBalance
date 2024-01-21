@@ -1,9 +1,10 @@
 import { GenericResponse } from "@/service/entities";
 
-export interface Params {
+export interface IParamTreeSection {
   name?: string;
   sectionId?: number;
   type?: TreeSectionType;
+  isExpand?: boolean;
 }
 
 export enum TreeSectionType {

@@ -30,7 +30,7 @@ export interface IFilterWarehouse extends IFilter {
   names?: string[];
   provinceId?: number[];
   districtId?: number[];
-  employeeId?: number;
+  employeeIds?: number[];
   address?: string[];
   fileId?: number[];
   isActive?: boolean[];

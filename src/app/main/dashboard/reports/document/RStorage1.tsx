@@ -1,37 +1,21 @@
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import {
-  SearchOutlined,
-  AreaChartOutlined,
-  UserAddOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  LockOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { Button, Divider, Typography } from "antd";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
 import * as headerJSON from "./excel/RStorage1";
-import { DocumentService } from "@/service/document/service";
-import { GetServerSideProps, NextPage } from "next";
-import { IDataDocument } from "@/service/document/entities";
-import Image from "next/image";
+import { NextPage } from "next";
 import { Tools } from "@/components/tools";
-const { Title } = Typography;
-interface SSRProps {
-  data: IDataDocument[];
-}
-export const getServerSideProps: GetServerSideProps<SSRProps> = async () => {
-  return await DocumentService.get({}).then((response) => {
-    if (!response.success) return { props: { data: [] } };
-    return { props: { data: response.response.data } };
-  });
-};
-const RStorage1: NextPage<SSRProps> = ({ data }) => {
+import { useReportContext } from "@/feature/context/ReportsContext";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
+
+const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
+  const { form } = useReportContext();
+  const values = form.getFieldsValue();
+  const [reportAt, setReportAt] = useState<string>("");
+  const [warehouse, setWarehouse] = useState<IDataWarehouse>();
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
-  const { RStorage1 } = useTypedSelector((state: RootState) => state.report);
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
     const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([]);
@@ -71,35 +55,47 @@ const RStorage1: NextPage<SSRProps> = ({ data }) => {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "filename.xlsx");
   };
+  useEffect(() => {
+    if (values.warehouseId)
+      WarehouseService.getById(values.warehouseId).then((response) =>
+        setWarehouse(response.response)
+      );
+  }, [values.warehouseId]);
+  useEffect(() => {
+    if (values.interval) {
+      if (
+        values.interval.interval == "between" &&
+        values.interval.dates &&
+        values.interval.dates[0] &&
+        values.interval.dates[1]
+      ) {
+        setReportAt(
+          `${values.interval.dates[0].format(
+            "YYYY/MM/DD"
+          )} - ${values.interval.dates[1].format("YYYY/MM/DD")}`
+        );
+      } else if (values.interval.interval == "that" && values.interval.date) {
+        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}`);
+      } else if (values.interval.interval == "until" && values.interval.date) {
+        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}-хүртэл`);
+      } else if (values.interval.interval == "late" && values.interval.date) {
+        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}-с хойшхи`);
+      } else if (
+        values.interval.interval == "selection" &&
+        values.interval.dates &&
+        values.interval.dates?.length > 0
+      ) {
+        setReportAt(values.interval.dates.toString());
+      } else if (values.interval.interval == "year" && values.interval.date) {
+        setReportAt(`${values.interval.date.format("YYYY")}-он`);
+      } else if (values.interval.interval == "month" && values.interval.date) {
+        setReportAt(`${values.interval.date.format("YYYY/MM")}-сар`);
+      }
+    }
+  }, [values.interval]);
   return (
     <div className="report-document">
       <Tools />
-      <div className="report-filter">
-        <Title level={3}>Хэрэгслүүд</Title>
-        <Button
-          type="default"
-          icon={
-            <Image
-              src={"/images/filterFalse.svg"}
-              width={24}
-              height={24}
-              alt="filter"
-            />
-          }
-          style={{ width: "100%" }}
-        >
-          Бүлэглэлт
-        </Button>
-        <button onClick={() => toPDF()}>TO PDF</button>
-        <button onClick={() => toExcel()}>TO EXCEL</button>
-        <div
-          style={{
-            width: "100%",
-            height: 1,
-            background: "red",
-          }}
-        />
-      </div>
       <div ref={targetRef} className="report-body">
         <div
           style={{
@@ -115,7 +111,7 @@ const RStorage1: NextPage<SSRProps> = ({ data }) => {
               fontStyle: "italic",
             }}
           >
-            {RStorage1.warehouseId}
+            {warehouse?.name}
           </p>
         </div>
         <div
@@ -139,7 +135,7 @@ const RStorage1: NextPage<SSRProps> = ({ data }) => {
               fontSize: 9,
             }}
           >
-            Тайлант үе: 2023/03/01 - 2023/03/31
+            Тайлант үе: {reportAt}
           </p>
         </div>
         <table ref={tableRef} className="report">
@@ -167,6 +163,22 @@ const RStorage1: NextPage<SSRProps> = ({ data }) => {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td>Нярав :</td>
+              <td colSpan={14}>Бат</td>
+            </tr>
+            <tr>
+              <td>Байршил :</td>
+              <td colSpan={14}>{warehouse?.name}</td>
+            </tr>
+            <tr>
+              <td>Барааны төрөл :</td>
+              <td colSpan={14}>Бэлэн бүтээгдэхүүн- Төв агуулах</td>
+            </tr>
+            <tr>
+              <td>Бүлэг :</td>
+              <td colSpan={14}>АР-ХӨН</td>
+            </tr>
             <tr>
               <td>750023</td>
               <td>Архөн HY150</td>

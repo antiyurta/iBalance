@@ -10,6 +10,7 @@ import {
   Radio,
   Select,
   Switch,
+  SwitchProps,
 } from "antd";
 import type { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import type { SelectProps } from "antd/es/select";
@@ -137,7 +138,7 @@ function NewTextArea(props: TextAreaProps) {
 function NewSearch(props: SearchProps) {
   return <Search {...props}>{props.children}</Search>;
 }
-function NewSwitch(props: any) {
+function NewSwitch(props: SwitchProps) {
   return <Switch {...props} />;
 }
 

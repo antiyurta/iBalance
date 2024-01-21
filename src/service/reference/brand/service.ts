@@ -1,7 +1,7 @@
 import { api } from "@/feature/interceptor/interceptor";
 import { IDataBrand, IParamBrand, IResponseBrand, IResponseOneBrand } from "./entities";
 
-function get(params: IParamBrand): Promise<IResponseBrand> {
+function get(params?: IParamBrand): Promise<IResponseBrand> {
   return api.get("brand", { params });
 }
 

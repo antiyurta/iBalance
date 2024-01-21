@@ -1,106 +1,105 @@
-import { NewFilterSelect, NewSelect } from "@/components/input";
-import { Form } from "antd";
 import "dayjs/locale/mn";
-import { FormInstance } from "antd/lib";
+import { useEffect } from "react";
+import { useReportContext } from "@/feature/context/ReportsContext";
 import DateIntervalForm from "@/components/dateIntervalForm";
-import { useEffect, useState } from "react";
-import {
-  IDataWarehouse,
-  IParamWarehouse,
-} from "@/service/reference/warehouse/entities";
-import { WarehouseService } from "@/service/reference/warehouse/service";
-import { IDataEmployee } from "@/service/employee/entities";
-import { EmployeeService } from "@/service/employee/service";
-import { useWatch } from "antd/es/form/Form";
-import DatePicker from "react-multi-date-picker";
+import { NewReportSectionSelect } from "../component/report-section-select";
+import { NewReportSelect } from "../component/report-select";
+import { Form } from "antd";
+import { NewSwitch } from "@/components/input";
+import { NewReportSwitch } from "../component/report-switch";
 
-interface IProps {
-  form: FormInstance;
-}
-
-const RStorage1Filter = (props: IProps) => {
-  const { form } = props;
-  const [employees, setEmployees] = useState<IDataEmployee[]>([]);
-  const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [isWarehouseLoading, setIsWarehouseLoading] = useState<boolean>(false);
-  const sectionId = Form.useWatch("sectionId", form);
-  const employeeId = useWatch("employeeId", form);
-  const getWarehouses = async (params: IParamWarehouse) => {
-    setIsWarehouseLoading(true);
-    await WarehouseService.get(params)
-      .then((response) => {
-        if (response.success) {
-          const warehouses = response.response.data;
-          setWarehouses(warehouses);
-        }
-      })
-      .finally(() => setIsWarehouseLoading(false));
-  };
-  const getWarehousesBySectionIds = async (params: IParamWarehouse) => {
-    WarehouseService.get(params).then((response) => {
-      setWarehouses(response.response.data);
-    });
-  };
-  const getEmployee = async () => {
-    await EmployeeService.get({ isTreasure: true }).then((response) => {
-      if (response.success) {
-        setEmployees(response.response.data);
-      }
-    });
-  };
+const RStorage1Filter = () => {
+  const {
+    form,
+    employees,
+    sections,
+    materialSections,
+    warehouses,
+    materials,
+    brands,
+    setEmployeeIds,
+    setFormStyle,
+  } = useReportContext();
+  const employeeIds = Form.useWatch("employeeIds", form);
   useEffect(() => {
-    getWarehousesBySectionIds({
-      sectionIds: sectionId,
-    });
-  }, [sectionId]);
+    employeeIds && setEmployeeIds(employeeIds);
+  }, [employeeIds]);
   useEffect(() => {
-    getEmployee();
+    setFormStyle({ width: 600, margin: "auto" });
   }, []);
-  useEffect(() => {
-    employeeId && getWarehouses({ employeeId: employeeId });
-  }, [employeeId]);
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0,1fr))",
-        gap: 12,
-        alignItems: "flex-end",
-      }}
-    >
+    <>
       <DateIntervalForm
         form={form}
+        intervalStyle={{
+          minWidth: 100,
+        }}
+        dateStyle={{
+          width: "100%",
+        }}
+        label=""
+        labelForDate="Огноо"
         itemname={"interval"}
       />
-      <Form.Item label="Нярав" name="employeeId">
-        <NewFilterSelect
-          options={employees.map((employee) => ({
-            value: employee.id,
-            label: `${employee.lastName?.substring(0, 1).toUpperCase()}. ${
-              employee.firstName
-            }`,
-          }))}
-        />
-      </Form.Item>
-      <Form.Item label="Байршил" name="warehouseId">
-        <NewFilterSelect
-          loading={isWarehouseLoading}
-          options={warehouses.map((item) => ({
+      <NewReportSelect
+        label={"Нярав:"}
+        name={"employeeIds"}
+        selectProps={{
+          options: employees.map((item) => ({
+            value: item.id,
+            label: `${item.lastName}-${item.firstName}`,
+          })),
+        }}
+      />
+      <NewReportSectionSelect
+        sectionLabel="Байршилын бүлэг:"
+        sectionName="warehouseSectionId"
+        sectionSelectProps={{
+          options: sections.map((item) => ({
             value: item.id,
             label: item.name,
-          }))}
-        />
-      </Form.Item>
-      <Form.Item label="Барааны төрөл">
-        <NewSelect
-          options={[
-            {
-              label: "Бүлэг",
-            },
-          ]}
-        />
-      </Form.Item>
-    </div>
+          })),
+        }}
+        label="Байршил:"
+        name="warehouseId"
+        selectProps={{
+          options: warehouses.map((item) => ({
+            value: item.id,
+            label: item.name,
+          })),
+        }}
+      />
+      <NewReportSectionSelect
+        sectionLabel={"Барааны бүлэг:"}
+        sectionName={"materalSectionId"}
+        sectionSelectProps={{
+          options: materialSections.map((item) => ({
+            value: item.id,
+            label: item.name,
+          })),
+        }}
+        label={"Бараа:"}
+        name={"materialId"}
+        selectProps={{
+          options: materials.map((item) => ({
+            value: item.id,
+            label: `${item.code}-${item.name}`,
+          })),
+        }}
+      />
+      <NewReportSelect
+        label={"Брэнд:"}
+        name={"brandId"}
+        selectProps={{
+          options: brands.map((item) => ({
+            value: item.id,
+            label: item.name,
+          })),
+        }}
+      />
+      <NewReportSwitch name="isLock" label="Зөвхөн түгжсэн гүйлгээг харуулах" />
+      <NewReportSwitch name="isActive" label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах" />
+    </>
   );
 };
 export default RStorage1Filter;

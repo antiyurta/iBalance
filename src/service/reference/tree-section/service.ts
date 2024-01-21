@@ -3,7 +3,7 @@ import {
   ITreeSectionOneResponse,
   ITreeSectionResponse,
   IDataTreeSection,
-  Params,
+  IParamTreeSection,
   TreeSectionType,
 } from "./entities";
 
@@ -17,9 +17,9 @@ function get(type: TreeSectionType): Promise<ITreeSectionResponse> {
 function getById(id: number): Promise<ITreeSectionOneResponse> {
   return api.get("tree-section/" + id);
 }
-function getByFilter(params: Params): Promise<ITreeSectionResponse> {
+function getByFilter(params: IParamTreeSection): Promise<ITreeSectionResponse> {
   return api.get("tree-section", {
-    params: params,
+    params,
   });
 }
 function post(body: IDataTreeSection): Promise<ITreeSectionResponse> {

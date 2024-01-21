@@ -113,12 +113,18 @@ function renderCheck(text: any, type: DataIndexType) {
       return text;
   }
 }
-function removeDuplicates(set: any[]) {
-  const uniqueIds = new Set(set.map((item) => item.value));
-  const clone: ColumnFilterItem[] = [...uniqueIds];
-  return clone
-    .map((id) => set.find((item) => item.value === id))
-    .filter(Boolean);
+function removeDuplicates<T, K extends keyof T>(array: T[], key: K): T[] {
+  const uniqueArray: T[] = [];
+  const uniqueKeys = new Set<T[K]>();
+  return array.filter((item) => {
+    const value = item[key];
+    if (!uniqueKeys.has(value)) {
+      uniqueKeys.add(value);
+      uniqueArray.push(item);
+      return true;
+    }
+    return false;
+  });
 }
 
 function unDuplicate(text: string, newParams: any) {

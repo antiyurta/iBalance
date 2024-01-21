@@ -388,13 +388,11 @@ const ListOfReceipt = () => {
               }}
             >
               <DateIntervalForm
-                customStyle={{
-                  intervalStyle: {
-                    minWidth: 120,
-                  },
-                  dateStyle: {
-                    minWidth: 220,
-                  },
+                intervalStyle={{
+                  minWidth: 120,
+                }}
+                dateStyle={{
+                  minWidth: 220,
                 }}
                 form={lockForm}
                 itemname={"TEST"}

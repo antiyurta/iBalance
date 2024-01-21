@@ -168,10 +168,20 @@ export interface IDataFile {
 export interface IFiltersReport {
   RStorage1: string;
 }
+export type ISelectDateType =
+  | "that"
+  | "between"
+  | "until"
+  | "late"
+  | "selection"
+  | "year"
+  | "month"
+  | "quarter";
 
-export type FilterType = {
-  interval: string;
-  date?: string;
+export type ISelectValueType = | "all" | "section" | "that" | "selection";
+
+export type DateFilter = {
+  interval: ISelectDateType;
+  dates?: Dayjs[];
+  date?: Dayjs;
 };
-
-export type FilteredReport = { [T in keyof IFiltersReport]?: FilterType };
