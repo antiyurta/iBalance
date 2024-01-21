@@ -4,6 +4,7 @@ import { Button, Form, App } from "antd";
 import Link from "next/link";
 import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useTypedSelector, RootState } from "@/feature/store/reducer";
 import { authService } from "@/service/authentication/service";
 import { useDispatch } from "react-redux";
@@ -22,11 +23,14 @@ const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [loginForm] = Form.useForm();
-  const { remember_me } = useTypedSelector((state: RootState) => state.core);
   const blockContext: BlockView = useContext(BlockContext);
-  const [isRememberMe, setIsRememberMe] = useState(false);
+  const [isRememberMe, setIsRememberMe] = useState(true);
   const onFinish = async (values: ILoginData) => {
     blockContext.block();
+    if (isRememberMe) {
+      localStorage.setItem("email", values.email);
+      localStorage.setItem("password", values.password);
+    }
     await authService
       .authLogin(values)
       .then((response) => {
@@ -49,18 +53,38 @@ const Login = () => {
       <div className="top">
         <div className="login-form">
           <p className="title">Нэвтрэх</p>
-          <Form form={loginForm} layout="vertical" onFinish={onFinish}>
+          <Form
+            form={loginForm}
+            layout="vertical"
+            onFinish={onFinish}
+            autoComplete="on"
+            initialValues={{
+              email: localStorage.getItem("email"),
+              password: localStorage.getItem("password"),
+              remember_me: true,
+            }}
+          >
             <div className="login-control">
-              <label htmlFor="email">И-мэйл</label>
-              <Form.Item noStyle name="email">
+              <Form.Item
+                label="И-мэйл"
+                name="email"
+                rules={[{ required: true, message: "И-мэйл оруулна уу." }]}
+              >
                 <NewInput
-                  placeholder="example@gmail.com"
+                  prefix={<UserOutlined />}
+                  placeholder="И-мэйл"
                   autoComplete="email"
                 />
               </Form.Item>
-              <label htmlFor="password">Нууц үг</label>
-              <Form.Item noStyle name="password">
-                <NewInputPassword placeholder="*********" />
+              <Form.Item
+                label="Нууц үг"
+                name="password"
+                rules={[{ required: true, message: "Нууц үг оруулна уу." }]}
+              >
+                <NewInputPassword
+                  prefix={<LockOutlined />}
+                  placeholder="Нууц үг"
+                />
               </Form.Item>
               <div
                 style={{
@@ -70,14 +94,15 @@ const Login = () => {
                 }}
               >
                 <div className="add-ons">
-                  <NewCheckbox
-                    name="remember_me"
-                    checked={isRememberMe}
-                    onChange={(e) => setIsRememberMe(e.target.checked)}
-                  >
-                    Намайг сана
-                  </NewCheckbox>
-                  <Link href="#">Нууц үг мартсан ?</Link>
+                  <Form.Item name="remember_me" noStyle>
+                    <NewCheckbox
+                      checked={isRememberMe}
+                      onChange={(e) => setIsRememberMe(e.target.checked)}
+                    >
+                      Намайг сана
+                    </NewCheckbox>
+                  </Form.Item>
+                  <Link href="/auth/forgot-password">Нууц үг мартсан ?</Link>
                 </div>
                 <Form.Item noStyle>
                   <Button htmlType="submit">
@@ -94,12 +119,6 @@ const Login = () => {
                     </span>
                   </Button>
                 </Form.Item>
-                <div className="linkRegister">
-                  <div className="group">
-                    <p> Өөр бүртгэл байхгүй ? </p>
-                    <Link href="#">Бүртгүүлэх</Link>
-                  </div>
-                </div>
               </div>
             </div>
           </Form>
