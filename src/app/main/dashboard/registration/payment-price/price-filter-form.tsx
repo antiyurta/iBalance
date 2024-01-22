@@ -65,14 +65,8 @@ export const PriceFilterForm = (props: IProps) => {
           <NewInput />
         </Form.Item>
         <DateIntervalForm
-          customStyle={{
-            intervalStyle: {
-              minWidth: 120,
-            },
-            dateStyle: {
-              minWidth: 220,
-            },
-          }}
+          intervalStyle={{ minWidth: 120 }}
+          dateStyle={{ minWidth: 220 }}
           form={form}
           itemname="commandAt"
           label="Тушаалын огноо"
@@ -86,14 +80,8 @@ export const PriceFilterForm = (props: IProps) => {
           />
         </Form.Item>
         <DateIntervalForm
-          customStyle={{
-            intervalStyle: {
-              minWidth: 120,
-            },
-            dateStyle: {
-              minWidth: 220,
-            },
-          }}
+          intervalStyle={{ minWidth: 120 }}
+          dateStyle={{ minWidth: 220 }}
           form={form}
           itemname="ruleAt"
           label="Мөрдөж эхлэх огноо"
@@ -140,14 +128,8 @@ export const PriceFilterForm = (props: IProps) => {
           />
         </Form.Item>
         <DateIntervalForm
-          customStyle={{
-            intervalStyle: {
-              minWidth: 120,
-            },
-            dateStyle: {
-              minWidth: 220,
-            },
-          }}
+          intervalStyle={{ minWidth: 120 }}
+          dateStyle={{ minWidth: 220 }}
           form={form}
           itemname="createdAt"
           label="Үүсгэсэн огноо"
