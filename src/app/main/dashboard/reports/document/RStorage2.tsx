@@ -8,7 +8,29 @@ const RStorage2 = () => {
       <Tools />
       <div className="report-body">
         <ReportTitle organization={"Universal med"} title={"Бараа материалын товчоо тайлан (хураангуй)"} />
-      </div>
+        <table className="report">
+          <thead>
+            <th>Дотоод код</th>
+            <th>Бараа материалын нэр</th>
+            <th>Багц доторх тоо</th>
+            <th>Хэмжих нэгж</th>
+            <th>Эхний үлдэгдэл</th>
+            <th>Орлого</th>
+            <th>Зарлага</th>
+            <th>Эцсийн үлдэгдэл</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Нярав</td>
+              <td colSpan={7}>Бат</td>
+            </tr>
+            <tr>
+              <td>Байршил</td>
+              <td colSpan={7}>01  Яармаг</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> 
     </div>
   );
 };
