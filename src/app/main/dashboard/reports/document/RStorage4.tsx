@@ -1,6 +1,17 @@
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { Tools } from "@/components/tools";
+import { ReportTitle } from "../component/report-title";
+
 const RStorage4 = () => {
-  const { RStorage4 } = useTypedSelector((state: RootState) => state.report);
-  return <div>4</div>;
+  return (
+    <div className="report-document">
+      <Tools />
+      <div className="report-body">
+        <ReportTitle
+          organization={"Universal med"}
+          title={"Агуулахын бүртгэл (гүйлгээний цонхоор)"}
+        />
+      </div>
+    </div>
+  );
 };
 export default RStorage4;

@@ -8,7 +8,7 @@ import { Tools } from "@/components/tools";
 import { useReportContext } from "@/feature/context/ReportsContext";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
-
+/** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
   const { form } = useReportContext();
@@ -61,38 +61,6 @@ const RStorage1: NextPage = () => {
         setWarehouse(response.response)
       );
   }, [values.warehouseId]);
-  useEffect(() => {
-    if (values.interval) {
-      if (
-        values.interval.interval == "between" &&
-        values.interval.dates &&
-        values.interval.dates[0] &&
-        values.interval.dates[1]
-      ) {
-        setReportAt(
-          `${values.interval.dates[0].format(
-            "YYYY/MM/DD"
-          )} - ${values.interval.dates[1].format("YYYY/MM/DD")}`
-        );
-      } else if (values.interval.interval == "that" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}`);
-      } else if (values.interval.interval == "until" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}-хүртэл`);
-      } else if (values.interval.interval == "late" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}-с хойшхи`);
-      } else if (
-        values.interval.interval == "selection" &&
-        values.interval.dates &&
-        values.interval.dates?.length > 0
-      ) {
-        setReportAt(values.interval.dates.toString());
-      } else if (values.interval.interval == "year" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY")}-он`);
-      } else if (values.interval.interval == "month" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM")}-сар`);
-      }
-    }
-  }, [values.interval]);
   return (
     <div className="report-document">
       <Tools />
@@ -104,7 +72,6 @@ const RStorage1: NextPage = () => {
             justifyContent: "space-between",
           }}
         >
-          <p></p>
           <p
             style={{
               fontSize: 8,

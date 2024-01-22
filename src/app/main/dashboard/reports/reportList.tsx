@@ -4,20 +4,18 @@ import { FilterOutlined } from "@ant-design/icons";
 import { useState } from "react";
 const { Title } = Typography;
 
-//Бараа материалын товчоо тайлан
-import RStorage1 from "./document/RStorage1";
 import RStorage1Filter from "./filters/RStorage1Filter";
 import RStorage2Filter from "./filters/RStorage2Filter";
 import RStorage3Filter from "./filters/RStorage3Filter";
 import RStorage4Filter from "./filters/RStorage4Filter";
 import RStorage5Filter from "./filters/RStorage5Filter";
 import RStorage6Filter from "./filters/RStorage6Filter";
-
-//Бараа материалын товчоо тайлан (хураангуй)
+import RStorage1 from "./document/RStorage1";
 import RStorage2 from "./document/RStorage2";
 //Бараа материалын гүйлгээний тайлан
 import RStorage3 from "./document/RStorage3";
 //Агуулахын бүртгэл (гүйлгээний цонхоор)
+import RStorage4 from "./document/RStorage4";
 //Агуулахын бүртгэл (гүйлгээний утгаар)
 import RStorage5 from "./document/RStorage5";
 //Татан авалтын дэлгэрэнгүй тайлан (бараагаар)
@@ -89,7 +87,7 @@ const ReportList = () => {
       title: "Агуулахын бүртгэл (гүйлгээний цонхоор)",
       filterName: "RStorage4",
       filter: <RStorage2Filter />,
-      children: <RStorage2 />,
+      children: <RStorage4 />,
     },
     {
       key: 4,
