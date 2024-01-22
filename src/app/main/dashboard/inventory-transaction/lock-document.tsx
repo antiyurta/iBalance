@@ -129,7 +129,7 @@ const LockDocument = (props: IProps) => {
   const locking = () => {
     const ids: number[] = selectedRows.map((item) => item.id);
     blockContext.block();
-    DocumentService.lock(ids, !form.getFieldValue('isLock'))
+    DocumentService.lock(ids, !form.getFieldValue("isLock"))
       .then((response) => {
         if (response.success) setIsLockModal(false);
       })
@@ -180,10 +180,8 @@ const LockDocument = (props: IProps) => {
           initialValues={{ isLock: false }}
         >
           <DateIntervalForm
-            customStyle={{
-              intervalStyle: {},
-              dateStyle: {},
-            }}
+            intervalStyle={{}}
+            dateStyle={{}}
             form={form}
             itemname={"interval"}
           />
@@ -232,7 +230,11 @@ const LockDocument = (props: IProps) => {
               ]}
             />
           </Form.Item>
-          <Form.Item label="Гүйлгээ түгжсэн эсэх" name="isLock" valuePropName="checked">
+          <Form.Item
+            label="Гүйлгээ түгжсэн эсэх"
+            name="isLock"
+            valuePropName="checked"
+          >
             <NewSwitch />
           </Form.Item>
           <Form.Item>
