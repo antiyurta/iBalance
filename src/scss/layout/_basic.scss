@@ -45,7 +45,6 @@
           line-height: 19px;
         }
         input[type="text"] {
-          min-height: 48px;
           border-radius: 12px;
           border: 1px solid rgba(229, 231, 235, 1);
           &:hover {
@@ -53,13 +52,8 @@
           }
         }
         span.ant-input-affix-wrapper {
-          min-height: 48px;
           border-radius: 12px;
           border: 1px solid rgba(229, 231, 235, 1);
-          > input[type="text"] {
-            border: 0px;
-            min-height: 38px !important;
-          }
           &:hover {
             border: 1px solid $color-primary;
           }

@@ -74,6 +74,7 @@ const Login = () => {
                   prefix={<UserOutlined />}
                   placeholder="И-мэйл"
                   autoComplete="email"
+                  size="large"
                 />
               </Form.Item>
               <Form.Item
@@ -84,6 +85,7 @@ const Login = () => {
                 <NewInputPassword
                   prefix={<LockOutlined />}
                   placeholder="Нууц үг"
+                  size="large"
                 />
               </Form.Item>
               <div
