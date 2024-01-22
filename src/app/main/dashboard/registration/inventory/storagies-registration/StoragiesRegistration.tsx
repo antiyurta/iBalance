@@ -78,11 +78,11 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
     },
-    userIds: {
+    employeeIds: {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
-      dataIndex: ["users"],
+      dataIndex: ["employees"],
       type: DataIndexType.MULTI,
     },
     address: {
