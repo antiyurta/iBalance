@@ -33,7 +33,7 @@ const { Title } = Typography;
 
 const MaterialDetail = () => {
   const params = useParams();
-  const { setReload } = usePaymentGroupContext();
+  const { setReload, isReload } = usePaymentGroupContext();
   const blockContext: BlockView = useContext(BlockContext);
   const [material, setMaterial] = useState<IDataViewMaterial>();
   const [images, setImages] = useState<string[]>([]);
@@ -48,7 +48,7 @@ const MaterialDetail = () => {
     blockContext.block();
     await ShoppingGoodsService.post(data)
       .finally(() => {
-        setReload(true);
+        setReload(!isReload);
       })
       .catch((error) => {
         console.log(error);

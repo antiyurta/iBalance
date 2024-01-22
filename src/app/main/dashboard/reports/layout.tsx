@@ -1,8 +1,12 @@
 "use client";
-import { ReportProvider } from "@/feature/context/ReportsContext";
+import { ProviderReport } from "@/feature/context/ReportsContext";
 import { ReactNode } from "react";
-
-const ReportLayout = ({ children }: { children: ReactNode }) => {
-  return <ReportProvider>{children}</ReportProvider>;
+interface IProps {
+  children: ReactNode;
+}
+const ReportLayout: React.FC<IProps> = ({ children }) => {
+  return <ProviderReport>
+    {children}
+    </ProviderReport>;
 };
 export default ReportLayout;

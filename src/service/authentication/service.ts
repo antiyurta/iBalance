@@ -30,6 +30,9 @@ function updateToken(tokens: Tokens): Promise<LoginResponse> {
     },
   });
 }
+function forgotPassword(email: string): Promise<IResponseUser> {
+  return api.post("/authentication/forgot-password", { email });
+}
 function changePassword(body: IChangePassword): Promise<IResponseUser> {
   return api.post("/authentication/change-password", body);
 }
@@ -55,4 +58,5 @@ export const authService = {
   getUserById,
   changePassword,
   changeProfile,
+  forgotPassword,
 };

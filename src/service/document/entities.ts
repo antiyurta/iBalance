@@ -2,6 +2,7 @@ import { IDataConsumer } from "@/service/consumer/entities";
 import {
   ColumnType,
   DataIndexType,
+  DateFilter,
   GenericResponse,
   IData,
   IFilter,
@@ -102,6 +103,7 @@ export interface IDataDocument extends IData {
 
 export interface IFilterDocument extends IFilter {
   id?: number;
+  interval?: DateFilter;
   documentCode?: string[];
   movingStatus?: MovingStatus;
   hideMovingStatuses?: MovingStatus[];

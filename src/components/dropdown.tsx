@@ -10,11 +10,16 @@ import {
 } from "./input";
 import { Popover, Space } from "antd";
 import Image from "next/image";
-import { DataIndexType, RadioType, ToolsIcons } from "@/service/entities";
+import {
+  DataIndexType,
+  Queries,
+  RadioType,
+  ToolsIcons,
+} from "@/service/entities";
 import { typeOfFilters } from "@/feature/common";
 
 import { SearchOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 interface IProps {
   label: string;
@@ -24,12 +29,16 @@ interface IProps {
   isFiltered: boolean;
   handleSearch: (params: object, state: boolean) => void;
 }
-type CheckedList = (number | string | boolean)[];
-enum SearchType {
-  RADIO = "RADIO",
-  INPUT = "INPUT",
-  CHECKBOX = "CHECKBOX",
-  DEFUALT = "DEFUALT",
+type TypeCheck = number | string | boolean;
+interface IParam {
+  page: number;
+  limit: number;
+  order: RadioType;
+  queries: Queries[];
+}
+interface IFilterType {
+  text: string;
+  value: TypeCheck;
 }
 const DropDown = (props: IProps) => {
   const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
@@ -37,10 +46,16 @@ const DropDown = (props: IProps) => {
   const [tool, setTool] = useState<keyof typeof ToolsIcons>(
     (type === "NUMBER" && "EQUALS") || (type === "DATE" && "EQUALS") || "EQUALS"
   );
+  const [params, setParams] = useState<IParam>({
+    page: 1,
+    limit: 10,
+    order: RadioType.DESC,
+    queries: [],
+  });
   const [datePickerValue, setDatePickerValue] = useState<any>();
-  const [checkboxs, setCheckboxs] = useState<any>([]);
-  const [searchValue, setSearchValue] = useState<string | number>("");
-  const [checkedList, setCheckedList] = useState<CheckedList>([]);
+  const [checkboxs, setCheckboxs] = useState<IFilterType[]>([]);
+  const [filterCheckboxes, setFilterCheckboxes] = useState<IFilterType[]>([]);
+  const [checkedList, setCheckedList] = useState<TypeCheck[]>([]);
   let indeterminate =
     checkedList.length > 0 && checkedList.length < checkboxs.length;
   const onCheckAllChange = (e: any) => {
@@ -48,7 +63,7 @@ const DropDown = (props: IProps) => {
       e.target.checked ? checkboxs?.map((checkbox: any) => checkbox.value) : []
     );
   };
-  const onChange = (list: CheckedList) => {
+  const onChange = (list: TypeCheck[]) => {
     setCheckedList(list);
   };
   const checkAll = checkboxs?.length === checkedList.length;
@@ -206,63 +221,34 @@ const DropDown = (props: IProps) => {
       </div>
     );
   };
-  const configureSearch = (SType: SearchType, order?: RadioType) => {
-    switch (SType) {
-      case SearchType.RADIO:
-        handleSearch(
-          {
-            page: 1,
-            limit: 10,
-            orderParam: dataIndex,
-            order: order,
-          },
-          true
+  const configureSearch = (order?: RadioType) => {
+    if (order) params.order = order;
+    if (dataIndex) setParams({ ...params, [dataIndex]: checkedList });
+    handleSearch(params, true);
+  };
+  const filterCheckbox = (value?: TypeCheck): IFilterType[] => {
+    if (!value) {
+      return checkboxs;
+    } else {
+      if (tool == "CONTAINS") {
+        return checkboxs.filter((item) =>
+          item.text.toLowerCase().includes(value.toString().toLowerCase())
         );
-        break;
-      case SearchType.INPUT:
-        handleSearch(
-          {
-            page: 1,
-            limit: 10,
-            queries: [
-              {
-                param: dataIndex,
-                operator: tool,
-                value: searchValue,
-                // typeof: type === "DATE" ? "date" : "number",
-              },
-            ],
-          },
-          true
-        );
-        setSearchValue("");
-        break;
-      case SearchType.CHECKBOX:
-        handleSearch(
-          {
-            page: 1,
-            limit: 10,
-            [dataIndex]: checkedList,
-          },
-          true
-        );
-        break;
-      case SearchType.DEFUALT:
-        handleSearch(
-          {
-            page: 1,
-            limit: 10,
-          },
-          false
-        );
-        break;
-      default:
-        break;
+      } else if (tool == "EQUALS") {
+        return checkboxs.filter((item) => item.text == value.toString());
+      } else if (tool == "IS_GREATER" && typeof value == "number") {
+        return checkboxs.filter((item) => Number(item.text) > value);
+      } else if (tool == "IS_GREATOR_OR_EQUAL" && typeof value == "number") {
+        return checkboxs.filter((item) => Number(item.text) >= value);
+      } else if (tool == "IS_LESS" && typeof value == "number") {
+        return checkboxs.filter((item) => Number(item.text) < value);
+      } else if (tool == "IS_LESS_OR_EQUAL" && typeof value == "number") {
+        return checkboxs.filter((item) => Number(item.text) <= value);
+      } else return checkboxs;
     }
   };
   const gg = async () => {
-    console.log(type, filters);
-    const dd: any = await typeOfFilters({
+    const dd: IFilterType[] = await typeOfFilters({
       type: type,
       filters: filters,
     });
@@ -270,7 +256,6 @@ const DropDown = (props: IProps) => {
   };
   useEffect(() => {
     if (!isFiltered) {
-      setSearchValue("");
       setCheckedList([]);
       setRadioValue(undefined);
       indeterminate = false;
@@ -279,6 +264,9 @@ const DropDown = (props: IProps) => {
       gg();
     }
   }, [filters, type]);
+  useEffect(() => {
+    setFilterCheckboxes(checkboxs);
+  }, [checkboxs]);
   return (
     <div
       style={{
@@ -319,7 +307,7 @@ const DropDown = (props: IProps) => {
           value={radioValue}
           onChange={(e: any) => {
             setRadioValue(e.target.value);
-            configureSearch(SearchType.RADIO, e.target.value);
+            configureSearch(e.target.value);
           }}
           optionType="button"
           buttonStyle="solid"
@@ -409,15 +397,12 @@ const DropDown = (props: IProps) => {
                   width: "100%",
                 }}
                 value={dayjs(datePickerValue)}
-                onChange={async (date: any, dateString: string) => {
+                onChange={(date) => {
                   setDatePickerValue(date);
-                  setSearchValue(dateString);
                 }}
               />
               <div className="extraButton-right">
-                <SearchOutlined
-                  onClick={() => configureSearch(SearchType.INPUT)}
-                />
+                <SearchOutlined onClick={() => configureSearch()} />
               </div>
             </Space.Compact>
           ) : null}
@@ -427,9 +412,10 @@ const DropDown = (props: IProps) => {
                 gap: 4,
               }}
               disabled={checkedList.length > 0 ? true : false}
-              value={searchValue}
-              onChange={(e: any) => setSearchValue(e.target.value)}
-              onPressEnter={() => configureSearch(SearchType.INPUT)}
+              onChange={(e) => {
+                setFilterCheckboxes(filterCheckbox(e.target.value));
+                setCheckedList(filterCheckboxes.map((item) => item.value));
+              }}
               addonBefore={
                 <Popover
                   placement="bottom"
@@ -454,10 +440,7 @@ const DropDown = (props: IProps) => {
                 width: "100%",
               }}
               disabled={checkedList.length > 0 ? true : false}
-              value={searchValue}
-              // onChange={(e: number) => setSearchValue(e)}
-              onChange={(e) => console.log(typeof e)}
-              onPressEnter={() => configureSearch(SearchType.INPUT)}
+              onChange={(e) => filterCheckbox(Number(e))}
               addonBefore={
                 <Popover
                   placement="bottom"
@@ -506,10 +489,10 @@ const DropDown = (props: IProps) => {
               value={checkedList}
               onChange={onChange}
             >
-              {checkboxs?.map((checkbox: any, index: number) => {
+              {filterCheckboxes.map((item: IFilterType, index: number) => {
                 return (
-                  <NewCheckbox key={index} value={checkbox.value}>
-                    {checkbox.text}
+                  <NewCheckbox key={index} value={item.value}>
+                    {item.text}
                   </NewCheckbox>
                 );
               })}
@@ -529,8 +512,13 @@ const DropDown = (props: IProps) => {
         <button
           onClick={() => {
             setCheckedList([]);
-            setSearchValue("");
-            configureSearch(SearchType.DEFUALT);
+            setParams({
+              page: 1,
+              limit: 10,
+              order: RadioType.DESC,
+              queries: [],
+            });
+            handleSearch(params, false);
           }}
           className="app-button-regular"
           style={{
@@ -540,7 +528,7 @@ const DropDown = (props: IProps) => {
           Цэвэрлэх
         </button>
         <button
-          onClick={() => configureSearch(SearchType.CHECKBOX)}
+          onClick={() => configureSearch()}
           className="app-button-regular"
           style={{
             color: "white",

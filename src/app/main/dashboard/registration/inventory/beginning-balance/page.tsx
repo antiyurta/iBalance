@@ -225,7 +225,7 @@ const BeginningBalancePage = () => {
                       : [];
                     if (!hasUniqueValues(arr)) {
                       return Promise.reject(
-                        new Error("Байршил-худалдан авсан огноо давхардсан байна.")
+                        new Error("Байршил-хугацаа дуусах огноо давхардсан байна.")
                       );
                     }
                   },

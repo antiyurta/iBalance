@@ -127,9 +127,6 @@ const InventoriesRegistration = (props: IProps) => {
   //
   const [brands, setBrands] = useState<IDataBrand[]>([]);
   const [isOpenModalBrand, setIsOpenModalBrand] = useState<boolean>(false);
-  //
-  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-
   const [isOpenMaterialType, setIsOpenMaterialType] = useState<boolean>(false);
   //
   const [filters, setFilters] = useState<IFilterMaterial>();
@@ -276,7 +273,6 @@ const InventoriesRegistration = (props: IProps) => {
     getMeasurements();
     getMaterialRanks(IType.MATERIAL_RANK); // zereglel
     getMaterialSections();
-    getConsumers();
     getBrands();
     if (!state) {
       form.resetFields();
@@ -332,11 +328,6 @@ const InventoriesRegistration = (props: IProps) => {
   const getBrands = async () => {
     await BrandService.get({}).then((response) => {
       setBrands(response.response.data);
-    });
-  };
-  const getConsumers = async () => {
-    await ConsumerService.get({}).then((response) => {
-      setConsumers(response.response.data);
     });
   };
   // upload headers
@@ -750,7 +741,10 @@ const InventoriesRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
+                onChange={(params) => {
+                  console.log("onChange ====>", params);
+                  getData(params);
+                }}
                 onColumns={(columns) => setColumns(columns)}
                 newParams={params}
                 onParams={(params) => setParams(params)}
@@ -1072,7 +1066,11 @@ const InventoriesRegistration = (props: IProps) => {
                 </Space.Compact>
               </Form.Item>
               <Form.Item label="Бэлтгэн нийлүүлэгчийн код, нэр">
-                <ConsumerSelect form={form} rules={[]} name="consumerSupplierId" />
+                <ConsumerSelect
+                  form={form}
+                  rules={[]}
+                  name="consumerSupplierId"
+                />
               </Form.Item>
               <Form.Item label="Дэлгэрэнгүй мэдээлэл" name="description">
                 <NewTextArea />
@@ -1085,7 +1083,7 @@ const InventoriesRegistration = (props: IProps) => {
               name="isTax"
               valuePropName="checked"
             >
-              <NewSwitch size={"LARGE"} />
+              <NewSwitch />
             </Form.Item>
             <Form.Item
               label="НХАТ суутгах эсэх"

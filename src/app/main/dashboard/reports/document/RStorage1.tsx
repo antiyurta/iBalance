@@ -1,18 +1,21 @@
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
-import { Typography } from "antd";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
-import { s } from "./excelSupport";
 import * as headerJSON from "./excel/RStorage1";
-
-const { Title } = Typography;
-
-const RStorage1 = () => {
+import { NextPage } from "next";
+import { Tools } from "@/components/tools";
+import { useReportContext } from "@/feature/context/ReportsContext";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
+import { WarehouseService } from "@/service/reference/warehouse/service";
+import { ReportTitle } from "../component/report-title";
+/** Бараа материалын товчоо тайлан */
+const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
+  const { form } = useReportContext();
+  const values = form.getFieldsValue();
+  const [reportAt, setReportAt] = useState<string>("");
+  const [warehouse, setWarehouse] = useState<IDataWarehouse>();
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
-  const { RStorage1 } = useTypedSelector((state: RootState) => state.report);
-  console.log("=========>", RStorage1);
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
     const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([]);
@@ -52,21 +55,20 @@ const RStorage1 = () => {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "filename.xlsx");
   };
+  useEffect(() => {
+    if (values.warehouseId)
+      WarehouseService.getById(values.warehouseId).then((response) =>
+        setWarehouse(response.response)
+      );
+  }, [values.warehouseId]);
   return (
     <div className="report-document">
-      <div className="report-filter">
-        <Title level={3}>Хэрэгслүүд</Title>
-        <button onClick={() => toPDF()}>TO PDF</button>
-        <button onClick={() => toExcel()}>TO EXCEL</button>
-        <div
-          style={{
-            width: "100%",
-            height: 1,
-            background: "red",
-          }}
-        />
-      </div>
+      <Tools />
       <div ref={targetRef} className="report-body">
+        <ReportTitle
+          organization={"Universal med"}
+          title={"Бараа материалын товчоо тайлан"}
+        />
         <div
           style={{
             display: "flex",
@@ -74,14 +76,13 @@ const RStorage1 = () => {
             justifyContent: "space-between",
           }}
         >
-          <p></p>
           <p
             style={{
               fontSize: 8,
               fontStyle: "italic",
             }}
           >
-            Жаргалант яармаг проперти ХХК
+            {warehouse?.name}
           </p>
         </div>
         <div
@@ -105,7 +106,7 @@ const RStorage1 = () => {
               fontSize: 9,
             }}
           >
-            Тайлант үе: 2023/03/01 - 2023/03/31
+            Тайлант үе: {reportAt}
           </p>
         </div>
         <table ref={tableRef} className="report">
@@ -133,6 +134,22 @@ const RStorage1 = () => {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td>Нярав :</td>
+              <td colSpan={14}>Бат</td>
+            </tr>
+            <tr>
+              <td>Байршил :</td>
+              <td colSpan={14}>{warehouse?.name}</td>
+            </tr>
+            <tr>
+              <td>Барааны төрөл :</td>
+              <td colSpan={14}>Бэлэн бүтээгдэхүүн- Төв агуулах</td>
+            </tr>
+            <tr>
+              <td>Бүлэг :</td>
+              <td colSpan={14}>АР-ХӨН</td>
+            </tr>
             <tr>
               <td>750023</td>
               <td>Архөн HY150</td>

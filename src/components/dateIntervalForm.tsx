@@ -1,37 +1,24 @@
 import { CSSProperties, useState } from "react";
 import { FormInstance } from "antd/lib";
-import { Form, Space } from "antd";
+import { Form, Select, Space } from "antd";
 import { NewDatePicker, NewRangePicker, NewSelect } from "./input";
 import locale from "antd/es/date-picker/locale/mn_MN";
 import { NewMultipleDatePicker } from "./multiDatePicker";
+import { ISelectDateType } from "@/service/entities";
 interface IProps {
-  customStyle: {
-    intervalStyle?: CSSProperties;
-    dateStyle?: CSSProperties;
-  };
+  intervalStyle?: CSSProperties;
+  dateStyle?: CSSProperties;
   form: FormInstance;
   itemname: string;
   label?: string;
+  labelForDate?: string;
 }
 
-type ISelectValueType =
-  | "that"
-  | "between"
-  | "until"
-  | "late"
-  | "selection"
-  | "year"
-  | "month"
-  | "quarter";
-
 const DateIntervalForm = (props: IProps) => {
-  const {
-    form,
-    customStyle: { intervalStyle, dateStyle },
-    itemname,
-    label,
-  } = props;
-  const [selectedValue, setSelectedValue] = useState<ISelectValueType>("that");
+  const { form, intervalStyle, dateStyle, itemname, label, labelForDate } =
+    props;
+  const [selectedValue, setSelectedValue] = useState<ISelectDateType>("that");
+  
   const RenderDateFormItem = () => {
     if (
       selectedValue === "that" ||
@@ -41,7 +28,7 @@ const DateIntervalForm = (props: IProps) => {
       return (
         <Form.Item
           style={dateStyle}
-          label="Огноо сонгох"
+          label={labelForDate ? labelForDate : "Огноо сонгох"}
           name={[itemname, "date"]}
         >
           <NewDatePicker />
@@ -51,7 +38,7 @@ const DateIntervalForm = (props: IProps) => {
       return (
         <Form.Item
           style={dateStyle}
-          label="Огноо сонгох"
+          label={labelForDate ? labelForDate : "Огноо сонгох"}
           name={[itemname, "dates"]}
         >
           <NewRangePicker
@@ -70,7 +57,7 @@ const DateIntervalForm = (props: IProps) => {
       return (
         <Form.Item
           style={dateStyle}
-          label="Огноо сонгох"
+          label={labelForDate ? labelForDate : "Огноо сонгох"}
           name={[itemname, "date"]}
         >
           <NewDatePicker picker={selectedValue} locale={locale} />
@@ -80,7 +67,7 @@ const DateIntervalForm = (props: IProps) => {
       return (
         <Form.Item
           style={dateStyle}
-          label="Огноо сонгох"
+          label={labelForDate ? labelForDate : "Огноо сонгох"}
           name={[itemname, "dates"]}
         >
           <NewMultipleDatePicker multiple />

@@ -87,7 +87,7 @@ export interface IFilterMaterial extends IFilter {
   isActive?: boolean[];
   description?: string;
   name?: string;
-  barCode?: string;
+  barCode?: string[];
   serial?: string;
   unitCodeId?: string;
   unitCode?: IDataUnitCode;

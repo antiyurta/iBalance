@@ -20,7 +20,7 @@ export type TableItemType = {
   key: string;
   label: React.JSX.Element | string;
 };
-interface ITable{
+interface ITable {
   componentType?: ComponentType;
   scroll: {
     x?: number;

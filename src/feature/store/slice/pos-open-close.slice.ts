@@ -1,4 +1,3 @@
-import { IDataPos } from "@/service/pos/entities";
 import { IDataPosOpenClose } from "@/service/pos/open-close/entities";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 

@@ -15,7 +15,10 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { OpenCloseService } from "@/service/pos/open-close/service";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
-import { PaymentType } from "@/service/reference/payment-method/entities";
+import {
+  IDataReferencePaymentMethod,
+  PaymentType,
+} from "@/service/reference/payment-method/entities";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { MoneyTransactionService } from "@/service/pos/money-transaction/service";
 import { MovingStatus } from "@/service/document/entities";
@@ -23,6 +26,8 @@ import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import dayjs from "dayjs";
 import { PosInvoiceService } from "@/service/pos/invoice/service";
 import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
+import { IDataMoneyTransaction } from "@/service/pos/money-transaction/entities";
+import { useWatch } from "antd/es/form/Form";
 
 const { Title } = Typography;
 interface IProps {
@@ -36,11 +41,24 @@ const CloseState = (props: IProps) => {
   const [openClose, setOpenClose] = useState<IDataPosOpenClose>();
   const [cashDocuments, setCashDocuments] = useState<StatisticDoc[]>([]);
   const [isCashLoading, setIsCashLoading] = useState<boolean>(false);
-  const [cashInvoices, setCashInvoices] = useState<IDataPaymentInvoice[]>([]);
-  const [notcashInvoices, setNotcashInvoices] = useState<IDataPaymentInvoice[]>(
-    []
-  );
-  const [lendInvoices, setLendInvoices] = useState<IDataPaymentInvoice[]>([]);
+  const [invoices, setInvoices] = useState<IDataPaymentInvoice[]>([]);
+  const [moneyTransactions, setMoneyTransactions] = useState<
+    IDataMoneyTransaction[]
+  >([]);
+  const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<
+    IDataReferencePaymentMethod[]
+  >([]);
+  const [membershipAmount, setMembershipAmount] = useState<number>(0);
+  const [giftAmount, setGifAmount] = useState<number>(0);
+  const [cashMoney, setCashMoney] = useState<number>(0);
+  const [notcashMoney, setNotcashMoney] = useState<number>(0);
+  const [lendMoney, setLendMoney] = useState<number>(0);
+  const cashAmount = useWatch("cashAmount", form);
+  const nonCashAmount = useWatch("nonCashAmount", form);
+  const lendAmount = useWatch("lendAmount", form);
+  const [cencusCashAmount, setCencusCashAmount] = useState<number>(0);
+  const [cencusLendAmount, setCencusLendAmount] = useState<number>(0);
 
   const getOpenClose = async (id: number) => {
     blockContext.block();
@@ -48,37 +66,74 @@ const CloseState = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           setOpenClose(response.response);
-          response.response.shoppingCarts;
+          setShoppingCarts(response.response.shoppingCarts);
         }
+      })
+      .then(() => {
+        setMembershipAmount(
+          shoppingCarts.reduce(
+            (total, item) => total + Number(item.membershipDiscountAmount),
+            0
+          )
+        );
+        setGifAmount(
+          shoppingCarts.reduce(
+            (total, item) => total + Number(item.giftAmount),
+            0
+          )
+        );
       })
       .finally(() => blockContext.unblock());
   };
-  const getPayMethod = async () => {
-    PosInvoiceService.get({ openCloseId, type: PaymentType.Cash }).then(
-      (response) => {
-        if (response.success) {
-          setCashInvoices(response.response);
-        }
-      }
-    );
-    PosInvoiceService.get({ openCloseId, type: PaymentType.NotCash }).then(
-      (response) => {
-        if (response.success) {
-          setNotcashInvoices(response.response);
-        }
-      }
-    );
-    PosInvoiceService.get({ openCloseId, type: PaymentType.Lend }).then(
-      (response) => {
-        if (response.success) {
-          setLendInvoices(response.response);
-        }
-      }
+  const getMoney = (type: PaymentType): number => {
+    return invoices.reduce(
+      (total, item) => (total + item.type == type ? Number(item.amount) : 0),
+      0
     );
   };
-  const getStatisticSale = (
-    shoppingCarts: IDataShoppingCart[]
-  ): StatisticDoc[] => {
+  const getMoneyTransaction = (
+    type: PaymentType
+  ): { add: number; subtract: number } => {
+    const add = moneyTransactions.reduce(
+      (total, item) =>
+        total + item.type == type ? Number(item.increaseAmount) : 0,
+      0
+    );
+    const subtract = moneyTransactions.reduce(
+      (total, item) =>
+        total + item.type == type ? Number(item.decreaseAmount) : 0,
+      0
+    );
+    return { add, subtract };
+  };
+  const getPayMethod = async () => {
+    await ReferencePaymentMethodService.get({
+      isActive: true,
+      type: PaymentType.NotCash,
+    }).then((response) => {
+      if (response.success) {
+        setPaymentMethods(response.response);
+      }
+    });
+    await PosInvoiceService.get({ openCloseId, isPaid: true })
+      .then((response) => {
+        if (response.success) {
+          setInvoices(response.response);
+        }
+      })
+      .then(() => {
+        setCashMoney(getMoney(PaymentType.Cash));
+        setNotcashMoney(getMoney(PaymentType.NotCash));
+        setLendMoney(getMoney(PaymentType.Lend));
+      });
+    await MoneyTransactionService.get({
+      openCloseId,
+      isTransaction: false,
+    }).then((response) => {
+      if (response.success) setMoneyTransactions(response.response.data);
+    });
+  };
+  const getStatisticSale = (): StatisticDoc[] => {
     const totalSale: StatisticDoc = {
       state: "Нийт борлуулалт",
       qty: closeNumber({ value: shoppingCarts.length }),
@@ -119,17 +174,13 @@ const CloseState = (props: IProps) => {
       }),
     };
     const consumerShoppingCarts = shoppingCarts.filter(
-      (item) => Number(item.membershipDiscountAmount) > 0
+      (item) =>
+        Number(item.membershipDiscountAmount) > 0 || Number(item.giftAmount) > 0
     );
     const consumerDiscount: StatisticDoc = {
       state: "Харилцагч, гишүүнчлэлийн хөнгөлөлт",
       qty: closeNumber({ value: consumerShoppingCarts.length }),
-      amount: closeNumber({
-        value: consumerShoppingCarts.reduce(
-          (total, item) => total + Number(item.membershipDiscountAmount),
-          0
-        ),
-      }),
+      amount: closeNumber({ value: membershipAmount + giftAmount }),
     };
     const realShoppingCarts = shoppingCarts.filter(
       (item) =>
@@ -148,32 +199,10 @@ const CloseState = (props: IProps) => {
     };
     return [totalSale, refund, materialDiscount, consumerDiscount, sale];
   };
-  const getStatisticCash = async (openCloseId?: number) => {
+  const getStatisticCash = async () => {
     setIsCashLoading(true);
-    if (!openCloseId) return [];
-    const moneyTransactions = await MoneyTransactionService.get({
-      openCloseId: openCloseId,
-    }).then((response) => {
-      if (!response.success) return [];
-      return response.response.data;
-    });
-    const saleMoney = cashInvoices.reduce(
-      (total, item) => total + Number(item.amount),
-      0
-    );
     const beginingMoney = openClose?.openerAmount || 0;
-    const addMoney = moneyTransactions.reduce(
-      (total, item) => total + Number(item.increaseAmount),
-      0
-    );
-    const subtractMoney = moneyTransactions.reduce(
-      (total, item) => total + Number(item.decreaseAmount),
-      0
-    );
-    const shoppingCarts = await ShoppingCartService.get({ openCloseId, invoiceType: PaymentType.Cash }).then((response) => {
-      if (!response.success) return [];
-      return response.response.data;
-    });
+    const { add, subtract } = getMoneyTransaction(PaymentType.Cash);
     const refundShoppingCarts = shoppingCarts.filter(
       (item) =>
         item.transactionDocument?.movingStatus == MovingStatus.PosSaleReturn
@@ -182,11 +211,10 @@ const CloseState = (props: IProps) => {
       (total, item) => total + Number(item.transactionDocument?.amount),
       0
     );
-    const realMoney =
-      saleMoney + beginingMoney + addMoney - subtractMoney - refundMoney;
+    const realMoney = cashMoney + beginingMoney + add - subtract - refundMoney;
     const totalCash: StatisticDoc = {
       state: "Нийт бэлэн борлуулалт",
-      amount: closeNumber({ value: saleMoney }),
+      amount: closeNumber({ value: cashMoney }),
     };
     const beginingCash: StatisticDoc = {
       state: "Эхэлсэн мөнгө",
@@ -194,11 +222,11 @@ const CloseState = (props: IProps) => {
     };
     const addCash: StatisticDoc = {
       state: "Нэмсэн",
-      amount: closeNumber({ value: addMoney }),
+      amount: closeNumber({ value: add }),
     };
     const subtractCash: StatisticDoc = {
       state: "Хассан",
-      amount: closeNumber({ value: subtractMoney, isBracket: true }),
+      amount: closeNumber({ value: subtract, isBracket: true }),
     };
     const refundCash: StatisticDoc = {
       state: "Буцаалт хасах",
@@ -210,8 +238,9 @@ const CloseState = (props: IProps) => {
     };
     const cencusCash: StatisticDoc = {
       state: "Тоолсон",
-      amount: 0,
+      amount: closeNumber({ value: cashAmount }),
     };
+    const cencusMoney = cashAmount - realMoney;
     const excessDeficiency: StatisticDoc = {
       state: (
         <>
@@ -220,7 +249,11 @@ const CloseState = (props: IProps) => {
           </div>
         </>
       ),
-      amount: 0,
+      amount: closeNumber({
+        value: cencusMoney,
+        isBracket: cencusMoney < 0,
+        isDanger: cencusMoney < 0,
+      }),
     };
     setCashDocuments([
       totalCash,
@@ -237,81 +270,101 @@ const CloseState = (props: IProps) => {
   const getPay = (): StatisticDoc[] => {
     const cash: StatisticDoc = {
       state: "Бэлэн",
-      amount: 0,
+      amount: closeNumber({ value: cashMoney }),
     };
     const notCash: StatisticDoc = {
       state: "Бэлэн бус",
-      amount: 0,
+      amount: closeNumber({ value: notcashMoney }),
     };
     const lend: StatisticDoc = {
       state: "Зээл",
-      amount: 0,
+      amount: closeNumber({ value: lendMoney }),
     };
     const gift: StatisticDoc = {
       state: "Бэлгийн карт, эрхийн бичиг",
-      amount: 0,
+      amount: closeNumber({ value: giftAmount }),
     };
     const membership: StatisticDoc = {
       state: "Ашигласан оноогоор /гишүүнчлэл/",
-      amount: 0,
+      amount: closeNumber({ value: membershipAmount }),
     };
     const pre: StatisticDoc = {
       state: "Урьдчилгаа",
-      amount: 0,
+      amount: closeNumber({ value: 0 }),
     };
     const total: StatisticDoc = {
       state: "Нийт төлөлт",
-      amount: 0,
+      amount: closeNumber({
+        value:
+          cashMoney + notcashMoney + lendMoney + giftAmount + membershipAmount,
+      }),
     };
     return [cash, notCash, lend, gift, membership, pre, total];
   };
   const getNotCash = (): StatisticDoc[] => {
-    const cash: StatisticDoc = {
+    const { add, subtract } = getMoneyTransaction(PaymentType.NotCash);
+    const notCashDoc: StatisticDoc[] = [];
+    notCashDoc.push({
       state: "Нийт бэлэн бус борлуулалт",
-      amount: 0,
-    };
-    const notCash: StatisticDoc = {
-      state: "Хаан банк",
-      amount: 0,
-    };
-    const lend: StatisticDoc = {
-      state: "Хас банк",
-      amount: 0,
-    };
-    const gift: StatisticDoc = {
-      state: "Голомт банк",
-      amount: 0,
-    };
-    const membership: StatisticDoc = {
+      amount: closeNumber({ value: notcashMoney }),
+    });
+    for (const paymentMethod of paymentMethods) {
+      const amount = invoices.reduce(
+        (total, item) =>
+          total + item.paymentMethodId == paymentMethod.id ? item.amount : 0,
+        0
+      );
+      notCashDoc.push({
+        state: (
+          <ul>
+            <li>{paymentMethod.name}</li>
+          </ul>
+        ),
+        amount: closeNumber({ value: amount }),
+      });
+    }
+    notCashDoc.push({
       state: "Нэмсэн",
-      amount: 0,
-    };
-    const pre: StatisticDoc = {
+      amount: closeNumber({ value: add }),
+    });
+    notCashDoc.push({
       state: "Хассан",
-      amount: 0,
-    };
-    const total: StatisticDoc = {
+      amount: closeNumber({ value: subtract, isBracket: true }),
+    });
+    const realMoney = notcashMoney + add - subtract;
+    notCashDoc.push({
       state: "Байх ёстой үлдэгдэл",
-      amount: 0,
-    };
-    const settlement: StatisticDoc = {
+      amount: closeNumber({ value: realMoney }),
+    });
+    notCashDoc.push({
       state: "Settlements",
-      amount: 0,
-    };
-    return [cash, notCash, lend, gift, membership, pre, total, settlement];
+      amount: closeNumber({ value: nonCashAmount }),
+    });
+    return notCashDoc;
   };
   const getLend = (): StatisticDoc[] => {
     const cash: StatisticDoc = {
-      state: "Нийт борлуулалт",
-      amount: 0,
+      state: "Нийт зээл борлуулалт",
+      amount: closeNumber({ value: lendMoney }),
     };
     const notCash: StatisticDoc = {
       state: "Тооцоо нийлсэн",
-      amount: 0,
+      amount: lendAmount,
     };
+    const cencusAmount = lendAmount - lendMoney;
     const lend: StatisticDoc = {
-      state: "Илүүдсэн дутсан",
-      amount: 0,
+      state: (
+        <>
+          <div style={{ display: "flex" }}>
+            Илүүдсэн <div style={{ color: "red" }}>(Дутсан)</div>
+          </div>
+        </>
+      ),
+      amount: closeNumber({
+        value: cencusAmount,
+        isBracket: cencusAmount < 0,
+        isDanger: cencusAmount < 0,
+      }),
     };
     return [cash, notCash, lend];
   };
@@ -329,9 +382,18 @@ const CloseState = (props: IProps) => {
   };
   useEffect(() => {
     openCloseId && getOpenClose(openCloseId);
-    getStatisticCash(openCloseId);
+    getStatisticCash();
     getPayMethod();
   }, []);
+  useEffect(() => {
+    getStatisticCash();
+  }, [cashAmount]);
+  useEffect(() => {
+    getNotCash();
+  }, [nonCashAmount]);
+  useEffect(() => {
+    getLend();
+  }, [lendAmount]);
   return (
     <div
       style={{
@@ -357,7 +419,7 @@ const CloseState = (props: IProps) => {
             <CloseTable
               title="Борлуулалт"
               isQty={true}
-              dataSource={getStatisticSale(openClose?.shoppingCarts || [])}
+              dataSource={getStatisticSale()}
             />
             <CloseTable title="Төлбөр төлөлт" dataSource={getPay()} />
             <CloseTable title="Зээл" dataSource={getLend()} />
@@ -374,47 +436,61 @@ const CloseState = (props: IProps) => {
       </div>
       <Divider />
       <Title level={3}>
-        Нийт зөрүү (Бэлэн + Бэлэн бус) = [-5,000.00] + [0.00] = [-5,000.00]
+        Нийт зөрүү (Бэлэн + Бэлэн бус + Зээл) = [{cashAmount}] + [{nonCashAmount}] + [{lendAmount}] = [-5,000.00]
       </Title>
-      {!openClose?.isClose && (
-        <Form form={form} layout="vertical">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 12,
-            }}
-          >
-            <Form.Item label="Бэлэн (тоолсон дүн оруулах)" name={"cashAmount"}>
-              <NewInputNumber />
-            </Form.Item>
-            <Form.Item label="Бэлэн бус (Settlements)" name={"nonCashAmount"}>
-              <NewInputNumber />
-            </Form.Item>
-            <Form.Item label="Данс">
-              <NewSelect
-                options={[
-                  {
-                    label: "Хаан банк",
-                    value: 1,
-                  },
-                ]}
-              />
-            </Form.Item>
-            <Button type="primary">Settlement татах</Button>
-          </div>
-          <Form.Item label="Тайлбар" name={"description"}>
+
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{
+          cashAmount: openClose?.cashAmount || 0,
+          nonCashAmount: openClose?.nonCashAmount || 0,
+          lendAmount: openClose?.lendAmount || 0,
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 12,
+          }}
+        >
+          <Form.Item label="Бэлэн (тоолсон дүн оруулах)" name={"cashAmount"}>
+            <NewInputNumber disabled={openClose?.isClose} />
+          </Form.Item>
+          <Form.Item label="Бэлэн бус (Settlements)" name={"nonCashAmount"}>
+            <NewInputNumber disabled={openClose?.isClose} />
+          </Form.Item>
+          <Form.Item label="Зээл (тоолсон дүн оруулах)" name={"lendAmount"}>
+            <NewInputNumber disabled={openClose?.isClose} />
+          </Form.Item>
+          <Form.Item label="Данс">
             <NewSelect
               options={[
                 {
-                  label: "Мөнгө дутсан",
+                  label: "Хаан банк",
                   value: 1,
                 },
               ]}
+              disabled={openClose?.isClose}
             />
           </Form.Item>
-        </Form>
-      )}
+          <Button type="primary" disabled={openClose?.isClose}>
+            Settlement татах
+          </Button>
+        </div>
+        <Form.Item label="Тайлбар" name={"description"}>
+          <NewSelect
+            options={[
+              {
+                label: "Мөнгө дутсан",
+                value: 1,
+              },
+            ]}
+            disabled={openClose?.isClose}
+          />
+        </Form.Item>
+      </Form>
       <div
         style={{
           display: "flex",

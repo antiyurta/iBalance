@@ -27,6 +27,7 @@ export interface IDataPaymentInvoice extends IData {
   amount: number;
   isPaid: boolean;
   currency: string;
+  type: PaymentType;
 }
 
 export interface IResponsePaymentInvoices extends GenericResponse {
