@@ -24,6 +24,7 @@ const initialState: IDataShoppingCart = {
   createdAt: "",
   updatedAt: "",
   deletedAt: "",
+  giftAmount: 0
 };
 
 export const shoppingCart = createSlice({
