@@ -99,7 +99,7 @@ const Thumbnail = (props: IProps) => {
       ...param,
     }
     setParams(prm);
-    await MaterialService.get(params).then((response) => {
+    await MaterialService.get(prm).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);

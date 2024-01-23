@@ -1,9 +1,10 @@
 import { Card } from "antd";
 import Image from "next/image";
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, ReactNode, useState } from "react";
 import NewModal from "./modal";
 import RStorage1 from "@/app/main/dashboard/reports/document/RStorage1";
 import RStorage1Filter from "@/app/main/dashboard/reports/filters/RStorage1Filter";
+import { useReportContext } from "@/feature/context/ReportsContext";
 
 interface IProps {}
 export const Tools = (props: IProps) => {
@@ -11,6 +12,14 @@ export const Tools = (props: IProps) => {
     gap: 12,
     cursor: "pointer",
   };
+  const [isFilter, setIsFilter] = useState<boolean>(false);
+  const [isGroup, setIsGroup] = useState<boolean>(false);
+  const [isList, setIsList] = useState<boolean>(false);
+  const [isDesign, setIsDesign] = useState<boolean>(false);
+  const [isPrint, setIsPrint] = useState<boolean>(false);
+  const [isConfig, setIsConfig] = useState<boolean>(false);
+  const [isExport, setIsExport] = useState<boolean>(false);
+  const [isMail, setIsMail] = useState<boolean>(false);
   return (
     <>
       <Card title="Хэрэгслүүд" style={{ width: 250 }}>
@@ -23,7 +32,7 @@ export const Tools = (props: IProps) => {
           />
           Хайх
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsFilter(true)}>
           <Image
             src={"/images/filterFalse.svg"}
             width={16}
@@ -32,7 +41,7 @@ export const Tools = (props: IProps) => {
           />
           Шүүх
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsGroup(true)}>
           <Image
             src={"/images/FilterButtonIcon.svg"}
             width={16}
@@ -41,7 +50,7 @@ export const Tools = (props: IProps) => {
           />
           Бүлэглэлт
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsList(true)}>
           <Image
             src={"/icons/tools/list.svg"}
             width={16}
@@ -50,7 +59,7 @@ export const Tools = (props: IProps) => {
           />
           Жагсаалт
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsDesign(true)}>
           <Image
             src={"/icons/tools/system-design.svg"}
             width={16}
@@ -59,7 +68,7 @@ export const Tools = (props: IProps) => {
           />
           Системийн загвар
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsPrint(true)}>
           <Image
             src={"/images/PrintIcon.svg"}
             width={16}
@@ -68,7 +77,7 @@ export const Tools = (props: IProps) => {
           />
           Хэвлэх
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsGroup(true)}>
           <Image
             src={"/icons/tools/page-config.svg"}
             width={16}
@@ -77,7 +86,7 @@ export const Tools = (props: IProps) => {
           />
           Хуудасны тохиргоо
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsExport(true)}>
           <Image
             src={"/icons/tools/export.svg"}
             width={16}
@@ -86,7 +95,7 @@ export const Tools = (props: IProps) => {
           />
           Экспорт
         </p>
-        <p style={style}>
+        <p style={style} onClick={() => setIsMail(true)}>
           <Image
             src={"/icons/tools/mail.svg"}
             width={16}
@@ -96,7 +105,7 @@ export const Tools = (props: IProps) => {
           Мэйл илгээх
         </p>
       </Card>
-      <NewModal>
+      <NewModal open={isFilter} title={"Шүүлт"}>
         
       </NewModal>
     </>

@@ -217,7 +217,7 @@ const ReportList = () => {
     },
     {
       key: 22,
-      title: "Бараа материалын үлдэгдэл тайлан /дуусах хугацаагаар/",
+      title: "Бараа материалын үлдэгдлийн тайлан /дуусах хугацаагаар/",
       filterName: "RStorage23",
       filter: <RStorage3Filter />,
       children: <RStorage23 />,
