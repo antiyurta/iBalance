@@ -83,7 +83,8 @@ const StoragiesRegistration = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["employees"],
-      type: DataIndexType.MULTI,
+      key: "firstName",
+      type: DataIndexType.ARREY,
     },
     address: {
       label: "Байршлын хаяг",

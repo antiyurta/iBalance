@@ -100,6 +100,7 @@ export type ColumnType = {
   isFiltered: boolean; // filterlegdsn eseh
   dataIndex: string | string[]; // dataIndex
   type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
+  key?: string; // amaraa nemew array object oos ali negin render hiih
 };
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
@@ -129,6 +130,8 @@ export enum DataIndexType {
   DATETIME = "DATETIME",
   TIME = "TIME",
   COUNTRY = "COUNTRY",
+  //amara nemew 1/24
+  ARREY = "ARREY",
   //
   USER = "USER",
   ENUM = "ENUM",
@@ -178,7 +181,7 @@ export type ISelectDateType =
   | "month"
   | "quarter";
 
-export type ISelectValueType = | "all" | "section" | "that" | "selection";
+export type ISelectValueType = "all" | "section" | "that" | "selection";
 
 export type DateFilter = {
   interval: ISelectDateType;

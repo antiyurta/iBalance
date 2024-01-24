@@ -229,7 +229,7 @@ function NewTable(props: ITable) {
                   }}
                   // sorter={true}
                   // showSorterTooltip={true}
-                  render={(text) => renderCheck(text, value.type)}
+                  render={(text) => renderCheck(text, value.type, value.key)}
                 />
               );
             }
