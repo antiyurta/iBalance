@@ -3,15 +3,10 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
-import { NewTable } from "@/components/table";
+import { NewTable } from "@/components/table/index";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  DataIndexType,
-  FilteredColumns,
-  IFilters,
-  Meta,
-} from "@/service/entities";
+import { DataIndexType, FilteredColumns, Meta } from "@/service/entities";
 import {
   IDataUnitOfMeasure,
   IParamUnitOfMeasure,
@@ -23,7 +18,7 @@ import Image from "next/image";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 import { unitSwitch, units } from "./unit";
-
+import { useTypedSelector } from "@/feature/store/reducer";
 export interface IDataUnit {
   id: number;
   sectionId: number | null;
@@ -44,12 +39,18 @@ const UnitOfMeasure = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [form] = Form.useForm();
   const [data, setData] = useState<IDataUnitOfMeasure[]>([]);
-  const [newParams, setNewParams] = useState<IParamUnitOfMeasure>({});
+  const [newParams, setNewParams] = useState<IParamUnitOfMeasure>({
+    page: 1,
+    limit: 10,
+    filters: [],
+  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
+  const [filters, setFilters] = useState<IParamUnitOfMeasure>();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataUnitOfMeasure>();
+  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
+  const currentTabParam = tabItems.find((item) => item.key == activeKey)?.param;
   const [columns, setColumns] = useState<FilteredColumns>({
     shortName: {
       label: "Богино нэр",
@@ -100,17 +101,24 @@ const UnitOfMeasure = (props: IProps) => {
   };
   const getData = async (params: IParamUnitOfMeasure) => {
     blockContext.block();
-    await UnitOfMeasureService.get(params)
+    await UnitOfMeasureService.get(currentTabParam)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
           setMeta(response.response.meta);
-          setFilters(response.response.filter);
         }
       })
       .finally(() => {
         blockContext.unblock();
       });
+  };
+  const getHeader = async () => {
+    blockContext.block();
+    await UnitOfMeasureService.getHeader().then((response) => {
+      if (response.success) {
+        setFilters(response.response);
+      }
+    });
   };
   const onFinish = async (values: IDataUnitOfMeasure) => {
     blockContext.block();
@@ -118,7 +126,11 @@ const UnitOfMeasure = (props: IProps) => {
       await UnitOfMeasureService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
-            getData({ page: 1, limit: 10 });
+            getData({
+              page: 1,
+              limit: 10,
+              filters: [],
+            });
             setIsOpenModal(false);
           }
         })
@@ -128,7 +140,11 @@ const UnitOfMeasure = (props: IProps) => {
     } else {
       await UnitOfMeasureService.post(values).then((response) => {
         if (response.success) {
-          getData({ page: 1, limit: 10 });
+          getData({
+            page: 1,
+            limit: 10,
+            filters: [],
+          });
           setIsOpenModal(false);
         }
       });
@@ -137,7 +153,11 @@ const UnitOfMeasure = (props: IProps) => {
   const onDelete = async (id: number) => {
     await UnitOfMeasureService.remove(id).then((response) => {
       if (response.success) {
-        getData({ page: 1, limit: 10 });
+        getData({
+          page: 1,
+          limit: 10,
+          filters: [],
+        });
       }
     });
   };
@@ -154,8 +174,14 @@ const UnitOfMeasure = (props: IProps) => {
       });
     }
   };
+
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    getData({
+      page: 1,
+      limit: 10,
+      filters: [],
+    });
+    getHeader();
   }, []);
   return (
     <>
@@ -199,7 +225,7 @@ const UnitOfMeasure = (props: IProps) => {
               getData({
                 page: 1,
                 limit: 10,
-                type: unitSwitch(keys[0]),
+                filters: [],
               });
             }}
           />

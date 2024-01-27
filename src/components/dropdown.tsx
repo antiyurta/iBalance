@@ -12,7 +12,6 @@ import { Popover, Space } from "antd";
 import Image from "next/image";
 import {
   DataIndexType,
-  Queries,
   RadioType,
   ToolsIcons,
 } from "@/service/entities";
@@ -34,7 +33,6 @@ interface IParam {
   page: number;
   limit: number;
   order: RadioType;
-  queries: Queries[];
 }
 interface IFilterType {
   text: string;
@@ -50,7 +48,6 @@ const DropDown = (props: IProps) => {
     page: 1,
     limit: 10,
     order: RadioType.DESC,
-    queries: [],
   });
   const [datePickerValue, setDatePickerValue] = useState<any>();
   const [checkboxs, setCheckboxs] = useState<IFilterType[]>([]);
@@ -516,7 +513,6 @@ const DropDown = (props: IProps) => {
               page: 1,
               limit: 10,
               order: RadioType.DESC,
-              queries: [],
             });
             handleSearch(params, false);
           }}

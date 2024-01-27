@@ -1,4 +1,4 @@
-import { GenericResponse, IFilters, Meta } from "../../entities";
+import { GenericResponse, IFilters, IParam, Meta } from "../../entities";
 
 export enum MeasurementType {
   Area = "AREA", //тайлбай
@@ -10,12 +10,7 @@ export enum MeasurementType {
   Other = "OTHER", // Тусгай хэмжих нэгж
 }
 
-export interface IParamUnitOfMeasure {
-  page?: number | undefined;
-  limit?: number | undefined;
-  code?: number[] | undefined;
-  type?: number[] | string[];
-}
+export interface IParamUnitOfMeasure extends IParam {}
 
 export interface IDataUnitOfMeasure {
   createdAt: string;
@@ -32,7 +27,9 @@ export interface IDataUnitOfMeasure {
 export interface IUnitOfMeasurePostResponse extends GenericResponse {
   response: IDataUnitOfMeasure;
 }
-
+export interface IResponseMeasure extends GenericResponse {
+  response: IParamUnitOfMeasure;
+}
 export interface IUnitOfMeasureResponse extends GenericResponse {
   response: {
     data: IDataUnitOfMeasure[];

@@ -11,6 +11,20 @@ export enum ToolsIcons {
   IS_LESS = "/icons/tools/isLessThan.png",
   IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
 }
+export type Tool =
+  | "EQUALS"
+  | "NOT_EQUAL"
+  | "CONTAINS"
+  | "NOT_CONTAINS"
+  | "IS_GREATER"
+  | "IS_GREATOR_OR_EQUAL"
+  | "IS_LESS"
+  | "IS_LESS_OR_EQUAL";
+export interface ITool {
+  logo: string;
+  title: string;
+  operator: Tool;
+}
 export enum Operator {
   Equals = "EQUALS",
   NotEqual = "NOT_EQUAL",
@@ -100,20 +114,22 @@ export type ColumnType = {
   isFiltered: boolean; // filterlegdsn eseh
   dataIndex: string | string[]; // dataIndex
   type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
+  key?: string; // amaraa nemew array object oos ali negin render hiih
 };
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
 
-export interface Queries {
-  param: string;
+export interface IFilter {
+  dataIndex: string[];
   operator?: string;
-  value?: number | string;
-  typeof?: "string" | "number" | "date";
+  filter: string | number | boolean | string[] | number[] | boolean[];
 }
 export interface IParam {
-  queries?: Queries[];
+  filters: IFilter[];
   orderParam?: string;
   order?: RadioType;
+  page: number;
+  limit: number;
 }
 export interface IData {
   createdBy: number;
@@ -129,6 +145,8 @@ export enum DataIndexType {
   DATETIME = "DATETIME",
   TIME = "TIME",
   COUNTRY = "COUNTRY",
+  //amara nemew 1/24
+  ARREY = "ARREY",
   //
   USER = "USER",
   ENUM = "ENUM",
@@ -178,7 +196,7 @@ export type ISelectDateType =
   | "month"
   | "quarter";
 
-export type ISelectValueType = | "all" | "section" | "that" | "selection";
+export type ISelectValueType = "all" | "section" | "that" | "selection";
 
 export type DateFilter = {
   interval: ISelectDateType;

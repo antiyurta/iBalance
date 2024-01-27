@@ -11,8 +11,8 @@ import { useState } from "react";
 import Transfer from "./transfer";
 import Return from "./return";
 import Close from "./close";
-import { TabsActions } from "@/feature/core/actions/TabsActions";
 import { useDispatch } from "react-redux";
+import { newTab } from "@/feature/store/slice/tab.slice";
 
 const { Title } = Typography;
 
@@ -76,9 +76,11 @@ const ExtraIndex = () => {
             onClick={() => {
               setIsOpenModal(false);
               dispatch(
-                TabsActions.setTabsData({
+                newTab({
                   label: "Баримтын жагсаалт",
                   key: "/payments/list-of-receipt",
+                  closeable: true,
+                  filters: [],
                 })
               );
             }}

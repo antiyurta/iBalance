@@ -1,10 +1,11 @@
 import { Tools } from "@/components/tools";
 import { ReportTitle } from "../component/report-title";
+import RStorage4Filter from "../filters/RStorage4Filter";
 
 const RStorage11 = () => {
   return (
     <div className="report-document">
-      <Tools />
+      <Tools filter={<RStorage4Filter />} />
       <div className="report-body">
         <ReportTitle
           organization={"Universal med"}

@@ -36,6 +36,7 @@ const ConfigPos = () => {
     page: 1,
     limit: 10,
     isAuth: false,
+    filters: [],
   });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [isModal, setIsModal] = useState<boolean>(false);
@@ -150,7 +151,11 @@ const ConfigPos = () => {
   };
   useEffect(() => {
     getData(params);
-    getWareshouse({});
+    getWareshouse({
+      filters: [],
+      dataIndex: [],
+      filter: ""
+    });
   }, []);
   return (
     <>
