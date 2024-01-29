@@ -8,6 +8,7 @@ import NewDropdown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
 import type { TableProps } from "antd/lib";
+import { FilterConfirmProps } from "antd/es/table/interface";
 export const { Column } = Table;
 export const AntTable = (props: TableProps<any>) => {
   return <Table {...props} />;
@@ -196,28 +197,30 @@ function NewTable(props: ITable) {
                   width={value.width}
                   dataIndex={value.dataIndex}
                   title={value.label}
-                  filterDropdown={({ confirm }) => (
-                    <NewDropdown
-                      label={value.label}
-                      dataIndex={key}
-                      type={value.type}
-                      filters={incomeFilters?.[key]}
-                      isFiltered={value.isFiltered}
-                      handleSearch={(params, state) => {
-                        confirm();
-                        onCloseFilterTag({
-                          key: key,
-                          state: state,
-                          column: columns,
-                          onColumn: (columns) => onColumns(columns),
-                          params: newParams,
-                          onParams: (params) => onParams(params),
-                        });
-                        onChange?.(params);
-                      }}
-                      params={newParams}
-                    />
-                  )}
+                  filterDropdown={({ confirm }) => {
+                    return (
+                      <NewDropdown
+                        label={value.label}
+                        dataIndex={value.dataIndex}
+                        type={value.type}
+                        filters={incomeFilters?.[key]}
+                        isFiltered={value.isFiltered}
+                        handleSearch={(params, state) => {
+                          confirm();
+                          onCloseFilterTag({
+                            key: key,
+                            state: state,
+                            column: columns,
+                            onColumn: (columns) => onColumns(columns),
+                            params: newParams,
+                            onParams: (params) => onParams(params),
+                          });
+                          onChange?.(params);
+                        }}
+                        params={newParams}
+                      />
+                    );
+                  }}
                   filterIcon={() => {
                     return (
                       <FilterOutlined

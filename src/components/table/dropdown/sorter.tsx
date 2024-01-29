@@ -7,7 +7,7 @@ import { RadioChangeEvent } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 interface IProps {
-  dataIndex: string;
+  dataIndex: string[];
 }
 const Sorter: React.FC<IProps> = ({ dataIndex }) => {
   const [sorter, setSorter] = useState<RadioType>(RadioType.DESC);

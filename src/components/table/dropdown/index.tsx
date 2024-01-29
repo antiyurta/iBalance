@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { DataIndexType, IParam, RadioType, ToolsIcons } from "@/service/entities";
+import {
+  DataIndexType,
+  IParam,
+  ITool,
+  RadioType,
+  Tool,
+  ToolsIcons,
+} from "@/service/entities";
 import { typeOfFilters } from "@/feature/common";
 import Sorter from "./sorter";
 import DropdownSearch from "./search";
@@ -7,80 +14,60 @@ import DropdownTitle from "./title";
 import CheckboxGroup from "./checkbox-group";
 import { useRouter } from "next/navigation";
 import { useTypedSelector } from "@/feature/store/reducer";
+import { Dayjs } from "dayjs";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { changeParam } from "@/feature/store/slice/tab.slice";
+import { CheckboxValueType } from "antd/es/checkbox/Group";
 
 interface IProps {
   label: string;
-  dataIndex: string;
+  dataIndex: string[];
   type: DataIndexType;
-  filters: number[] | string[] | boolean[];
+  filters: TypeCheck[];
   isFiltered: boolean;
   params: IParam;
   handleSearch: (params: object, state: boolean) => void;
 }
 type TypeCheck = number | string | boolean;
-interface IFilterType {
-  text: string;
-  value: TypeCheck;
-}
+
 const NewDropdown = (props: IProps) => {
   const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTab = tabItems.find((item) => item.key == activeKey);
-  const [tool, setTool] = useState<keyof typeof ToolsIcons>(
-    (type === "NUMBER" && "EQUALS") || (type === "DATE" && "EQUALS") || "EQUALS"
-  );
-  const [params, setParams] = useState<IParam>({
-    page: 1,
-    limit: 10,
-    order: RadioType.DESC,
-    filters: [],
-  });
-  const [checkboxs, setCheckboxs] = useState<IFilterType[]>([]);
-  const [filterText, setFilterText] = useState<string>();
-  const [filterCheckboxes, setFilterCheckboxes] = useState<IFilterType[]>([]);
+  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters);
+  const [isClear, setIsClear] = useState<boolean>(false);
+  const clearFilter = () => {
+    setIsClear(!isClear);
+    handleSearch({}, false);
+  };
 
-  const configureSearch = (isState?: boolean) => {
-    handleSearch(params, isState ? true : false);
-  };
-  const filterCheckbox = (value?: TypeCheck): IFilterType[] => {
-    if (!value) {
-      return checkboxs;
+  const filterCheckbox = (
+    type: DataIndexType,
+    operator: Tool,
+    value?: string | number | Dayjs
+  ): TypeCheck[] => {
+    if (!value || type == DataIndexType.DATE) {
+      return filters;
     } else {
-      if (tool == "CONTAINS") {
-        return checkboxs.filter((item) =>
-          item.text.toLowerCase().includes(value.toString().toLowerCase())
+      if (operator == "CONTAINS") {
+        return filters.filter((item) =>
+          item.toString().toLowerCase().includes(value.toString().toLowerCase())
         );
-      } else if (tool == "EQUALS") {
-        return checkboxs.filter((item) => item.text == value.toString());
-      } else if (tool == "IS_GREATER" && typeof value == "number") {
-        return checkboxs.filter((item) => Number(item.text) > value);
-      } else if (tool == "IS_GREATOR_OR_EQUAL" && typeof value == "number") {
-        return checkboxs.filter((item) => Number(item.text) >= value);
-      } else if (tool == "IS_LESS" && typeof value == "number") {
-        return checkboxs.filter((item) => Number(item.text) < value);
-      } else if (tool == "IS_LESS_OR_EQUAL" && typeof value == "number") {
-        return checkboxs.filter((item) => Number(item.text) <= value);
-      } else return checkboxs;
+      } else if (operator == "EQUALS") {
+        return filters.filter((item) => item == value.toString());
+      } else if (operator == "IS_GREATER" && typeof value == "number") {
+        return filters.filter((item) => Number(item) > value);
+      } else if (
+        operator == "IS_GREATOR_OR_EQUAL" &&
+        typeof value == "number"
+      ) {
+        return filters.filter((item) => Number(item) >= value);
+      } else if (operator == "IS_LESS" && typeof value == "number") {
+        return filters.filter((item) => Number(item) < value);
+      } else if (operator == "IS_LESS_OR_EQUAL" && typeof value == "number") {
+        return filters.filter((item) => Number(item) <= value);
+      } else return filters;
     }
   };
-  const gg = async () => {
-    const dd: IFilterType[] = await typeOfFilters({
-      type: type,
-      filters: filters,
-    });
-    setCheckboxs(dd);
-  };
-  useEffect(() => {
-    if (filters && type) {
-      gg();
-    }
-  }, [filters, type]);
-  useEffect(() => {
-    setFilterCheckboxes(filterCheckbox(filterText));
-  }, [filterText]);
-  useEffect(() => {
-    setFilterCheckboxes(checkboxs);
-  }, [checkboxs]);
   return (
     <div
       style={{
@@ -114,15 +101,22 @@ const NewDropdown = (props: IProps) => {
           }}
         />
         <DropdownTitle>Хайх</DropdownTitle>
-        <DropdownSearch type={type} />
-        {
-          type != (DataIndexType.DATE || DataIndexType.DATETIME) && <CheckboxGroup
-            options={filters.map((item) => ({
+        <DropdownSearch
+          type={type}
+          onChange={(operator, value) => {
+            setCheckboxes(filterCheckbox(type, operator, value));
+          }}
+        />
+        {type != (DataIndexType.DATE || DataIndexType.DATETIME) && (
+          <CheckboxGroup
+            dataIndex={dataIndex}
+            options={checkboxes.map((item) => ({
               value: String(item),
               label: String(item),
             }))}
+            isClear={isClear}
           />
-        }
+        )}
       </div>
       <div
         style={{
@@ -134,16 +128,7 @@ const NewDropdown = (props: IProps) => {
         }}
       >
         <button
-          onClick={() => {
-            setParams({
-              page: 1,
-              limit: 10,
-              order: RadioType.DESC,
-              filters: [],
-            });
-            configureSearch(true);
-            handleSearch(params, false);
-          }}
+          onClick={() => clearFilter()}
           className="app-button-regular"
           style={{
             color: "#198754",
@@ -152,7 +137,9 @@ const NewDropdown = (props: IProps) => {
           Цэвэрлэх
         </button>
         <button
-          onClick={() => configureSearch(false)}
+          onClick={() => {
+            handleSearch({}, false);
+          }}
           className="app-button-regular"
           style={{
             color: "white",

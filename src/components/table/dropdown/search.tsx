@@ -1,22 +1,11 @@
 import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
-import { DataIndexType, ITool } from "@/service/entities";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import { DataIndexType, ITool, Tool } from "@/service/entities";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { Popover, Space } from "antd";
-import Tools from "./tools";
-import Image from "next/image";
+import { InputNumberProps, InputProps, Space } from "antd";
+import PopoverTool from "./popover-tool";
 
-interface IProps {
-  type: DataIndexType;
-}
-let tool: ITool = {
-  logo: "/icons/tools/Equals.png",
-  title: "Equals",
-  operator: "EQUALS",
-};
-let stringSearch: string | undefined;
-let numberSearch: number | undefined;
 const DateSearch: React.FC<{
   date: Dayjs;
   setDate: Dispatch<SetStateAction<Dayjs>>;
@@ -24,18 +13,12 @@ const DateSearch: React.FC<{
   return (
     <Space.Compact>
       <div className="extraButton">
-        <Popover
-          placement="bottom"
-          content={
-            <Tools
-              dataIndexType={DataIndexType.DATE}
-              operator={(value) => (tool = value)}
-            />
-          }
-          trigger={"click"}
-        >
-          <Image src={tool.logo} width={12} height={12} alt={tool.title} />
-        </Popover>
+        <PopoverTool
+          dataIndexType={DataIndexType.DATE}
+          operator={(tool) => {
+            tool;
+          }}
+        />
       </div>
       <NewDatePicker
         style={{
@@ -50,60 +33,44 @@ const DateSearch: React.FC<{
     </Space.Compact>
   );
 };
-const InputSearch: React.FC = () => (
+const InputSearch: React.FC<InputProps> = (props) => (
   <NewInput
+    {...props}
     style={{
       gap: 4,
     }}
-    value={stringSearch}
-    onChange={(e) => {
-      stringSearch = e.target.value;
-    }}
-    addonBefore={
-      <Popover
-        placement="bottom"
-        content={
-          <Tools
-            dataIndexType={DataIndexType.MULTI}
-            operator={(value) => (tool = value)}
-          />
-        }
-        trigger={"click"}
-      >
-        <Image src={tool.logo} width={12} height={12} alt={tool.title} />
-      </Popover>
-    }
     placeholder={"хайх..."}
   />
 );
-const NumberSearch: React.FC = () => (
+const NumberSearch: React.FC<InputNumberProps> = (props) => (
   <NewInputNumber
+    {...props}
     style={{
       gap: 4,
       width: "100%",
     }}
-    value={numberSearch}
-    onChange={(value) => (numberSearch = Number(value))}
-    addonBefore={
-      <Popover
-        placement="bottom"
-        content={
-          <Tools
-            dataIndexType={DataIndexType.NUMBER}
-            operator={(value) => (tool = value)}
-          />
-        }
-        trigger={"click"}
-      >
-        <Image src={tool.logo} width={12} height={12} alt="searchIcon" />
-      </Popover>
-    }
     placeholder={"хайх"}
   />
 );
-
-const DropdownSearch: React.FC<IProps> = ({ type }) => {
+interface IProps {
+  type: DataIndexType;
+  onChange?: (operator: Tool, value?: string | number | Dayjs) => void;
+}
+const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
   const [date, setDate] = useState<Dayjs>(dayjs());
+  const [inputValue, setInputValue] = useState<string>();
+  const [inputNumberValue, setInputNumberValue] = useState<number>();
+  const [tool, setTool] = useState<ITool>({
+    logo: "/icons/tools/Equals.png",
+    title: "Equals",
+    operator: "EQUALS",
+  });
+  useEffect(() => {
+    onChange?.(tool.operator, inputValue);
+  }, [inputValue]);
+  useEffect(() => {
+    onChange?.(tool.operator, inputNumberValue);
+  }, [inputNumberValue]);
   return (
     <div
       style={{
@@ -116,8 +83,34 @@ const DropdownSearch: React.FC<IProps> = ({ type }) => {
       {type == DataIndexType.DATE && (
         <DateSearch date={date} setDate={setDate} />
       )}
-      {type == DataIndexType.MULTI && <InputSearch />}
-      {type == DataIndexType.NUMBER && <NumberSearch />}
+      {type == DataIndexType.MULTI && (
+        <InputSearch
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          addonBefore={
+            <PopoverTool
+              dataIndexType={type}
+              operator={(tool) => {
+                setTool(tool);
+              }}
+            />
+          }
+        />
+      )}
+      {type == DataIndexType.NUMBER && (
+        <NumberSearch
+          value={inputNumberValue}
+          onChange={(value) => setInputNumberValue(Number(value))}
+          addonBefore={
+            <PopoverTool
+              dataIndexType={type}
+              operator={(tool) => {
+                setTool(tool);
+              }}
+            />
+          }
+        />
+      )}
     </div>
   );
 };

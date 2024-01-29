@@ -34,6 +34,7 @@ export enum Operator {
   IsGreatorOrEqual = "IS_GREATOR_OR_EQUAL",
   IsLess = "IS_LESS",
   IsLessOrEqual = "IS_LESS_OR_EQUAL",
+  In = "IN",
 }
 export interface GenericResponse {
   success: boolean;
@@ -112,7 +113,7 @@ export type ColumnType = {
   label: string; // ner mongol
   isView: boolean; // mor haragdah eseh
   isFiltered: boolean; // filterlegdsn eseh
-  dataIndex: string | string[]; // dataIndex
+  dataIndex: string[]; // dataIndex
   type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
   key?: string; // amaraa nemew array object oos ali negin render hiih
 };
@@ -122,11 +123,11 @@ export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
 export interface IFilter {
   dataIndex: string[];
   operator?: string;
-  filter: string | number | boolean | string[] | number[] | boolean[];
+  filter: string | number | boolean | (string | number | boolean)[];
 }
 export interface IParam {
   filters: IFilter[];
-  orderParam?: string;
+  orderParam?: string[];
   order?: RadioType;
   page: number;
   limit: number;
