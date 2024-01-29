@@ -6,12 +6,7 @@ import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  DataIndexType,
-  FilteredColumns,
-  IFilters,
-  Meta,
-} from "@/service/entities";
+import { DataIndexType, FilteredColumns, Meta } from "@/service/entities";
 import {
   IDataUnitOfMeasure,
   IParamUnitOfMeasure,
@@ -22,8 +17,8 @@ import { App, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
-import { unitSwitch, units } from "./unit";
-
+import { units } from "./unit";
+import { useTypedSelector } from "@/feature/store/reducer";
 export interface IDataUnit {
   id: number;
   sectionId: number | null;
@@ -44,39 +39,40 @@ const UnitOfMeasure = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [form] = Form.useForm();
   const [data, setData] = useState<IDataUnitOfMeasure[]>([]);
-  const [newParams, setNewParams] = useState<IParamUnitOfMeasure>({});
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilters>();
+  const [filters, setFilters] = useState<IParamUnitOfMeasure>();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataUnitOfMeasure>();
+  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
+  const currentTabParam = tabItems.find((item) => item.key == activeKey)?.param;
   const [columns, setColumns] = useState<FilteredColumns>({
     shortName: {
       label: "Богино нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "shortName",
+      dataIndex: ["shortName"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Хэмжих нэгжийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     type: {
       label: "Хэмжих нэгжийн бүлэг",
       isView: true,
       isFiltered: false,
-      dataIndex: "type",
+      dataIndex: ["type"],
       type: DataIndexType.ENUM,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: ComponentsType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -98,19 +94,26 @@ const UnitOfMeasure = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParamUnitOfMeasure) => {
+  const getData = async () => {
     blockContext.block();
-    await UnitOfMeasureService.get(params)
+    await UnitOfMeasureService.get(currentTabParam)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
           setMeta(response.response.meta);
-          setFilters(response.response.filter);
         }
       })
       .finally(() => {
         blockContext.unblock();
       });
+  };
+  const getHeader = async () => {
+    blockContext.block();
+    await UnitOfMeasureService.getHeader().then((response) => {
+      if (response.success) {
+        setFilters(response.response);
+      }
+    });
   };
   const onFinish = async (values: IDataUnitOfMeasure) => {
     blockContext.block();
@@ -118,7 +121,7 @@ const UnitOfMeasure = (props: IProps) => {
       await UnitOfMeasureService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
-            getData({ page: 1, limit: 10 });
+            getData();
             setIsOpenModal(false);
           }
         })
@@ -128,7 +131,7 @@ const UnitOfMeasure = (props: IProps) => {
     } else {
       await UnitOfMeasureService.post(values).then((response) => {
         if (response.success) {
-          getData({ page: 1, limit: 10 });
+          getData();
           setIsOpenModal(false);
         }
       });
@@ -137,7 +140,7 @@ const UnitOfMeasure = (props: IProps) => {
   const onDelete = async (id: number) => {
     await UnitOfMeasureService.remove(id).then((response) => {
       if (response.success) {
-        getData({ page: 1, limit: 10 });
+        getData();
       }
     });
   };
@@ -154,9 +157,13 @@ const UnitOfMeasure = (props: IProps) => {
       });
     }
   };
+
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    getHeader();
   }, []);
+  useEffect(() => {
+    getData();
+  }, [currentTabParam]);
   return (
     <>
       <Row
@@ -196,11 +203,7 @@ const UnitOfMeasure = (props: IProps) => {
             extra="HALF"
             isLeaf={true}
             onClick={(keys) => {
-              getData({
-                page: 1,
-                limit: 10,
-                type: unitSwitch(keys[0]),
-              });
+              getData();
             }}
           />
         </Col>
@@ -214,20 +217,7 @@ const UnitOfMeasure = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
-                    });
-                    getData(newParams);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -243,9 +233,6 @@ const UnitOfMeasure = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -283,10 +270,7 @@ const UnitOfMeasure = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => openModal(true, row)}

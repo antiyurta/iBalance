@@ -5,7 +5,7 @@ import {
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
-import { DataIndexType, Queries } from "@/service/entities";
+import { DataIndexType } from "@/service/entities";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import { message } from "antd";
@@ -126,16 +126,6 @@ function removeDuplicates<T, K extends keyof T>(array: T[], key: K): T[] {
     return false;
   });
 }
-
-function unDuplicate(text: string, newParams: any) {
-  var newQueries: Queries[] = [];
-  newParams.queries?.map((query: any) => {
-    if (query.param != text) {
-      newQueries.push(query);
-    }
-  });
-  return newQueries;
-}
 /** Давхардал шалгах давхартай бол => false үгүй бол => true */
 function hasUniqueValues(arr: any[]): boolean {
   const valueSet = new Set();
@@ -154,9 +144,6 @@ interface IFindIndexInColumnSettins {
   unSelectedRow: string[];
   columns: any;
   onColumns: (columns: any) => void;
-  params: any;
-  onParams: (params: any) => void;
-  getData: (params: any) => void;
 }
 
 function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
@@ -165,9 +152,6 @@ function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
     unSelectedRow,
     columns,
     onColumns,
-    params,
-    onParams,
-    getData,
   } = props;
   unSelectedRow?.map((row) => {
     onCloseFilterTag({
@@ -175,8 +159,6 @@ function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
       state: false,
       column: columns,
       onColumn: (columns) => onColumns(columns),
-      params: params,
-      onParams: (params) => onParams(params),
     });
   });
   const clone = { ...columns };
@@ -187,7 +169,6 @@ function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
     clone![index]!.isView = true;
   });
   onColumns(clone);
-  getData(params);
 }
 
 // filter tohiruulga
@@ -196,33 +177,13 @@ interface IOnCloseFilterTag {
   state: boolean;
   column: any;
   onColumn: (column: any) => void;
-  params: any;
-  onParams: (params: any) => void;
 }
 
 function onCloseFilterTag(props: IOnCloseFilterTag) {
-  const { key, state, column, onColumn, params, onParams } = props;
+  const { key, state, column, onColumn } = props;
   const clone = column;
   clone[key].isFiltered = state;
   onColumn(clone);
-  if (!state) {
-    var newClonedParams = params;
-    newClonedParams[key] = undefined;
-    if (params.orderParam === key) {
-      newClonedParams.orderParam = undefined;
-      newClonedParams.order = undefined;
-    }
-    if (params.queries) {
-      var newQueries: Queries[] = [];
-      params.queries.map((query: Queries) => {
-        if (query.param != key) {
-          newQueries.push(query);
-        }
-      });
-      newClonedParams.queries = newQueries.filter(Boolean) || undefined;
-    }
-    onParams(newClonedParams);
-  }
 }
 
 interface ITypeOfFilters {
@@ -321,7 +282,12 @@ async function userToFilter(ids: number[]) {
 
 async function banksToFilter(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
-  const { response } = await ReferenceService.get({ type: IType.BANK });
+  const { response } = await ReferenceService.get({
+    type: IType.BANK,
+    filters: [],
+    page: 1,
+    limit: 10
+  });
   filters?.map((filterSection: any) => {
     response.data.map((section: IDataReference) => {
       if (section.id === filterSection) {
@@ -339,7 +305,7 @@ async function consumerToFilterName(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
   const {
     response: { data },
-  } = await ConsumerService.get({});
+  } = await ConsumerService.get();
   console.log(filters, data);
   filters?.map((filterSection: any) => {
     data.map((consumer: IDataConsumer) => {
@@ -436,7 +402,6 @@ export {
   isChecked,
   renderCheck,
   removeDuplicates,
-  unDuplicate,
   hasUniqueValues,
   findIndexInColumnSettings,
   typeOfFilters,

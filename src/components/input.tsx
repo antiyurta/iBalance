@@ -21,6 +21,7 @@ import type { TextAreaProps } from "antd/es/input/TextArea";
 import type { SearchProps } from "antd/es/input/Search";
 import type { CheckboxProps } from "antd/es/checkbox/Checkbox";
 import locale from "antd/es/date-picker/locale/mn_MN";
+import { CheckboxGroupProps } from "antd/es/checkbox";
 
 const { RangePicker } = DatePicker;
 
@@ -154,7 +155,7 @@ function NewCheckbox(props: CheckboxProps) {
   return <Checkbox {...props} />;
 }
 
-function NewCheckboxGroup(props: any) {
+function NewCheckboxGroup(props: CheckboxGroupProps) {
   return <Checkbox.Group {...props} />;
 }
 

@@ -1,4 +1,4 @@
-import { TabsActions } from "@/feature/core/actions/TabsActions";
+import { newTab } from "@/feature/store/slice/tab.slice";
 import { WarningOutlined } from "@ant-design/icons";
 import { Typography } from "antd";
 import { useDispatch } from "react-redux";
@@ -11,9 +11,11 @@ const Return = () => {
     <div
       onClick={() => {
         dispatch(
-          TabsActions.setTabsData({
+          newTab({
             label: "Агуулахын тайлан",
             key: "/payments/list-of-receipt",
+            closeable: true,
+            filters: [],
           })
         );
       }}

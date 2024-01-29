@@ -1,4 +1,3 @@
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
@@ -8,6 +7,8 @@ import { Tools } from "@/components/tools";
 import { useReportContext } from "@/feature/context/ReportsContext";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
+import { ReportTitle } from "../component/report-title";
+import RStorage1Filter from "../filters/RStorage1Filter";
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
@@ -63,8 +64,12 @@ const RStorage1: NextPage = () => {
   }, [values.warehouseId]);
   return (
     <div className="report-document">
-      <Tools />
+      <Tools filter={<RStorage1Filter />} />
       <div ref={targetRef} className="report-body">
+        <ReportTitle
+          organization={"Universal med"}
+          title={"Бараа материалын товчоо тайлан"}
+        />
         <div
           style={{
             display: "flex",

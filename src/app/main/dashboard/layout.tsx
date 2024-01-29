@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import withAuth from "@/feature/hoc/withAuth";
-import { Tabs, TabsProps, Tooltip } from "antd";
+import { Button, Tabs, TabsProps, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 //components
 import { NewAvatar, NewDatePicker, NewSelect } from "@/components/input";
 import Sidebar from "./Sidebar";
-import { TabsActions } from "@/feature/core/actions/TabsActions";
+
 import { authService } from "@/service/authentication/service";
 import { IUser } from "@/service/authentication/entities";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
@@ -18,6 +18,11 @@ import { getUniqueValues } from "@/feature/common";
 import { AppDispatch } from "@/feature/store/store";
 import { setWarehouse } from "@/feature/store/slice/warehouse.slice";
 import { WarehouseService } from "@/service/reference/warehouse/service";
+import {
+  changeTabs,
+  emptyTabs,
+  removeTab,
+} from "@/feature/store/slice/tab.slice";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -35,37 +40,24 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const warehouse = useTypedSelector((state) => state.warehouse);
 
-  const remove = (targetKey: TargetKey) => {
-    blockContext.block();
-    let newActiveKey = activeKey;
-    let lastIndex = -1;
-    tabsItems?.forEach((item, i) => {
-      if (item.key === targetKey) {
-        lastIndex = i - 1;
-      }
-    });
-    const newPanes = tabsItems?.filter((item) => item.key !== targetKey);
-    if (newPanes?.length && newActiveKey === targetKey) {
-      if (lastIndex >= 0) {
-        newActiveKey = newPanes[lastIndex].key;
-      } else {
-        newActiveKey = newPanes[0].key;
-      }
-    }
-    dispatch(TabsActions.removeTab(newPanes || []));
-    dispatch(TabsActions.setTabActiveKey(newActiveKey));
-    blockContext.unblock();
-  };
   const onEdit = (targetKey: TargetKey, action: "add" | "remove") => {
     if (action === "remove") {
-      remove(targetKey);
+      dispatch(removeTab(String(targetKey)));
     }
   };
   const onChange = (key: string) => {
-    dispatch(TabsActions.setTabActiveKey(key));
+    dispatch(
+      changeTabs({
+        activeKey: key,
+        tabItems: tabItems,
+      })
+    );
   };
   const getWarehouses = async () => {
-    await PosService.get({ isAuth: true })
+    await PosService.get({
+      isAuth: true,
+      filters: [],
+    })
       .then((response) => {
         if (response.success) {
           setWarehouses(getUniqueValues(response.response.data, "warehouse"));
@@ -83,10 +75,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       if (response.success) {
         dispatch(setWarehouse(response.response));
       }
-    })
+    });
   };
   useEffect(() => {
-    setTabsItems(tabItems);
+    setTabsItems(
+      tabItems.map((item) => ({
+        key: item.key,
+        label: item.label,
+        closable: item.closeable,
+      }))
+    );
   }, [tabItems]);
   useEffect(() => {
     if (!activeKey.includes("/main/")) {
@@ -182,11 +180,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             items={tabsItems}
             tabBarExtraContent={{
               right: (
-                <Tooltip
-                  placement="bottomLeft"
-                  title="Лайтай бавал бусдыг гарга"
-                >
-                  <button>Таб гаргах</button>
+                <Tooltip placement="bottomLeft" title="Нийт табуудыг гаргах">
+                  <Button type="link" onClick={() => dispatch(emptyTabs())}>
+                    Таб гаргах
+                  </Button>
                 </Tooltip>
               ),
             }}
