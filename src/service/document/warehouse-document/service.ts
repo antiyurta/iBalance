@@ -6,7 +6,7 @@ import {
   IResponseDocuments,
 } from "./entities";
 
-function get(params: IParamWarehouseDocument): Promise<IResponseDocuments> {
+function get(params?: IParamWarehouseDocument): Promise<IResponseDocuments> {
   return api.get("transaction-warehouse-document", { params });
 }
 function getById(id: number): Promise<IResponseDocument> {

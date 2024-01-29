@@ -2,8 +2,6 @@
 import { Col, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import TransactionMove from "./transaction-move";
-import { DocumentList } from "../../document-list";
-import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
 import { WarehouseDocumentList } from "./document-list";
 import { TransactionWarehouseList } from "./transaction-list";

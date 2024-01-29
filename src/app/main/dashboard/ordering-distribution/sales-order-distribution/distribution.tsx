@@ -38,14 +38,14 @@ const Distribution = () => {
       label: "Захиалгын ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     bookingAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "bookingAt",
+      dataIndex: ["bookingAt"],
       type: DataIndexType.DATE,
     },
     toWarehouseId: {
@@ -66,56 +66,56 @@ const Distribution = () => {
       label: "Тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "materialQuantity",
+      dataIndex: ["materialQuantity"],
       type: DataIndexType.MULTI,
     },
     bookingQuantity: {
       label: "Тоо хэмжээ /захиалга/",
       isView: true,
       isFiltered: false,
-      dataIndex: "bookingQuantity",
+      dataIndex: ["bookingQuantity"],
       type: DataIndexType.MULTI,
     },
     payAmount: {
       label: "Төлөх дүн /захиалга/",
       isView: true,
       isFiltered: false,
-      dataIndex: "payAmount",
+      dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
     },
     totalAmount: {
       label: "Нийт дүн /захиалга/",
       isView: true,
       isFiltered: false,
-      dataIndex: "totalAmount",
+      dataIndex: ["totalAmount"],
       type: DataIndexType.VALUE,
     },
     materialDiscountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "materialDiscountAmount",
+      dataIndex: ["materialDiscountAmount"],
       type: DataIndexType.VALUE,
     },
     consumerDiscountAmount: {
       label: "Харилцагчийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "consumerDiscountAmount",
+      dataIndex: ["consumerDiscountAmount"],
       type: DataIndexType.VALUE,
     },
     status: {
       label: "Баримтын төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "status",
+      dataIndex: ["status"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
       label: "Захиалга өгсөн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     createdBy: {
@@ -148,21 +148,7 @@ const Distribution = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params ? params : {});
-              }}
-            />
-
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -178,9 +164,6 @@ const Distribution = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -220,10 +203,6 @@ const Distribution = () => {
             columns={columns}
             meta={meta}
             onColumns={function (columns: any): void {
-              throw new Error("Function not implemented.");
-            }}
-            newParams={undefined}
-            onParams={function (params: any): void {
               throw new Error("Function not implemented.");
             }}
             incomeFilters={undefined}

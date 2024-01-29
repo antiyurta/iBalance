@@ -1,4 +1,4 @@
-import { ColumnType, GenericResponse, IData, IFilter, IParam, Meta } from "@/service/entities";
+import { ColumnType, GenericResponse, IColumn, IData, IFilter, IParam, Meta } from "@/service/entities";
 import { IDataWarehouse } from "../reference/warehouse/entities";
 import { IDataEmployee } from "../employee/entities";
 export interface ICreatePos {
@@ -17,7 +17,7 @@ export interface IDataPos extends IData {
   isActive: boolean;
   employees: IDataEmployee[];
 }
-export interface IFilterPos extends IFilter {
+export interface IFilterPos extends IColumn {
     ids: number[];
     names: string[];
     warehouseCodes: string[];
@@ -29,7 +29,7 @@ export interface IFilterPos extends IFilter {
 export type FilteredColumnsPos = {
   [T in keyof IFilterPos]?: ColumnType;
 }
-export interface IParamPos extends Meta, IParam {
+export interface IParamPos extends IParam {
   warehouseId?: number;
   isAuth: boolean;
 }

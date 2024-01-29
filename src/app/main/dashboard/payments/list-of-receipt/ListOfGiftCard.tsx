@@ -22,14 +22,14 @@ const ListOfGiftCard = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "docno",
+      dataIndex: ["docno"],
       type: DataIndexType.MULTI,
     },
     giftAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "giftAt",
+      dataIndex: ["giftAt"],
       type: DataIndexType.DATE,
     },
     warehouseName: {
@@ -43,7 +43,7 @@ const ListOfGiftCard = () => {
       label: "Карын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     membershipName: {
@@ -64,21 +64,21 @@ const ListOfGiftCard = () => {
       label: "Орлого тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "incomeQty",
+      dataIndex: ["incomeQty"],
       type: DataIndexType.NUMBER,
     },
     expenseQty: {
       label: "Зарлага тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "expenseQty",
+      dataIndex: ["expenseQty"],
       type: DataIndexType.NUMBER,
     },
     totalAmount: {
       label: "Дүн(Орлого, Зарлага)",
       isView: true,
       isFiltered: false,
-      dataIndex: "totalAmount",
+      dataIndex: ["totalAmount"],
       type: DataIndexType.VALUE,
     },
   });
@@ -92,8 +92,8 @@ const ListOfGiftCard = () => {
         setMeta(response.response.meta);
         setData(response.response.data);
       }
-    })
-  }
+    });
+  };
   useEffect(() => {
     getData(params);
   }, []);
@@ -108,20 +108,7 @@ const ListOfGiftCard = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -137,9 +124,6 @@ const ListOfGiftCard = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -166,10 +150,7 @@ const ListOfGiftCard = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
           />
         </Col>

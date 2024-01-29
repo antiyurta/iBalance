@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag, openNofi } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  openNofi,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { Meta } from "@/service/entities";
 import {
@@ -27,10 +31,6 @@ export const TransactionList = (props: IProps) => {
   const [data, setData] = useState<IDataTransaction[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterTransaction>();
-  const [params, setParams] = useState<IParamTransaction>({
-    page: 1,
-    limit: 10,
-  });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
   const [isReload, setIsReload] = useState<boolean>(false);
@@ -53,20 +53,20 @@ export const TransactionList = (props: IProps) => {
   };
   const editDocument = async (transaction: IDataTransaction) => {
     if (transaction.document?.isLock) {
-      openNofi('warning', 'Баримт түгжигдсэн байна.')
+      openNofi("warning", "Баримт түгжигдсэн байна.");
     } else {
       blockContext.block();
       await DocumentService.getById(transaction.documentId)
-      .then((response) => {
-        if (response.success) {
-          setSelectedDocument(response.response);
-        }
-      })
-      .finally(() => blockContext.unblock());
+        .then((response) => {
+          if (response.success) {
+            setSelectedDocument(response.response);
+          }
+        })
+        .finally(() => blockContext.unblock());
     }
   };
   useEffect(() => {
-    getData(params);
+    getData({});
   }, [isReload]);
   return (
     <div>
@@ -74,20 +74,7 @@ export const TransactionList = (props: IProps) => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -97,9 +84,6 @@ export const TransactionList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -135,10 +119,7 @@ export const TransactionList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={editDocument}

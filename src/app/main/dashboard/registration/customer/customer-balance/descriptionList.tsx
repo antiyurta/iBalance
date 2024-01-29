@@ -4,11 +4,7 @@ import Filtered from "@/components/filtered";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { DataIndexType, Meta } from "@/service/entities";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  unDuplicate,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
 import { balanceAccountService } from "@/service/consumer/initial-balance/account/service";
@@ -73,21 +69,21 @@ const DescriptionList = (props: IProps) => {
       label: "Дансны эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     date: {
       label: "Авлага үүссэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "date",
+      dataIndex: ["date"],
       type: DataIndexType.DATE,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -103,39 +99,7 @@ const DescriptionList = (props: IProps) => {
     var prm: IParamBalanceAccount = {
       ...param,
       ...params,
-      queries: params.queries,
     };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    if (param.consumerCode) {
-      prm.queries = [...unDuplicate("consumerCode", params)];
-    }
-    if (param.consumerName) {
-      prm.queries = [...unDuplicate("consumerName", params)];
-    }
-    if (param.consumerSectionId) {
-      prm.queries = [...unDuplicate("consumerSectionId", params)];
-    }
-    if (param.accountCode) {
-      prm.queries = [...unDuplicate("accountCode", params)];
-    }
-    if (param.accountName) {
-      prm.queries = [...unDuplicate("accountName", params)];
-    }
-    if (param.amount) {
-      prm.queries = [...unDuplicate("amount", params)];
-    }
-    if (param.date) {
-      prm.queries = [...unDuplicate("date", params)];
-    }
-    if (param.updatedAt) {
-      prm.queries = [...unDuplicate("updatedAt", params)];
-    }
-    if (param.updatedBy) {
-      prm.queries = [...unDuplicate("updatedBy", params)];
-    }
     await balanceAccountService
       .get(prm)
       .then((response) => {
@@ -163,20 +127,7 @@ const DescriptionList = (props: IProps) => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -192,9 +143,6 @@ const DescriptionList = (props: IProps) => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -228,10 +176,7 @@ const DescriptionList = (props: IProps) => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={(param) => getData(param)}
             onColumns={(columns) => setColumns(columns)}
-            newParams={params}
-            onParams={(params) => setParams(params)}
             incomeFilters={filters}
             isEdit={true}
             onEdit={(row) => onEdit?.(row)}

@@ -1,5 +1,4 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
@@ -32,77 +31,77 @@ const CardList = (props: IProps) => {
       label: "Карт эрхийн бичгийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     isSave: {
       label: "Оноо хуримтлуулдаг эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isSave",
+      dataIndex: ["isSave"],
       type: DataIndexType.BOOLEAN,
     },
     isBalance: {
       label: "Үлдэгдэлтэй эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isBalance",
+      dataIndex: ["isBalance"],
       type: DataIndexType.BOOLEAN,
     },
     isPercent: {
       label: "Хөнгөлөлт хувиар эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isPercent",
+      dataIndex: ["isPercent"],
       type: DataIndexType.BOOLEAN,
     },
     discount: {
       label: "Хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "discount",
+      dataIndex: ["discount"],
       type: DataIndexType.VALUE,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN,
     },
     limitDiscount: {
       label: "Ашиглах боломжтой онооны дээд хязгаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "limitDiscount",
+      dataIndex: ["limitDiscount"],
       type: DataIndexType.VALUE,
     },
     isSale: {
       label: "Борлуулдаг эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isSale",
+      dataIndex: ["isSale"],
       type: DataIndexType.BOOLEAN,
     },
     description: {
       label: "Тайлбар",
       isView: true,
       isFiltered: false,
-      dataIndex: "description",
+      dataIndex: ["description"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.USER,
     },
   });
@@ -133,20 +132,7 @@ const CardList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (column) => setColumns(column),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -162,9 +148,6 @@ const CardList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: setColumns,
-                        params,
-                        onParams: setParams,
-                        getData,
                       })
                     }
                   />
@@ -198,10 +181,7 @@ const CardList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={getData}
                 onColumns={setColumns}
-                newParams={params}
-                onParams={setParams}
                 incomeFilters={filters}
                 isEdit
                 isDelete

@@ -28,7 +28,7 @@ const TransactionAct = (props: IProps) => {
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const getWarehouses = (params: IParamWarehouse) => {
+  const getWarehouses = (params?: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
@@ -59,6 +59,9 @@ const TransactionAct = (props: IProps) => {
     blockContext.block();
     await DocumentService.generateCode({
       movingStatus: MovingStatus.ActAmortization,
+      filters: [],
+      page: 0,
+      limit: 0
     })
       .then((response) => {
         if (response.success) {
@@ -68,7 +71,7 @@ const TransactionAct = (props: IProps) => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getWarehouses({});
+    getWarehouses();
     generateCode();
   }, []);
   useEffect(() => {

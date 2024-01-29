@@ -1,22 +1,10 @@
-import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
-import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
-import { NewSelect } from "@/components/input";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { ComponentType, DataIndexType, Meta } from "@/service/entities";
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Popover,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { DataIndexType, Meta } from "@/service/entities";
+import { Col, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -104,7 +92,7 @@ const Thumbnail = (props: IProps) => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -176,8 +164,6 @@ const Thumbnail = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
               getData({
                 page: 1,
@@ -204,20 +190,7 @@ const Thumbnail = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -233,9 +206,6 @@ const Thumbnail = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: params,
-                        onParams: (params) => setParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -268,10 +238,7 @@ const Thumbnail = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}

@@ -1,7 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
-  IFilter,
+  IColumn,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -29,7 +29,7 @@ export interface IDataMembership {
 export interface IInputMembership extends IDataMembership {
   materialCode: string;
 }
-export interface IFilterMembership extends IFilter {
+export interface IFilterMembership extends IColumn {
   name?: string[];
   isSave?: boolean[];
   isBalance?: boolean[];
@@ -43,7 +43,7 @@ export interface IFilterMembership extends IFilter {
 export type FilteredColumnsMembership = {
   [T in keyof IFilterMembership]?: ColumnType;
 };
-export interface IParamMembership extends IFilterMembership, Meta, IParam {}
+export interface IParamMembership extends IFilterMembership, IParam {}
 
 export interface IResponseMemberships extends GenericResponse {
   response: {

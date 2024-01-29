@@ -4,6 +4,7 @@ import { IDataDocument } from "../document/entities";
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
   IFilter,
   IParam,
@@ -56,7 +57,7 @@ export interface IDataBooking extends IData {
   bookingMaterials?: IDataBookingMaterial[];
 }
 
-export interface IFilterBooking extends IFilter {
+export interface IFilterBooking extends IColumn {
   code: string;
   consumerId: number;
   fromWarehouseId: number;

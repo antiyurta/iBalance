@@ -1,5 +1,5 @@
 "use client";
-import { Col, Input, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Space, Tabs, Typography } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { TransactionSaleReturn } from "./transaction-sale-return";
 import { DocumentList } from "../../document-list";

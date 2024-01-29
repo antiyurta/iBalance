@@ -116,14 +116,14 @@ const ServicesRegistration = (props: IProps) => {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Үйлчилгээний нэр",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     measurementId: {
@@ -144,28 +144,28 @@ const ServicesRegistration = (props: IProps) => {
       label: "НӨАТ суутгах эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isTax",
+      dataIndex: ["isTax"],
       type: DataIndexType.BOOLEAN,
     },
     isCitizenTax: {
       label: "НХАТ суутгах эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isCitizenTax",
+      dataIndex: ["isCitizenTax"],
       type: DataIndexType.BOOLEAN,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -387,8 +387,6 @@ const ServicesRegistration = (props: IProps) => {
                     state: true,
                     column: columns,
                     onColumn: (columns) => setColumns(columns),
-                    params,
-                    onParams: (params) => setParams(params),
                   });
                   getData({
                     page: 1,
@@ -514,20 +512,7 @@ const ServicesRegistration = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -544,9 +529,6 @@ const ServicesRegistration = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns,
                           onColumns: (columns) => setColumns(columns),
-                          params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -591,10 +573,7 @@ const ServicesRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit
                 isDelete

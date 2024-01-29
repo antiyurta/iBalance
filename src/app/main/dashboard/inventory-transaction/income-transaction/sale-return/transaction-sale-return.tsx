@@ -33,8 +33,8 @@ export const TransactionSaleReturn = (props: IProps) => {
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const getWarehouse = (params: IParamWarehouse) => {
-    WarehouseService.get(params).then((response) => {
+  const getWarehouse = () => {
+    WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
@@ -73,7 +73,7 @@ export const TransactionSaleReturn = (props: IProps) => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getWarehouse({});
+    getWarehouse();
     generateCode();
   }, []);
 

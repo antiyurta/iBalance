@@ -37,42 +37,42 @@ const CurrentPeriodCloseOff = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["ebarimt"],
       type: DataIndexType.MULTI,
     },
     period: {
       label: "Хаалтын үе",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["ebarimt"],
       type: DataIndexType.MULTI,
     },
     reportPeriod: {
       label: "Тайлант үе",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["ebarimt"],
       type: DataIndexType.MULTI,
     },
     closingStatus: {
       label: "Хаалтын төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["ebarimt"],
       type: DataIndexType.MULTI,
     },
     updatedBy: {
       label: "Өөрчлөлт оруулсан хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["ebarimt"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт оруулсан огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["ebarimt"],
       type: DataIndexType.MULTI,
     },
   });
@@ -277,10 +277,6 @@ const CurrentPeriodCloseOff = () => {
             columns={columns}
             meta={{}}
             onColumns={function (columns: any): void {
-              throw new Error("Function not implemented.");
-            }}
-            newParams={undefined}
-            onParams={function (params: any): void {
               throw new Error("Function not implemented.");
             }}
             incomeFilters={undefined}

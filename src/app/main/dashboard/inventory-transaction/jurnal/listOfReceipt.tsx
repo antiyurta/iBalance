@@ -178,7 +178,7 @@ const ListOfReceipt = () => {
     },
   });
   const getWarehouse = async () => {
-    await WarehouseService.get({}).then((response) => {
+    await WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
@@ -294,10 +294,6 @@ const ListOfReceipt = () => {
             columns={columns}
             meta={{}}
             onColumns={function (columns: any): void {
-              throw new Error("Function not implemented.");
-            }}
-            newParams={undefined}
-            onParams={function (params: any): void {
               throw new Error("Function not implemented.");
             }}
             incomeFilters={undefined}

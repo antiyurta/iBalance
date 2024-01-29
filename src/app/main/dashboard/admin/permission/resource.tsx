@@ -24,7 +24,6 @@ const ConfigResource = () => {
   const [form] = Form.useForm<IDataResource>();
   const [data, setData] = useState<IDataResource[]>([]);
   const [filters, setFilters] = useState<IFilterResource>();
-  const [params, setParams] = useState<IParamResource>({ page: 1, limit: 10 });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [isModal, setIsModal] = useState<boolean>(false);
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
@@ -34,33 +33,33 @@ const ConfigResource = () => {
       label: "№",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     description: {
       label: "Тайлбар",
       isView: true,
       isFiltered: false,
-      dataIndex: "description",
+      dataIndex: ["description"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
   });
-  const getData = async (params: IParamResource) => {
-    await ResourceService.get(params).then((response) => {
+  const getData = async () => {
+    await ResourceService.get().then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
@@ -74,7 +73,7 @@ const ConfigResource = () => {
       await ResourceService.patch(selectedResource.id, values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData();
             setIsModal(false);
           }
         })
@@ -83,7 +82,7 @@ const ConfigResource = () => {
       await ResourceService.post(values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData();
             setIsModal(false);
           }
         })
@@ -95,13 +94,13 @@ const ConfigResource = () => {
     await ResourceService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData();
         }
       })
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
+    getData();
   }, []);
   return (
     <>
@@ -132,20 +131,7 @@ const ConfigResource = () => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -155,9 +141,6 @@ const ConfigResource = () => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -193,10 +176,7 @@ const ConfigResource = () => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row: IDataResource) => {

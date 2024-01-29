@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag, openNofi } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  onCloseFilterTag,
+  openNofi,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   FilteredColumnsDocument,
@@ -54,16 +58,16 @@ export const DocumentList = (props: IProps) => {
   };
   const editDocument = async (row: IDataDocument) => {
     if (row.isLock) {
-      openNofi('warning', 'Баримт түгжигдсэн байна.')
+      openNofi("warning", "Баримт түгжигдсэн байна.");
     } else {
       blockContext.block();
       await DocumentService.getById(row.id)
-      .then((response) => {
-        if (response.success) {
-          setSelectedDocument(response.response);
-        }
-      })
-      .finally(() => blockContext.unblock());
+        .then((response) => {
+          if (response.success) {
+            setSelectedDocument(response.response);
+          }
+        })
+        .finally(() => blockContext.unblock());
     }
   };
   const onDelete = async (id: number) => {
@@ -85,20 +89,7 @@ export const DocumentList = (props: IProps) => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -108,9 +99,6 @@ export const DocumentList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -147,10 +135,7 @@ export const DocumentList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               isDelete={movingStatus ? true : false}

@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
   IFilter,
   IParam,
@@ -66,7 +67,7 @@ export interface IFilterShoppingCart extends IFilter {
 export type FilteredColumnsShoppingCart = {
   [T in keyof IFilterShoppingCart]?: ColumnType;
 };
-export interface IFilterShoppingCartMembership extends IFilter {
+export interface IFilterShoppingCartMembership extends IColumn {
   id?: string;
   posName?: string;
   membershipCode?: string;

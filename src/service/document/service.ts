@@ -14,7 +14,7 @@ function get(params: IParamDocument): Promise<IResponseDocuments> {
 function getById(id: number): Promise<IResponseDocument> {
   return api.get(`transaction-document/${id}`);
 }
-function generateCode(params: IParamDocument): Promise<IResponseDocumentCode> {
+function generateCode(params?: IParamDocument): Promise<IResponseDocumentCode> {
   return api.get("transaction-document/generate/code", { params });
 }
 function post(body: IDataDocument): Promise<IResponseDocument> {

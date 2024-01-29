@@ -6,7 +6,7 @@ import {
   IParamConsumer,
   IResponseOneConsumer,
 } from "./entities";
-function get(params?: IParam): Promise<IResponseConsumer> {
+function get(params?: IParamConsumer): Promise<IResponseConsumer> {
   return api.get("consumer", { params: params });
 }
 function getById(id: number): Promise<IResponseOneConsumer> {

@@ -35,7 +35,7 @@ const DiscountList = (props: IProps) => {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandId",
+      dataIndex: ["commandId"],
       type: DataIndexType.STRING,
     },
     commandAt: {
@@ -112,35 +112,35 @@ const DiscountList = (props: IProps) => {
       label: "Нэгж үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "unitAmount",
+      dataIndex: ["unitAmount"],
       type: DataIndexType.MULTI,
     },
     endAt: {
       label: "Хөнгөлөлт дуусах огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "endAt",
+      dataIndex: ["endAt"],
       type: DataIndexType.DATE,
     },
     percent: {
       label: "Хөнгөлөлтийн хувь",
       isView: true,
       isFiltered: false,
-      dataIndex: "percent",
+      dataIndex: ["percent"],
       type: DataIndexType.MULTI,
     },
     amount: {
       label: "Хөнгөлөлт хассан /Хямдарсан/ үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -154,7 +154,7 @@ const DiscountList = (props: IProps) => {
       label: "Үүсгэсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     createdBy: {
@@ -201,20 +201,7 @@ const DiscountList = (props: IProps) => {
         <Col span={24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -224,9 +211,6 @@ const DiscountList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: setParams,
-                      getData,
                     })
                   }
                 />
@@ -251,10 +235,7 @@ const DiscountList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row) => editCommand(row)}

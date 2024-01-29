@@ -39,14 +39,14 @@ const RefundReasonPage = () => {
       label: "Буцаалтын шалтгаан",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -152,10 +152,7 @@ const RefundReasonPage = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
             isEdit={true}
             isDelete={true}

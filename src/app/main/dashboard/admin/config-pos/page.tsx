@@ -196,9 +196,6 @@ const ConfigPos = () => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -234,10 +231,7 @@ const ConfigPos = () => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row: IDataPos) => {

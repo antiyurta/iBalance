@@ -28,14 +28,13 @@ const CouponList = (props: IProps) => {
   const [data, setData] = useState<IDataCoupon[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDiscount>();
-  const [params, setParams] = useState<IParamCoupon>({ page: 1, limit: 10 });
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
   const [columns, setColumns] = useState<FilteredColumnsCoupon>({
     id: {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandId",
+      dataIndex: ["commandId"],
       type: DataIndexType.STRING,
     },
     commandAt: {
@@ -112,49 +111,49 @@ const CouponList = (props: IProps) => {
       label: "Нэгж үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "unitAmount",
+      dataIndex: ["unitAmount"],
       type: DataIndexType.MULTI,
     },
     endAt: {
       label: "Урамшуулал дуусах огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "endAt",
+      dataIndex: ["endAt"],
       type: DataIndexType.DATE,
     },
     condition: {
       label: "Урамшуулал авах нөхцөл",
       isView: true,
       isFiltered: false,
-      dataIndex: "percent",
+      dataIndex: ["percent"],
       type: DataIndexType.MULTI,
     },
     conditionValue: {
       label: "Урамшуулалын авах хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     couponQuantity: {
       label: "Урамшуулалын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     couponPercent: {
       label: "Урамшуулалын хувь",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -168,7 +167,7 @@ const CouponList = (props: IProps) => {
       label: "Үүсгэсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     createdBy: {
@@ -179,7 +178,7 @@ const CouponList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamCoupon) => {
+  const getData = async (params?: IParamCoupon) => {
     blockContext.block();
     await MaterialCouponService.get(params)
       .then((response) => {
@@ -207,7 +206,7 @@ const CouponList = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData(params);
+    getData();
   }, []);
   return (
     <div>
@@ -215,20 +214,7 @@ const CouponList = (props: IProps) => {
         <Col span={24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -238,9 +224,6 @@ const CouponList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: setParams,
-                      getData,
                     })
                   }
                 />
@@ -265,10 +248,7 @@ const CouponList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row) => editCommand(row)}

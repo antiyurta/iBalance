@@ -43,35 +43,35 @@ const CustomerList = (props: IProps) => {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     isIndividual: {
       label: "Хувь хүн эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isIndividual",
+      dataIndex: ["isIndividual"],
       type: DataIndexType.BOOLEAN,
     },
     isEmployee: {
       label: "Ажилтан эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isEmployee",
+      dataIndex: ["isEmployee"],
       type: DataIndexType.BOOLEAN,
     },
     lastName: {
       label: "Харилцагчийн овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["lastName"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     sectionId: {
@@ -85,21 +85,21 @@ const CustomerList = (props: IProps) => {
       label: "Регистр №",
       isView: true,
       isFiltered: false,
-      dataIndex: "regno",
+      dataIndex: ["regno"],
       type: DataIndexType.MULTI,
     },
     phone: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phone",
+      dataIndex: ["phone"],
       type: DataIndexType.MULTI,
     },
     address: {
       label: "Хаяг",
       isView: true,
       isFiltered: false,
-      dataIndex: "address",
+      dataIndex: ["address"],
       type: DataIndexType.MULTI,
     },
     bankName: {
@@ -113,35 +113,35 @@ const CustomerList = (props: IProps) => {
       label: "Дансны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "bankAccountNo",
+      dataIndex: ["bankAccountNo"],
       type: DataIndexType.MULTI,
     },
     email: {
       label: "И-мэйл хаяг",
       isView: false,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: ["email"],
       type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN,
     },
     createdAt: {
       label: "Карт нээсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -196,8 +196,6 @@ const CustomerList = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
               getData({ page: 1, limit: 10, sectionId: keys });
             }}
@@ -213,20 +211,7 @@ const CustomerList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key,
-                      state,
-                      column: columns,
-                      onColumn: setColumns,
-                      params,
-                      onParams: setParams,
-                    });
-                    getData(params ? params : { page: 1, limit: 10 });
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -242,9 +227,6 @@ const CustomerList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: setColumns,
-                        params,
-                        onParams: setParams,
-                        getData: (params) => getData(params),
                       })
                     }
                     defaultColumns={columns}
@@ -280,10 +262,7 @@ const CustomerList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={getData}
                 onColumns={setColumns}
-                newParams={params}
-                onParams={setParams}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}

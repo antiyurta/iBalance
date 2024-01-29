@@ -125,7 +125,7 @@ const DescriptionList = (props: IProps) => {
       label: "Картын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "cardno",
+      dataIndex: ["cardno"],
       type: DataIndexType.MULTI,
     },
     membershipName: {
@@ -216,20 +216,7 @@ const DescriptionList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
-                    });
-                    getData(newParams);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -245,9 +232,6 @@ const DescriptionList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -281,10 +265,7 @@ const DescriptionList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
                 isEdit
                 onEdit={(row) => editCommand(row)}

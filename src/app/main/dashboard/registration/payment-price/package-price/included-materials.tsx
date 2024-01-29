@@ -1,8 +1,5 @@
-import { MaterialType } from "@/service/material/entities";
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
-import { ViewMaterialService } from "@/service/material/view-material/service";
 import { Table } from "antd";
-import { useEffect, useState } from "react";
 
 interface IProps {
   materials: IDataViewMaterial[];

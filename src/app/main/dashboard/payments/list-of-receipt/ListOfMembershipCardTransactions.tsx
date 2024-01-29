@@ -36,14 +36,14 @@ const ListOfMembershipCardTransactions = () => {
         label: "Баримтын дугаар",
         isView: true,
         isFiltered: false,
-        dataIndex: "id",
+        dataIndex: ["id"],
         type: DataIndexType.MULTI,
       },
       createdAt: {
         label: "Баримтын огноо",
         isView: true,
         isFiltered: false,
-        dataIndex: "createdAt",
+        dataIndex: ["createdAt"],
         type: DataIndexType.DATE,
       },
       membershipCode: {
@@ -85,21 +85,21 @@ const ListOfMembershipCardTransactions = () => {
         label: "Төлөх дүн",
         isView: true,
         isFiltered: false,
-        dataIndex: "payAmount",
+        dataIndex: ["payAmount"],
         type: DataIndexType.VALUE,
       },
       membershipIncreaseAmount: {
         label: "Нэмэгдсэн оноо",
         isView: true,
         isFiltered: false,
-        dataIndex: "membershipIncreaseAmount",
+        dataIndex: ["membershipIncreaseAmount"],
         type: DataIndexType.VALUE,
       },
       membershipDiscountAmount: {
         label: "Ашигласан оноо",
         isView: true,
         isFiltered: false,
-        dataIndex: "membershipDiscountAmount",
+        dataIndex: ["membershipDiscountAmount"],
         type: DataIndexType.VALUE,
       },
       membershipAmount: {
@@ -112,10 +112,6 @@ const ListOfMembershipCardTransactions = () => {
     }
   );
   const [data, setData] = useState<IDataShoppingCart[]>([]);
-  const [params, setParams] = useState<IParamShoppingCart>({
-    page: 1,
-    limit: 10,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterShoppingCartMembership>();
   const [shoppingCart, setShoppingCart] = useState<IDataShoppingCart>();
@@ -164,12 +160,11 @@ const ListOfMembershipCardTransactions = () => {
       ),
     },
   ];
-  const getData = async (params: IParamShoppingCart) => {
+  const getData = async (params?: IParamShoppingCart) => {
     await ShoppingCartService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
-        setParams(params);
       }
     });
   };
@@ -207,7 +202,7 @@ const ListOfMembershipCardTransactions = () => {
       });
   };
   useEffect(() => {
-    getData(params);
+    getData();
   }, []);
   return (
     <div>
@@ -220,20 +215,7 @@ const ListOfMembershipCardTransactions = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -249,9 +231,6 @@ const ListOfMembershipCardTransactions = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -278,10 +257,7 @@ const ListOfMembershipCardTransactions = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
             addItems={items}
             custom={(key, id) => itemClick(key, String(id))}

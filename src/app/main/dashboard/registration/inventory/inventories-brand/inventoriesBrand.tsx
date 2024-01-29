@@ -40,10 +40,6 @@ const InventoriesBrand = (props: IProps) => {
   const [countries, setCountries] = useState<IDataCountry[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBrand>();
-  const [params, setNewParams] = useState<IParamBrand>({
-    page: 1,
-    limit: 10,
-  });
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataBrand>();
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
@@ -53,7 +49,7 @@ const InventoriesBrand = (props: IProps) => {
       label: "Брэнд",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     countryId: {
@@ -67,7 +63,7 @@ const InventoriesBrand = (props: IProps) => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -134,7 +130,7 @@ const InventoriesBrand = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData(params);
+    getData({});
   }, [isReload]);
   useEffect(() => {
     getCountries();
@@ -181,20 +177,7 @@ const InventoriesBrand = (props: IProps) => {
           </div>
         </div>
         <div className="second-header">
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key: key,
-                state: state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params,
-                onParams: (params) => setNewParams(params),
-              });
-              getData(params);
-            }}
-          />
+          <Filtered columns={columns} />
           {ComponentType === "FULL" ? (
             <div className="extra">
               <ColumnSettings
@@ -205,9 +188,6 @@ const InventoriesBrand = (props: IProps) => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params,
-                    onParams: (params) => setNewParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -245,10 +225,7 @@ const InventoriesBrand = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={(params) => getData(params)}
               onColumns={(columns) => setColumns(columns)}
-              newParams={params}
-              onParams={(params) => setNewParams(params)}
               incomeFilters={filters}
               isEdit
               isDelete

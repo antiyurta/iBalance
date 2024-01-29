@@ -4,11 +4,7 @@ import { NewInput, NewSearch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { UploadExcelFile } from "@/components/upload-excel-file";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  unDuplicate,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   ComponentType,
@@ -37,7 +33,6 @@ const InventoriesType = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamMaterialAccount>({ page: 1, limit: 10 });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterialAccount[]>([]);
@@ -53,21 +48,21 @@ const InventoriesType = (props: IProps) => {
       label: "Дансны код",
       isView: true,
       isFiltered: false,
-      dataIndex: "accountNo",
+      dataIndex: ["accountNo"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Дансны нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -91,23 +86,7 @@ const InventoriesType = (props: IProps) => {
   };
   const getData = async (param: IParamMaterialAccount) => {
     blockContext.block();
-    var prm: IParamMaterialAccount = {
-      ...params,
-      ...param,
-      queries: params.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    if (param.accountNo) {
-      prm.queries = [...unDuplicate("accountNo", params)];
-    }
-    if (param.name) {
-      prm.queries = [...unDuplicate("name", params)];
-    }
-    setParams(prm);
-    await MaterialAccountService.get(prm)
+    await MaterialAccountService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -130,7 +109,7 @@ const InventoriesType = (props: IProps) => {
       await MaterialAccountService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData({});
             setIsOpenModal(false);
           }
         })
@@ -141,7 +120,7 @@ const InventoriesType = (props: IProps) => {
       await MaterialAccountService.post(values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData({});
             setIsOpenModal(false);
           }
         })
@@ -153,13 +132,13 @@ const InventoriesType = (props: IProps) => {
   const onDelete = async (id: number) => {
     await MaterialAccountService.remove(id).then((response) => {
       if (response.success) {
-        getData(params);
+        getData({});
         setIsOpenModal(false);
       }
     });
   };
   useEffect(() => {
-    getData(params);
+    getData({});
   }, [isReload]);
   return (
     <div>
@@ -196,20 +175,7 @@ const InventoriesType = (props: IProps) => {
           </div>
         </div>
         <div className="second-header">
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key: key,
-                state: state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
-              });
-              getData(params);
-            }}
-          />
+          <Filtered columns={columns} />
           <div className="extra">
             <ColumnSettings
               columns={columns}
@@ -219,9 +185,6 @@ const InventoriesType = (props: IProps) => {
                   unSelectedRow: arg2,
                   columns: columns,
                   onColumns: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                  getData: (params) => getData(params),
                 })
               }
             />
@@ -264,10 +227,7 @@ const InventoriesType = (props: IProps) => {
                   onClickModal?.(value);
                 }
               }}
-              onChange={(params) => getData(params)}
               onColumns={(columns) => setColumns(columns)}
-              newParams={params}
-              onParams={(params) => setParams(params)}
               incomeFilters={filters}
               isEdit={true}
               onEdit={(row) => openModal(true, row)}

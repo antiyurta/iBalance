@@ -4,6 +4,7 @@ import {
   DataIndexType,
   DateFilter,
   GenericResponse,
+  IColumn,
   IData,
   IFilter,
   IParam,
@@ -101,7 +102,7 @@ export interface IDataDocument extends IData {
   transactions?: IDataTransaction[];
 }
 
-export interface IFilterDocument extends IFilter {
+export interface IFilterDocument extends IColumn {
   id?: number;
   interval?: DateFilter;
   documentCode?: string[];
@@ -140,7 +141,7 @@ export type FilteredColumnsDocument = {
   [T in keyof IFilterDocument]?: ColumnType;
 };
 
-export interface IParamDocument extends Meta, IParam, IFilterDocument {}
+export interface IParamDocument extends IParam, IFilterDocument {}
 
 export interface IResponseDocuments extends GenericResponse {
   response: {
@@ -161,14 +162,14 @@ const columns: FilteredColumnsDocument = {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
-    dataIndex: "code",
+    dataIndex: ["code"],
     type: DataIndexType.MULTI,
   },
   documentAt: {
     label: "Баримтын огноо",
     isView: true,
     isFiltered: false,
-    dataIndex: "documentAt",
+    dataIndex: ["documentAt"],
     type: DataIndexType.DATE,
   },
   warehouseName: {
@@ -196,84 +197,84 @@ const columns: FilteredColumnsDocument = {
     label: "Буцаалт хийх огноо",
     isView: true,
     isFiltered: false,
-    dataIndex: "refundAt",
+    dataIndex: ["refundAt"],
     type: DataIndexType.MULTI,
   },
   incomeCount: {
     label: "Орлогын тоо",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeCount",
+    dataIndex: ["incomeCount"],
     type: DataIndexType.MULTI,
   },
   incomeQuantity: {
     label: "Орлогын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeQuantity",
+    dataIndex: ["incomeQuantity"],
     type: DataIndexType.MULTI,
   },
   amount: {
     label: "Төлөх дүн",
     isView: true,
     isFiltered: false,
-    dataIndex: "amount",
+    dataIndex: ["amount"],
     type: DataIndexType.VALUE,
   },
   discountAmount: {
     label: "Бараа материалын үнийн хөнгөлөлт",
     isView: true,
     isFiltered: false,
-    dataIndex: "discountAmount",
+    dataIndex: ["discountAmount"],
     type: DataIndexType.VALUE,
   },
   consumerDiscountAmount: {
     label: "Харилцагчийн хөнгөлөлт",
     isView: true,
     isFiltered: false,
-    dataIndex: "consumerDiscountAmount",
+    dataIndex: ["consumerDiscountAmount"],
     type: DataIndexType.VALUE,
   },
   payAmount: {
     label: "Төлөх дүн",
     isView: true,
     isFiltered: false,
-    dataIndex: "payAmount",
+    dataIndex: ["payAmount"],
     type: DataIndexType.VALUE,
   },
   expenseCount: {
     label: "Зарлагын тоо",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseCount",
+    dataIndex: ["expenseCount"],
     type: DataIndexType.MULTI,
   },
   expenseQuantity: {
     label: "Зарлагын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseQuantity",
+    dataIndex: ["expenseQuantity"],
     type: DataIndexType.MULTI,
   },
   movingStatus: {
     label: "Гүйлгээний цонх",
     isView: true,
     isFiltered: false,
-    dataIndex: "movingStatus",
+    dataIndex: ["movingStatus"],
     type: DataIndexType.ENUM,
   },
   description: {
     label: "Гүйлгээний утга",
     isView: true,
     isFiltered: true,
-    dataIndex: "description",
+    dataIndex: ["description"],
     type: DataIndexType.MULTI,
   },
   isLock: {
     label: "Гүйлгээ түгжсэн эсэх",
     isView: true,
     isFiltered: false,
-    dataIndex: "isLock",
+    dataIndex: ["isLock"],
     type: DataIndexType.BOOLEAN,
   },
   updatedBy: {
@@ -287,7 +288,7 @@ const columns: FilteredColumnsDocument = {
     label: "Бүртгэсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "updatedAt",
+    dataIndex: ["updatedAt"],
     type: DataIndexType.DATETIME,
   },
   lockedBy: {
@@ -301,7 +302,7 @@ const columns: FilteredColumnsDocument = {
     label: "Түгжсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "lockeddAt",
+    dataIndex: ["lockeddAt"],
     type: DataIndexType.DATETIME,
   },
   // userId = {

@@ -6,7 +6,7 @@ import {
   IDataWarehouse,
   IParamWarehouse,
 } from "./entities";
-function get(params: IParamWarehouse): Promise<IResponseWarehouses> {
+function get(params?: IParamWarehouse): Promise<IResponseWarehouses> {
   return api.get("warehouse", { params });
 }
 function getById(id: number): Promise<IResponseWarehouse> {

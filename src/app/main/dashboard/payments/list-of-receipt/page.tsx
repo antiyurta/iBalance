@@ -85,7 +85,9 @@ const ListOfReceipt = () => {
     },
   ];
   const getMemberships = () => {
-    MembershipService.get({ isSale: [true] }).then((response) => {
+    MembershipService.get({
+      isSale: [true],
+    }).then((response) => {
       if (response.success) {
         setMemberships(response.response.data);
       }
@@ -184,7 +186,7 @@ const ListOfReceipt = () => {
                   label: "Гишүүнчлэлийн бүртгэл",
                   key: "/registration/customer/information",
                   closeable: true,
-                  filters: [],
+                  param: {}
                 })
               );
               setIsAddAction(false);
@@ -217,7 +219,7 @@ const ListOfReceipt = () => {
                   label: "Агуулахын тайлан",
                   key: "/reports",
                   closeable: false,
-                  filters: [],
+                  param: {},
                 })
               );
               setIsAddAction(false);

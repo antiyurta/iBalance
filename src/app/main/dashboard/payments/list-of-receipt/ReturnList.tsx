@@ -23,14 +23,14 @@ const ReturnList = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     documentAt: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "documentAt",
+      dataIndex: ["documentAt"],
       type: DataIndexType.DATETIME,
     },
     warehouseName: {
@@ -58,14 +58,14 @@ const ReturnList = () => {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "incomeCount",
+      dataIndex: ["incomeCount"],
       type: DataIndexType.MULTI,
     },
     incomeQuantity: {
       label: "Борлуулалтын ширхэг",
       isView: true,
       isFiltered: false,
-      dataIndex: "incomeQuantity",
+      dataIndex: ["incomeQuantity"],
       type: DataIndexType.MULTI,
     },
     // paymentMethodNames: {
@@ -79,14 +79,14 @@ const ReturnList = () => {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     payAmount: {
       label: "Төлөх дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "payAmount",
+      dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
     },
     // paidAmount: {
@@ -100,7 +100,7 @@ const ReturnList = () => {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "discountAmount",
+      dataIndex: ["discountAmount"],
       type: DataIndexType.VALUE,
     },
     membershipDiscountAmount: {
@@ -154,20 +154,7 @@ const ReturnList = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -183,9 +170,6 @@ const ReturnList = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -212,10 +196,7 @@ const ReturnList = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
           />
         </Col>

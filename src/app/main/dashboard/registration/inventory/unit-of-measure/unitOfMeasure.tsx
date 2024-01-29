@@ -4,7 +4,7 @@ import Filtered from "@/components/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, FilteredColumns, Meta } from "@/service/entities";
 import {

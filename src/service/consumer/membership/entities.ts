@@ -2,7 +2,7 @@ import { Dayjs } from "dayjs";
 import {
   ColumnType,
   GenericResponse,
-  IFilter,
+  IColumn,
   IParam,
   Meta,
 } from "../../entities";
@@ -29,7 +29,7 @@ export interface IInputConsumerMembership {
   consumerId: number;
   cards: IDataConsumerMembership[];
 }
-export interface IFilterConsumerMembership extends IFilter {
+export interface IFilterConsumerMembership extends IColumn {
   phoneOrRegno?: string;
   consumerCode?: string[];
   consumerLastname?: string[];
@@ -54,8 +54,7 @@ export type FilteredColumnsConsumerMembership = {
   [T in keyof IFilterConsumerMembership]?: ColumnType;
 };
 export interface IParamConsumerMembership
-  extends Meta,
-    IParam,
+  extends IParam,
     IFilterConsumerMembership {}
 export interface IResponseConsumerMemberships extends GenericResponse {
   response: {

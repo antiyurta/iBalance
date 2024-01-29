@@ -101,7 +101,7 @@ export interface IFilters {
   updatedUser: object[];
   description: string[];
 }
-export interface IFilter {
+export interface IColumn {
   createdAt?: string;
   createdBy?: string[];
   updatedAt?: string;
@@ -126,11 +126,11 @@ export interface IFilter {
   filter: string | number | boolean | (string | number | boolean)[];
 }
 export interface IParam {
-  filters: IFilter[];
+  filters?: IFilter[];
   orderParam?: string[];
   order?: RadioType;
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
 }
 export interface IData {
   createdBy: number;

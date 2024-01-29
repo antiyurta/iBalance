@@ -4,12 +4,11 @@ import Filtered from "@/components/filtered";
 import {
   NewFilterSelect,
   NewInput,
-  NewSelect,
   NewSwitch,
 } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   EmployeeType,
@@ -187,9 +186,6 @@ const Users = () => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -225,10 +221,7 @@ const Users = () => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={undefined}
               isEdit
               onEdit={(row: IDataEmployee) => edit(row)}

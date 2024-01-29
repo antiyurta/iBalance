@@ -85,14 +85,14 @@ const PackageRegistration = (props: IProps) => {
       label: "Багцын код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Багцын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     measurementId: {
@@ -113,21 +113,21 @@ const PackageRegistration = (props: IProps) => {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     countPackage: {
       label: "Багц доторх тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.NUMBER,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -307,20 +307,7 @@ const PackageRegistration = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -337,9 +324,6 @@ const PackageRegistration = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns,
                           onColumns: (columns) => setColumns(columns),
-                          params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -383,10 +367,7 @@ const PackageRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit
                 isDelete

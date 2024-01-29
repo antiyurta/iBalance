@@ -13,7 +13,13 @@ import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import { IDataMaterialSection } from "@/service/material/section/entities";
 import { MaterialSectionService } from "@/service/material/section/service";
-import { FilteredColumnsMaterial, IDataMaterial, IFilterMaterial, IParamMaterial, MaterialType } from "@/service/material/entities";
+import {
+  FilteredColumnsMaterial,
+  IDataMaterial,
+  IFilterMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import { BalanceService } from "@/service/material/balance/service";
 
@@ -38,14 +44,14 @@ const Thumbnail = (props: IProps) => {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Бараа материалын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     materialSectionId: {
@@ -66,21 +72,21 @@ const Thumbnail = (props: IProps) => {
       label: "Багц доторх тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "countPackage",
+      dataIndex: ["countPackage"],
       type: DataIndexType.NUMBER,
     },
     balanceQty: {
       label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "balanceQty",
+      dataIndex: ["balanceQty"],
       type: DataIndexType.NUMBER,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -94,20 +100,18 @@ const Thumbnail = (props: IProps) => {
   const getData = async (param: IParamMaterial) => {
     blockContext.block();
     params.isBalanceRel = true;
-    const prm: IParamMaterial = {
-      ...params,
-      ...param,
-    }
-    setParams(prm);
-    await MaterialService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    }).finally(() => {
-      blockContext.unblock();
-    });
+    setParams(param);
+    await MaterialService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
   };
   const getMaterialSection = async () => {
     await MaterialSectionService.get({
@@ -144,8 +148,6 @@ const Thumbnail = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
               getData({
                 page: 1,
@@ -165,20 +167,7 @@ const Thumbnail = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -194,9 +183,6 @@ const Thumbnail = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: params,
-                        onParams: (params) => setParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -230,10 +216,7 @@ const Thumbnail = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 isDelete={true}

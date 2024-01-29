@@ -2,8 +2,8 @@ import { IDataConsumer } from "../consumer/entities";
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "../entities";
@@ -35,7 +35,7 @@ export interface IDataCommand extends IData {
   discounts: IDataDiscount[];
   coupons: IDataCoupon[];
 }
-export interface IFilterCommand extends IFilter {
+export interface IFilterCommand extends IColumn {
   id?: number[];
   commandNo?: string; // Тушаалын дугаар
   commandNumbers?: string[]; // Тушаалын дугаар

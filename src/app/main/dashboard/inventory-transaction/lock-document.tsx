@@ -24,14 +24,14 @@ const columns: FilteredColumnsDocument = {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
-    dataIndex: "id",
+    dataIndex: ["id"],
     type: DataIndexType.MULTI,
   },
   documentAt: {
     label: "Баримтын огноо",
     isView: true,
     isFiltered: false,
-    dataIndex: "documentAt",
+    dataIndex: ["documentAt"],
     type: DataIndexType.DATETIME,
   },
   warehouseName: {
@@ -45,28 +45,28 @@ const columns: FilteredColumnsDocument = {
     label: "Орлогын тоо",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeCount",
+    dataIndex: ["incomeCount"],
     type: DataIndexType.VALUE,
   },
   incomeQuantity: {
     label: "Орлогын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeQuantity",
+    dataIndex: ["incomeQuantity"],
     type: DataIndexType.VALUE,
   },
   expenseCount: {
     label: "Зарлагын тоо",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseCount",
+    dataIndex: ["expenseCount"],
     type: DataIndexType.VALUE,
   },
   expenseQuantity: {
     label: "Зарлагын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseQuantity",
+    dataIndex: ["expenseQuantity"],
     type: DataIndexType.VALUE,
   },
   consumerName: {
@@ -80,14 +80,14 @@ const columns: FilteredColumnsDocument = {
     label: "Гүйлгээ түгжсэн эсэх",
     isView: true,
     isFiltered: false,
-    dataIndex: "isLock",
+    dataIndex: ["isLock"],
     type: DataIndexType.BOOLEAN,
   },
   description: {
     label: "Гүйлгээний утга",
     isView: true,
     isFiltered: false,
-    dataIndex: "description",
+    dataIndex: ["description"],
     type: DataIndexType.MULTI,
   },
 };
@@ -120,7 +120,7 @@ const LockDocument = (props: IProps) => {
     });
   };
   const getWarehouses = () => {
-    WarehouseService.get({}).then((response) => {
+    WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
@@ -256,8 +256,6 @@ const LockDocument = (props: IProps) => {
           data={data}
           rowKey={"id"}
           meta={meta}
-          newParams={params}
-          onParams={(params) => setParams(params)}
           incomeFilters={filters}
           scroll={{ x: 1300 }}
         />

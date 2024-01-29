@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
   IFilter,
   IFilters,
@@ -19,7 +20,7 @@ export interface IDataLimitOfLoansAccount extends IData {
   lendLimit: IDataLimitOfLoans;
 }
 
-export interface IFilterLimitOfLoansAccount extends IFilter {
+export interface IFilterLimitOfLoansAccount extends IColumn {
   code?: number[];
   name?: string[];
   sectionId?: number[];
@@ -37,7 +38,6 @@ export type FilteredColumnsLimitOfLoansAccount = {
 
 export interface IParamLimitOFloansAccount
   extends IFilterLimitOfLoansAccount,
-    Meta,
     IParam {}
 
 export interface ILimitOfLoansAccountResponse extends GenericResponse {

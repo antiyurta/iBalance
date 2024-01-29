@@ -127,17 +127,7 @@ const StoragiesRegistration = (props: IProps) => {
   const getData = async (param: IParamWarehouse) => {
     setTableSelectedRows([]);
     blockContext.block();
-    var prm: IParamWarehouse = {
-      ...params,
-      ...param,
-      queries: params.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    setParams(prm);
-    await WarehouseService.get(prm)
+    await WarehouseService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -216,7 +206,7 @@ const StoragiesRegistration = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setIsOpenModal(false);
-            getData(params);
+            getData({});
           }
         })
         .finally(() => {
@@ -227,7 +217,7 @@ const StoragiesRegistration = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setIsOpenModal(false);
-            getData(params);
+            getData({});
           }
         })
         .finally(() => {
@@ -240,7 +230,7 @@ const StoragiesRegistration = (props: IProps) => {
     await WarehouseService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData({});
         }
       })
       .finally(() => {
@@ -293,8 +283,6 @@ const StoragiesRegistration = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
               getData({
                 page: 1,
@@ -366,20 +354,7 @@ const StoragiesRegistration = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -396,9 +371,6 @@ const StoragiesRegistration = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns: columns,
                           onColumns: (columns) => setColumns(columns),
-                          params: params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -427,10 +399,7 @@ const StoragiesRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit
                 isDelete

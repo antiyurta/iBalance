@@ -2,7 +2,7 @@ import { IUser } from "../authentication/entities";
 import {
   ColumnType,
   GenericResponse,
-  IFilter,
+  IColumn,
   IParam,
   Meta,
 } from "../entities";
@@ -13,7 +13,7 @@ export interface IDataReference {
   name: string;
   type: IType;
 }
-export interface IFilterReference {
+export interface IFilterReference extends IColumn {
   name?: string[];
   type: IType;
 }

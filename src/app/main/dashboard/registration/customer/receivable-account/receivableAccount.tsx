@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/filtered";
 import { NewInput } from "@/components/input";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  unDuplicate,
-} from "@/feature/common";
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -48,21 +44,21 @@ const ReceivableAccount = (props: IProps) => {
       label: "Дансны код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Дансны нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -74,29 +70,11 @@ const ReceivableAccount = (props: IProps) => {
     },
   });
   // data awcihrah
-  const getReceivableAccounts = async (param: IParamReferenceAccount) => {
+  const getData = async (param: IParamReferenceAccount) => {
     blockContext.block();
-    var prm: IParamReferenceAccount = {
-      ...param,
-      ...params,
-      queries: params?.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    if (param.code) {
-      prm.queries = [...unDuplicate("code", params)];
-    }
-    if (param.name) {
-      prm.queries = [...unDuplicate("name", params)];
-    }
-    if (param.updatedBy) {
-      prm.queries = [...unDuplicate("updatedBy", params)];
-    }
-    setParams(prm);
+    setParams(param);
     await referenceAccountService
-      .get(prm)
+      .get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -117,13 +95,13 @@ const ReceivableAccount = (props: IProps) => {
           if (response.success) {
             setSelectedRow(response.response.data);
             setIsOpenModal(false);
-            getReceivableAccounts({ page: 1, limit: 10 });
+            getData({ page: 1, limit: 10 });
           }
         });
     } else {
       await referenceAccountService.post(values).then((response) => {
         if (response.success) {
-          getReceivableAccounts(params ? params : { page: 1, limit: 10 });
+          getData(params ? params : { page: 1, limit: 10 });
           setIsOpenModal(false);
         }
       });
@@ -136,7 +114,7 @@ const ReceivableAccount = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           setSelectedRow(undefined);
-          getReceivableAccounts({ page: 1, limit: 10 });
+          getData({ page: 1, limit: 10 });
         }
       })
       .finally(() => {
@@ -144,7 +122,7 @@ const ReceivableAccount = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getReceivableAccounts({ page: 1, limit: 10 });
+    getData({ page: 1, limit: 10 });
   }, []);
   return (
     <div>
@@ -189,20 +167,7 @@ const ReceivableAccount = (props: IProps) => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params,
-                  onParams: (params) => setParams(params),
-                });
-                getReceivableAccounts(params ? params : { page: 1, limit: 10 });
-              }}
-            />
+            <Filtered columns={columns} />
             {ComponentType === "FULL" ? (
               <Space
                 style={{
@@ -219,9 +184,6 @@ const ReceivableAccount = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns: columns,
                       onColumns: (columns) => setColumns(columns),
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData: (params) => getReceivableAccounts(params),
                     })
                   }
                 />
@@ -262,10 +224,7 @@ const ReceivableAccount = (props: IProps) => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={(params) => getReceivableAccounts(params)}
             onColumns={(columns) => setColumns(columns)}
-            newParams={params}
-            onParams={(params) => setParams(params)}
             incomeFilters={filters}
             isEdit={true}
             onEdit={(row) => {

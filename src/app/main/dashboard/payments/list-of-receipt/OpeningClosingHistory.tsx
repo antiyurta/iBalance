@@ -6,18 +6,16 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsPosOpenClose,
-  ICloseDto,
   IDataPosOpenClose,
   IFilterPosOpenClose,
   IParamOpenClose,
 } from "@/service/pos/open-close/entities";
 import { OpenCloseService } from "@/service/pos/open-close/service";
-import { Button, Col, Form, Row, Space } from "antd";
+import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { IssuesCloseOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
-import { useTypedSelector } from "@/feature/store/reducer";
 import CloseState from "../open-close/close";
 const OpeningClosingHistory = () => {
   const blockContext: BlockView = useContext(BlockContext);
@@ -26,21 +24,21 @@ const OpeningClosingHistory = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     posId: {
       label: "Посын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "posId",
+      dataIndex: ["posId"],
       type: DataIndexType.NUMBER,
     },
     openerUserId: {
@@ -54,14 +52,14 @@ const OpeningClosingHistory = () => {
       label: "Нээсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "openerAt",
+      dataIndex: ["openerAt"],
       type: DataIndexType.DATETIME,
     },
     openerAmount: {
       label: "Нээсэн бэлэн мөнгө",
       isView: true,
       isFiltered: false,
-      dataIndex: "openerAmount",
+      dataIndex: ["openerAmount"],
       type: DataIndexType.VALUE,
     },
     closerUserId: {
@@ -75,42 +73,42 @@ const OpeningClosingHistory = () => {
       label: "Хаасан огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "closerAt",
+      dataIndex: ["closerAt"],
       type: DataIndexType.DATETIME,
     },
     workingTime: {
       label: "Ажилласан цаг",
       isView: true,
       isFiltered: false,
-      dataIndex: "workingTime",
+      dataIndex: ["workingTime"],
       type: DataIndexType.TIME,
     },
     balanceAmount: {
       label: "Мөнгөний илүүдэл (дутагдал)",
       isView: true,
       isFiltered: false,
-      dataIndex: "balanceAmount",
+      dataIndex: ["balanceAmount"],
       type: DataIndexType.VALUE,
     },
     cashAmount: {
       label: "Хаасан бэлэн мөнгө",
       isView: true,
       isFiltered: false,
-      dataIndex: "cashAmount",
+      dataIndex: ["cashAmount"],
       type: DataIndexType.VALUE,
     },
     nonCashAmount: {
       label: "Хаасан бэлэн бус мөнгө",
       isView: true,
       isFiltered: false,
-      dataIndex: "cashAmount",
+      dataIndex: ["cashAmount"],
       type: DataIndexType.VALUE,
     },
     updatedAt: {
       label: "Зассан огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATETIME,
     },
     updatedBy: {
@@ -186,20 +184,7 @@ const OpeningClosingHistory = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -215,9 +200,6 @@ const OpeningClosingHistory = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -244,10 +226,7 @@ const OpeningClosingHistory = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
             addItems={items}
             custom={(_, id) => getOpenClose(id)}
@@ -263,7 +242,7 @@ const OpeningClosingHistory = () => {
         destroyOnClose
       >
         <CloseState
-          openCloseId={openClose?.id }
+          openCloseId={openClose?.id}
           setIsClose={(value) => setIsClose(!value)}
         />
       </NewModal>

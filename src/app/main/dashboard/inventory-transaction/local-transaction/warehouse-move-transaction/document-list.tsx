@@ -28,10 +28,6 @@ export const WarehouseDocumentList = () => {
   const [data, setData] = useState<IDataWarehouseDocument[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterWarehouseDocument>();
-  const [params, setParams] = useState<IParamWarehouseDocument>({
-    page: 1,
-    limit: 10,
-  });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] =
@@ -41,21 +37,21 @@ export const WarehouseDocumentList = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     documentAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "documentAt",
+      dataIndex: ["documentAt"],
       type: DataIndexType.DATE,
     },
     description: {
       label: "Гүйлгээний утга",
       isView: true,
       isFiltered: false,
-      dataIndex: "description",
+      dataIndex: ["description"],
       type: DataIndexType.MULTI,
     },
     expenseWarehouseId: {
@@ -90,14 +86,14 @@ export const WarehouseDocumentList = () => {
       label: "Шилжүүлсэн тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "counter",
+      dataIndex: ["counter"],
       type: DataIndexType.NUMBER,
     },
     quantity: {
       label: "Шилжүүлсэн тоо ширхэг",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: ["quantity"],
       type: DataIndexType.NUMBER,
     },
     updatedBy: {
@@ -111,14 +107,14 @@ export const WarehouseDocumentList = () => {
       label: "Бүртгэсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATETIME,
     },
   });
 
-  const getData = async (params: IParamWarehouseDocument) => {
+  const getData = async () => {
     blockContext.block();
-    await WarehouseDocumentService.get(params)
+    await WarehouseDocumentService.get()
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -141,13 +137,13 @@ export const WarehouseDocumentList = () => {
     await WarehouseDocumentService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData();
         }
       })
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
+    getData();
   }, []);
   return (
     <div>
@@ -155,20 +151,7 @@ export const WarehouseDocumentList = () => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -178,9 +161,6 @@ export const WarehouseDocumentList = () => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -217,10 +197,7 @@ export const WarehouseDocumentList = () => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               isDelete={true}
@@ -230,10 +207,6 @@ export const WarehouseDocumentList = () => {
           </div>
         </Col>
         <Col span={isFilterToggle ? 4 : 0}>
-          {/* <CommandFilterForm
-            onToggle={() => setIsFilterToggle(!isFilterToggle)}
-            getData={getData}
-          /> */}
         </Col>
       </Row>
       <NewModal

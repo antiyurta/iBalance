@@ -12,7 +12,6 @@ import { App, Button, Col, Form, Popover, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import Information from "../information/information";
-import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
 import Export from "@/components/Export";

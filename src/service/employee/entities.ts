@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IFilter,
   IParam,
   Meta,
@@ -33,7 +34,7 @@ export interface IDataEmployee {
   isTreasure: boolean;
   isCashier: boolean;
 }
-export interface IFilterEmployee extends IFilter {
+export interface IFilterEmployee extends IColumn {
   email?: string;
   phoneNo?: string;
   registerNumber?: string;
@@ -44,7 +45,7 @@ export interface IFilterEmployee extends IFilter {
   isCashier?: boolean;
   warehouseId?: number;
 }
-export interface IParamEmployee extends Meta, IParam, IFilterEmployee {}
+export interface IParamEmployee extends IParam, IFilterEmployee {}
 export type FilteredColumnsEmployee = {
   [T in keyof IFilterEmployee]?: ColumnType;
 };

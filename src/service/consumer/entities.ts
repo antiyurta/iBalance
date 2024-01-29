@@ -2,6 +2,7 @@ import { IUser } from "../authentication/entities";
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IFilter,
   IParam,
   Meta,
@@ -35,7 +36,7 @@ export interface IDataConsumer {
   deletedAt: string;
   updatedUser: IUser;
 }
-export interface IFilterConsumer extends IFilter {
+export interface IFilterConsumer extends IColumn {
   code?: number[];
   isIndividual?: boolean[];
   isEmployee?: boolean[];

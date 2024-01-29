@@ -12,12 +12,11 @@ export const Role = () => {
   const [form] = Form.useForm<IDataRole>();
   const blockContext: BlockView = useContext(BlockContext);
   const [roles, setRoles] = useState<IDataRole[]>([]);
-  const [params, setParams] = useState<IParamRole>({});
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [selectedRole, setSelectedRole] = useState<IDataRole>();
 
   const getRole = () => {
-    RoleService.get(params).then((response) => {
+    RoleService.get().then((response) => {
       if (response.success) {
         setRoles(response.response.data);
       }

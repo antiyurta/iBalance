@@ -74,21 +74,21 @@ const Detailed = () => {
       label: "Худалдан авсан огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "purchaseAt",
+      dataIndex: ["purchaseAt"],
       type: DataIndexType.DATE,
     },
     expirationAt: {
       label: "Хугацаа дуусах огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "expirationAt",
+      dataIndex: ["expirationAt"],
       type: DataIndexType.DATE,
     },
     quantity: {
       label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: ["quantity"],
       type: DataIndexType.NUMBER,
     },
   });
@@ -119,20 +119,7 @@ const Detailed = () => {
           }}
           size={12}
         >
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key,
-                state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params,
-                onParams: (params) => setParams(params),
-              });
-              getData(params ? params : { page: 1, limit: 10 });
-            }}
-          />
+          <Filtered columns={columns} />
           <Space
             style={{
               width: "100%",
@@ -148,9 +135,6 @@ const Detailed = () => {
                   unSelectedRow: arg2,
                   columns: columns,
                   onColumns: (columns) => setColumns(columns),
-                  params,
-                  onParams: (params) => setParams(params),
-                  getData: (params) => getData(params),
                 })
               }
             />
@@ -178,10 +162,7 @@ const Detailed = () => {
           data={data}
           meta={meta}
           columns={columns}
-          onChange={(params) => getData(params)}
           onColumns={(columns) => setColumns(columns)}
-          newParams={params}
-          onParams={(params) => setParams(params)}
           incomeFilters={filters}
         />
       </Col>

@@ -37,21 +37,21 @@ const Jurnal = () => {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     documentAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "documentAt",
+      dataIndex: ["documentAt"],
       type: DataIndexType.DATE,
     },
     status: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "status",
+      dataIndex: ["status"],
       type: DataIndexType.ENUM,
     },
     warehouseName: {
@@ -79,35 +79,35 @@ const Jurnal = () => {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "expenseCount",
+      dataIndex: ["expenseCount"],
       type: DataIndexType.MULTI,
     },
     expenseQuantity: {
       label: "Борлуулалтын тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "expenseQuantity",
+      dataIndex: ["expenseQuantity"],
       type: DataIndexType.MULTI,
     },
     amount: {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     discountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "discountAmount",
+      dataIndex: ["discountAmount"],
       type: DataIndexType.VALUE,
     },
     consumerDiscountAmount: {
       label: "Харилцагчийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "consumerDiscountAmount",
+      dataIndex: ["consumerDiscountAmount"],
       type: DataIndexType.VALUE,
     },
     // membershipIncreaseAmount: {
@@ -121,14 +121,14 @@ const Jurnal = () => {
       label: "Төлөх дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "payAmount",
+      dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
     },
     isEbarimt: {
       label: "Ибаримтын төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isEbarimt",
+      dataIndex: ["isEbarimt"],
       type: DataIndexType.BOOLEAN,
     },
     // paidAmount: {
@@ -278,20 +278,7 @@ const Jurnal = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -307,9 +294,6 @@ const Jurnal = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -336,10 +320,7 @@ const Jurnal = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
             addItems={items}
             custom={(key, id) => itemClick(key, id)}

@@ -6,12 +6,7 @@ import Filtered from "@/components/filtered";
 import { DataIndexType, Meta } from "@/service/entities";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  unDuplicate,
-} from "@/feature/common";
-
+import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   IDataTreeSection,
@@ -71,14 +66,14 @@ const CustomerList = (props: IProps) => {
       label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -144,20 +139,7 @@ const CustomerList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
-                    });
-                    getData(newParams);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -173,9 +155,6 @@ const CustomerList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -203,10 +182,7 @@ const CustomerList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}
