@@ -73,6 +73,8 @@ const CheckboxGroup: React.FC<IProps> = ({ dataIndex, options, isClear }) => {
         changeParam({
           ...currentTab.param,
           filters: newFilters,
+          page: 1,
+          limit: 10,
         })
       );
     }

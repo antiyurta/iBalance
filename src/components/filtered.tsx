@@ -1,4 +1,7 @@
+import { useTypedSelector } from "@/feature/store/reducer";
+import { AppDispatch } from "@/feature/store/store";
 import { Space, Tag } from "antd";
+import { useDispatch } from "react-redux";
 
 interface IProps {
   columns: object;
@@ -7,6 +10,9 @@ interface IProps {
 
 const Filtered = (props: IProps) => {
   const { columns, isActive } = props;
+  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
+  const currentTab = tabItems.find((item) => item.key == activeKey);
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <div
       className="extra"

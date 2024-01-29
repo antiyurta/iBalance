@@ -9,6 +9,10 @@ import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
 import type { TableProps } from "antd/lib";
 import { FilterConfirmProps } from "antd/es/table/interface";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { changeParam } from "@/feature/store/slice/tab.slice";
 export const { Column } = Table;
 export const AntTable = (props: TableProps<any>) => {
   return <Table {...props} />;
@@ -72,6 +76,9 @@ function NewTable(props: ITable) {
     addItems,
     custom,
   } = props;
+  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
+  const currentTab = tabItems.find((item) => item.key == activeKey);
+  const dispatch = useDispatch<AppDispatch>();
   const dragProps = {
     onDragEnd(fromIndex: number, toIndex: number) {
       // console.log(fromIndex, toIndex);
@@ -164,9 +171,6 @@ function NewTable(props: ITable) {
               },
             };
           }}
-          // onChange={(pag, filter, sorter, extra) => {
-          //   console.log(pag, filter, sorter, extra);
-          // }}
           pagination={{
             position: ["bottomCenter"],
             size: "small",
@@ -178,17 +182,19 @@ function NewTable(props: ITable) {
             showSizeChanger: true,
             pageSizeOptions: ["5", "10", "20", "50"],
             showQuickJumper: true,
-            onChange: (page, pageSize) =>
-              onChange?.({ page: page, limit: pageSize }),
+            onChange: (page, pageSize) => {
+              if (currentTab) {
+                dispatch(
+                  changeParam({
+                    ...currentTab?.param,
+                    page,
+                    limit: pageSize,
+                  })
+                );
+              }
+            },
           }}
         >
-          {/* <Column
-            title={"№"}
-            rowScope={"row"}
-            render={(_value, _row, index) => {
-              return meta.page * meta.limit - (meta.limit - index - 1);
-            }}
-          /> */}
           {Object.entries(columns)?.map(([key, value]: [any, ColumnType]) => {
             if (value.isView) {
               return (
@@ -231,8 +237,6 @@ function NewTable(props: ITable) {
                       />
                     );
                   }}
-                  // sorter={true}
-                  // showSorterTooltip={true}
                   render={(text) => renderCheck(text, value.type, value.key)}
                 />
               );

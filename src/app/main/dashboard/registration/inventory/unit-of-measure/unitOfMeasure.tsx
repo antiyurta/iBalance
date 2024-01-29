@@ -176,13 +176,15 @@ const UnitOfMeasure = (props: IProps) => {
   };
 
   useEffect(() => {
-    getData({
-      page: 1,
-      limit: 10,
-      filters: [],
-    });
     getHeader();
   }, []);
+  useEffect(() => {
+    getData({
+      filters: [],
+      page: 0,
+      limit: 0,
+    });
+  }, [currentTabParam]);
   return (
     <>
       <Row
