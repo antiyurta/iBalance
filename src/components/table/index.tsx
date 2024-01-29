@@ -237,7 +237,7 @@ function NewTable(props: ITable) {
                       />
                     );
                   }}
-                  render={(text) => renderCheck(text, value.type, value.key)}
+                  render={(text) => renderCheck(text, value.type)}
                 />
               );
             }

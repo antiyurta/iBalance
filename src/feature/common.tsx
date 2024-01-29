@@ -5,7 +5,7 @@ import {
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
-import { DataIndexType, Queries } from "@/service/entities";
+import { DataIndexType } from "@/service/entities";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import { message } from "antd";
@@ -126,16 +126,6 @@ function removeDuplicates<T, K extends keyof T>(array: T[], key: K): T[] {
     return false;
   });
 }
-
-function unDuplicate(text: string, newParams: any) {
-  var newQueries: Queries[] = [];
-  newParams.queries?.map((query: any) => {
-    if (query.param != text) {
-      newQueries.push(query);
-    }
-  });
-  return newQueries;
-}
 /** Давхардал шалгах давхартай бол => false үгүй бол => true */
 function hasUniqueValues(arr: any[]): boolean {
   const valueSet = new Set();
@@ -211,15 +201,6 @@ function onCloseFilterTag(props: IOnCloseFilterTag) {
     if (params.orderParam === key) {
       newClonedParams.orderParam = undefined;
       newClonedParams.order = undefined;
-    }
-    if (params.queries) {
-      var newQueries: Queries[] = [];
-      params.queries.map((query: Queries) => {
-        if (query.param != key) {
-          newQueries.push(query);
-        }
-      });
-      newClonedParams.queries = newQueries.filter(Boolean) || undefined;
     }
     onParams(newClonedParams);
   }
@@ -321,7 +302,12 @@ async function userToFilter(ids: number[]) {
 
 async function banksToFilter(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
-  const { response } = await ReferenceService.get({ type: IType.BANK });
+  const { response } = await ReferenceService.get({
+    type: IType.BANK,
+    filters: [],
+    dataIndex: [],
+    filter: ""
+  });
   filters?.map((filterSection: any) => {
     response.data.map((section: IDataReference) => {
       if (section.id === filterSection) {
@@ -339,7 +325,7 @@ async function consumerToFilterName(filters: any) {
   const outFilters: ColumnFilterItem[] = [];
   const {
     response: { data },
-  } = await ConsumerService.get({});
+  } = await ConsumerService.get();
   console.log(filters, data);
   filters?.map((filterSection: any) => {
     data.map((consumer: IDataConsumer) => {
@@ -436,7 +422,6 @@ export {
   isChecked,
   renderCheck,
   removeDuplicates,
-  unDuplicate,
   hasUniqueValues,
   findIndexInColumnSettings,
   typeOfFilters,
