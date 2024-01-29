@@ -31,28 +31,28 @@ const Users = () => {
       label: "Мэйл",
       isView: true,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: ["email"],
       type: DataIndexType.MULTI,
     },
     lastName: {
       label: "Овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["lastName"],
       type: DataIndexType.MULTI,
     },
     firstName: {
       label: "Нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "firstName",
+      dataIndex: ["firstName"],
       type: DataIndexType.MULTI,
     },
     phoneNo: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phoneNo",
+      dataIndex: ["phoneNo"],
       type: DataIndexType.MULTI,
     },
     warehouseRoleId: {
@@ -66,35 +66,34 @@ const Users = () => {
       label: "Нярав эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isTreasure",
+      dataIndex: ["isTreasure"],
       type: DataIndexType.BOOLEAN,
     },
     isCashier: {
       label: "Кассчин эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isCashier",
+      dataIndex: ["isCashier"],
       type: DataIndexType.BOOLEAN,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
   });
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<IDataEmployee>();
   const [data, setData] = useState<IDataEmployee[]>([]);
-  const [params, setParams] = useState<IParamEmployee>({ page: 1, limit: 10 });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [isAddModal, setIsAddModal] = useState<boolean>(false);
   const [selectedEmployee, setSelectedEmployee] = useState<IDataEmployee>();
   const [roles, setRoles] = useState<IDataRole[]>([]);
 
-  const getData = async (params: IParamEmployee) => {
+  const getData = async (params?: IParamEmployee) => {
     await EmployeeService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -102,7 +101,7 @@ const Users = () => {
       }
     });
   };
-  const getRole = async (params: IParamRole) => {
+  const getRole = async (params?: IParamRole) => {
     await RoleService.get(params).then((response) => {
       if (response.success) {
         setRoles(response.response.data);
@@ -125,7 +124,7 @@ const Users = () => {
       await EmployeeService.patch(selectedEmployee.id, values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData();
           }
         })
         .finally(() => {
@@ -136,7 +135,7 @@ const Users = () => {
       await EmployeeService.post(values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData();
           }
         })
         .finally(() => {
@@ -146,8 +145,8 @@ const Users = () => {
     }
   };
   useEffect(() => {
-    getData(params);
-    getRole({});
+    getData();
+    getRole();
   }, []);
   return (
     <>
@@ -178,20 +177,7 @@ const Users = () => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}

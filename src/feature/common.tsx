@@ -144,9 +144,6 @@ interface IFindIndexInColumnSettins {
   unSelectedRow: string[];
   columns: any;
   onColumns: (columns: any) => void;
-  params: any;
-  onParams: (params: any) => void;
-  getData: (params: any) => void;
 }
 
 function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
@@ -155,9 +152,6 @@ function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
     unSelectedRow,
     columns,
     onColumns,
-    params,
-    onParams,
-    getData,
   } = props;
   unSelectedRow?.map((row) => {
     onCloseFilterTag({
@@ -165,8 +159,6 @@ function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
       state: false,
       column: columns,
       onColumn: (columns) => onColumns(columns),
-      params: params,
-      onParams: (params) => onParams(params),
     });
   });
   const clone = { ...columns };
@@ -177,7 +169,6 @@ function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
     clone![index]!.isView = true;
   });
   onColumns(clone);
-  getData(params);
 }
 
 // filter tohiruulga
@@ -186,24 +177,13 @@ interface IOnCloseFilterTag {
   state: boolean;
   column: any;
   onColumn: (column: any) => void;
-  params: any;
-  onParams: (params: any) => void;
 }
 
 function onCloseFilterTag(props: IOnCloseFilterTag) {
-  const { key, state, column, onColumn, params, onParams } = props;
+  const { key, state, column, onColumn } = props;
   const clone = column;
   clone[key].isFiltered = state;
   onColumn(clone);
-  if (!state) {
-    var newClonedParams = params;
-    newClonedParams[key] = undefined;
-    if (params.orderParam === key) {
-      newClonedParams.orderParam = undefined;
-      newClonedParams.order = undefined;
-    }
-    onParams(newClonedParams);
-  }
 }
 
 interface ITypeOfFilters {
@@ -305,8 +285,8 @@ async function banksToFilter(filters: any) {
   const { response } = await ReferenceService.get({
     type: IType.BANK,
     filters: [],
-    dataIndex: [],
-    filter: ""
+    page: 1,
+    limit: 10
   });
   filters?.map((filterSection: any) => {
     response.data.map((section: IDataReference) => {

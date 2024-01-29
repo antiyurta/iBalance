@@ -13,14 +13,14 @@ export interface IDataReference {
   name: string;
   type: IType;
 }
-export interface IFilterReference extends IFilter {
+export interface IFilterReference {
   name?: string[];
   type: IType;
 }
 export type FilteredColumnsReference = {
   [T in keyof IFilterReference]?: ColumnType;
 };
-export interface IParamReference extends Meta, IParam, IFilterReference {}
+export interface IParamReference extends IParam, IFilterReference {}
 // END => Reference section
 export interface IUserResponse extends GenericResponse {
   response: IUser[];

@@ -38,10 +38,7 @@ interface ITable {
   data: any;
   columns: columns;
   meta: Meta;
-  onChange?: (params: any) => void;
   onColumns: (columns: any) => void;
-  newParams: any;
-  onParams: (params: any) => void;
   incomeFilters: any;
   isEdit?: boolean;
   onEdit?: (row: any) => void;
@@ -64,10 +61,7 @@ function NewTable(props: ITable) {
     data,
     meta,
     columns,
-    onChange,
     onColumns,
-    newParams,
-    onParams,
     incomeFilters,
     isEdit = false,
     onEdit,
@@ -218,12 +212,9 @@ function NewTable(props: ITable) {
                             state: state,
                             column: columns,
                             onColumn: (columns) => onColumns(columns),
-                            params: newParams,
-                            onParams: (params) => onParams(params),
+                            
                           });
-                          onChange?.(params);
                         }}
-                        params={newParams}
                       />
                     );
                   }}

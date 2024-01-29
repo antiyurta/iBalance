@@ -8,7 +8,6 @@ import {
   findIndexInColumnSettings,
   onCloseFilterTag,
   openNofi,
-  unDuplicate,
 } from "@/feature/common";
 import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
@@ -46,7 +45,6 @@ const StoragiesRegistration = (props: IProps) => {
   const [switchForm] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [params, setParams] = useState<IParamWarehouse>({});
   const [data, setData] = useState<any[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterWarehouse>();
@@ -61,14 +59,14 @@ const StoragiesRegistration = (props: IProps) => {
       label: "Байршлын код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     names: {
       label: "Байршлын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     sectionId: {
@@ -78,7 +76,7 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
     },
-    userIds: {
+    employeeIds: {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
@@ -89,21 +87,21 @@ const StoragiesRegistration = (props: IProps) => {
       label: "Байршлын хаяг",
       isView: true,
       isFiltered: false,
-      dataIndex: "address",
+      dataIndex: ["address"],
       type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {

@@ -26,7 +26,6 @@ interface IProps {
   type: DataIndexType;
   filters: TypeCheck[];
   isFiltered: boolean;
-  params: IParam;
   handleSearch: (params: object, state: boolean) => void;
 }
 type TypeCheck = number | string | boolean;

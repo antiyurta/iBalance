@@ -54,7 +54,7 @@ export type FilteredColumnsConsumer = {
   [T in keyof IFilterConsumer]?: ColumnType;
 };
 
-export interface IParamConsumer extends Meta, IParam, IFilterConsumer {
+export interface IParamConsumer extends IParam, IFilterConsumer {
   ids?: number[];
   lendLimits?: boolean;
   initialBalances?: boolean;

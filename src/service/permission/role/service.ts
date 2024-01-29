@@ -7,7 +7,7 @@ import {
 } from "./entities";
 import { GenericResponse } from "@/service/entities";
 
-function get(params: IParamRole): Promise<IResponseRoles> {
+function get(params?: IParamRole): Promise<IResponseRoles> {
   return api.get("warehouse-permission/role", { params });
 }
 

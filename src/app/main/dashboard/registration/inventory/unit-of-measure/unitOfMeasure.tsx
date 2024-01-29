@@ -3,7 +3,7 @@ import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
-import { NewTable } from "@/components/table/index";
+import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, FilteredColumns, Meta } from "@/service/entities";
@@ -17,7 +17,7 @@ import { App, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 
-import { unitSwitch, units } from "./unit";
+import { units } from "./unit";
 import { useTypedSelector } from "@/feature/store/reducer";
 export interface IDataUnit {
   id: number;
@@ -39,11 +39,6 @@ const UnitOfMeasure = (props: IProps) => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [form] = Form.useForm();
   const [data, setData] = useState<IDataUnitOfMeasure[]>([]);
-  const [newParams, setNewParams] = useState<IParamUnitOfMeasure>({
-    page: 1,
-    limit: 10,
-    filters: [],
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IParamUnitOfMeasure>();
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -99,7 +94,7 @@ const UnitOfMeasure = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParamUnitOfMeasure) => {
+  const getData = async () => {
     blockContext.block();
     await UnitOfMeasureService.get(currentTabParam)
       .then((response) => {
@@ -126,11 +121,7 @@ const UnitOfMeasure = (props: IProps) => {
       await UnitOfMeasureService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
-            getData({
-              page: 1,
-              limit: 10,
-              filters: [],
-            });
+            getData();
             setIsOpenModal(false);
           }
         })
@@ -140,11 +131,7 @@ const UnitOfMeasure = (props: IProps) => {
     } else {
       await UnitOfMeasureService.post(values).then((response) => {
         if (response.success) {
-          getData({
-            page: 1,
-            limit: 10,
-            filters: [],
-          });
+          getData();
           setIsOpenModal(false);
         }
       });
@@ -153,11 +140,7 @@ const UnitOfMeasure = (props: IProps) => {
   const onDelete = async (id: number) => {
     await UnitOfMeasureService.remove(id).then((response) => {
       if (response.success) {
-        getData({
-          page: 1,
-          limit: 10,
-          filters: [],
-        });
+        getData();
       }
     });
   };
@@ -179,11 +162,7 @@ const UnitOfMeasure = (props: IProps) => {
     getHeader();
   }, []);
   useEffect(() => {
-    getData({
-      filters: [],
-      page: 0,
-      limit: 0,
-    });
+    getData();
   }, [currentTabParam]);
   return (
     <>
@@ -224,11 +203,7 @@ const UnitOfMeasure = (props: IProps) => {
             extra="HALF"
             isLeaf={true}
             onClick={(keys) => {
-              getData({
-                page: 1,
-                limit: 10,
-                filters: [],
-              });
+              getData();
             }}
           />
         </Col>
@@ -258,9 +233,6 @@ const UnitOfMeasure = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -298,10 +270,7 @@ const UnitOfMeasure = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => openModal(true, row)}

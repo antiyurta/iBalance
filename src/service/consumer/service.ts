@@ -1,11 +1,12 @@
 import { api } from "../../feature/interceptor/interceptor";
+import { IParam } from "../entities";
 import {
   IResponseConsumer,
   IDataConsumer,
   IParamConsumer,
   IResponseOneConsumer,
 } from "./entities";
-function get(params?: IParamConsumer): Promise<IResponseConsumer> {
+function get(params?: IParam): Promise<IResponseConsumer> {
   return api.get("consumer", { params: params });
 }
 function getById(id: number): Promise<IResponseOneConsumer> {
