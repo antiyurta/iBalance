@@ -132,28 +132,28 @@ const PriceList = (props: IProps) => {
       label: "Нэгж үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "unitAmount",
+      dataIndex: ["unitAmount"],
       type: DataIndexType.MULTI,
     },
     lumpQuantity: {
       label: "Бөөний үнээрх тоо хэмжээ",
       isView: false,
       isFiltered: false,
-      dataIndex: "lumpQuantity",
+      dataIndex: ["lumpQuantity"],
       type: DataIndexType.MULTI,
     },
     lumpAmount: {
       label: "Бөөний нэгжийн үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "lumpAmount",
+      dataIndex: ["lumpAmount"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -167,7 +167,7 @@ const PriceList = (props: IProps) => {
       label: "Үүсгэсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     createdBy: {
@@ -214,20 +214,7 @@ const PriceList = (props: IProps) => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -237,9 +224,6 @@ const PriceList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: setParams,
-                      getData,
                     })
                   }
                 />
@@ -275,10 +259,7 @@ const PriceList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row) => editCommand(row)}

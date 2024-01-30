@@ -40,6 +40,13 @@ const tabs = createSlice({
       );
       state.activeKey = action.payload.key;
       if (!existingTab) {
+        action.payload.param = {
+          page: 1,
+          limit: 10,
+          filters: [],
+          order: "DESC",
+          orderParam: ["createdAt"],
+        };
         state.tabItems.push(action.payload);
       }
       return state;

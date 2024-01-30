@@ -58,6 +58,7 @@ export type FilteredColumnsConsumer = {
 
 export interface IParamConsumer extends IParam, IFilterConsumer {
   ids?: number[];
+  sectionId?: number[];
   lendLimits?: boolean;
   initialBalances?: boolean;
   memberships?: boolean;

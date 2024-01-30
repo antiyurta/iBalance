@@ -41,35 +41,35 @@ const CommandList = (props: IProps) => {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.STRING,
     },
     commandAt: {
       label: "Тушаалын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandAt",
+      dataIndex: ["commandAt"],
       type: DataIndexType.DATE,
     },
     commandNumbers: {
       label: "Тушаалын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandNo",
+      dataIndex: ["commandNo"],
       type: DataIndexType.MULTI,
     },
     ruleAt: {
       label: "Мөрдөж эхлэх огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "ruleAt",
+      dataIndex: ["ruleAt"],
       type: DataIndexType.DATE,
     },
     isAlls: {
       label: "Нийтэд мөрдөх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isAll",
+      dataIndex: ["isAll"],
       type: DataIndexType.BOOLEAN,
     },
     branchName: {
@@ -97,14 +97,14 @@ const CommandList = (props: IProps) => {
       label: "Баримтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: ["quantity"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATETIME,
     },
     createdBy: {
@@ -118,7 +118,7 @@ const CommandList = (props: IProps) => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATETIME,
     },
     updatedBy: {
@@ -185,20 +185,7 @@ const CommandList = (props: IProps) => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -208,9 +195,6 @@ const CommandList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -246,10 +230,7 @@ const CommandList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               isDelete

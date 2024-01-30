@@ -80,7 +80,7 @@ const ExtraIndex = () => {
                   label: "Баримтын жагсаалт",
                   key: "/payments/list-of-receipt",
                   closeable: true,
-                  filters: [],
+                  param: {},
                 })
               );
             }}

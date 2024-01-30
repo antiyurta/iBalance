@@ -270,10 +270,6 @@ const ListOfReceipt = (props: IProps) => {
             onColumns={function (columns: any): void {
               throw new Error("Function not implemented.");
             }}
-            newParams={undefined}
-            onParams={function (params: any): void {
-              throw new Error("Function not implemented.");
-            }}
             incomeFilters={undefined}
           />
         </Col>

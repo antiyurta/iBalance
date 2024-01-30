@@ -74,7 +74,7 @@ const CustomerList = (props: IProps) => {
       dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    sectionName: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
@@ -102,7 +102,7 @@ const CustomerList = (props: IProps) => {
       dataIndex: ["address"],
       type: DataIndexType.MULTI,
     },
-    bankName: {
+    bank: {
       label: "Банкны нэр",
       isView: true,
       isFiltered: false,

@@ -71,7 +71,6 @@ const ReceivableAccount = (props: IProps) => {
   // data awcihrah
   const getData = async (param: IParamReferenceAccount) => {
     blockContext.block();
-    setParams(param);
     await referenceAccountService
       .get(param)
       .then((response) => {
@@ -100,7 +99,7 @@ const ReceivableAccount = (props: IProps) => {
     } else {
       await referenceAccountService.post(values).then((response) => {
         if (response.success) {
-          getData(params ? params : { page: 1, limit: 10 });
+          getData({ page: 1, limit: 10 });
           setIsOpenModal(false);
         }
       });

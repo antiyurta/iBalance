@@ -151,11 +151,7 @@ const ConfigPos = () => {
   };
   useEffect(() => {
     getData(params);
-    getWareshouse({
-      filters: [],
-      dataIndex: [],
-      filter: "",
-    });
+    getWareshouse({});
   }, []);
   return (
     <>
