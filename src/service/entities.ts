@@ -1,16 +1,5 @@
 import { Breakpoint } from "antd";
 import { Dayjs } from "dayjs";
-
-export enum ToolsIcons {
-  EQUALS = "/icons/tools/Equals.png",
-  NOT_EQUAL = "/icons/tools/notEquals.png",
-  CONTAINS = "/icons/tools/Contains.png",
-  NOT_CONTAINS = "/icons/tools/notContains.png",
-  IS_GREATER = "/icons/tools/isGreetThan.png",
-  IS_GREATOR_OR_EQUAL = "/icons/tools/isGreetThanOrEqual.png",
-  IS_LESS = "/icons/tools/isLessThan.png",
-  IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
-}
 export type Tool =
   | "EQUALS"
   | "NOT_EQUAL"
@@ -25,6 +14,11 @@ export interface ITool {
   title: string;
   operator: Tool;
 }
+export interface SelectObject {
+  value: string | number | boolean;
+  label: string;
+}
+export type TypeCheck = number | string | boolean | SelectObject;
 export enum Operator {
   Equals = "EQUALS",
   NotEqual = "NOT_EQUAL",
@@ -166,10 +160,7 @@ export enum DataIndexType {
   BOOLEAN = "BOOLEAN",
   BOOLEAN_STRING = "BOOLEAN_STRING",
 }
-export enum RadioType {
-  ASC = "ASC",
-  DESC = "DESC",
-}
+export type RadioType = "ASC" | "DESC";
 
 export type DescMode = "NORMAL" | "PICTURE";
 

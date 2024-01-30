@@ -37,7 +37,6 @@ const ReceivableAccount = (props: IProps) => {
   const [filters, setFilters] = useState<IFilterReferenceAccount>();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataReferenceAccount>();
-  const [params, setParams] = useState<IParamReferenceAccount>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumns>({
     code: {

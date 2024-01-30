@@ -1,7 +1,7 @@
 import { useTypedSelector } from "@/feature/store/reducer";
 import { changeParam } from "@/feature/store/slice/tab.slice";
 import { AppDispatch } from "@/feature/store/store";
-import { ColumnType } from "@/service/entities";
+import { ColumnType, RadioType } from "@/service/entities";
 import { Space, Tag } from "antd";
 import { useDispatch } from "react-redux";
 
@@ -23,10 +23,7 @@ const Filtered = (props: IProps) => {
   const filteredData: ColumnType[] = [];
   data.forEach((dataItem) => {
     filters?.forEach((filterItem) => {
-      const commonIndexes = dataItem.dataIndex.filter((index) =>
-        filterItem.dataIndex.includes(index)
-      );
-      if (commonIndexes.length > 0) {
+      if (dataItem.dataIndex == filterItem.dataIndex) {
         filteredData.push(dataItem);
       }
     });
@@ -77,6 +74,8 @@ const Filtered = (props: IProps) => {
               filters: [],
               page: 1,
               limit: 10,
+              order: "DESC",
+              orderParam: ["createdAt"],
             })
           )
         }

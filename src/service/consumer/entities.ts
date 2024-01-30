@@ -6,6 +6,7 @@ import {
   IFilter,
   IParam,
   Meta,
+  SelectObject,
 } from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
@@ -42,11 +43,11 @@ export interface IFilterConsumer extends IColumn {
   isEmployee?: boolean[];
   lastName?: string[];
   name?: string[];
-  sectionId?: number[] | string[];
+  sectionName?: string[];
   regno?: string[];
   phone?: string[];
   address?: string[];
-  bankName?: number[];
+  bank?: SelectObject[];
   bankAccountNo?: string[];
   email?: string[];
   isActive?: boolean[];

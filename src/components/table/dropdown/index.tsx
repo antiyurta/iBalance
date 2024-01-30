@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import {
   DataIndexType,
+  IFilter,
   IParam,
   ITool,
-  RadioType,
+  Operator,
   Tool,
-  ToolsIcons,
+  TypeCheck,
 } from "@/service/entities";
 import { typeOfFilters } from "@/feature/common";
 import Sorter from "./sorter";
@@ -19,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { changeParam } from "@/feature/store/slice/tab.slice";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
+import { NumericFormat } from "react-number-format";
 
 interface IProps {
   label: string;
@@ -28,17 +30,65 @@ interface IProps {
   isFiltered: boolean;
   handleSearch: (params: object, state: boolean) => void;
 }
-type TypeCheck = number | string | boolean;
 
 const NewDropdown = (props: IProps) => {
   const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
-  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters);
+  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters || []);
   const [isClear, setIsClear] = useState<boolean>(false);
-  const clearFilter = () => {
-    setIsClear(!isClear);
+  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
+  const currentTab = tabItems.find((item) => item.key == activeKey);
+  const dispatch = useDispatch<AppDispatch>();
+  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
+  const addOrUpdateFilter = (
+    dataIndex: string[],
+    filterValue: CheckboxValueType[],
+    filters: IFilter[]
+  ) => {
+    // dataIndex талбарын утгыг шалгана
+    const existingFilterIndex = filters.findIndex(
+      (filter) => JSON.stringify(filter.dataIndex) === JSON.stringify(dataIndex)
+    );
+
+    if (existingFilterIndex !== -1) {
+      if (filterValue.length == 0) {
+        return filters.filter((_, index) => index !== existingFilterIndex);
+      } else {
+        // dataIndex талбарын утгын өөрчлөлтөөр тодорхойлсон фильтрийг шинэчилнэ
+        return filters.map((filter, index) =>
+          index === existingFilterIndex
+            ? { ...filter, operator: Operator.In, filter: filterValue }
+            : filter
+        );
+      }
+    } else {
+      // dataIndex талбарын утгыг ашиглан шинэ фильтрийг үүсгэнэ
+      return [
+        ...filters,
+        { dataIndex: dataIndex, operator: Operator.In, filter: filterValue },
+      ];
+    }
+  };
+  const search = () => {
+    if (currentTab) {
+      const { filters } = currentTab.param;
+      // console.log("filters =====>", filters);
+      const newFilters = addOrUpdateFilter(
+        dataIndex,
+        checkedList,
+        filters || []
+      );
+      console.log('newFilters =====>', newFilters);
+      dispatch(
+        changeParam({
+          ...currentTab.param,
+          filters: newFilters,
+          page: 1,
+          limit: 10,
+        })
+      );
+    }
     handleSearch({}, false);
   };
-
   const filterCheckbox = (
     type: DataIndexType,
     operator: Tool,
@@ -67,6 +117,19 @@ const NewDropdown = (props: IProps) => {
       } else return filters;
     }
   };
+  // useEffect(() => {
+  //   if (
+  //     currentTab &&
+  //     currentTab.param.filters &&
+  //     currentTab.param.filters.length > 0
+  //   ) {
+  //     const filter = currentTab.param.filters.find(
+  //       (item) => JSON.stringify(item.dataIndex) === JSON.stringify(dataIndex)
+  //     );
+  //     console.log("filter ======>", filter?.filter);
+  //     // setCheckedList(filter?.filter as CheckboxValueType[]);
+  //   }
+  // }, []);
   return (
     <div
       style={{
@@ -108,12 +171,29 @@ const NewDropdown = (props: IProps) => {
         />
         {type != (DataIndexType.DATE || DataIndexType.DATETIME) && (
           <CheckboxGroup
-            dataIndex={dataIndex}
-            options={checkboxes.map((item) => ({
-              value: String(item),
-              label: String(item),
-            }))}
+            options={checkboxes.map((item) => {
+              if (typeof item == "object") {
+                return { value: item.value, label: item.label };
+              } else if (typeof item == "boolean") {
+                if (type == DataIndexType.BOOLEAN_STRING)
+                  return { value: item, label: item ? "Идэвхтэй" : "Идэвхгүй" };
+                else return { value: item, label: item ? "Тийм" : "Үгүй" };
+              } else if (typeof item == "number") {
+                return {
+                  value: item,
+                  label: (
+                    <NumericFormat
+                      value={item}
+                      thousandSeparator=","
+                      displayType="text"
+                    />
+                  ),
+                };
+              } else return { value: item, label: item };
+            })}
             isClear={isClear}
+            checkedList={checkedList}
+            setCheckedList={setCheckedList}
           />
         )}
       </div>
@@ -127,7 +207,7 @@ const NewDropdown = (props: IProps) => {
         }}
       >
         <button
-          onClick={() => clearFilter()}
+          onClick={() => setIsClear(!isClear)}
           className="app-button-regular"
           style={{
             color: "#198754",
@@ -136,9 +216,7 @@ const NewDropdown = (props: IProps) => {
           Цэвэрлэх
         </button>
         <button
-          onClick={() => {
-            handleSearch({}, false);
-          }}
+          onClick={() => search()}
           className="app-button-regular"
           style={{
             color: "white",

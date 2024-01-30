@@ -3,7 +3,7 @@ import { App, ConfigProvider, Dropdown, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
-import { Meta, ColumnType, ComponentType } from "@/service/entities";
+import { Meta, ColumnType, ComponentType, SelectObject } from "@/service/entities";
 import NewDropdown from "./dropdown";
 import { onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";

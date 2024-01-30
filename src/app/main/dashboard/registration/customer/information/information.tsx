@@ -109,7 +109,7 @@ const Information = (props: IProps) => {
       dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    sectionName: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
@@ -137,7 +137,7 @@ const Information = (props: IProps) => {
       dataIndex: ["phone"],
       type: DataIndexType.MULTI,
     },
-    bankName: {
+    bank: {
       label: "Банкны нэр",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
@@ -182,7 +182,6 @@ const Information = (props: IProps) => {
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  // const [params, setParams] = useState<IParamConsumer>({});
   const [banks, setBanks] = useState<IDataReference[]>([]);
   const [editMode, setIsMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -229,9 +228,6 @@ const Information = (props: IProps) => {
   const getBanks = async (type: IType) => {
     await ReferenceService.get({
       type,
-      filters: [],
-      page: 0,
-      limit: 0,
     }).then((response) => {
       setBanks(response.response.data);
     });
@@ -839,7 +835,7 @@ const Information = (props: IProps) => {
                 name="bankId"
               >
                 <NewSelect
-                  options={banks?.map((bank) => ({
+                  options={banks.map((bank) => ({
                     label: bank.name,
                     value: bank.id,
                   }))}

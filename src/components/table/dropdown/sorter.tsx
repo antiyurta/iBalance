@@ -10,14 +10,12 @@ interface IProps {
   dataIndex: string[];
 }
 const Sorter: React.FC<IProps> = ({ dataIndex }) => {
-  const [sorter, setSorter] = useState<RadioType>(RadioType.DESC);
+  const [sorter, setSorter] = useState<RadioType>("DESC");
   const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
   const currentTab = tabItems.find((item) => item.key == activeKey);
   const dispatch = useDispatch<AppDispatch>();
   const onChange = (e: RadioChangeEvent) => {
     setSorter(e.target.value);
-  };
-  useEffect(() => {
     if (currentTab) {
       dispatch(
         changeParam({
@@ -27,7 +25,7 @@ const Sorter: React.FC<IProps> = ({ dataIndex }) => {
         })
       );
     }
-  }, [sorter]);
+  };
   return (
     <NewRadioGroup
       style={{
@@ -57,7 +55,7 @@ const Sorter: React.FC<IProps> = ({ dataIndex }) => {
             fontSize: 12,
             lineHeight: "13px",
           }}
-          value={RadioType.ASC}
+          value={"ASC"}
         >
           A-Я
         </NewRadio>
@@ -71,7 +69,7 @@ const Sorter: React.FC<IProps> = ({ dataIndex }) => {
             fontSize: 12,
             lineHeight: "13px",
           }}
-          value={RadioType.DESC}
+          value={"DESC"}
         >
           Я-A
         </NewRadio>
