@@ -18,7 +18,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import {
   NewInput,
   NewSelect,
@@ -48,6 +48,7 @@ import {
 //commans
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -56,6 +57,9 @@ import Export from "@/components/Export";
 import { TreeSectionSelect } from "@/components/tree-select";
 import { WarningOutlined } from "@ant-design/icons";
 import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 const { Title } = Typography;
 
@@ -63,7 +67,7 @@ interface IProps {
   ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "customer/information";
 const Information = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const { modal } = App.useApp();
@@ -73,6 +77,9 @@ const Information = (props: IProps) => {
   const [switchForm] = Form.useForm(); // buleg solih
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [filters, setFilters] = useState<IFilterConsumer>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsConsumer>({
     code: {
       label: "Харилцагчийн код",
@@ -192,8 +199,6 @@ const Information = (props: IProps) => {
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
     []
   );
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTabParam = tabItems.find((item) => item.key == activeKey)?.param;
   //functions
   // modal neeh edit uu esvel new uu ??
   const openModal = (state: boolean, row?: IDataConsumer) => {
@@ -212,7 +217,7 @@ const Information = (props: IProps) => {
     if (ComponentType !== "FULL") {
       // prm.isActive = [true];
     }
-    await ConsumerService.get(currentTabParam)
+    await ConsumerService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -372,7 +377,7 @@ const Information = (props: IProps) => {
     }
   };
   useEffect(() => {
-    getData();
+    dispatch(newPane({ key, param: {} }));
     getConsumerSection(TreeSectionType.Consumer);
     getBanks(IType.BANK);
   }, []);
@@ -382,7 +387,7 @@ const Information = (props: IProps) => {
   }, [isEmployee]);
   useEffect(() => {
     getData();
-  }, [currentTabParam]);
+  }, [param]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>

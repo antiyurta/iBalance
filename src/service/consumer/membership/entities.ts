@@ -53,9 +53,7 @@ export interface IFilterConsumerMembership extends IColumn {
 export type FilteredColumnsConsumerMembership = {
   [T in keyof IFilterConsumerMembership]?: ColumnType;
 };
-export interface IParamConsumerMembership
-  extends IParam,
-    IFilterConsumerMembership {}
+export interface IParamConsumerMembership extends IParam {}
 export interface IResponseConsumerMemberships extends GenericResponse {
   response: {
     data: IDataConsumerMembership[];

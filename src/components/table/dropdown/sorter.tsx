@@ -1,31 +1,31 @@
 import { NewRadio, NewRadioGroup } from "@/components/input";
+import { getParam } from "@/feature/common";
 import { useTypedSelector } from "@/feature/store/reducer";
-import { changeParam } from "@/feature/store/slice/tab.slice";
+import { changeParam } from "@/feature/store/slice/param.slice";
 import { AppDispatch } from "@/feature/store/store";
 import { RadioType } from "@/service/entities";
 import { RadioChangeEvent } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 interface IProps {
   dataIndex: string[];
 }
 const Sorter: React.FC<IProps> = ({ dataIndex }) => {
   const [sorter, setSorter] = useState<RadioType>("DESC");
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTab = tabItems.find((item) => item.key == activeKey);
+  const { activeKey, items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, activeKey);
   const dispatch = useDispatch<AppDispatch>();
   const onChange = (e: RadioChangeEvent) => {
     setSorter(e.target.value);
-    if (currentTab) {
-      dispatch(
-        changeParam({
-          ...currentTab.param,
-          order: sorter,
-          orderParam: dataIndex,
-        })
-      );
-    }
+    dispatch(
+      changeParam({
+        ...param,
+        order: sorter,
+        orderParam: dataIndex,
+      })
+    );
   };
+  // TODO sorter hide
   return (
     <NewRadioGroup
       style={{

@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsConsumerMembership,
@@ -16,19 +20,25 @@ import { useContext, useEffect, useState } from "react";
 import { IDataConsumer } from "@/service/consumer/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataConsumer) => void;
 }
-
+const key = "membership-card/description-list";
 const DescriptionList = (props: IProps) => {
   const { onReload, onEdit } = props;
   const blockContext: BlockView = useContext(BlockContext);
-  const [newParams, setNewParams] = useState<IParamConsumerMembership>({});
   const [data, setData] = useState<IDataConsumerMembership[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterConsumerMembership>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsConsumerMembership>({
     consumerCode: {
       label: "Харилцагчийн код",
@@ -179,7 +189,8 @@ const DescriptionList = (props: IProps) => {
     },
   });
   //
-  const getData = async (params: IParamConsumerMembership) => {
+  const getData = async () => {
+    const params: IParamConsumerMembership = { ...param };
     await ConsumerMembershipService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -201,8 +212,11 @@ const DescriptionList = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>

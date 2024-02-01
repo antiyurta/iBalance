@@ -1,10 +1,10 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewInput, NewSearch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { UploadExcelFile } from "@/components/upload-excel-file";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   ComponentType,
@@ -18,9 +18,13 @@ import {
   IParamMaterialAccount,
 } from "@/service/material/account/entities";
 import { MaterialAccountService } from "@/service/material/account/service";
-import { App, Form, Typography } from "antd";
+import { Form, Typography } from "antd";
 import Image from "next/image";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 const { Title } = Typography;
 
@@ -28,16 +32,18 @@ interface IProps {
   ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "inventory/inventories-type";
 const InventoriesType = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [editMode, setEditMode] = useState<boolean>(false);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterialAccount[]>([]);
   const [filters, setFilters] = useState<IFilters>();
-  //
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
   const [isReload, setIsReload] = useState<boolean>(false);
@@ -84,9 +90,10 @@ const InventoriesType = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (param: IParamMaterialAccount) => {
+  const getData = async () => {
+    const params: IParamMaterialAccount = { ...param };
     blockContext.block();
-    await MaterialAccountService.get(param)
+    await MaterialAccountService.get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -109,7 +116,7 @@ const InventoriesType = (props: IProps) => {
       await MaterialAccountService.patch(selectedRow?.id, values)
         .then((response) => {
           if (response.success) {
-            getData({});
+            getData();
             setIsOpenModal(false);
           }
         })
@@ -120,7 +127,7 @@ const InventoriesType = (props: IProps) => {
       await MaterialAccountService.post(values)
         .then((response) => {
           if (response.success) {
-            getData({});
+            getData();
             setIsOpenModal(false);
           }
         })
@@ -132,14 +139,17 @@ const InventoriesType = (props: IProps) => {
   const onDelete = async (id: number) => {
     await MaterialAccountService.remove(id).then((response) => {
       if (response.success) {
-        getData({});
+        getData();
         setIsOpenModal(false);
       }
     });
   };
   useEffect(() => {
-    getData({});
-  }, [isReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isReload]);
   return (
     <div>
       <div className="information">

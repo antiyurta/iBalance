@@ -1,6 +1,6 @@
 "use client";
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewFilterSelect, NewInput, NewTextArea } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";

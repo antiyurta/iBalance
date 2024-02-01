@@ -19,10 +19,7 @@ export interface IFilterReferenceAccount {
 export type FilteredColumnsAccount = {
   [T in keyof IFilterReferenceAccount]?: ColumnType;
 };
-export interface IParamReferenceAccount
-  extends IFilterReferenceAccount,
-    Meta,
-    IParam {}
+export interface IParamReferenceAccount extends IParam {}
 
 export interface IResponseAccounts extends GenericResponse {
   response: {

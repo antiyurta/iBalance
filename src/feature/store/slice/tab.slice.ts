@@ -1,4 +1,3 @@
-import { IParam } from "@/service/entities";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { ReactNode } from "react";
 
@@ -6,7 +5,6 @@ interface ITabItem {
   label: ReactNode;
   key: string;
   closeable: boolean;
-  param: IParam;
 }
 interface ITab {
   activeKey: string;
@@ -19,11 +17,6 @@ const initialState: ITab = {
       label: "Хянах самбар",
       key: "/main/dashboard",
       closeable: false,
-      param: {
-        filters: [],
-        page: 1,
-        limit: 10,
-      },
     },
   ],
 };
@@ -40,13 +33,6 @@ const tabs = createSlice({
       );
       state.activeKey = action.payload.key;
       if (!existingTab) {
-        action.payload.param = {
-          page: 1,
-          limit: 10,
-          filters: [],
-          order: "DESC",
-          orderParam: ["createdAt"],
-        };
         state.tabItems.push(action.payload);
       }
       return state;
@@ -77,25 +63,7 @@ const tabs = createSlice({
       state.activeKey = newActiveKey;
       state.tabItems = newPanes;
     },
-    changeParam: (state, action: PayloadAction<IParam>) => {
-      const currentIndex = state.tabItems.findIndex(
-        (item) => item.key === state.activeKey
-      );
-      if (currentIndex !== -1) {
-        const updatedTabItems = [...state.tabItems];
-        updatedTabItems[currentIndex] = {
-          ...updatedTabItems[currentIndex],
-          param: action.payload,
-        };
-        return {
-          ...state,
-          tabItems: updatedTabItems,
-        };
-      }
-      return state;
-    },
   },
 });
-export const { emptyTabs, newTab, changeTabs, removeTab, changeParam } =
-  tabs.actions;
+export const { emptyTabs, newTab, changeTabs, removeTab } = tabs.actions;
 export default tabs.reducer;

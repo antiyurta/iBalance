@@ -233,11 +233,6 @@ const Sidebar = () => {
             label: data.label,
             key: keyPath.toString().replaceAll(",", ""),
             closeable: true,
-            param: {
-              filters: [],
-              page: 1,
-              limit: 10
-            },
           })
         );
       }

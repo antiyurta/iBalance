@@ -1,10 +1,10 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, FilteredColumns, Meta } from "@/service/entities";
 import {
@@ -19,6 +19,9 @@ import { ChangeEvent, useContext, useEffect, useState } from "react";
 
 import { units } from "./unit";
 import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 export interface IDataUnit {
   id: number;
   sectionId: number | null;
@@ -32,7 +35,7 @@ interface IProps {
 }
 
 const { Title } = Typography;
-
+const key = "inventory/unit-of-measure";
 const UnitOfMeasure = (props: IProps) => {
   const { message } = App.useApp();
   const { ComponentsType, onClickModal } = props;
@@ -44,8 +47,9 @@ const UnitOfMeasure = (props: IProps) => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataUnitOfMeasure>();
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTabParam = tabItems.find((item) => item.key == activeKey)?.param;
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumns>({
     shortName: {
       label: "Богино нэр",
@@ -96,7 +100,7 @@ const UnitOfMeasure = (props: IProps) => {
   };
   const getData = async () => {
     blockContext.block();
-    await UnitOfMeasureService.get(currentTabParam)
+    await UnitOfMeasureService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -159,11 +163,12 @@ const UnitOfMeasure = (props: IProps) => {
   };
 
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getHeader();
   }, []);
   useEffect(() => {
     getData();
-  }, [currentTabParam]);
+  }, [param]);
   return (
     <>
       <Row

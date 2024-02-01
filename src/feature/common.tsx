@@ -5,7 +5,7 @@ import {
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { ConsumerService } from "@/service/consumer/service";
-import { DataIndexType } from "@/service/entities";
+import { DataIndexType, IParam } from "@/service/entities";
 import { IDataReference, IType } from "@/service/reference/entity";
 import { ReferenceService } from "@/service/reference/reference";
 import { message } from "antd";
@@ -18,6 +18,7 @@ import { NumericFormat } from "react-number-format";
 import { IDataCountry } from "@/service/reference/country/entities";
 import { enumTranslation } from "./constraint-translation";
 import { authService } from "@/service/authentication/service";
+import { IItem } from "./store/slice/param.slice";
 type NotificationType = "success" | "info" | "warning" | "error";
 export const openNofi = (
   type: NotificationType,
@@ -147,12 +148,7 @@ interface IFindIndexInColumnSettins {
 }
 
 function findIndexInColumnSettings(props: IFindIndexInColumnSettins) {
-  const {
-    newRowIndexes,
-    unSelectedRow,
-    columns,
-    onColumns,
-  } = props;
+  const { newRowIndexes, unSelectedRow, columns, onColumns } = props;
   unSelectedRow?.map((row) => {
     onCloseFilterTag({
       key: row,
@@ -286,7 +282,7 @@ async function banksToFilter(filters: any) {
     type: IType.BANK,
     filters: [],
     page: 1,
-    limit: 10
+    limit: 10,
   });
   filters?.map((filterSection: any) => {
     response.data.map((section: IDataReference) => {
@@ -397,6 +393,12 @@ function getUniqueValues<T, K extends keyof T>(array: T[], key: K): T[K][] {
     ),
   ] as T[K][];
 }
+function getParam(items: IItem[], activeKey: string): IParam | undefined {
+  const currentPane = items.find((item) => item.key == activeKey);
+  if (currentPane) {
+    return currentPane.param;
+  }
+}
 export {
   parseNumber,
   isChecked,
@@ -411,4 +413,5 @@ export {
   getFile,
   fieldValue,
   getUniqueValues,
+  getParam,
 };

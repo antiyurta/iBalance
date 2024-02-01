@@ -8,7 +8,7 @@ import {
   Tool,
   TypeCheck,
 } from "@/service/entities";
-import { typeOfFilters } from "@/feature/common";
+import { getParam, getUniqueValues, typeOfFilters } from "@/feature/common";
 import Sorter from "./sorter";
 import DropdownSearch from "./search";
 import DropdownTitle from "./title";
@@ -18,9 +18,9 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { Dayjs } from "dayjs";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { changeParam } from "@/feature/store/slice/tab.slice";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { NumericFormat } from "react-number-format";
+import { changeParam } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   label: string;
@@ -35,8 +35,8 @@ const NewDropdown = (props: IProps) => {
   const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
   const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters || []);
   const [isClear, setIsClear] = useState<boolean>(false);
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTab = tabItems.find((item) => item.key == activeKey);
+  const { activeKey, items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, activeKey);
   const dispatch = useDispatch<AppDispatch>();
   const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
   const addOrUpdateFilter = (
@@ -69,24 +69,19 @@ const NewDropdown = (props: IProps) => {
     }
   };
   const search = () => {
-    if (currentTab) {
-      const { filters } = currentTab.param;
-      // console.log("filters =====>", filters);
-      const newFilters = addOrUpdateFilter(
-        dataIndex,
-        checkedList,
-        filters || []
-      );
-      console.log('newFilters =====>', newFilters);
-      dispatch(
-        changeParam({
-          ...currentTab.param,
-          filters: newFilters,
-          page: 1,
-          limit: 10,
-        })
-      );
-    }
+    const newFilters = addOrUpdateFilter(
+      dataIndex,
+      checkedList,
+      param?.filters || []
+    );
+    dispatch(
+      changeParam({
+        ...param,
+        filters: newFilters,
+        page: 1,
+        limit: 10,
+      })
+    );
     handleSearch({}, false);
   };
   const filterCheckbox = (
@@ -117,19 +112,15 @@ const NewDropdown = (props: IProps) => {
       } else return filters;
     }
   };
+  // TODO filter - ийн check tei values
   // useEffect(() => {
-  //   if (
-  //     currentTab &&
-  //     currentTab.param.filters &&
-  //     currentTab.param.filters.length > 0
-  //   ) {
-  //     const filter = currentTab.param.filters.find(
+  //   const checkFilters =
+  //     param?.filters?.filter(
   //       (item) => JSON.stringify(item.dataIndex) === JSON.stringify(dataIndex)
-  //     );
-  //     console.log("filter ======>", filter?.filter);
-  //     // setCheckedList(filter?.filter as CheckboxValueType[]);
-  //   }
-  // }, []);
+  //     ) || [];
+  //   const checkedValues = getUniqueValues(checkFilters, "filter");
+  //   setCheckedList(checkedValues as CheckboxValueType[]);
+  // }, [param?.filters]);
   return (
     <div
       style={{

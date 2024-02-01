@@ -1,9 +1,9 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam, onCloseFilterTag } from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -23,6 +23,10 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { UploadExcelFile } from "@/components/upload-excel-file";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -30,13 +34,16 @@ interface IProps {
 }
 
 const { Title } = Typography;
-
+const key = "inventory/inventories-brand";
 const InventoriesBrand = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [data, setData] = useState<IDataBrand[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [countries, setCountries] = useState<IDataCountry[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBrand>();
@@ -86,7 +93,8 @@ const InventoriesBrand = (props: IProps) => {
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParamBrand) => {
+  const getData = async () => {
+    const params: IParamBrand ={ ...param };
     await BrandService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -130,11 +138,12 @@ const InventoriesBrand = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData({});
-  }, [isReload]);
-  useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getCountries();
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isReload]);
   return (
     <div>
       <div className="information">

@@ -47,6 +47,7 @@ const persistConfig = {
     "title",
     "report",
     "tabs",
+    "pane",
     "warehouse",
     "shoppingCart",
     "posOpenClose",

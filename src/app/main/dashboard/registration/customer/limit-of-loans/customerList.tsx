@@ -7,8 +7,12 @@ import { useContext, useEffect, useState } from "react";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import Filtered from "@/components/table/filtered";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { NewTable } from "@/components/table";
 // interface  types
 import {
@@ -25,21 +29,27 @@ import {
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { Col, Row, Space } from "antd";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataLimitOfLoans) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "customer/limit-of-loans/customer-list";
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamLimitOfLoans>({});
   const [data, setData] = useState<IDataLimitOfLoans[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsLimitOfLoans>({
     code: {
       label: "Харилцагчийн код",
@@ -105,15 +115,11 @@ const CustomerList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (param: IParamLimitOfLoans) => {
+  const getData = async () => {
     blockContext.block();
-    var prm: IParamLimitOfLoans = {
-      ...params,
-      ...param,
-    };
-    setParams(prm);
+    const params: IParamLimitOfLoans = { ...param };
     await limitOfLoansService
-      .get(prm)
+      .get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -131,11 +137,12 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getConsumerSection(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    getData();
+  }, [param, onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -151,11 +158,7 @@ const CustomerList = (props: IProps) => {
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
               });
-              getData({
-                page: 1,
-                limit: 10,
-                sectionId: keys,
-              });
+              getData();
             }}
           />
         </Col>

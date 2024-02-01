@@ -1,5 +1,5 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
 import {
   findIndexInColumnSettings,

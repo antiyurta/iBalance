@@ -1,6 +1,6 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
@@ -38,7 +38,7 @@ interface IProps {
 }
 
 const { Title } = Typography;
-
+const key = "inventory/storagies-registration";
 const StoragiesRegistration = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();

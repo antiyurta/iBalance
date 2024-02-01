@@ -10,7 +10,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import { Col, Row, Space } from "antd";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import ColumnSettings from "@/components/columnSettings";

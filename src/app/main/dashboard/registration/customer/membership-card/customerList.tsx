@@ -1,8 +1,12 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import {
   IDataTreeSection,
   TreeSectionType,
@@ -20,24 +24,26 @@ import {
 } from "@/service/consumer/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import NewModal from "@/components/modal";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { AppDispatch } from "@/feature/store/store";
+import { useDispatch } from "react-redux";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataConsumer) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "membership-card/customer-list";
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [params, setParams] = useState<IParamConsumer>({
-    page: 1,
-    limit: 10,
-    memberships: true,
-  });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterConsumer>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsConsumer>({
     code: {
       label: "Харилцагчийн код",
@@ -154,8 +160,8 @@ const CustomerList = (props: IProps) => {
   });
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
   //
-  const getData = async (params: IParamConsumer) => {
-    params.memberships = true;
+  const getData = async () => {
+    const params: IParamConsumer = { ...param, isMembership: true };
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -172,15 +178,13 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
     getTreeSections();
   }, []);
 
   useEffect(() => {
-    if (onReload) {
-      getData(params);
-    }
-  }, [onReload]);
+    getData();
+  }, [param, onReload]);
 
   return (
     <div>
@@ -197,7 +201,7 @@ const CustomerList = (props: IProps) => {
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
               });
-              getData({ page: 1, limit: 10, sectionId: keys });
+              getData();
             }}
           />
         </Col>

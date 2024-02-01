@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewInput } from "@/components/input";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -20,6 +24,10 @@ import { useContext, useEffect, useState } from "react";
 import NewModal from "@/components/modal";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { NewTable } from "@/components/table";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -27,7 +35,7 @@ interface IProps {
 }
 
 const { Title } = Typography;
-
+const key = "customer/receivable-account";
 const ReceivableAccount = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
   const [form] = Form.useForm();
@@ -38,6 +46,9 @@ const ReceivableAccount = (props: IProps) => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataReferenceAccount>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumns>({
     code: {
       label: "Дансны код",
@@ -69,10 +80,11 @@ const ReceivableAccount = (props: IProps) => {
     },
   });
   // data awcihrah
-  const getData = async (param: IParamReferenceAccount) => {
+  const getData = async () => {
     blockContext.block();
+    const params: IParamReferenceAccount = { ...param };
     await referenceAccountService
-      .get(param)
+      .get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -93,13 +105,13 @@ const ReceivableAccount = (props: IProps) => {
           if (response.success) {
             setSelectedRow(response.response.data);
             setIsOpenModal(false);
-            getData({ page: 1, limit: 10 });
+            getData();
           }
         });
     } else {
       await referenceAccountService.post(values).then((response) => {
         if (response.success) {
-          getData({ page: 1, limit: 10 });
+          getData();
           setIsOpenModal(false);
         }
       });
@@ -112,7 +124,7 @@ const ReceivableAccount = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           setSelectedRow(undefined);
-          getData({ page: 1, limit: 10 });
+          getData();
         }
       })
       .finally(() => {
@@ -120,8 +132,11 @@ const ReceivableAccount = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>

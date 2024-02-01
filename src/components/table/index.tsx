@@ -3,16 +3,15 @@ import { App, ConfigProvider, Dropdown, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
-import { Meta, ColumnType, ComponentType, SelectObject } from "@/service/entities";
+import { Meta, ColumnType, ComponentType } from "@/service/entities";
 import NewDropdown from "./dropdown";
-import { onCloseFilterTag, renderCheck } from "@/feature/common";
+import { getParam, onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
 import type { TableProps } from "antd/lib";
-import { FilterConfirmProps } from "antd/es/table/interface";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { changeParam } from "@/feature/store/slice/tab.slice";
+import { changeParam } from "@/feature/store/slice/param.slice";
 export const { Column } = Table;
 export const AntTable = (props: TableProps<any>) => {
   return <Table {...props} />;
@@ -70,8 +69,8 @@ function NewTable(props: ITable) {
     addItems,
     custom,
   } = props;
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTab = tabItems.find((item) => item.key == activeKey);
+  const pane = useTypedSelector((state) => state.pane);
+  const param = getParam(pane.items, pane.activeKey);
   const dispatch = useDispatch<AppDispatch>();
   const dragProps = {
     onDragEnd(fromIndex: number, toIndex: number) {
@@ -177,15 +176,13 @@ function NewTable(props: ITable) {
             pageSizeOptions: ["5", "10", "20", "50"],
             showQuickJumper: true,
             onChange: (page, pageSize) => {
-              if (currentTab) {
-                dispatch(
-                  changeParam({
-                    ...currentTab?.param,
-                    page,
-                    limit: pageSize,
-                  })
-                );
-              }
+              dispatch(
+                changeParam({
+                  ...param,
+                  page,
+                  limit: pageSize,
+                })
+              );
             },
           }}
         >
@@ -212,7 +209,6 @@ function NewTable(props: ITable) {
                             state: state,
                             column: columns,
                             onColumn: (columns) => onColumns(columns),
-                            
                           });
                         }}
                       />

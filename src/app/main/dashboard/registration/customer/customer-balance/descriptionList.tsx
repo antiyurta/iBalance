@@ -1,10 +1,14 @@
 "use client";
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { DataIndexType, Meta } from "@/service/entities";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { Col, Row, Space } from "antd";
 import { balanceAccountService } from "@/service/consumer/initial-balance/account/service";
@@ -15,20 +19,26 @@ import {
   IParamBalanceAccount,
 } from "@/service/consumer/initial-balance/account/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit?: (row: IDataBalanceAccount) => void;
   onDelete?: (id: number) => void;
 }
-
+const key = "customer/balance/description-list";
 const DescriptionList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [data, setData] = useState<IDataBalanceAccount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBalanceAccount>();
-  const [params, setParams] = useState<IParamBalanceAccount>({});
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsBalanceAccount>({
     consumerCode: {
       label: "Харилцагчийн код",
@@ -94,14 +104,11 @@ const DescriptionList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (param: IParamBalanceAccount) => {
+  const getData = async () => {
     blockContext.block();
-    var prm: IParamBalanceAccount = {
-      ...param,
-      ...params,
-    };
+    const params: IParamBalanceAccount = { ...param };
     await balanceAccountService
-      .get(prm)
+      .get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -114,8 +121,11 @@ const DescriptionList = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>

@@ -1,12 +1,6 @@
 import { NewCheckbox, NewCheckboxGroup } from "@/components/input";
-import { useTypedSelector } from "@/feature/store/reducer";
-import { changeParam } from "@/feature/store/slice/tab.slice";
-import { AppDispatch } from "@/feature/store/store";
-import { DataIndexType, IFilter, Operator } from "@/service/entities";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CheckboxValueType } from "antd/lib/checkbox/Group";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 interface Option {
   label: ReactNode;
   value: CheckboxValueType;

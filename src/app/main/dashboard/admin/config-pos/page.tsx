@@ -2,7 +2,7 @@
 
 import ColumnSettings from "@/components/columnSettings";
 import { EmployeeSelect } from "@/components/employee-select";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";

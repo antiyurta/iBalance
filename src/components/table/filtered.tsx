@@ -1,8 +1,10 @@
+import { getParam } from "@/feature/common";
 import { useTypedSelector } from "@/feature/store/reducer";
-import { changeParam } from "@/feature/store/slice/tab.slice";
+import { changeParam } from "@/feature/store/slice/param.slice";
 import { AppDispatch } from "@/feature/store/store";
 import { ColumnType, RadioType } from "@/service/entities";
 import { Space, Tag } from "antd";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 interface IProps {
@@ -11,19 +13,20 @@ interface IProps {
 
 const Filtered = (props: IProps) => {
   const { columns } = props;
-  const { activeKey, tabItems } = useTypedSelector((state) => state.tabs);
-  const currentTab = tabItems.find((item) => item.key == activeKey);
-  const data = Object.entries(columns)?.map(
-    ([key, value]: [any, ColumnType]) => {
-      return value;
-    }
-  );
-  const filters = currentTab?.param.filters || [];
+  const { activeKey, items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, activeKey);
+  const data = Object.entries(columns)?.map(([_, value]: [any, ColumnType]) => {
+    return value;
+  });
+  const filters = param?.filters || [];
   const dispatch = useDispatch<AppDispatch>();
   const filteredData: ColumnType[] = [];
   data.forEach((dataItem) => {
     filters?.forEach((filterItem) => {
-      if (dataItem.dataIndex == filterItem.dataIndex) {
+      if (
+        JSON.stringify(dataItem.dataIndex) ===
+        JSON.stringify(filterItem.dataIndex)
+      ) {
         filteredData.push(dataItem);
       }
     });
@@ -32,16 +35,14 @@ const Filtered = (props: IProps) => {
     const existingFilterIndex = filters.findIndex(
       (filter) => JSON.stringify(filter.dataIndex) === JSON.stringify(dataIndex)
     );
-    if (existingFilterIndex !== -1 && currentTab) {
+    if (existingFilterIndex !== -1) {
       const newFilters = filters.filter(
         (_, index) => index !== existingFilterIndex
       );
       dispatch(
         changeParam({
-          ...currentTab.param,
+          ...param,
           filters: newFilters,
-          page: 1,
-          limit: 10,
         })
       );
     }
@@ -67,10 +68,8 @@ const Filtered = (props: IProps) => {
       </Space>
       <button
         onClick={() =>
-          currentTab &&
           dispatch(
             changeParam({
-              ...currentTab.param,
               filters: [],
               page: 1,
               limit: 10,

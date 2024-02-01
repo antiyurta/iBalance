@@ -28,8 +28,8 @@ export interface IFilterWarehouse extends IColumn {
   sectionId?: number;
   code?: string[];
   names?: string[];
-  provinceId?: number[];
-  districtId?: number[];
+  province?: number[];
+  district?: number[];
   employeeIds?: number[];
   address?: string[];
   fileId?: number[];

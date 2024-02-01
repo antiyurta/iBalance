@@ -19,7 +19,7 @@ import {
   IParamBooking,
 } from "@/service/booking/entities";
 import { DataIndexType, Meta } from "@/service/entities";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
 import { BookingService } from "@/service/booking/service";
 import ColumnSettings from "@/components/columnSettings";

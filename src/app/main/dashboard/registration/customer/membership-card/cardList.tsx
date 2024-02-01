@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
@@ -13,19 +17,24 @@ import {
   IParamMembership,
 } from "@/service/reference/membership/entities";
 import { MembershipService } from "@/service/reference/membership/service";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataMembership) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "membership-card/card-list";
 const CardList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
-  const [params, setParams] = useState<IParamMembership>({});
   const [data, setData] = useState<IDataMembership[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMembership>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsMembership>({
     name: {
       label: "Карт эрхийн бичгийн нэр",
@@ -106,7 +115,8 @@ const CardList = (props: IProps) => {
     },
   });
   // Жагсаалтын өгөгдөл дуудаж авчирна
-  const getData = async (params: IParamMembership) => {
+  const getData = async () => {
+    const params: IParamMembership = { ...param };
     await MembershipService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -116,8 +126,11 @@ const CardList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [onReload, param]);
 
   return (
     <div>
