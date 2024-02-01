@@ -15,7 +15,6 @@ import dayjs from "dayjs";
 import Image from "next/image";
 import React from "react";
 import { NumericFormat } from "react-number-format";
-import { IDataCountry } from "@/service/reference/country/entities";
 import { enumTranslation } from "./constraint-translation";
 import { authService } from "@/service/authentication/service";
 import { IItem } from "./store/slice/param.slice";
@@ -212,10 +211,6 @@ async function typeOfFilters(props: ITypeOfFilters) {
       if (filters) {
         return await userToFilter(filters);
       }
-    case DataIndexType.COUNTRY:
-      if (filters) {
-        return await countries(filters);
-      }
     case DataIndexType.STRING_SECTION:
       if (filters) {
         return await sectionToFilterName(filters);
@@ -308,24 +303,6 @@ async function consumerToFilterName(filters: any) {
       if (consumer.id === filterSection) {
         outFilters.push({
           text: consumer.name,
-          value: filterSection,
-        });
-      }
-    });
-  });
-  return outFilters;
-}
-
-async function countries(filters: any) {
-  const outFilters: ColumnFilterItem[] = [];
-  const {
-    response: { data },
-  } = await ReferenceService.getCountries();
-  filters?.map((filterSection: any) => {
-    data.map((section: IDataCountry) => {
-      if (section.id === filterSection) {
-        outFilters.push({
-          text: section.name,
           value: filterSection,
         });
       }

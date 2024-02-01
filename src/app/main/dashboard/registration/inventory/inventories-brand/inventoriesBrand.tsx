@@ -1,9 +1,9 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
-import { NewInput, NewSearch, NewSelect } from "@/components/input";
+import { NewFilterSelect, NewInput, NewSearch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, getParam, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -37,7 +37,7 @@ const { Title } = Typography;
 const key = "inventory/inventories-brand";
 const InventoriesBrand = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<IDataBrand>();
   const blockContext: BlockView = useContext(BlockContext);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [data, setData] = useState<IDataBrand[]>([]);
@@ -59,12 +59,12 @@ const InventoriesBrand = (props: IProps) => {
       dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    countryId: {
+    country: {
       label: "Улс",
       isView: true,
       isFiltered: false,
-      dataIndex: ["country", "name"],
-      type: DataIndexType.COUNTRY,
+      dataIndex: ["country"],
+      type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
@@ -87,14 +87,14 @@ const InventoriesBrand = (props: IProps) => {
     if (!state) {
       form.resetFields();
     } else {
-      form.setFieldsValue(row);
+      row && form.setFieldsValue(row);
       setSelectedRow(row);
     }
     setIsOpenModal(true);
     setSelectedRow(row);
   };
   const getData = async () => {
-    const params: IParamBrand ={ ...param };
+    const params: IParamBrand = { ...param };
     await BrandService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -266,7 +266,7 @@ const InventoriesBrand = (props: IProps) => {
           </Form.Item>
           <Form.Item
             label="Улс"
-            name={"countryId"}
+            name={"country"}
             rules={[
               {
                 required: true,
@@ -274,19 +274,10 @@ const InventoriesBrand = (props: IProps) => {
               },
             ]}
           >
-            <NewSelect
-              allowClear
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, label) =>
-                (label?.label ?? "")
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
+            <NewFilterSelect
               options={countries?.map((country) => ({
                 label: country.name,
-                value: country.id,
+                value: country.name,
               }))}
             />
           </Form.Item>

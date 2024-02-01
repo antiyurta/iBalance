@@ -6,6 +6,7 @@ import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -31,6 +32,10 @@ import TextArea from "antd/es/input/TextArea";
 import { TreeSectionSelect } from "@/components/tree-select";
 import { UploadImage } from "@/components/upload-image";
 import { EmployeeSelect } from "@/components/employee-select";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -45,6 +50,9 @@ const StoragiesRegistration = (props: IProps) => {
   const [switchForm] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<any[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterWarehouse>();
@@ -238,9 +246,12 @@ const StoragiesRegistration = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    dispatch(newPane({ key, param: {} }));
     getSections(TreeSectionType.Warehouse);
   }, []);
+  useEffect(() => {
+    getData({ ...param });
+  }, [param]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>

@@ -5,12 +5,10 @@ import {
   IParam,
   Meta,
 } from "@/service/entities";
-import { IDataCountry } from "../country/entities";
 
 export interface IDataBrand extends IData {
   id: number;
-  countryId: number;
-  country: IDataCountry;
+  country: string;
   name: string;
 }
 export interface IFilterBrand extends IColumn {

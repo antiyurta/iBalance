@@ -54,7 +54,7 @@ interface IProps {
 const InventoriesGroup = (props: IProps) => {
   const { type } = props;
   const { modal } = App.useApp();
-  const [addForm] = Form.useForm();
+  const [addForm] = Form.useForm<IDataMaterialSection>();
   const isExpand = Form.useWatch("isExpand", addForm);
   const {
     login_data: {

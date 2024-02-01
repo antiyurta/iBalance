@@ -3,7 +3,6 @@ import {
   ColumnType,
   GenericResponse,
   IColumn,
-  IFilter,
   IParam,
   Meta,
   SelectObject,
@@ -50,19 +49,20 @@ export interface IFilterConsumer extends IColumn {
   bank?: SelectObject[];
   bankAccountNo?: string[];
   email?: string[];
+  isSupplier?: boolean;
   isActive?: boolean[];
 }
 export type FilteredColumnsConsumer = {
   [T in keyof IFilterConsumer]?: ColumnType;
 };
 
-export interface IParamConsumer extends IParam, IFilterConsumer {
+export interface IParamConsumer extends IParam {
   ids?: number[];
   sectionId?: number[];
+  registerNumber?: string;
   isMembership?: boolean;
   isLendLimit?: boolean;
   isBalance?: boolean;
-  isSupplier?: boolean;
 }
 export interface IResponseConsumer extends GenericResponse {
   response: {

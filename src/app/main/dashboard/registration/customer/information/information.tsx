@@ -259,9 +259,11 @@ const Information = (props: IProps) => {
           blockContext.unblock();
         });
     } else {
-      await ConsumerService.get()
+      await ConsumerService.get({ registerNumber: values.regno })
         .then((response) => {
-          if ((response.success && response.response.meta.itemCount) || 0 > 0) {
+          if (response.success && response.response.meta.itemCount === 0) {
+            insertConsumer(values);
+          } else {
             const consumerNames = response.response.data
               .map((item) => item.name)
               .toString();
@@ -283,9 +285,7 @@ const Information = (props: IProps) => {
                   үүсгэхтэй итгэлтэй байна уу?`}
                 </div>
               ),
-              onOk: () => {
-                insertConsumer(values);
-              },
+              onOk: () => insertConsumer(values),
             });
           }
         })

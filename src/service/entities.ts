@@ -82,7 +82,7 @@ export interface IFilters {
   isActive: boolean[];
   limitAmount: number[];
   type: string[];
-  countryId: number[];
+  country: string[];
   shortName: string[];
   barCode: string[];
   serial: string[];
@@ -139,7 +139,6 @@ export enum DataIndexType {
   DATE = "DATE",
   DATETIME = "DATETIME",
   TIME = "TIME",
-  COUNTRY = "COUNTRY",
   //amara nemew 1/24
   ARREY = "ARREY",
   //
