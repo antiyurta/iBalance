@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import {
   FilteredColumnsDocument,
   IDataDocument,
@@ -30,8 +26,16 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import TransactionPos from "./components/transaction-pos";
 import StepIndex from "../pos-sales/steps/StepIndex";
 import PosRefund from "../pos-sales/component/pos-refund";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "payments/list-of-receipt/document";
 const Jurnal = () => {
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsDocument>({
     id: {
       label: "Баримтын дугаар",
@@ -110,13 +114,6 @@ const Jurnal = () => {
       dataIndex: ["consumerDiscountAmount"],
       type: DataIndexType.VALUE,
     },
-    // membershipIncreaseAmount: {
-    //   label: "Ашигласан оноо",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: "membershipDiscountAmount",
-    //   type: DataIndexType.VALUE,
-    // },
     payAmount: {
       label: "Төлөх дүн",
       isView: true,
@@ -131,20 +128,8 @@ const Jurnal = () => {
       dataIndex: ["isEbarimt"],
       type: DataIndexType.BOOLEAN,
     },
-    // paidAmount: {
-    //   label: "Төлсөн дүн",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: "paidAmount",
-    //   type: DataIndexType.VALUE,
-    // },
   });
   const [data, setData] = useState<IDataDocument[]>();
-  const [params, setParams] = useState<IParamDocument>({
-    page: 1,
-    limit: 10,
-    movingStatus: MovingStatus.Pos,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
@@ -158,7 +143,7 @@ const Jurnal = () => {
     SHOW_PAY = "show-pay",
     SHOW_REFUND = "show-refund",
   }
-  const items: TableItemType[] = [
+  const newItems: TableItemType[] = [
     {
       key: ItemAction.SHOW_DOCUMENT,
       label: (
@@ -232,7 +217,11 @@ const Jurnal = () => {
       ),
     },
   ];
-  const getData = async (params: IParamDocument) => {
+  const getData = async () => {
+    const params: IParamDocument = {
+      ...param,
+      movingStatus: MovingStatus.Pos,
+    };
     await DocumentService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -265,8 +254,11 @@ const Jurnal = () => {
       });
   };
   useEffect(() => {
-    getData(params);
-  }, [isRefund]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isRefund]);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -322,7 +314,7 @@ const Jurnal = () => {
             columns={columns}
             onColumns={setColumns}
             incomeFilters={filters}
-            addItems={items}
+            addItems={newItems}
             custom={(key, id) => itemClick(key, id)}
           />
         </Col>

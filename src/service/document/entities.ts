@@ -6,7 +6,6 @@ import {
   GenericResponse,
   IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -104,15 +103,11 @@ export interface IDataDocument extends IData {
 
 export interface IFilterDocument extends IColumn {
   id?: number;
-  interval?: DateFilter;
   documentCode?: string[];
   movingStatus?: MovingStatus;
-  hideMovingStatuses?: MovingStatus[];
-  warehouseId?: number;
   consumerId?: number;
   documentAt?: string;
   refundAt?: string;
-  relDocumentId?: number[];
   relDocumentWarehouseName?: string[];
   warehouseName?: string[];
   incomeQuantity?: number[];
@@ -130,7 +125,7 @@ export interface IFilterDocument extends IColumn {
   consumerDiscountAmount?: number[];
   membershipDiscountAmount?: number[];
   giftAmount?: number[];
-  status?: DocumentStatus;
+  status?: DocumentStatus[];
   payAmount?: number[];
   isEbarimt?: boolean[];
   lockedBy?: number[];
@@ -141,7 +136,15 @@ export type FilteredColumnsDocument = {
   [T in keyof IFilterDocument]?: ColumnType;
 };
 
-export interface IParamDocument extends IParam, IFilterDocument {}
+export interface IParamDocument extends IParam {
+  hideMovingStatuses?: MovingStatus[];
+  movingStatus?: MovingStatus;
+  interval?: DateFilter;
+  status?: DocumentStatus;
+  warehouseId?: number;
+  consumerId?: number;
+  isLock?: boolean;
+}
 
 export interface IResponseDocuments extends GenericResponse {
   response: {
@@ -198,7 +201,7 @@ const columns: FilteredColumnsDocument = {
     isView: true,
     isFiltered: false,
     dataIndex: ["refundAt"],
-    type: DataIndexType.MULTI,
+    type: DataIndexType.DATE,
   },
   incomeCount: {
     label: "Орлогын тоо",

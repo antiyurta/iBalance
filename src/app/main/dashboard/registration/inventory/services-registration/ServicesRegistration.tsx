@@ -6,7 +6,12 @@ import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/table/filtered";
-import { ComponentType, DataIndexType, Meta } from "@/service/entities";
+import {
+  ComponentType,
+  DataIndexType,
+  Meta,
+  Operator,
+} from "@/service/entities";
 import {
   Button,
   Col,
@@ -24,7 +29,11 @@ import {
   NewSwitch,
   NewTextArea,
 } from "@/components/input";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { NewTable } from "@/components/table";
 import {
   IDataReference,
@@ -62,6 +71,9 @@ import { BrandService } from "@/service/reference/brand/service";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 const { Title } = Typography;
 
 interface IProps {
@@ -69,7 +81,7 @@ interface IProps {
   type: MaterialType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "inventory/services-registration";
 const ServicesRegistration = (props: IProps) => {
   const {
     login_data: {
@@ -85,6 +97,9 @@ const ServicesRegistration = (props: IProps) => {
   const [switchForm] = Form.useForm(); // buleg solih
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
     useState<boolean>(false);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMaterial>();
@@ -287,16 +302,27 @@ const ServicesRegistration = (props: IProps) => {
     });
   };
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getMaterialSection({ materialTypes: [type] });
-    getData({ page: 1, limit: 10, types: [MaterialType.Service] });
   }, []);
+  useEffect(() => {
+    getData({ ...param, types: [MaterialType.Service] });
+  }, [param]);
   useEffect(() => {
     if (isOpenModal) {
       getMeasurements({});
       getUnitCode({});
       getRanks({ type: IType.MATERIAL_RANK });
       getBrands({});
-      getConsumers({ isSupplier: true });
+      getConsumers({
+        filters: [
+          {
+            dataIndex: ["isSupplier"],
+            operator: Operator.Equals,
+            filter: true,
+          },
+        ],
+      });
     }
   }, [isOpenModal]);
 

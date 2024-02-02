@@ -1,9 +1,15 @@
 "use client";
 
+import ColumnSettings from "@/components/columnSettings";
 import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
+import Filtered from "@/components/table/filtered";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { newPane } from "@/feature/store/slice/param.slice";
+import { AppDispatch } from "@/feature/store/store";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsReference,
@@ -17,21 +23,20 @@ import { ReferenceService } from "@/service/reference/reference";
 import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-
+import { useDispatch } from "react-redux";
 const { Title } = Typography;
+const key = "inventory/refund-reason";
 const RefundReasonPage = () => {
   const [form] = Form.useForm();
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
-  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [params, setParams] = useState<IParamReference>({
-    type: IType.REASON_REFUND,
-  });
   const [meta, setMeta] = useState<Meta>({});
-  const [filters, setFilters] = useState<IFilterReference>({
-    type: IType.REASON_REFUND,
-  });
+  const [filters, setFilters] = useState<IFilterReference>();
   const [data, setData] = useState<IDataReference[]>([]);
   const [selectedRow, setSelectedRow] = useState<IDataReference>();
   const [columns, setColumns] = useState<FilteredColumnsReference>({
@@ -67,8 +72,8 @@ const RefundReasonPage = () => {
     }
     setIsOpenModal(true);
   };
-  const getData = async (params: IParamReference) => {
-    params.type = IType.REASON_REFUND;
+  const getData = async () => {
+    const params: IParamReference = { ...param, type: IType.REASON_REFUND };
     await ReferenceService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -112,18 +117,18 @@ const RefundReasonPage = () => {
     }
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
 
   useEffect(() => {
-    getData(params);
-  }, [isReloadList]);
+    getData();
+  }, [param, isReloadList]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col md={24} lg={16} xl={19}>
           <Space size={24}>
-            <Title level={5}>
+            <Title level={3}>
               Үндсэн бүртгэл / Бараа материал / Буцаалтын шалтгаан
             </Title>
             <Button
@@ -142,8 +147,47 @@ const RefundReasonPage = () => {
             </Button>
           </Space>
         </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
+        <Col span={24}>
+          <Space
+            style={{
+              width: "100%",
+              justifyContent: "flex-end",
+            }}
+            size={12}
+          >
+            <Filtered columns={columns} />
+            <Space
+              style={{
+                width: "100%",
+                justifyContent: "flex-end",
+              }}
+              size={12}
+            >
+              <ColumnSettings
+                columns={columns}
+                columnIndexes={(arg1, arg2) =>
+                  findIndexInColumnSettings({
+                    newRowIndexes: arg1,
+                    unSelectedRow: arg2,
+                    columns: columns,
+                    onColumns: (columns) => setColumns(columns),
+                  })
+                }
+              />
+              <Image
+                src={"/images/PrintIcon.svg"}
+                width={24}
+                height={24}
+                alt="printIcon"
+              />
+              <Image
+                src={"/images/DownloadIcon.svg"}
+                width={24}
+                height={24}
+                alt="downloadIcon"
+              />
+            </Space>
+          </Space>
         </Col>
         <Col span={24}>
           <NewTable

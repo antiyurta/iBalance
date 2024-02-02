@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   FilteredColumnsDocument,
@@ -15,7 +19,11 @@ import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "payments/list-of-receipt/return-list";
 const ReturnList = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsDocument>({
@@ -120,15 +128,16 @@ const ReturnList = () => {
   });
   const [data, setData] = useState<IDataDocument[]>([]);
   const [filters, setFilters] = useState<IFilterDocument>();
-  const [params, setParams] = useState<IParamDocument>({
-    page: 1,
-    limit: 10,
-    movingStatus: MovingStatus.PosSaleReturn,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [refund, setRefund] = useState<IDataDocument>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const getData = async (params: IParamDocument) => {
+  const getData = async () => {
+    const params: IParamDocument = {
+      ...param,
+      movingStatus: MovingStatus.PosSaleReturn,
+    };
     blockContext.block();
     await DocumentService.get(params)
       .then((response) => {
@@ -141,8 +150,11 @@ const ReturnList = () => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[0, 12]}>

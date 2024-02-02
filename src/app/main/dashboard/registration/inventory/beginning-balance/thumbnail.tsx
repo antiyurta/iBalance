@@ -6,7 +6,11 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
 import Filtered from "@/components/table/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
@@ -22,23 +26,26 @@ import {
 } from "@/service/material/entities";
 import { MaterialService } from "@/service/material/service";
 import { BalanceService } from "@/service/material/balance/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   isReload: boolean;
   onEdit: (row: IDataMaterial) => void;
 }
-
+const key = "inventory/beginning-balance";
 const Thumbnail = (props: IProps) => {
   const { isReload, onEdit } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamMaterial>({
-    page: 1,
-    limit: 10,
-  });
   const [data, setData] = useState<IDataMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMaterial>();
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsMaterial>({
     code: {
       label: "Дотоод код",
@@ -99,9 +106,8 @@ const Thumbnail = (props: IProps) => {
   });
   const getData = async (param: IParamMaterial) => {
     blockContext.block();
-    params.isBalanceRel = true;
-    setParams(param);
-    await MaterialService.get(params)
+    param.isBalanceRel = true;
+    await MaterialService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -123,17 +129,17 @@ const Thumbnail = (props: IProps) => {
   const onDeleteBeginingBalance = async (id: number) => {
     await BalanceService.remove(id).then((response) => {
       if (response.success) {
-        getData(params);
+        getData({ ...param });
       }
     });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
     getMaterialSection();
   }, []);
   useEffect(() => {
-    getData(params);
-  }, [isReload]);
+    getData({ ...param });
+  }, [param, isReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>

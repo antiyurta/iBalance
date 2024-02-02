@@ -59,9 +59,6 @@ const TransactionAct = (props: IProps) => {
     blockContext.block();
     await DocumentService.generateCode({
       movingStatus: MovingStatus.ActAmortization,
-      filters: [],
-      page: 0,
-      limit: 0
     })
       .then((response) => {
         if (response.success) {

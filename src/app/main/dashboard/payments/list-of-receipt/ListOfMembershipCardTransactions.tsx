@@ -11,7 +11,7 @@ import { useContext, useEffect, useState } from "react";
 import { QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import { Col, Row, Space } from "antd";
 import Filtered from "@/components/table/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import ColumnSettings from "@/components/columnSettings";
 import Image from "next/image";
@@ -20,7 +20,12 @@ import { DocumentService } from "@/service/document/service";
 import NewModal from "@/components/modal";
 import Bill from "../pos-sales/steps/Step3/Bill";
 import TransactionPos from "./components/transaction-pos";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
+const key = "payments/list-of-receipt/return-list";
 const ListOfMembershipCardTransactions = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsShoppingCartMembership>(
@@ -111,6 +116,9 @@ const ListOfMembershipCardTransactions = () => {
       },
     }
   );
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataShoppingCart[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterShoppingCartMembership>();
@@ -122,7 +130,7 @@ const ListOfMembershipCardTransactions = () => {
     SHOW_DOCUMENT = "show-document",
     SHOW_TRANSACTION = "show-transaction",
   }
-  const items: TableItemType[] = [
+  const newItems: TableItemType[] = [
     {
       key: ItemAction.SHOW_DOCUMENT,
       label: (
@@ -202,8 +210,11 @@ const ListOfMembershipCardTransactions = () => {
       });
   };
   useEffect(() => {
-    getData();
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -259,7 +270,7 @@ const ListOfMembershipCardTransactions = () => {
             columns={columns}
             onColumns={setColumns}
             incomeFilters={filters}
-            addItems={items}
+            addItems={newItems}
             custom={(key, id) => itemClick(key, String(id))}
           />
         </Col>

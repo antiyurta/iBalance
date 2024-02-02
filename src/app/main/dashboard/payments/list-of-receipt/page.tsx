@@ -186,7 +186,6 @@ const ListOfReceipt = () => {
                   label: "Гишүүнчлэлийн бүртгэл",
                   key: "/registration/customer/information",
                   closeable: true,
-                  param: {}
                 })
               );
               setIsAddAction(false);
@@ -219,7 +218,6 @@ const ListOfReceipt = () => {
                   label: "Агуулахын тайлан",
                   key: "/reports",
                   closeable: false,
-                  param: {},
                 })
               );
               setIsAddAction(false);

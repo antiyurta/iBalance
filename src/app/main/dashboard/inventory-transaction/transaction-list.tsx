@@ -3,6 +3,7 @@ import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -22,13 +23,21 @@ import { useContext, useEffect, useState } from "react";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import { DocumentEdit } from "./document-edit";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   movingStatus?: MovingStatus;
 }
 export const TransactionList = (props: IProps) => {
   const { movingStatus } = props;
+  const key = `transaction/${movingStatus}`;
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
   const [data, setData] = useState<IDataTransaction[]>([]);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterTransaction>();
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
@@ -37,7 +46,8 @@ export const TransactionList = (props: IProps) => {
   const [columns, setColumns] = useState<FilteredColumnsTransaction>(
     getTransactionColumns(movingStatus)
   );
-  const getData = async (params: IParamTransaction) => {
+  const getData = async () => {
+    const params: IParamTransaction = { ...param };
     blockContext.block();
     params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
     if (movingStatus) params.movingStatus = movingStatus;
@@ -66,8 +76,11 @@ export const TransactionList = (props: IProps) => {
     }
   };
   useEffect(() => {
-    getData({});
-  }, [isReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>

@@ -1,9 +1,9 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { DataIndexType, Meta } from "@/service/entities";
-import { Col, Row, Space, Typography } from "antd";
+import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { MaterialResourceSizeService } from "@/service/material/resource-size/service";
@@ -14,48 +14,49 @@ import {
   IParamResourceSize,
 } from "@/service/material/resource-size/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-
-const { Title } = Typography;
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "inventory/stock-of-commodities/detailed";
 const DetailList = () => {
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataResourceSize[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterResourceSize>();
-  const [params, setParams] = useState<IParamResourceSize>({
-    page: 1,
-    limit: 10,
-  });
   const [columns, setColumns] = useState<FilteredColumnsResourceSize>({
-    materialCode: {
+    code: {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
       dataIndex: ["material", "code"],
       type: DataIndexType.MULTI,
     },
-    materialName: {
+    name: {
       label: "Барааны нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["material", "name"],
       type: DataIndexType.MULTI,
     },
-    materialSectionId: {
+    materialSectionName: {
       label: "Бараа материалын бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["material", "section", "name"],
       type: DataIndexType.MULTI,
     },
-    materialMeasurementName: {
+    measurementName: {
       label: "Хэмжих нэгж",
       isView: true,
       isFiltered: false,
       dataIndex: ["material", "measurement", "name"],
       type: DataIndexType.MULTI,
     },
-    materialCountPackage: {
+    countPackage: {
       label: "Багц доторх тоо",
       isView: true,
       isFiltered: false,
@@ -106,8 +107,11 @@ const DetailList = () => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData({ ...param });
+  }, [param]);
   return (
     <Row gutter={[12, 24]}>
       <Col sm={24}>

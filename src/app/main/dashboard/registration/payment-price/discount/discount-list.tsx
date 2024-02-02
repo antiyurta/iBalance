@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row } from "antd";
@@ -18,18 +22,21 @@ import {
   IParamDiscount,
 } from "@/service/command/discount/entities";
 import { MaterialDiscountService } from "@/service/command/discount/service";
-interface IProps {
-  type: CommandType;
-}
-const DiscountList = (props: IProps) => {
-  const { type } = props;
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "payment-price/price/discount";
+const DiscountList = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [data, setData] = useState<IDataDiscount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDiscount>();
-  const [params, setParams] = useState<IParamDiscount>({});
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsDiscount>({
     id: {
       label: "ID",
@@ -45,7 +52,7 @@ const DiscountList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNumbers: {
+    commandNo: {
       label: "Тушаалын дугаар",
       isView: false,
       isFiltered: false,
@@ -59,11 +66,11 @@ const DiscountList = (props: IProps) => {
       dataIndex: ["command", "ruleAt"],
       type: DataIndexType.DATE,
     },
-    branchName: {
+    warehouseName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["command", "branch", "name"],
+      dataIndex: ["command", "warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
@@ -165,7 +172,8 @@ const DiscountList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamDiscount) => {
+  const getData = async () => {
+    const params: IParamDiscount = { ...param };
     blockContext.block();
     await MaterialDiscountService.get(params)
       .then((response) => {
@@ -193,8 +201,11 @@ const DiscountList = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -253,7 +264,7 @@ const DiscountList = (props: IProps) => {
         <SavePrice
           isEdit
           selectedCommand={selectedCommand}
-          type={type}
+          type={CommandType.Discount}
           onSavePriceModal={(state) => setIsOpenModal(state)}
         />
       </NewModal>

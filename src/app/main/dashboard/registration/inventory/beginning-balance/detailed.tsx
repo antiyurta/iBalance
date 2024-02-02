@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
@@ -17,14 +17,17 @@ import {
   IParamBalance,
 } from "@/service/material/balance/entities";
 import { BalanceService } from "@/service/material/balance/service";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "inventory/beginning-balance/detailed";
 const Detailed = () => {
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataBalance[]>([]);
-  const [params, setParams] = useState<IParamBalance>({
-    page: 1,
-    limit: 10,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBalance>();
   const [columns, setColumns] = useState<FilteredColumnsBalance>({
@@ -107,8 +110,11 @@ const Detailed = () => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData({ ...param });
+  }, [param]);
   return (
     <Row gutter={[12, 24]}>
       <Col sm={24}>

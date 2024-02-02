@@ -8,7 +8,12 @@ import {
   Meta,
 } from "../../entities";
 import { IDataMaterial } from "../../material/entities";
-import { IDataDocument, IFilterDocument, MovingStatus } from "../entities";
+import {
+  IDataDocument,
+  IFilterDocument,
+  IParamDocument,
+  MovingStatus,
+} from "../entities";
 
 export interface IDataTransaction extends IData {
   id?: number;
@@ -35,11 +40,10 @@ export interface IDataTransaction extends IData {
 }
 
 export interface IFilterTransaction extends IFilterDocument {
-  employeeFirstNames?: string[];
+  employeeName?: string[];
   materialCode?: string[];
   materialName?: string[];
   materialMeasurementName?: string[];
-  movingStatus?: MovingStatus;
   materialCountPackage?: string[];
   lastQty?: number[];
   incomeQty?: number[];
@@ -58,7 +62,7 @@ export type FilteredColumnsTransaction = {
   [T in keyof IFilterTransaction]?: ColumnType;
 };
 
-export interface IParamTransaction extends Meta, IParam, IFilterTransaction {}
+export interface IParamTransaction extends IParamDocument {}
 
 export interface IResponseTransactions extends GenericResponse {
   response: {
@@ -99,7 +103,7 @@ const columns: FilteredColumnsTransaction = {
     dataIndex: ["document", "warehouse", "name"],
     type: DataIndexType.MULTI,
   },
-  employeeFirstNames: {
+  employeeName: {
     label: "Хариуцсан нярав",
     isView: true,
     isFiltered: false,
@@ -401,7 +405,7 @@ export const getTransactionColumns = (
       "documentCode",
       "documentAt",
       "warehouseName",
-      "employeeFirstNames",
+      "employeeName",
       "materialCode",
       "materialMeasurementName",
       "materialCountPackage",

@@ -15,12 +15,13 @@ export interface IDataReference {
 }
 export interface IFilterReference extends IColumn {
   name?: string[];
-  type: IType;
 }
 export type FilteredColumnsReference = {
   [T in keyof IFilterReference]?: ColumnType;
 };
-export interface IParamReference extends IParam, IFilterReference {}
+export interface IParamReference extends IParam {
+  type: IType;
+}
 // END => Reference section
 export interface IUserResponse extends GenericResponse {
   response: IUser[];

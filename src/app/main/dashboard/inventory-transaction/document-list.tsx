@@ -3,6 +3,7 @@ import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -22,30 +23,36 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { DocumentEdit } from "./document-edit";
 import LockDocument from "./lock-document";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   movingStatus?: MovingStatus;
 }
 export const DocumentList = (props: IProps) => {
   const { movingStatus } = props;
+  const key = `document/${movingStatus}`;
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataDocument[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
-  const [params, setParams] = useState<IParamDocument>({
-    page: 1,
-    limit: 10,
-    movingStatus: movingStatus,
-  });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
   const [columns, setColumns] = useState<FilteredColumnsDocument>(
     getDocumentColumns(movingStatus)
   );
   const [isReload, setIsReload] = useState<boolean>(false);
-  const getData = async (params: IParamDocument) => {
-    blockContext.block();
-    params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
+  const getData = async () => {
+    const params: IParamDocument = {
+      ...param,
+    };
     if (movingStatus) params.movingStatus = movingStatus;
+    // else params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
+    blockContext.block();
     await DocumentService.get(params)
       .then((response) => {
         if (response.success) {
@@ -75,14 +82,17 @@ export const DocumentList = (props: IProps) => {
     await DocumentService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData();
         }
       })
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
-  }, [isReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>

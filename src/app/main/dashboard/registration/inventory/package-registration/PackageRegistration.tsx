@@ -23,7 +23,7 @@ import {
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import NewModal from "@/components/modal";
 import {
@@ -46,6 +46,10 @@ import {
 } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import EditableTableMaterial from "./editableTableMaterial";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 const { Title } = Typography;
 
 interface IProps {
@@ -53,7 +57,7 @@ interface IProps {
   type: MaterialType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "inventory/package-registration";
 const PackageRegistration = (props: IProps) => {
   const { ComponentType, type, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
@@ -67,19 +71,18 @@ const PackageRegistration = (props: IProps) => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
-  // start used datas
   const [materialSections, setMaterialSections] = useState<
     IDataMaterialSection[]
   >([]);
   const [measurements, setMeasurements] = useState<IDataUnitOfMeasure[]>([]);
-  // end used datas
   const [isDescription, setIsDescription] = useState<boolean>(false);
-  const [params, setParams] = useState<IParamMaterial>({});
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
     []
   );
-  const [fileList, setFileList] = useState<any[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsMaterial>({
     code: {
       label: "Багцын код",
@@ -202,7 +205,6 @@ const PackageRegistration = (props: IProps) => {
   // end zuragtai hamaarah functionuud
   const getData = async (params: IParamMaterial) => {
     blockContext.block();
-    setParams(params);
     await MaterialService.get(params).then((response) => {
       setData(response.response.data);
       setMeta(response.response.meta);
@@ -220,16 +222,6 @@ const PackageRegistration = (props: IProps) => {
       setMeasurements(response.response.data);
     });
   };
-  useEffect(() => {
-    getMaterialSection({ materialTypes: [type] });
-    getData({ page: 1, limit: 10, types: [MaterialType.Package] });
-  }, []);
-  useEffect(() => {
-    if (isOpenModal) {
-      getMeasurements({});
-    }
-  }, [isOpenModal]);
-
   // Өгөгдөлөө хадгалах
   const onFinish = async (data: IDataMaterial) => {
     blockContext.block();
@@ -250,7 +242,7 @@ const PackageRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      getData(params);
+      getData({ ...param });
     }
     setIsOpenModal(false);
   };
@@ -259,13 +251,25 @@ const PackageRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData({ ...param });
         }
       })
       .finally(() => {
         blockContext.unblock();
       });
   };
+  useEffect(() => {
+    getMaterialSection({ materialTypes: [type] });
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData({ ...param, types: [MaterialType.Package] });
+  }, [param]);
+  useEffect(() => {
+    if (isOpenModal) {
+      getMeasurements({});
+    }
+  }, [isOpenModal]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
