@@ -284,7 +284,7 @@ const ConfigPos = () => {
               form={form}
               rules={[]}
               name="employeeIds"
-              query={{ isTreasure: true }}
+              query={{ isCashier: true }}
               isMultiple
             />
           </Form.Item>

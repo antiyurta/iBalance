@@ -24,15 +24,13 @@ export interface IDataWarehouse extends IData {
 }
 
 export interface IFilterWarehouse extends IColumn {
-  sectionIds?: number[];
-  sectionId?: number;
+  sectionName?: string[];
   code?: string[];
-  names?: string[];
+  name?: string[];
   province?: number[];
   district?: number[];
-  employeeIds?: number[];
+  employeeName?: string[];
   address?: string[];
-  fileId?: number[];
   isActive?: boolean[];
 }
 
@@ -42,7 +40,9 @@ export type FilteredColumnsWarehouse = {
 
 export type FilteredColumns = { [T in keyof IFilterWarehouse]?: ColumnType };
 
-export interface IParamWarehouse extends IParam, IFilterWarehouse {}
+export interface IParamWarehouse extends IParam {
+  sectionId?: number;
+}
 
 export interface IResponseWarehouses extends GenericResponse {
   response: {

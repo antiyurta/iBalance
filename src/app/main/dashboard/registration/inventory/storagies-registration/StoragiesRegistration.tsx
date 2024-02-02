@@ -70,25 +70,25 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
-    names: {
+    name: {
       label: "Байршлын нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    sectionName: {
       label: "Байршлын бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
     },
-    employeeIds: {
+    employeeName: {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
-      dataIndex: ["users"],
+      dataIndex: ["employees", "firstName"],
       type: DataIndexType.MULTI,
     },
     address: {
@@ -163,7 +163,7 @@ const StoragiesRegistration = (props: IProps) => {
       }).then((response) => {
         if (response.success) {
           switchForm.resetFields();
-          getData({ page: 1, limit: 10 });
+          getData({ ...param });
           setTableSelectedRows([]);
           onClickModal?.(false);
         }
@@ -214,7 +214,7 @@ const StoragiesRegistration = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setIsOpenModal(false);
-            getData({});
+            getData({ ...param });
           }
         })
         .finally(() => {
@@ -225,7 +225,7 @@ const StoragiesRegistration = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setIsOpenModal(false);
-            getData({});
+            getData({ ...param });
           }
         })
         .finally(() => {
@@ -238,7 +238,7 @@ const StoragiesRegistration = (props: IProps) => {
     await WarehouseService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData({});
+          getData({ ...param });
         }
       })
       .finally(() => {
@@ -298,7 +298,7 @@ const StoragiesRegistration = (props: IProps) => {
               getData({
                 page: 1,
                 limit: 10,
-                sectionIds: keys,
+                // sectionIds: keys,
               });
             }}
           />
