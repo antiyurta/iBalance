@@ -1,4 +1,5 @@
 import { api } from "../../feature/interceptor/interceptor";
+import { IParam } from "../entities";
 import {
   IResponseConsumer,
   IDataConsumer,

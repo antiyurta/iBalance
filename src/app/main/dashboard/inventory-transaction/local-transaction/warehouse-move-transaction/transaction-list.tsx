@@ -1,5 +1,5 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
@@ -81,20 +81,7 @@ export const TransactionWarehouseList = (props: IProps) => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -104,9 +91,6 @@ export const TransactionWarehouseList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -142,10 +126,7 @@ export const TransactionWarehouseList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={editDocument}

@@ -2,8 +2,8 @@ import { IDataEmployee } from "@/service/employee/entities";
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "../../entities";
@@ -23,16 +23,14 @@ export interface IDataWarehouse extends IData {
   isActive: boolean;
 }
 
-export interface IFilterWarehouse extends IFilter {
-  sectionIds?: number[];
-  sectionId?: number;
+export interface IFilterWarehouse extends IColumn {
+  sectionName?: string[];
   code?: string[];
-  names?: string[];
-  provinceId?: number[];
-  districtId?: number[];
-  employeeIds?: number[];
+  name?: string[];
+  province?: number[];
+  district?: number[];
+  employeeName?: string[];
   address?: string[];
-  fileId?: number[];
   isActive?: boolean[];
 }
 
@@ -42,7 +40,9 @@ export type FilteredColumnsWarehouse = {
 
 export type FilteredColumns = { [T in keyof IFilterWarehouse]?: ColumnType };
 
-export interface IParamWarehouse extends Meta, IParam, IFilterWarehouse {}
+export interface IParamWarehouse extends IParam {
+  sectionId?: number;
+}
 
 export interface IResponseWarehouses extends GenericResponse {
   response: {

@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
   IFilter,
   IParam,
@@ -23,7 +24,7 @@ export interface IDataWarehouseDocument extends IData {
   transactions?: IDataTransaction[];
 }
 
-export interface IFilterWarehouseDocument extends IFilter {
+export interface IFilterWarehouseDocument extends IColumn {
   id?: number;
   code?: string;
   documentAt?: string | Dayjs;

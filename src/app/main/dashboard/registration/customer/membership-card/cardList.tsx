@@ -1,8 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
@@ -14,100 +17,106 @@ import {
   IParamMembership,
 } from "@/service/reference/membership/entities";
 import { MembershipService } from "@/service/reference/membership/service";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataMembership) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "membership-card/card-list";
 const CardList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
-  const [params, setParams] = useState<IParamMembership>({});
   const [data, setData] = useState<IDataMembership[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMembership>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsMembership>({
     name: {
       label: "Карт эрхийн бичгийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     isSave: {
       label: "Оноо хуримтлуулдаг эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isSave",
+      dataIndex: ["isSave"],
       type: DataIndexType.BOOLEAN,
     },
     isBalance: {
       label: "Үлдэгдэлтэй эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isBalance",
+      dataIndex: ["isBalance"],
       type: DataIndexType.BOOLEAN,
     },
     isPercent: {
       label: "Хөнгөлөлт хувиар эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isPercent",
+      dataIndex: ["isPercent"],
       type: DataIndexType.BOOLEAN,
     },
     discount: {
       label: "Хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "discount",
+      dataIndex: ["discount"],
       type: DataIndexType.VALUE,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN,
     },
     limitDiscount: {
       label: "Ашиглах боломжтой онооны дээд хязгаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "limitDiscount",
+      dataIndex: ["limitDiscount"],
       type: DataIndexType.VALUE,
     },
     isSale: {
       label: "Борлуулдаг эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isSale",
+      dataIndex: ["isSale"],
       type: DataIndexType.BOOLEAN,
     },
     description: {
       label: "Тайлбар",
       isView: true,
       isFiltered: false,
-      dataIndex: "description",
+      dataIndex: ["description"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
       label: "Өөрчлөлт хийсэн хэрэглэгч",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.USER,
     },
   });
   // Жагсаалтын өгөгдөл дуудаж авчирна
-  const getData = async (params: IParamMembership) => {
+  const getData = async () => {
+    const params: IParamMembership = { ...param };
     await MembershipService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -117,8 +126,11 @@ const CardList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [onReload, param]);
 
   return (
     <div>
@@ -133,20 +145,7 @@ const CardList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (column) => setColumns(column),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -162,9 +161,6 @@ const CardList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: setColumns,
-                        params,
-                        onParams: setParams,
-                        getData,
                       })
                     }
                   />
@@ -198,10 +194,7 @@ const CardList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={getData}
                 onColumns={setColumns}
-                newParams={params}
-                onParams={setParams}
                 incomeFilters={filters}
                 isEdit
                 isDelete

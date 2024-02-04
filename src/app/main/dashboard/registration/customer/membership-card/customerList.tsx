@@ -1,8 +1,12 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import {
   IDataTreeSection,
   TreeSectionType,
@@ -20,61 +24,63 @@ import {
 } from "@/service/consumer/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
 import NewModal from "@/components/modal";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { AppDispatch } from "@/feature/store/store";
+import { useDispatch } from "react-redux";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataConsumer) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "membership-card/customer-list";
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [params, setParams] = useState<IParamConsumer>({
-    page: 1,
-    limit: 10,
-    memberships: true,
-  });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterConsumer>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsConsumer>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     isIndividual: {
       label: "Хувь хүн эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isIndividual",
+      dataIndex: ["isIndividual"],
       type: DataIndexType.BOOLEAN,
     },
     isEmployee: {
       label: "Ажилтан эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isEmployee",
+      dataIndex: ["isEmployee"],
       type: DataIndexType.BOOLEAN,
     },
     lastName: {
       label: "Харилцагчийн овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["lastName"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    sectionName: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
@@ -85,24 +91,24 @@ const CustomerList = (props: IProps) => {
       label: "Регистр №",
       isView: true,
       isFiltered: false,
-      dataIndex: "regno",
+      dataIndex: ["regno"],
       type: DataIndexType.MULTI,
     },
     phone: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phone",
+      dataIndex: ["phone"],
       type: DataIndexType.MULTI,
     },
     address: {
       label: "Хаяг",
       isView: true,
       isFiltered: false,
-      dataIndex: "address",
+      dataIndex: ["address"],
       type: DataIndexType.MULTI,
     },
-    bankName: {
+    bank: {
       label: "Банкны нэр",
       isView: true,
       isFiltered: false,
@@ -113,35 +119,35 @@ const CustomerList = (props: IProps) => {
       label: "Дансны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "bankAccountNo",
+      dataIndex: ["bankAccountNo"],
       type: DataIndexType.MULTI,
     },
     email: {
       label: "И-мэйл хаяг",
       isView: false,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: ["email"],
       type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN,
     },
     createdAt: {
       label: "Карт нээсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -154,8 +160,8 @@ const CustomerList = (props: IProps) => {
   });
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
   //
-  const getData = async (params: IParamConsumer) => {
-    params.memberships = true;
+  const getData = async () => {
+    const params: IParamConsumer = { ...param, isMembership: true };
     await ConsumerService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -172,15 +178,13 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
     getTreeSections();
   }, []);
 
   useEffect(() => {
-    if (onReload) {
-      getData(params);
-    }
-  }, [onReload]);
+    getData();
+  }, [param, onReload]);
 
   return (
     <div>
@@ -196,10 +200,8 @@ const CustomerList = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
-              getData({ page: 1, limit: 10, sectionId: keys });
+              getData();
             }}
           />
         </Col>
@@ -213,20 +215,7 @@ const CustomerList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key,
-                      state,
-                      column: columns,
-                      onColumn: setColumns,
-                      params,
-                      onParams: setParams,
-                    });
-                    getData(params ? params : { page: 1, limit: 10 });
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -242,9 +231,6 @@ const CustomerList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: setColumns,
-                        params,
-                        onParams: setParams,
-                        getData: (params) => getData(params),
                       })
                     }
                     defaultColumns={columns}
@@ -280,10 +266,7 @@ const CustomerList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={getData}
                 onColumns={setColumns}
-                newParams={params}
-                onParams={setParams}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}

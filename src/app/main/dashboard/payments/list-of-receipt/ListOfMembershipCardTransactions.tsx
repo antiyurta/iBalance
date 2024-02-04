@@ -4,14 +4,14 @@ import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsShoppingCartMembership,
   IDataShoppingCart,
-  IFilterShoppingCartMembership,
+  IFilterShoppingCart,
   IParamShoppingCart,
 } from "@/service/pos/shopping-card/entities";
 import { useContext, useEffect, useState } from "react";
 import { QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import { Col, Row, Space } from "antd";
-import Filtered from "@/components/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import Filtered from "@/components/table/filtered";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import ColumnSettings from "@/components/columnSettings";
 import Image from "next/image";
@@ -20,7 +20,12 @@ import { DocumentService } from "@/service/document/service";
 import NewModal from "@/components/modal";
 import Bill from "../pos-sales/steps/Step3/Bill";
 import TransactionPos from "./components/transaction-pos";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
+const key = "payments/list-of-receipt/return-list";
 const ListOfMembershipCardTransactions = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsShoppingCartMembership>(
@@ -32,18 +37,18 @@ const ListOfMembershipCardTransactions = () => {
         dataIndex: ["openClose", "pos", "name"],
         type: DataIndexType.MULTI,
       },
-      id: {
+      documentCode: {
         label: "Баримтын дугаар",
         isView: true,
         isFiltered: false,
-        dataIndex: "id",
+        dataIndex: ["document", "code"],
         type: DataIndexType.MULTI,
       },
       createdAt: {
         label: "Баримтын огноо",
         isView: true,
         isFiltered: false,
-        dataIndex: "createdAt",
+        dataIndex: ["createdAt"],
         type: DataIndexType.DATE,
       },
       membershipCode: {
@@ -57,7 +62,7 @@ const ListOfMembershipCardTransactions = () => {
         label: "Карт, эрхийн бичгийн нэр",
         isView: true,
         isFiltered: false,
-        dataIndex: ["consumerMembership", "name"],
+        dataIndex: ["consumerMembership", "membership", "name"],
         type: DataIndexType.MULTI,
       },
       consumerCode: {
@@ -85,21 +90,21 @@ const ListOfMembershipCardTransactions = () => {
         label: "Төлөх дүн",
         isView: true,
         isFiltered: false,
-        dataIndex: "payAmount",
+        dataIndex: ["payAmount"],
         type: DataIndexType.VALUE,
       },
       membershipIncreaseAmount: {
         label: "Нэмэгдсэн оноо",
         isView: true,
         isFiltered: false,
-        dataIndex: "membershipIncreaseAmount",
+        dataIndex: ["membershipIncreaseAmount"],
         type: DataIndexType.VALUE,
       },
       membershipDiscountAmount: {
         label: "Ашигласан оноо",
         isView: true,
         isFiltered: false,
-        dataIndex: "membershipDiscountAmount",
+        dataIndex: ["membershipDiscountAmount"],
         type: DataIndexType.VALUE,
       },
       membershipAmount: {
@@ -111,13 +116,12 @@ const ListOfMembershipCardTransactions = () => {
       },
     }
   );
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataShoppingCart[]>([]);
-  const [params, setParams] = useState<IParamShoppingCart>({
-    page: 1,
-    limit: 10,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterShoppingCartMembership>();
+  const [filters, setFilters] = useState<IFilterShoppingCart>();
   const [shoppingCart, setShoppingCart] = useState<IDataShoppingCart>();
   const [posDocument, setPosDocument] = useState<IDataDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
@@ -126,7 +130,7 @@ const ListOfMembershipCardTransactions = () => {
     SHOW_DOCUMENT = "show-document",
     SHOW_TRANSACTION = "show-transaction",
   }
-  const items: TableItemType[] = [
+  const newItems: TableItemType[] = [
     {
       key: ItemAction.SHOW_DOCUMENT,
       label: (
@@ -164,12 +168,12 @@ const ListOfMembershipCardTransactions = () => {
       ),
     },
   ];
-  const getData = async (params: IParamShoppingCart) => {
+  const getData = async (params?: IParamShoppingCart) => {
     await ShoppingCartService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
-        setParams(params);
+        setFilters(response.response.filter);
       }
     });
   };
@@ -207,8 +211,11 @@ const ListOfMembershipCardTransactions = () => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -220,20 +227,7 @@ const ListOfMembershipCardTransactions = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -249,9 +243,6 @@ const ListOfMembershipCardTransactions = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -278,12 +269,9 @@ const ListOfMembershipCardTransactions = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
-            addItems={items}
+            addItems={newItems}
             custom={(key, id) => itemClick(key, String(id))}
           />
         </Col>

@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row } from "antd";
@@ -18,24 +22,27 @@ import {
   IParamCoupon,
 } from "@/service/command/coupon/entities";
 import { MaterialCouponService } from "@/service/command/coupon/service";
-interface IProps {
-  type: CommandType;
-}
-const CouponList = (props: IProps) => {
-  const { type } = props;
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "payment-price/price/coupon";
+const CouponList = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [data, setData] = useState<IDataCoupon[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDiscount>();
-  const [params, setParams] = useState<IParamCoupon>({ page: 1, limit: 10 });
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsCoupon>({
     id: {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandId",
+      dataIndex: ["commandId"],
       type: DataIndexType.STRING,
     },
     commandAt: {
@@ -45,7 +52,7 @@ const CouponList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNumbers: {
+    commandNo: {
       label: "Тушаалын дугаар",
       isView: false,
       isFiltered: false,
@@ -59,11 +66,11 @@ const CouponList = (props: IProps) => {
       dataIndex: ["command", "ruleAt"],
       type: DataIndexType.DATE,
     },
-    branchName: {
+    warehouseName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["command", "branch", "name"],
+      dataIndex: ["command", "warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
@@ -112,49 +119,49 @@ const CouponList = (props: IProps) => {
       label: "Нэгж үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "unitAmount",
+      dataIndex: ["unitAmount"],
       type: DataIndexType.MULTI,
     },
     endAt: {
       label: "Урамшуулал дуусах огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "endAt",
+      dataIndex: ["endAt"],
       type: DataIndexType.DATE,
     },
     condition: {
       label: "Урамшуулал авах нөхцөл",
       isView: true,
       isFiltered: false,
-      dataIndex: "percent",
+      dataIndex: ["percent"],
       type: DataIndexType.MULTI,
     },
     conditionValue: {
       label: "Урамшуулалын авах хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     couponQuantity: {
       label: "Урамшуулалын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     couponPercent: {
       label: "Урамшуулалын хувь",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -168,7 +175,7 @@ const CouponList = (props: IProps) => {
       label: "Үүсгэсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     createdBy: {
@@ -179,7 +186,8 @@ const CouponList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamCoupon) => {
+  const getData = async () => {
+    const params: IParamCoupon = { ...param };
     blockContext.block();
     await MaterialCouponService.get(params)
       .then((response) => {
@@ -207,28 +215,18 @@ const CouponList = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>
         <Col span={24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -238,9 +236,6 @@ const CouponList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: setParams,
-                      getData,
                     })
                   }
                 />
@@ -265,10 +260,7 @@ const CouponList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row) => editCommand(row)}
@@ -286,7 +278,7 @@ const CouponList = (props: IProps) => {
         <SavePrice
           isEdit
           selectedCommand={selectedCommand}
-          type={type}
+          type={CommandType.Coupon}
           onSavePriceModal={(state) => setIsOpenModal(state)}
         />
       </NewModal>

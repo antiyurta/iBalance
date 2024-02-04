@@ -2,9 +2,10 @@ import { IUser } from "../authentication/entities";
 import {
   ColumnType,
   GenericResponse,
-  IFilter,
+  IColumn,
   IParam,
   Meta,
+  SelectObject,
 } from "../entities";
 import { IDataReference } from "../reference/entity";
 import { IDataTreeSection } from "../reference/tree-section/entities";
@@ -35,31 +36,33 @@ export interface IDataConsumer {
   deletedAt: string;
   updatedUser: IUser;
 }
-export interface IFilterConsumer extends IFilter {
+export interface IFilterConsumer extends IColumn {
   code?: number[];
   isIndividual?: boolean[];
   isEmployee?: boolean[];
   lastName?: string[];
   name?: string[];
-  sectionId?: number[] | string[];
+  sectionName?: string[];
   regno?: string[];
   phone?: string[];
   address?: string[];
-  bankName?: number[];
+  bank?: SelectObject[];
   bankAccountNo?: string[];
   email?: string[];
+  isSupplier?: boolean;
   isActive?: boolean[];
 }
 export type FilteredColumnsConsumer = {
   [T in keyof IFilterConsumer]?: ColumnType;
 };
 
-export interface IParamConsumer extends Meta, IParam, IFilterConsumer {
+export interface IParamConsumer extends IParam {
   ids?: number[];
-  lendLimits?: boolean;
-  initialBalances?: boolean;
-  memberships?: boolean;
-  isSupplier?: boolean;
+  sectionId?: number[];
+  registerNumber?: string;
+  isMembership?: boolean;
+  isLendLimit?: boolean;
+  isBalance?: boolean;
 }
 export interface IResponseConsumer extends GenericResponse {
   response: {

@@ -27,8 +27,8 @@ const TransactionConverter = (props: IProps) => {
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const getWarehouses = (params: IParamWarehouse) => {
-    WarehouseService.get(params).then((response) => {
+  const getWarehouses = () => {
+    WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
@@ -54,7 +54,7 @@ const TransactionConverter = (props: IProps) => {
     }
   };
   useEffect(() => {
-    getWarehouses({});
+    getWarehouses();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {

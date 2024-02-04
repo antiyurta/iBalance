@@ -2,16 +2,15 @@
 
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { DataIndexType, Meta } from "@/service/entities";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
-  unDuplicate,
 } from "@/feature/common";
-
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   IDataTreeSection,
@@ -27,20 +26,23 @@ import {
   IParamInitialBalance,
 } from "@/service/consumer/initial-balance/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataInitialBalance) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "customer/balance/customer-list";
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
-  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [newParams, setNewParams] = useState<IParamInitialBalance>({
-    page: 1,
-    limit: 10,
-  });
+  const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataInitialBalance[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterInitialBalance>();
@@ -71,14 +73,14 @@ const CustomerList = (props: IProps) => {
       label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -89,8 +91,9 @@ const CustomerList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamInitialBalance) => {
+  const getData = async () => {
     blockContext.block();
+    const params: IParamInitialBalance = { ...param };
     await initialBalanceService
       .get(params)
       .then((response) => {
@@ -112,11 +115,12 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getSections(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    getData(newParams);
-  }, [onReload]);
+    getData();
+  }, [param, onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -126,11 +130,7 @@ const CustomerList = (props: IProps) => {
             data={sections}
             isLeaf={false}
             onClick={(keys) => {
-              getData({
-                page: 1,
-                limit: 10,
-                consumerSectionId: keys,
-              });
+              getData();
             }}
           />
         </Col>
@@ -144,20 +144,7 @@ const CustomerList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: newParams,
-                      onParams: (params) => setNewParams(params),
-                    });
-                    getData(newParams);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -173,9 +160,6 @@ const CustomerList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: newParams,
-                        onParams: (params) => setNewParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -203,10 +187,7 @@ const CustomerList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={newParams}
-                onParams={(params) => setNewParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}

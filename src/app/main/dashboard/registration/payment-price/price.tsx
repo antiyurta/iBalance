@@ -20,9 +20,9 @@ const Price = (props: IProps) => {
   const { ComponentType, name, type } = props;
   const getDetailList = (): JSX.Element => {
     if (type == CommandType.Discount) {
-      return <DiscountList type={type} />;
+      return <DiscountList />;
     } else if (type == CommandType.Coupon) {
-      return <CouponList type={type} />;
+      return <CouponList />;
     } else {
       return <PriceList type={type} />;
     }

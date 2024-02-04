@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
   IFilter,
   IParam,
@@ -66,18 +67,18 @@ export interface IFilterShoppingCart extends IFilter {
 export type FilteredColumnsShoppingCart = {
   [T in keyof IFilterShoppingCart]?: ColumnType;
 };
-export interface IFilterShoppingCartMembership extends IFilter {
-  id?: string;
-  posName?: string;
-  membershipCode?: string;
-  membershipName?: string;
-  consumerCode?: string;
-  consumerName?: string;
-  consumerPhone?: string;
-  payAmount?: number;
-  membershipIncreaseAmount?: number;
-  membershipDiscountAmount?: number;
-  membershipAmount?: number;
+export interface IFilterShoppingCartMembership extends IColumn {
+  posName: string[];
+  documentCode: string[];
+  membershipCode: string[];
+  membershipName: string[];
+  consumerCode: string[];
+  consumerName: string[];
+  consumerPhone: string[];
+  payAmount: number[];
+  membershipIncreaseAmount: number[];
+  membershipDiscountAmount: number[];
+  membershipAmount: number[];
 }
 export type FilteredColumnsShoppingCartMembership = {
   [T in keyof IFilterShoppingCartMembership]?: ColumnType;

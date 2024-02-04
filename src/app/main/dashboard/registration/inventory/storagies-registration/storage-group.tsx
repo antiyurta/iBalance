@@ -25,10 +25,12 @@ export const StoragiesGroup = () => {
   const [isModal, setIsModal] = useState<boolean>(false);
   const [isHaveChild, setIsHaveChild] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
+  const [sectionLength, setSectionLength] = useState<number>(0);
   const getSections = async (type: TreeSectionType) => {
     await TreeSectionService.get(type).then((response) => {
       if (response.success) {
         setSections(response.response);
+        setSectionLength(response.response.length);
       }
     });
   };

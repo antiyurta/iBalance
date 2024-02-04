@@ -25,7 +25,6 @@ import { PlusOutlined, LeftOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
-import { TabsActions } from "@/feature/core/actions/TabsActions";
 import {
   ICreateGiftCart,
   IParamBalanceGift,
@@ -43,6 +42,7 @@ import { MembershipService } from "@/service/reference/membership/service";
 import dayjs from "dayjs";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { openNofi } from "@/feature/common";
+import { newTab } from "@/feature/store/slice/tab.slice";
 type GiftType = "income" | "expense";
 const { Title } = Typography;
 const ListOfReceipt = () => {
@@ -85,7 +85,9 @@ const ListOfReceipt = () => {
     },
   ];
   const getMemberships = () => {
-    MembershipService.get({ isSale: [true] }).then((response) => {
+    MembershipService.get({
+      isSale: [true],
+    }).then((response) => {
       if (response.success) {
         setMemberships(response.response.data);
       }
@@ -180,9 +182,10 @@ const ListOfReceipt = () => {
           <div
             onClick={() => {
               dispatch(
-                TabsActions.setTabsData({
+                newTab({
                   label: "Гишүүнчлэлийн бүртгэл",
                   key: "/registration/customer/information",
+                  closeable: true,
                 })
               );
               setIsAddAction(false);
@@ -211,9 +214,10 @@ const ListOfReceipt = () => {
           <div
             onClick={() => {
               dispatch(
-                TabsActions.setTabsData({
+                newTab({
                   label: "Агуулахын тайлан",
                   key: "/reports",
+                  closeable: false,
                 })
               );
               setIsAddAction(false);

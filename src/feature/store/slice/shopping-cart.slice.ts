@@ -1,7 +1,7 @@
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-const initialState: IDataShoppingCart = {
+const initialState: IDataShoppingCart | undefined = {
   id: "",
   currency: "",
   openCloseId: 0,
@@ -24,7 +24,7 @@ const initialState: IDataShoppingCart = {
   createdAt: "",
   updatedAt: "",
   deletedAt: "",
-  giftAmount: 0
+  giftAmount: 0,
 };
 
 export const shoppingCart = createSlice({

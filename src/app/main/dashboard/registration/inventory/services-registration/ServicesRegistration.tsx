@@ -5,8 +5,13 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
-import { ComponentType, DataIndexType, Meta } from "@/service/entities";
+import Filtered from "@/components/table/filtered";
+import {
+  ComponentType,
+  DataIndexType,
+  Meta,
+  Operator,
+} from "@/service/entities";
 import {
   Button,
   Col,
@@ -24,7 +29,11 @@ import {
   NewSwitch,
   NewTextArea,
 } from "@/components/input";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { NewTable } from "@/components/table";
 import {
   IDataReference,
@@ -62,6 +71,9 @@ import { BrandService } from "@/service/reference/brand/service";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 const { Title } = Typography;
 
 interface IProps {
@@ -69,7 +81,7 @@ interface IProps {
   type: MaterialType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "inventory/services-registration";
 const ServicesRegistration = (props: IProps) => {
   const {
     login_data: {
@@ -85,6 +97,9 @@ const ServicesRegistration = (props: IProps) => {
   const [switchForm] = Form.useForm(); // buleg solih
   const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
     useState<boolean>(false);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMaterial>();
@@ -116,14 +131,14 @@ const ServicesRegistration = (props: IProps) => {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Үйлчилгээний нэр",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     measurementId: {
@@ -144,28 +159,28 @@ const ServicesRegistration = (props: IProps) => {
       label: "НӨАТ суутгах эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isTax",
+      dataIndex: ["isTax"],
       type: DataIndexType.BOOLEAN,
     },
     isCitizenTax: {
       label: "НХАТ суутгах эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isCitizenTax",
+      dataIndex: ["isCitizenTax"],
       type: DataIndexType.BOOLEAN,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -287,16 +302,27 @@ const ServicesRegistration = (props: IProps) => {
     });
   };
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getMaterialSection({ materialTypes: [type] });
-    getData({ page: 1, limit: 10, types: [MaterialType.Service] });
   }, []);
+  useEffect(() => {
+    getData({ ...param, types: [MaterialType.Service] });
+  }, [param]);
   useEffect(() => {
     if (isOpenModal) {
       getMeasurements({});
       getUnitCode({});
       getRanks({ type: IType.MATERIAL_RANK });
       getBrands({});
-      getConsumers({ isSupplier: true });
+      getConsumers({
+        filters: [
+          {
+            dataIndex: ["isSupplier"],
+            operator: Operator.Equals,
+            filter: true,
+          },
+        ],
+      });
     }
   }, [isOpenModal]);
 
@@ -387,8 +413,6 @@ const ServicesRegistration = (props: IProps) => {
                     state: true,
                     column: columns,
                     onColumn: (columns) => setColumns(columns),
-                    params,
-                    onParams: (params) => setParams(params),
                   });
                   getData({
                     page: 1,
@@ -514,20 +538,7 @@ const ServicesRegistration = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -544,9 +555,6 @@ const ServicesRegistration = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns,
                           onColumns: (columns) => setColumns(columns),
-                          params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -591,10 +599,7 @@ const ServicesRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit
                 isDelete

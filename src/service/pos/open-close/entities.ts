@@ -1,6 +1,7 @@
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IFilter,
   IParam,
   Meta,
@@ -41,7 +42,7 @@ export interface IDataPosOpenClose {
   posBankNotes: IDataPosBankNote[];
   shoppingCarts: IDataShoppingCart[];
 }
-export interface IFilterPosOpenClose extends IFilter {
+export interface IFilterPosOpenClose extends IColumn {
   id: number;
   posId: number;
   openerUserId: number;

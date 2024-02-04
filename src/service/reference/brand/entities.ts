@@ -1,17 +1,21 @@
-import { GenericResponse, IData, IFilter, IParam, Meta } from "@/service/entities";
-import { IDataCountry } from "../country/entities";
+import {
+  GenericResponse,
+  IColumn,
+  IData,
+  IParam,
+  Meta,
+} from "@/service/entities";
 
 export interface IDataBrand extends IData {
   id: number;
-  countryId: number;
-  country: IDataCountry;
+  country: string;
   name: string;
 }
-export interface IFilterBrand extends IFilter {
+export interface IFilterBrand extends IColumn {
   countryId?: number;
   name?: string;
 }
-export interface IParamBrand extends Meta, IParam, IFilterBrand {}
+export interface IParamBrand extends IParam, IFilterBrand {}
 
 export interface IResponseBrand extends GenericResponse {
   response: {

@@ -18,7 +18,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import {
   NewInput,
   NewSelect,
@@ -48,14 +48,18 @@ import {
 //commans
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
-  unDuplicate,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import Export from "@/components/Export";
 import { TreeSectionSelect } from "@/components/tree-select";
 import { WarningOutlined } from "@ant-design/icons";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 const { Title } = Typography;
 
@@ -63,7 +67,7 @@ interface IProps {
   ComponentType: ComponentType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "customer/information";
 const Information = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const { modal } = App.useApp();
@@ -73,43 +77,46 @@ const Information = (props: IProps) => {
   const [switchForm] = Form.useForm(); // buleg solih
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [filters, setFilters] = useState<IFilterConsumer>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsConsumer>({
     code: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     isIndividual: {
       label: "Хувь хүн эсэх",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "isIndividual",
+      dataIndex: ["isIndividual"],
       type: DataIndexType.BOOLEAN,
     },
     isEmployee: {
       label: "Ажилтан эсэх",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "isEmployee",
+      dataIndex: ["isEmployee"],
       type: DataIndexType.BOOLEAN,
     },
     lastName: {
       label: "Харилцагчийн овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["lastName"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    sectionName: {
       label: "Харилцагчийн бүлэг",
       isView: true,
       isFiltered: false,
@@ -120,24 +127,24 @@ const Information = (props: IProps) => {
       label: "Регистр №",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "regno",
+      dataIndex: ["regno"],
       type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     phone: {
       label: "Утасны дугаар",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "phone",
+      dataIndex: ["phone"],
       type: DataIndexType.MULTI,
     },
-    bankName: {
+    bank: {
       label: "Банкны нэр",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
@@ -148,28 +155,28 @@ const Information = (props: IProps) => {
       label: "Дансны дугаар",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "bankAccountNo",
+      dataIndex: ["bankAccountNo"],
       type: DataIndexType.MULTI,
     },
     email: {
       label: "И-мэйл хаяг",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: ["email"],
       type: DataIndexType.MULTI,
     },
     address: {
       label: "Хаяг",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "address",
+      dataIndex: ["address"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт оруулсан огноо",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -182,7 +189,6 @@ const Information = (props: IProps) => {
   });
   const [data, setData] = useState<IDataConsumer[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [params, setParams] = useState<IParamConsumer>({});
   const [banks, setBanks] = useState<IDataReference[]>([]);
   const [editMode, setIsMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -206,67 +212,12 @@ const Information = (props: IProps) => {
     setSelectedRow(row);
   };
   //data awcirah
-  const getData = async (param: IParamConsumer) => {
+  const getData = async () => {
     blockContext.block();
-    var prm: IParamConsumer = {
-      ...params,
-      ...param,
-      queries: params.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
+    if (ComponentType !== "FULL") {
+      // prm.isActive = [true];
     }
-    if (param.code) {
-      prm.queries = [...unDuplicate("code", params)];
-    }
-    if (param.isIndividual) {
-      prm.queries = [...unDuplicate("isIndividual", params)];
-    }
-    if (param.isEmployee) {
-      prm.queries = [...unDuplicate("isEmployee", params)];
-    }
-    if (param.lastName) {
-      prm.queries = [...unDuplicate("lastName", params)];
-    }
-    if (param.name) {
-      prm.queries = [...unDuplicate("name", params)];
-    }
-    if (param.sectionId) {
-      prm.queries = [...unDuplicate("sectionId", params)];
-    }
-    if (param.regno) {
-      prm.queries = [...unDuplicate("regno", params)];
-    }
-    if (param.phone) {
-      prm.queries = [...unDuplicate("phone", params)];
-    }
-    if (param.address) {
-      prm.queries = [...unDuplicate("address", params)];
-    }
-    if (param.bankName) {
-      prm.queries = [...unDuplicate("bankName", params)];
-    }
-    if (param.bankAccountNo) {
-      prm.queries = [...unDuplicate("bankAccountNo", params)];
-    }
-    if (param.email) {
-      prm.queries = [...unDuplicate("email", params)];
-    }
-    if (param.isActive) {
-      prm.queries = [...unDuplicate("isActive", params)];
-    }
-    if (params.updatedAt) {
-      prm.queries = [...unDuplicate("updatedAt", params)];
-    }
-    if (params.updatedBy) {
-      prm.queries = [...unDuplicate("updatedBy", params)];
-    }
-    if (ComponentType !== 'FULL') {
-      prm.isActive = [true];
-    }
-    setParams(prm);
-    await ConsumerService.get(prm)
+    await ConsumerService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -280,7 +231,9 @@ const Information = (props: IProps) => {
   };
   // bank awcirah
   const getBanks = async (type: IType) => {
-    await ReferenceService.get({ type }).then((response) => {
+    await ReferenceService.get({
+      type,
+    }).then((response) => {
       setBanks(response.response.data);
     });
   };
@@ -299,16 +252,18 @@ const Information = (props: IProps) => {
           if (response.success) {
             setSelectedRow(response.response);
             setIsOpenModal(false);
-            getData({ page: 1, limit: 10 });
+            getData();
           }
         })
         .finally(() => {
           blockContext.unblock();
         });
     } else {
-      await ConsumerService.get({ regno: [values.regno] })
+      await ConsumerService.get({ registerNumber: values.regno })
         .then((response) => {
-          if ((response.success && response.response.meta.itemCount) || 0 > 0) {
+          if (response.success && response.response.meta.itemCount === 0) {
+            insertConsumer(values);
+          } else {
             const consumerNames = response.response.data
               .map((item) => item.name)
               .toString();
@@ -330,9 +285,7 @@ const Information = (props: IProps) => {
                   үүсгэхтэй итгэлтэй байна уу?`}
                 </div>
               ),
-              onOk: () => {
-                insertConsumer(values);
-              },
+              onOk: () => insertConsumer(values),
             });
           }
         })
@@ -345,7 +298,7 @@ const Information = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           setIsOpenModal(false);
-          getData({ page: 1, limit: 10 });
+          getData();
         }
       })
       .finally(() => {
@@ -359,7 +312,7 @@ const Information = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           setSelectedRow(undefined);
-          getData({ page: 1, limit: 10 });
+          getData();
         }
       })
       .finally(() => {
@@ -414,7 +367,7 @@ const Information = (props: IProps) => {
       }).then((response) => {
         if (response.success) {
           switchForm.resetFields();
-          getData({ page: 1, limit: 10 });
+          getData();
           setTableSelectedRows([]);
           onClickModal?.(false);
         }
@@ -424,7 +377,7 @@ const Information = (props: IProps) => {
     }
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    dispatch(newPane({ key, param: {} }));
     getConsumerSection(TreeSectionType.Consumer);
     getBanks(IType.BANK);
   }, []);
@@ -432,6 +385,9 @@ const Information = (props: IProps) => {
     // ajiltan bwal bas huwi hun bolnoo
     form.setFieldValue("isIndividual", isEmployee);
   }, [isEmployee]);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -473,14 +429,8 @@ const Information = (props: IProps) => {
                   state: true,
                   column: columns,
                   onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
                 });
-                getData({
-                  page: 1,
-                  limit: 10,
-                  sectionId: keys,
-                });
+                getData();
               }}
             />
           </Col>
@@ -547,20 +497,7 @@ const Information = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params ? params : {});
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -577,9 +514,6 @@ const Information = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns: columns,
                           onColumns: (columns) => setColumns(columns),
-                          params: params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -698,14 +632,11 @@ const Information = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
-                isEdit={ComponentType == 'FULL' ? true : false }
+                isEdit={ComponentType == "FULL" ? true : false}
                 onEdit={(row) => openModal(true, row)}
-                isDelete={ComponentType == 'FULL' ? true : false }
+                isDelete={ComponentType == "FULL" ? true : false}
                 onDelete={(id) => onDelete(id)}
               />
             </Col>
@@ -909,7 +840,7 @@ const Information = (props: IProps) => {
                 name="bankId"
               >
                 <NewSelect
-                  options={banks?.map((bank) => ({
+                  options={banks.map((bank) => ({
                     label: bank.name,
                     value: bank.id,
                   }))}

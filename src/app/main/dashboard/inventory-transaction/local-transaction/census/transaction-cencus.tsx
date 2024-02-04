@@ -33,8 +33,8 @@ const TransactionCencus = (props: IProps) => {
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
   const warehouseId: number = Form.useWatch("warehouseId", form);
 
-  const getWarehouses = (params: IParamWarehouse) => {
-    WarehouseService.get(params).then((response) => {
+  const getWarehouses = () => {
+    WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
@@ -92,7 +92,7 @@ const TransactionCencus = (props: IProps) => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getWarehouses({});
+    getWarehouses();
     generateCode();
   }, []);
   useEffect(() => {

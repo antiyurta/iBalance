@@ -8,7 +8,12 @@ import {
   Meta,
 } from "../../entities";
 import { IDataMaterial } from "../../material/entities";
-import { IDataDocument, IFilterDocument, MovingStatus } from "../entities";
+import {
+  IDataDocument,
+  IFilterDocument,
+  IParamDocument,
+  MovingStatus,
+} from "../entities";
 
 export interface IDataTransaction extends IData {
   id?: number;
@@ -35,11 +40,10 @@ export interface IDataTransaction extends IData {
 }
 
 export interface IFilterTransaction extends IFilterDocument {
-  employeeFirstNames?: string[];
+  employeeName?: string[];
   materialCode?: string[];
   materialName?: string[];
   materialMeasurementName?: string[];
-  movingStatus?: MovingStatus;
   materialCountPackage?: string[];
   lastQty?: number[];
   incomeQty?: number[];
@@ -58,7 +62,7 @@ export type FilteredColumnsTransaction = {
   [T in keyof IFilterTransaction]?: ColumnType;
 };
 
-export interface IParamTransaction extends Meta, IParam, IFilterTransaction {}
+export interface IParamTransaction extends IParamDocument {}
 
 export interface IResponseTransactions extends GenericResponse {
   response: {
@@ -78,7 +82,7 @@ export interface IResponseTransaction extends GenericResponse {
   response: IDataTransaction;
 }
 const columns: FilteredColumnsTransaction = {
-  documentCode: {
+  code: {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
@@ -99,7 +103,7 @@ const columns: FilteredColumnsTransaction = {
     dataIndex: ["document", "warehouse", "name"],
     type: DataIndexType.MULTI,
   },
-  employeeFirstNames: {
+  employeeName: {
     label: "Хариуцсан нярав",
     isView: true,
     isFiltered: false,
@@ -138,14 +142,14 @@ const columns: FilteredColumnsTransaction = {
     label: "Агуулахын үлдэгдэл",
     isView: true,
     isFiltered: false,
-    dataIndex: "lastQty",
+    dataIndex: ["lastQty"],
     type: DataIndexType.VALUE,
   },
   incomeQty: {
     label: "Орлогын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeQty",
+    dataIndex: ["incomeQty"],
     type: DataIndexType.MULTI,
   },
   consumerCode: {
@@ -180,42 +184,42 @@ const columns: FilteredColumnsTransaction = {
     label: "Дуусах хугацаа",
     isView: true,
     isFiltered: false,
-    dataIndex: "transactionAt",
+    dataIndex: ["transactionAt"],
     type: DataIndexType.DATE,
   },
   unitAmount: {
     label: "Нэгжийн үнэ",
     isView: true,
     isFiltered: false,
-    dataIndex: "unitAmount",
+    dataIndex: ["unitAmount"],
     type: DataIndexType.VALUE,
   },
   totalAmount: {
     label: "Нийт дүн",
     isView: true,
     isFiltered: false,
-    dataIndex: "totalAmount",
+    dataIndex: ["totalAmount"],
     type: DataIndexType.VALUE,
   },
   expenseQty: {
     label: "Зарлагын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseQty",
+    dataIndex: ["expenseQty"],
     type: DataIndexType.MULTI,
   },
   discountAmount: {
     label: "Бараа материалын үнийн хөнгөлөлт",
     isView: false,
     isFiltered: false,
-    dataIndex: "discountAmount",
+    dataIndex: ["discountAmount"],
     type: DataIndexType.VALUE,
   },
   amount: {
     label: "Төлөх дүн",
     isView: true,
     isFiltered: false,
-    dataIndex: "amount",
+    dataIndex: ["amount"],
     type: DataIndexType.VALUE,
   },
   convertMaterialName: {
@@ -243,14 +247,14 @@ const columns: FilteredColumnsTransaction = {
     label: "Хөрвүүлсэн барааны эцсийн үлдэгдэл",
     isView: true,
     isFiltered: true,
-    dataIndex: "convertLastQty",
+    dataIndex: ["convertLastQty"],
     type: DataIndexType.MULTI,
   },
   convertQuantity: {
     label: "Хөрвүүлсэн барааны тоо ширхэг",
     isView: true,
     isFiltered: true,
-    dataIndex: "convertQuantity",
+    dataIndex: ["convertQuantity"],
     type: DataIndexType.MULTI,
   },
   createdBy: {
@@ -264,7 +268,7 @@ const columns: FilteredColumnsTransaction = {
     label: "Бүртгэсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "createdAt",
+    dataIndex: ["createdAt"],
     type: DataIndexType.DATETIME,
   },
   lockedBy: {
@@ -293,7 +297,7 @@ export const getTransactionColumns = (
   movingStatus?: MovingStatus
 ): FilteredColumnsTransaction => {
   const expenseTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -312,7 +316,7 @@ export const getTransactionColumns = (
     "lockedAt",
   ];
   const incomeTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -328,7 +332,7 @@ export const getTransactionColumns = (
     "updatedAt",
   ];
   const localTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -353,7 +357,7 @@ export const getTransactionColumns = (
     [MovingStatus.Purchase]: incomeTransaction,
     [MovingStatus.SaleReturn]: incomeTransaction,
     [MovingStatus.Sales]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -376,7 +380,7 @@ export const getTransactionColumns = (
       "updatedAt",
     ],
     [MovingStatus.PurchaseReturn]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -398,10 +402,10 @@ export const getTransactionColumns = (
     [MovingStatus.InOperation]: expenseTransaction,
     [MovingStatus.ActAmortization]: expenseTransaction,
     [MovingStatus.MovementInWarehouse]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
-      "employeeFirstNames",
+      "employeeName",
       "materialCode",
       "materialMeasurementName",
       "materialCountPackage",
@@ -433,7 +437,7 @@ export const getTransactionColumns = (
   const keys: (keyof FilteredColumnsTransaction)[] = movingStatus
     ? movingStatusMappings[movingStatus]
     : [
-        "documentCode",
+        "code",
         "documentAt",
         "warehouseName",
         "consumerCode",

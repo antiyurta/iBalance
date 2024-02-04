@@ -24,6 +24,7 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { NewFilterSelect } from "@/components/input";
+import { Operator } from "@/service/entities";
 
 interface IProps {
   data: FormListFieldData[];
@@ -97,7 +98,11 @@ const EditableTableResourseSize: React.FC<IProps> = (props) => {
     setEditingIndex(undefined);
   };
   const getWarehouses = () => {
-    const params: IParamWarehouse = { isActive: [true] };
+    const params: IParamWarehouse = {
+      filters: [
+        { dataIndex: ["isActive"], operator: Operator.Equals, filter: true },
+      ],
+    };
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);

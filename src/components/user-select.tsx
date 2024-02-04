@@ -34,28 +34,28 @@ export const UserSelect = (props: IProps) => {
       label: "Мэйл",
       isView: true,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: ["email"],
       type: DataIndexType.MULTI,
     },
     lastName: {
       label: "Овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["lastName"],
       type: DataIndexType.MULTI,
     },
     firstName: {
       label: "Нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "firstName",
+      dataIndex: ["firstName"],
       type: DataIndexType.MULTI,
     },
     phonoNo: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phonoNo",
+      dataIndex: ["phonoNo"],
       type: DataIndexType.MULTI,
     },
     hospitalId: {
@@ -69,14 +69,14 @@ export const UserSelect = (props: IProps) => {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Идэвхтэй ",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
   });
@@ -137,10 +137,7 @@ export const UserSelect = (props: IProps) => {
           data={users}
           meta={meta}
           columns={columns}
-          onChange={(params) => getUsers(params)}
           onColumns={(columns) => setColumns(columns)}
-          newParams={params}
-          onParams={(params) => setParams(params)}
           incomeFilters={filters}
         />
       </NewModal>

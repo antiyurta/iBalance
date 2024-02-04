@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Popover,
-  Row,
-  Space,
-  Tabs,
-  Typography,
-} from "antd";
+import { Button, Col, Form, Input, Row, Space, Tabs, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
@@ -20,7 +10,6 @@ import NewModal from "@/components/modal";
 import {
   NewInput,
   NewInputNumber,
-  NewSelect,
   NewSwitch,
   NewTextArea,
 } from "@/components/input";
@@ -46,6 +35,7 @@ import CardList from "./cardList";
 import { NumericFormat } from "react-number-format";
 import { hasUniqueValues } from "@/feature/common";
 import { ConsumerSelect } from "@/components/consumer-select";
+import { Operator } from "@/service/entities";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -237,7 +227,9 @@ const MembershipCard = () => {
   };
   useEffect(() => {
     getConsumers({
-      isActive: [true],
+      filters: [
+        { dataIndex: ["isActive"], operator: Operator.Equals, filter: true },
+      ],
     });
     getWarehouses();
   }, []);

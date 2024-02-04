@@ -117,7 +117,7 @@ const BeginningBalance = () => {
   };
   const consumerFormField = async (id: number) => {
     blockContext.block();
-    await ConsumerService.get({ ids: [id], initialBalances: true })
+    await ConsumerService.get({ ids: [id], isBalance: true })
       .then((response) => {
         if (response.response.data.length > 0) {
           openNofi(

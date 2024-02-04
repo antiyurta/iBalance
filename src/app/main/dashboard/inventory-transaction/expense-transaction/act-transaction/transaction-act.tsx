@@ -28,7 +28,7 @@ const TransactionAct = (props: IProps) => {
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const getWarehouses = (params: IParamWarehouse) => {
+  const getWarehouses = (params?: IParamWarehouse) => {
     WarehouseService.get(params).then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
@@ -68,7 +68,7 @@ const TransactionAct = (props: IProps) => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getWarehouses({});
+    getWarehouses();
     generateCode();
   }, []);
   useEffect(() => {

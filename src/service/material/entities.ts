@@ -2,8 +2,8 @@ import { IDataPrice } from "../command/price/entities";
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IDataFile,
-  IFilter,
   IParam,
   Meta,
 } from "../entities";
@@ -76,7 +76,7 @@ export interface IDataMaterial {
   files: IDataFile[];
   price: IDataPrice;
 }
-export interface IFilterMaterial extends IFilter {
+export interface IFilterMaterial extends IColumn {
   code?: string;
   materialId?: number;
   measurementId?: number;
@@ -102,7 +102,7 @@ export type FilteredColumnsMaterial = {
   [T in keyof IFilterMaterial]?: ColumnType;
 };
 
-export interface IParamMaterial extends Meta, IParam, IFilterMaterial {
+export interface IParamMaterial extends IParam, IFilterMaterial {
   types?: MaterialType[]; // төрөл
   ids?: number[];
   isResourceSizeRel?: boolean;

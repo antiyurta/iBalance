@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  onCloseFilterTag,
-  openNofi,
-} from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import {
   FilteredColumnsDocument,
   IDataDocument,
@@ -30,28 +26,36 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import TransactionPos from "./components/transaction-pos";
 import StepIndex from "../pos-sales/steps/StepIndex";
 import PosRefund from "../pos-sales/component/pos-refund";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "payments/list-of-receipt/document";
 const Jurnal = () => {
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsDocument>({
-    id: {
+    code: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     documentAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "documentAt",
+      dataIndex: ["documentAt"],
       type: DataIndexType.DATE,
     },
     status: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "status",
+      dataIndex: ["status"],
       type: DataIndexType.ENUM,
     },
     warehouseName: {
@@ -79,72 +83,53 @@ const Jurnal = () => {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "expenseCount",
+      dataIndex: ["expenseCount"],
       type: DataIndexType.MULTI,
     },
     expenseQuantity: {
       label: "Борлуулалтын тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "expenseQuantity",
+      dataIndex: ["expenseQuantity"],
       type: DataIndexType.MULTI,
     },
     amount: {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     discountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "discountAmount",
+      dataIndex: ["discountAmount"],
       type: DataIndexType.VALUE,
     },
     consumerDiscountAmount: {
       label: "Харилцагчийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: "consumerDiscountAmount",
+      dataIndex: ["consumerDiscountAmount"],
       type: DataIndexType.VALUE,
     },
-    // membershipIncreaseAmount: {
-    //   label: "Ашигласан оноо",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: "membershipDiscountAmount",
-    //   type: DataIndexType.VALUE,
-    // },
     payAmount: {
       label: "Төлөх дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: "payAmount",
+      dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
     },
     isEbarimt: {
       label: "Ибаримтын төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isEbarimt",
+      dataIndex: ["isEbarimt"],
       type: DataIndexType.BOOLEAN,
     },
-    // paidAmount: {
-    //   label: "Төлсөн дүн",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: "paidAmount",
-    //   type: DataIndexType.VALUE,
-    // },
   });
   const [data, setData] = useState<IDataDocument[]>();
-  const [params, setParams] = useState<IParamDocument>({
-    page: 1,
-    limit: 10,
-    movingStatus: MovingStatus.Pos,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
@@ -158,7 +143,7 @@ const Jurnal = () => {
     SHOW_PAY = "show-pay",
     SHOW_REFUND = "show-refund",
   }
-  const items: TableItemType[] = [
+  const newItems: TableItemType[] = [
     {
       key: ItemAction.SHOW_DOCUMENT,
       label: (
@@ -232,7 +217,11 @@ const Jurnal = () => {
       ),
     },
   ];
-  const getData = async (params: IParamDocument) => {
+  const getData = async () => {
+    const params: IParamDocument = {
+      ...param,
+      movingStatus: MovingStatus.Pos,
+    };
     await DocumentService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -265,8 +254,11 @@ const Jurnal = () => {
       });
   };
   useEffect(() => {
-    getData(params);
-  }, [isRefund]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isRefund]);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -278,20 +270,7 @@ const Jurnal = () => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -307,9 +286,6 @@ const Jurnal = () => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -336,12 +312,9 @@ const Jurnal = () => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={getData}
             onColumns={setColumns}
-            newParams={params}
-            onParams={setParams}
             incomeFilters={filters}
-            addItems={items}
+            addItems={newItems}
             custom={(key, id) => itemClick(key, id)}
           />
         </Col>

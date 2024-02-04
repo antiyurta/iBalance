@@ -4,8 +4,8 @@ import {
   DataIndexType,
   DateFilter,
   GenericResponse,
+  IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -101,17 +101,12 @@ export interface IDataDocument extends IData {
   transactions?: IDataTransaction[];
 }
 
-export interface IFilterDocument extends IFilter {
-  id?: number;
-  interval?: DateFilter;
-  documentCode?: string[];
+export interface IFilterDocument extends IColumn {
+  code?: string[];
   movingStatus?: MovingStatus;
-  hideMovingStatuses?: MovingStatus[];
-  warehouseId?: number;
   consumerId?: number;
   documentAt?: string;
   refundAt?: string;
-  relDocumentId?: number[];
   relDocumentWarehouseName?: string[];
   warehouseName?: string[];
   incomeQuantity?: number[];
@@ -129,7 +124,7 @@ export interface IFilterDocument extends IFilter {
   consumerDiscountAmount?: number[];
   membershipDiscountAmount?: number[];
   giftAmount?: number[];
-  status?: DocumentStatus;
+  status?: DocumentStatus[];
   payAmount?: number[];
   isEbarimt?: boolean[];
   lockedBy?: number[];
@@ -140,7 +135,15 @@ export type FilteredColumnsDocument = {
   [T in keyof IFilterDocument]?: ColumnType;
 };
 
-export interface IParamDocument extends Meta, IParam, IFilterDocument {}
+export interface IParamDocument extends IParam {
+  hideMovingStatuses?: MovingStatus[];
+  movingStatus?: MovingStatus;
+  interval?: DateFilter;
+  status?: DocumentStatus;
+  warehouseId?: number;
+  consumerId?: number;
+  isLock?: boolean;
+}
 
 export interface IResponseDocuments extends GenericResponse {
   response: {
@@ -157,18 +160,18 @@ export interface IResponseDocumentCode extends GenericResponse {
   response: string;
 }
 const columns: FilteredColumnsDocument = {
-  documentCode: {
+  code: {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
-    dataIndex: "code",
+    dataIndex: ["code"],
     type: DataIndexType.MULTI,
   },
   documentAt: {
     label: "Баримтын огноо",
     isView: true,
     isFiltered: false,
-    dataIndex: "documentAt",
+    dataIndex: ["documentAt"],
     type: DataIndexType.DATE,
   },
   warehouseName: {
@@ -196,84 +199,84 @@ const columns: FilteredColumnsDocument = {
     label: "Буцаалт хийх огноо",
     isView: true,
     isFiltered: false,
-    dataIndex: "refundAt",
-    type: DataIndexType.MULTI,
+    dataIndex: ["refundAt"],
+    type: DataIndexType.DATE,
   },
   incomeCount: {
     label: "Орлогын тоо",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeCount",
+    dataIndex: ["incomeCount"],
     type: DataIndexType.MULTI,
   },
   incomeQuantity: {
     label: "Орлогын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "incomeQuantity",
+    dataIndex: ["incomeQuantity"],
     type: DataIndexType.MULTI,
   },
   amount: {
     label: "Төлөх дүн",
     isView: true,
     isFiltered: false,
-    dataIndex: "amount",
+    dataIndex: ["amount"],
     type: DataIndexType.VALUE,
   },
   discountAmount: {
     label: "Бараа материалын үнийн хөнгөлөлт",
     isView: true,
     isFiltered: false,
-    dataIndex: "discountAmount",
+    dataIndex: ["discountAmount"],
     type: DataIndexType.VALUE,
   },
   consumerDiscountAmount: {
     label: "Харилцагчийн хөнгөлөлт",
     isView: true,
     isFiltered: false,
-    dataIndex: "consumerDiscountAmount",
+    dataIndex: ["consumerDiscountAmount"],
     type: DataIndexType.VALUE,
   },
   payAmount: {
     label: "Төлөх дүн",
     isView: true,
     isFiltered: false,
-    dataIndex: "payAmount",
+    dataIndex: ["payAmount"],
     type: DataIndexType.VALUE,
   },
   expenseCount: {
     label: "Зарлагын тоо",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseCount",
+    dataIndex: ["expenseCount"],
     type: DataIndexType.MULTI,
   },
   expenseQuantity: {
     label: "Зарлагын тоо хэмжээ",
     isView: true,
     isFiltered: false,
-    dataIndex: "expenseQuantity",
+    dataIndex: ["expenseQuantity"],
     type: DataIndexType.MULTI,
   },
   movingStatus: {
     label: "Гүйлгээний цонх",
     isView: true,
     isFiltered: false,
-    dataIndex: "movingStatus",
+    dataIndex: ["movingStatus"],
     type: DataIndexType.ENUM,
   },
   description: {
     label: "Гүйлгээний утга",
     isView: true,
     isFiltered: true,
-    dataIndex: "description",
+    dataIndex: ["description"],
     type: DataIndexType.MULTI,
   },
   isLock: {
     label: "Гүйлгээ түгжсэн эсэх",
     isView: true,
     isFiltered: false,
-    dataIndex: "isLock",
+    dataIndex: ["isLock"],
     type: DataIndexType.BOOLEAN,
   },
   updatedBy: {
@@ -287,7 +290,7 @@ const columns: FilteredColumnsDocument = {
     label: "Бүртгэсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "updatedAt",
+    dataIndex: ["updatedAt"],
     type: DataIndexType.DATETIME,
   },
   lockedBy: {
@@ -301,7 +304,7 @@ const columns: FilteredColumnsDocument = {
     label: "Түгжсэн огноо",
     isView: false,
     isFiltered: true,
-    dataIndex: "lockeddAt",
+    dataIndex: ["lockeddAt"],
     type: DataIndexType.DATETIME,
   },
   // userId = {
@@ -316,7 +319,7 @@ export const getDocumentColumns = (
   movingStatus?: MovingStatus
 ): FilteredColumnsDocument => {
   const expenseDocument: (keyof FilteredColumnsDocument)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -331,7 +334,7 @@ export const getDocumentColumns = (
     "lockedAt",
   ];
   const localDocument: (keyof FilteredColumnsDocument)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "description",
@@ -350,7 +353,7 @@ export const getDocumentColumns = (
     (keyof FilteredColumnsDocument)[]
   > = {
     [MovingStatus.Purchase]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -365,7 +368,7 @@ export const getDocumentColumns = (
       "lockedAt",
     ],
     [MovingStatus.SaleReturn]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -381,7 +384,7 @@ export const getDocumentColumns = (
       "lockedAt",
     ],
     [MovingStatus.Sales]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -413,7 +416,7 @@ export const getDocumentColumns = (
   const keys: (keyof FilteredColumnsDocument)[] = movingStatus
     ? movingStatusMappings[movingStatus]
     : [
-        "documentCode",
+        "code",
         "documentAt",
         "warehouseName",
         "consumerCode",

@@ -1,10 +1,10 @@
 import {
   GenericResponse,
-  IFilter,
   IFilters,
   IParam,
   Meta,
   ColumnType,
+  IColumn,
 } from "../../entities";
 
 export interface IDataMaterialAccount {
@@ -15,7 +15,7 @@ export interface IDataMaterialAccount {
   updatedAt: string;
 }
 
-export interface IFilterMaterialAccount extends IFilter {
+export interface IFilterMaterialAccount extends IColumn {
   accountNo?: string;
   name?: string;
 }

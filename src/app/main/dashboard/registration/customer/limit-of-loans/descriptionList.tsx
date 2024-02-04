@@ -1,15 +1,14 @@
 "use client";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-
 //components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
-  unDuplicate,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 // interface types
@@ -26,20 +25,26 @@ import { Col, Row, Space } from "antd";
 import Export from "@/components/Export";
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { IDataLimitOfLoans } from "@/service/limit-of-loans/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit?: (row: IDataLimitOfLoans) => void;
   onDelete?: (id: number) => void;
 }
-
+const key = "customer/limit-of-loans/description-list";
 const DescriptionList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [data, setData] = useState<IDataLimitOfLoansAccount[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterLimitOfLoansAccount>();
-  const [params, setParams] = useState<IParamLimitOFloansAccount>({});
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsLimitOfLoansAccount>({
     code: {
       label: "Харилцагчийн код",
@@ -87,7 +92,7 @@ const DescriptionList = (props: IProps) => {
       label: "Зээлийн лимит /дансаарх/",
       isView: true,
       isFiltered: false,
-      dataIndex: "amount",
+      dataIndex: ["amount"],
       type: DataIndexType.VALUE,
     },
     isClose: {
@@ -115,24 +120,15 @@ const DescriptionList = (props: IProps) => {
       label: "Өөрчлөлт оруулсан огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.MULTI,
     },
   });
-  const getData = async (param: IParamLimitOFloansAccount) => {
+  const getData = async () => {
     blockContext.block();
-    var prm: IParamLimitOFloansAccount = {
-      ...param,
-      ...params,
-      queries: params.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    setParams(prm);
+    const params: IParamLimitOFloansAccount = { ...param };
     await limitOfLoansAccountService
-      .get(prm)
+      .get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -152,8 +148,11 @@ const DescriptionList = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param, onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -165,20 +164,7 @@ const DescriptionList = (props: IProps) => {
             }}
             size={12}
           >
-            <Filtered
-              columns={columns}
-              isActive={(key, state) => {
-                onCloseFilterTag({
-                  key: key,
-                  state: state,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                  params: params,
-                  onParams: (params) => setParams(params),
-                });
-                getData(params);
-              }}
-            />
+            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -194,9 +180,6 @@ const DescriptionList = (props: IProps) => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params: params,
-                    onParams: (params) => setParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -225,10 +208,7 @@ const DescriptionList = (props: IProps) => {
             data={data}
             meta={meta}
             columns={columns}
-            onChange={(params) => getData(params)}
             onColumns={(columns) => setColumns(columns)}
-            newParams={params}
-            onParams={(params) => setParams(params)}
             incomeFilters={filters}
             isEdit={true}
             onEdit={(row: IDataLimitOfLoansAccount) =>

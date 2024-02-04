@@ -11,6 +11,7 @@ import {
   IParamWarehouse,
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
+import { Operator } from "@/service/entities";
 type Trans = "income" | "expense";
 const RStorage6Filter = () => {
   const {
@@ -28,14 +29,8 @@ const RStorage6Filter = () => {
   const [expenseWarehouses, setExpenseWarehouses] = useState<IDataWarehouse[]>(
     []
   );
-  const incomeEmployeeIds = Form.useWatch(
-    "incomeEmployeeIds",
-    form
-  );
-  const expenseEmployeeIds = Form.useWatch(
-    "expenseEmployeeIds",
-    form
-  );
+  const incomeEmployeeIds = Form.useWatch("incomeEmployeeIds", form);
+  const expenseEmployeeIds = Form.useWatch("expenseEmployeeIds", form);
   const getWarehouses = async (trans: Trans, params: IParamWarehouse) => {
     await WarehouseService.get(params).then((response) => {
       if (response.success) {
@@ -48,13 +43,28 @@ const RStorage6Filter = () => {
     setFormStyle({ width: 600, margin: "auto" });
   }, []);
   useEffect(() => {
-    console.log("incomeEmployeeIds ===>", incomeEmployeeIds);
     incomeEmployeeIds &&
-      getWarehouses("income", { employeeIds: [...incomeEmployeeIds] });
+      getWarehouses("income", {
+        filters: [
+          {
+            dataIndex: ["employeeId"],
+            operator: Operator.In,
+            filter: [...incomeEmployeeIds],
+          },
+        ],
+      });
   }, [incomeEmployeeIds]);
   useEffect(() => {
     expenseEmployeeIds &&
-      getWarehouses("expense", { employeeIds: [...expenseEmployeeIds] });
+      getWarehouses("expense", {
+        filters: [
+          {
+            dataIndex: ["employeeId"],
+            operator: Operator.In,
+            filter: [...incomeEmployeeIds],
+          },
+        ],
+      });
   }, [expenseEmployeeIds]);
   return (
     <>

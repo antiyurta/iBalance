@@ -37,35 +37,35 @@ export const EmployeeSelect = (props: IProps) => {
       label: "Мэйл",
       isView: true,
       isFiltered: false,
-      dataIndex: "email",
+      dataIndex: ["email"],
       type: DataIndexType.MULTI,
     },
     lastName: {
       label: "Овог",
       isView: true,
       isFiltered: false,
-      dataIndex: "lastName",
+      dataIndex: ["lastName"],
       type: DataIndexType.MULTI,
     },
     firstName: {
       label: "Нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "firstName",
+      dataIndex: ["firstName"],
       type: DataIndexType.MULTI,
     },
     phoneNo: {
       label: "Утасны дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "phoneNo",
+      dataIndex: ["phoneNo"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.MULTI,
     },
   });
@@ -133,10 +133,7 @@ export const EmployeeSelect = (props: IProps) => {
           data={data}
           meta={meta}
           columns={columns}
-          onChange={(params) => getEmployee(params)}
           onColumns={(columns) => setColumns(columns)}
-          newParams={params}
-          onParams={(params) => setParams(params)}
           incomeFilters={filters}
         />
       </NewModal>

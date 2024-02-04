@@ -8,7 +8,6 @@ import {
   NewSelect,
 } from "@/components/input";
 import { Button, Col, Form, Row, Space } from "antd";
-import mnMN from "antd/es/calendar/locale/mn_MN";
 import EditableTableOrder from "./editableTableOrder";
 import Image from "next/image";
 import NewCard from "@/components/Card";
@@ -216,7 +215,7 @@ const CreateOrder = (props: IProps) => {
     </Form>
   );
   const getWarehouse = async () => {
-    await WarehouseService.get({}).then((response) => {
+    await WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }

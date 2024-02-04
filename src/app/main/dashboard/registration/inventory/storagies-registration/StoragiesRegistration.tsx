@@ -1,14 +1,14 @@
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
-  unDuplicate,
 } from "@/feature/common";
 import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
@@ -32,6 +32,10 @@ import TextArea from "antd/es/input/TextArea";
 import { TreeSectionSelect } from "@/components/tree-select";
 import { UploadImage } from "@/components/upload-image";
 import { EmployeeSelect } from "@/components/employee-select";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -39,14 +43,16 @@ interface IProps {
 }
 
 const { Title } = Typography;
-
+const key = "inventory/storagies-registration";
 const StoragiesRegistration = (props: IProps) => {
   const { ComponentType, onClickModal } = props;
   const [form] = Form.useForm();
   const [switchForm] = Form.useForm();
   const blockContext: BlockView = useContext(BlockContext);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
-  const [params, setParams] = useState<IParamWarehouse>({});
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<any[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterWarehouse>();
@@ -61,50 +67,49 @@ const StoragiesRegistration = (props: IProps) => {
       label: "Байршлын код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
-    names: {
+    name: {
       label: "Байршлын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    sectionId: {
+    sectionName: {
       label: "Байршлын бүлэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["section", "name"],
       type: DataIndexType.MULTI,
     },
-    employeeIds: {
+    employeeName: {
       label: "Хариуцсан нярав",
       isView: true,
       isFiltered: false,
-      dataIndex: ["employees"],
-      key: "firstName",
-      type: DataIndexType.ARREY,
+      dataIndex: ["employees", "firstName"],
+      type: DataIndexType.MULTI,
     },
     address: {
       label: "Байршлын хаяг",
       isView: true,
       isFiltered: false,
-      dataIndex: "address",
+      dataIndex: ["address"],
       type: DataIndexType.MULTI,
     },
     isActive: {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -130,17 +135,7 @@ const StoragiesRegistration = (props: IProps) => {
   const getData = async (param: IParamWarehouse) => {
     setTableSelectedRows([]);
     blockContext.block();
-    var prm: IParamWarehouse = {
-      ...params,
-      ...param,
-      queries: params.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    setParams(prm);
-    await WarehouseService.get(prm)
+    await WarehouseService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -168,7 +163,7 @@ const StoragiesRegistration = (props: IProps) => {
       }).then((response) => {
         if (response.success) {
           switchForm.resetFields();
-          getData({ page: 1, limit: 10 });
+          getData({ ...param });
           setTableSelectedRows([]);
           onClickModal?.(false);
         }
@@ -219,7 +214,7 @@ const StoragiesRegistration = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setIsOpenModal(false);
-            getData(params);
+            getData({ ...param });
           }
         })
         .finally(() => {
@@ -230,7 +225,7 @@ const StoragiesRegistration = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setIsOpenModal(false);
-            getData(params);
+            getData({ ...param });
           }
         })
         .finally(() => {
@@ -243,7 +238,7 @@ const StoragiesRegistration = (props: IProps) => {
     await WarehouseService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData({ ...param });
         }
       })
       .finally(() => {
@@ -251,9 +246,12 @@ const StoragiesRegistration = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
+    dispatch(newPane({ key, param: {} }));
     getSections(TreeSectionType.Warehouse);
   }, []);
+  useEffect(() => {
+    getData({ ...param });
+  }, [param]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -296,13 +294,11 @@ const StoragiesRegistration = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
               getData({
                 page: 1,
                 limit: 10,
-                sectionIds: keys,
+                // sectionIds: keys,
               });
             }}
           />
@@ -369,20 +365,7 @@ const StoragiesRegistration = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -399,9 +382,6 @@ const StoragiesRegistration = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns: columns,
                           onColumns: (columns) => setColumns(columns),
-                          params: params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -430,10 +410,7 @@ const StoragiesRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit
                 isDelete

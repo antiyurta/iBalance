@@ -1,22 +1,10 @@
-import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
-import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
-import { NewSelect } from "@/components/input";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
-import { ComponentType, DataIndexType, Meta } from "@/service/entities";
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Popover,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { findIndexInColumnSettings, getParam, onCloseFilterTag } from "@/feature/common";
+import { DataIndexType, Meta } from "@/service/entities";
+import { Col, Input, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -31,19 +19,20 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { MaterialService } from "@/service/material/service";
 import { MaterialResourceSizeService } from "@/service/material/resource-size/service";
 import { MaterialSectionService } from "@/service/material/section/service";
-
-const { Title } = Typography;
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   onEdit: (row: IDataMaterial) => void;
 }
-
+const key = "inventory/stock-of-commodities";
 const Thumbnail = (props: IProps) => {
   const { onEdit } = props;
   const blockContext: BlockView = useContext(BlockContext);
-  const [params, setParams] = useState<IParamMaterial>({
-    page: 1,
-    limit: 10,
-  });
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataMaterial[]>([]);
   const [filters, setFilters] = useState<IFilterMaterial>();
@@ -104,7 +93,7 @@ const Thumbnail = (props: IProps) => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -142,29 +131,20 @@ const Thumbnail = (props: IProps) => {
   const onDeleteMaterialResourceSize = (id: number) => {
     MaterialResourceSizeService.remove(id).then((response) => {
       if (response.success) {
-        getData(params);
+        getData({...param});
       }
     });
   };
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getMaterialSections();
-    getData(params);
   }, []);
+  useEffect(() => {
+    getData({ ...param });
+  }, [param]);
   return (
     <div>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <>
-          <Col md={24} lg={16} xl={19}>
-            <Space size={24}>
-              <Title level={3}>
-                Үндсэн бүртгэл / Бараа материал / Зохистой нөөцийн хэмжээ
-              </Title>
-            </Space>
-          </Col>
-          <Col md={24} lg={8} xl={5}>
-            <Input.Search />
-          </Col>
-        </>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
             data={materialSections}
@@ -176,8 +156,6 @@ const Thumbnail = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
               getData({
                 page: 1,
@@ -204,20 +182,7 @@ const Thumbnail = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -233,9 +198,6 @@ const Thumbnail = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: params,
-                        onParams: (params) => setParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -268,10 +230,7 @@ const Thumbnail = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}

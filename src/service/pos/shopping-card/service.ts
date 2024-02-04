@@ -7,7 +7,7 @@ import {
   UpdateShoppingCartDto,
 } from "./entities";
 
-function get(params: IParamShoppingCart): Promise<IResponseShoppingCarts> {
+function get(params?: IParamShoppingCart): Promise<IResponseShoppingCarts> {
   return api.get("pos-shopping-cart", { params });
 }
 function getById(id: string): Promise<IResponseShoppingCart> {

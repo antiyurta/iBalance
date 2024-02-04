@@ -1,23 +1,32 @@
 import Image from "next/image";
 import { Form, Space } from "antd";
 import { NewFilterSelect } from "./input";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import NewModal from "./modal";
 import Information from "@/app/main/dashboard/registration/customer/information/information";
 import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
+import { Operator } from "@/service/entities";
 interface IProps {
   form: FormInstance;
   rules: Rule[];
   name: string | (string | number)[];
+  isSupplier?: boolean;
   isDisable?: boolean;
   onClear?: () => void;
   onSelect?: (value: IDataConsumer) => void;
 }
-export const ConsumerSelect = (props: IProps) => {
-  const { form, name, rules, isDisable, onClear, onSelect } = props;
+export const ConsumerSelect: React.FC<IProps> = ({
+  form,
+  name,
+  rules,
+  isSupplier,
+  isDisable,
+  onClear,
+  onSelect,
+}) => {
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
   const [consumerDictionary, setConsumerDictionary] =
@@ -30,7 +39,16 @@ export const ConsumerSelect = (props: IProps) => {
     });
   };
   useEffect(() => {
-    getConsumers({ isActive: [true] });
+    getConsumers({
+      filters: [
+        { dataIndex: ["isActive"], operator: Operator.Equals, filter: true },
+        {
+          dataIndex: ["isSupplier"],
+          operator: Operator.Equals,
+          filter: Boolean(isSupplier),
+        },
+      ],
+    });
   }, []);
   useEffect(() => {
     setConsumerDictionary(

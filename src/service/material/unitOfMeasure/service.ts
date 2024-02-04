@@ -1,12 +1,16 @@
+import { IParam } from "@/service/entities";
 import { api } from "../../../feature/interceptor/interceptor";
 import {
   IUnitOfMeasureResponse,
   IParamUnitOfMeasure,
   IUnitOfMeasurePostResponse,
   IDataUnitOfMeasure,
+  IResponseMeasure,
 } from "./entities";
-
-function get(params: IParamUnitOfMeasure): Promise<IUnitOfMeasureResponse> {
+function getHeader(): Promise<IResponseMeasure> {
+  return api.get("reference-measurement/header/query");
+}
+function get(params?: IParam): Promise<IUnitOfMeasureResponse> {
   return api.get("reference-measurement", { params: params });
 }
 function post(body: IDataUnitOfMeasure): Promise<IUnitOfMeasurePostResponse> {
@@ -25,6 +29,7 @@ function remove(id: number): Promise<IUnitOfMeasurePostResponse> {
 }
 
 export const UnitOfMeasureService = {
+  getHeader,
   get,
   post,
   patch,

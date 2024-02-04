@@ -2,7 +2,7 @@
 
 import ColumnSettings from "@/components/columnSettings";
 import { EmployeeSelect } from "@/components/employee-select";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
@@ -36,6 +36,7 @@ const ConfigPos = () => {
     page: 1,
     limit: 10,
     isAuth: false,
+    filters: [],
   });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [isModal, setIsModal] = useState<boolean>(false);
@@ -47,14 +48,14 @@ const ConfigPos = () => {
       label: "Посын код",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     names: {
       label: "Посын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     warehouseCodes: {
@@ -89,14 +90,14 @@ const ConfigPos = () => {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
   });
@@ -181,20 +182,7 @@ const ConfigPos = () => {
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -204,9 +192,6 @@ const ConfigPos = () => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -242,10 +227,7 @@ const ConfigPos = () => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row: IDataPos) => {
@@ -302,7 +284,7 @@ const ConfigPos = () => {
               form={form}
               rules={[]}
               name="employeeIds"
-              query={{ isTreasure: true }}
+              query={{ isCashier: true }}
               isMultiple
             />
           </Form.Item>

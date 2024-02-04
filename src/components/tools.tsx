@@ -1,17 +1,22 @@
 import { Card } from "antd";
 import Image from "next/image";
-import { CSSProperties, ReactNode, useState } from "react";
+import React, { CSSProperties, ReactNode, useState } from "react";
 import NewModal from "./modal";
+import { FilterOutlined } from "@ant-design/icons";
 import RStorage1 from "@/app/main/dashboard/reports/document/RStorage1";
 import RStorage1Filter from "@/app/main/dashboard/reports/filters/RStorage1Filter";
 import { useReportContext } from "@/feature/context/ReportsContext";
+import { IParamDocument } from "@/service/document/entities";
 
-interface IProps {}
-export const Tools = (props: IProps) => {
+interface IProps {
+  filter: ReactNode;
+}
+export const Tools: React.FC<IProps> = ({ filter }) => {
   const style: CSSProperties & { "&:hover"?: CSSProperties } = {
     gap: 12,
     cursor: "pointer",
   };
+  const { form } = useReportContext();
   const [isFilter, setIsFilter] = useState<boolean>(false);
   const [isGroup, setIsGroup] = useState<boolean>(false);
   const [isList, setIsList] = useState<boolean>(false);
@@ -20,6 +25,9 @@ export const Tools = (props: IProps) => {
   const [isConfig, setIsConfig] = useState<boolean>(false);
   const [isExport, setIsExport] = useState<boolean>(false);
   const [isMail, setIsMail] = useState<boolean>(false);
+  const onFilter = (values: IParamDocument) => {
+    console.log(values);
+  }
   return (
     <>
       <Card title="Хэрэгслүүд" style={{ width: 250 }}>
@@ -105,8 +113,22 @@ export const Tools = (props: IProps) => {
           Мэйл илгээх
         </p>
       </Card>
-      <NewModal open={isFilter} title={"Шүүлт"}>
-        
+      <NewModal
+        open={isFilter}
+        title={"Шүүлт"}
+        okText={
+          <>
+            <FilterOutlined /> Шүүх
+          </>
+        }
+        onOk={() =>
+          form.validateFields().then((values) => {
+            onFilter(values);
+          })
+        }
+        onCancel={() => setIsFilter(false)}
+      >
+        {filter}
       </NewModal>
     </>
   );

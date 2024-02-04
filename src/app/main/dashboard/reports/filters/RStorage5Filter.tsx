@@ -8,7 +8,7 @@ import { Form } from "antd";
 import { NewInput, NewSwitch } from "@/components/input";
 import { NewReportSwitch } from "../component/report-switch";
 
-const RStorage1Filter = () => {
+const RStorage5Filter = () => {
   const {
     form,
     employees,
@@ -104,4 +104,4 @@ const RStorage1Filter = () => {
     </>
   );
 };
-export default RStorage1Filter;
+export default RStorage5Filter;

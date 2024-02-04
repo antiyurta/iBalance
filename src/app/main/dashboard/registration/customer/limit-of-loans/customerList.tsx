@@ -7,11 +7,11 @@ import { useContext, useEffect, useState } from "react";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
-  unDuplicate,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 // interface  types
@@ -29,21 +29,27 @@ import {
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { Col, Row, Space } from "antd";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
   onEdit: (row: IDataLimitOfLoans) => void;
   onDelete: (id: number) => void;
 }
-
+const key = "customer/limit-of-loans/customer-list";
 const CustomerList = (props: IProps) => {
   const { onReload, onEdit, onDelete } = props;
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
-  const [params, setParams] = useState<IParamLimitOfLoans>({});
   const [data, setData] = useState<IDataLimitOfLoans[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilters>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsLimitOfLoans>({
     code: {
       label: "Харилцагчийн код",
@@ -70,21 +76,21 @@ const CustomerList = (props: IProps) => {
       label: "Дансаар тохируулсан эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isAccount",
+      dataIndex: ["isAccount"],
       type: DataIndexType.BOOLEAN,
     },
     limitAmount: {
       label: "Харилцагчид олгох нийт лимит",
       isView: true,
       isFiltered: false,
-      dataIndex: "limitAmount",
+      dataIndex: ["limitAmount"],
       type: DataIndexType.VALUE,
     },
     isClose: {
       label: "Захиалга хаасан эсэх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isClose",
+      dataIndex: ["isClose"],
       type: DataIndexType.BOOLEAN,
     },
     isActive: {
@@ -98,7 +104,7 @@ const CustomerList = (props: IProps) => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -109,47 +115,11 @@ const CustomerList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (param: IParamLimitOfLoans) => {
+  const getData = async () => {
     blockContext.block();
-    var prm: IParamLimitOfLoans = {
-      ...params,
-      ...param,
-      queries: params.queries,
-    };
-    if (param.queries?.length) {
-      const incomeParam = param.queries[0].param;
-      prm.queries = [...unDuplicate(incomeParam, params), ...param.queries];
-    }
-    if (param.code) {
-      prm.queries = [...unDuplicate("code", params)];
-    }
-    if (param.name) {
-      prm.queries = [...unDuplicate("name", params)];
-    }
-    if (param.sectionId) {
-      prm.queries = [...unDuplicate("sectionId", params)];
-    }
-    if (param.isAccount) {
-      prm.queries = [...unDuplicate("isAccount", params)];
-    }
-    if (param.limitAmount) {
-      prm.queries = [...unDuplicate("limitAmount", params)];
-    }
-    if (param.isClose) {
-      prm.queries = [...unDuplicate("isClose", params)];
-    }
-    if (param.isActive) {
-      prm.queries = [...unDuplicate("isActive", params)];
-    }
-    if (param.updatedAt) {
-      prm.queries = [...unDuplicate("updatedAt", params)];
-    }
-    if (param.updatedBy) {
-      prm.queries = [...unDuplicate("updatedBy", params)];
-    }
-    setParams(prm);
+    const params: IParamLimitOfLoans = { ...param };
     await limitOfLoansService
-      .get(prm)
+      .get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -167,11 +137,12 @@ const CustomerList = (props: IProps) => {
     });
   };
   useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getConsumerSection(TreeSectionType.Consumer);
   }, []);
   useEffect(() => {
-    getData({ page: 1, limit: 10 });
-  }, [onReload]);
+    getData();
+  }, [param, onReload]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -186,14 +157,8 @@ const CustomerList = (props: IProps) => {
                 state: true,
                 column: columns,
                 onColumn: (columns) => setColumns(columns),
-                params: params,
-                onParams: (params) => setParams(params),
               });
-              getData({
-                page: 1,
-                limit: 10,
-                sectionId: keys,
-              });
+              getData();
             }}
           />
         </Col>
@@ -207,20 +172,7 @@ const CustomerList = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params: params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 <Space
                   style={{
                     width: "100%",
@@ -236,9 +188,6 @@ const CustomerList = (props: IProps) => {
                         unSelectedRow: arg2,
                         columns: columns,
                         onColumns: (columns) => setColumns(columns),
-                        params: params,
-                        onParams: (params) => setParams(params),
-                        getData: (params) => getData(params),
                       })
                     }
                   />
@@ -266,10 +215,7 @@ const CustomerList = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit={true}
                 onEdit={(row) => onEdit(row)}

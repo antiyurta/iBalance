@@ -30,7 +30,7 @@ export interface IFilterCoupon extends IFilterCommand {
   condition?: Operator; // авах нөхцөл
   conditionValue?: number; // авах нөхцөл утга
 }
-export interface IParamCoupon extends Meta, IParam, IFilterCoupon {}
+export interface IParamCoupon extends IParam, IFilterCoupon {}
 
 export type FilteredColumnsCoupon = {
   [T in keyof IFilterCoupon]?: ColumnType;

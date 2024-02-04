@@ -5,7 +5,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
 import NewDirectoryTree from "@/components/directoryTree";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
   Button,
@@ -23,7 +23,7 @@ import {
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import NewModal from "@/components/modal";
 import {
@@ -46,6 +46,10 @@ import {
 } from "@/service/material/unitOfMeasure/entities";
 import { UnitOfMeasureService } from "@/service/material/unitOfMeasure/service";
 import EditableTableMaterial from "./editableTableMaterial";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 const { Title } = Typography;
 
 interface IProps {
@@ -53,7 +57,7 @@ interface IProps {
   type: MaterialType;
   onClickModal?: (row: any) => void;
 }
-
+const key = "inventory/package-registration";
 const PackageRegistration = (props: IProps) => {
   const { ComponentType, type, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
@@ -67,32 +71,31 @@ const PackageRegistration = (props: IProps) => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
-  // start used datas
   const [materialSections, setMaterialSections] = useState<
     IDataMaterialSection[]
   >([]);
   const [measurements, setMeasurements] = useState<IDataUnitOfMeasure[]>([]);
-  // end used datas
   const [isDescription, setIsDescription] = useState<boolean>(false);
-  const [params, setParams] = useState<IParamMaterial>({});
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
     []
   );
-  const [fileList, setFileList] = useState<any[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsMaterial>({
     code: {
       label: "Багцын код",
       isView: true,
       isFiltered: false,
-      dataIndex: "code",
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     name: {
       label: "Багцын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
     measurementId: {
@@ -113,21 +116,21 @@ const PackageRegistration = (props: IProps) => {
       label: "Төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
     countPackage: {
       label: "Багц доторх тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: "isActive",
+      dataIndex: ["isActive"],
       type: DataIndexType.NUMBER,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -202,7 +205,6 @@ const PackageRegistration = (props: IProps) => {
   // end zuragtai hamaarah functionuud
   const getData = async (params: IParamMaterial) => {
     blockContext.block();
-    setParams(params);
     await MaterialService.get(params).then((response) => {
       setData(response.response.data);
       setMeta(response.response.meta);
@@ -220,16 +222,6 @@ const PackageRegistration = (props: IProps) => {
       setMeasurements(response.response.data);
     });
   };
-  useEffect(() => {
-    getMaterialSection({ materialTypes: [type] });
-    getData({ page: 1, limit: 10, types: [MaterialType.Package] });
-  }, []);
-  useEffect(() => {
-    if (isOpenModal) {
-      getMeasurements({});
-    }
-  }, [isOpenModal]);
-
   // Өгөгдөлөө хадгалах
   const onFinish = async (data: IDataMaterial) => {
     blockContext.block();
@@ -250,7 +242,7 @@ const PackageRegistration = (props: IProps) => {
   };
   const success = (response: IResponseOneMaterial) => {
     if (response.success) {
-      getData(params);
+      getData({ ...param });
     }
     setIsOpenModal(false);
   };
@@ -259,13 +251,25 @@ const PackageRegistration = (props: IProps) => {
     await MaterialService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData({ ...param });
         }
       })
       .finally(() => {
         blockContext.unblock();
       });
   };
+  useEffect(() => {
+    getMaterialSection({ materialTypes: [type] });
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData({ ...param, types: [MaterialType.Package] });
+  }, [param]);
+  useEffect(() => {
+    if (isOpenModal) {
+      getMeasurements({});
+    }
+  }, [isOpenModal]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -307,20 +311,7 @@ const PackageRegistration = (props: IProps) => {
                 }}
                 size={12}
               >
-                <Filtered
-                  columns={columns}
-                  isActive={(key, state) => {
-                    onCloseFilterTag({
-                      key: key,
-                      state: state,
-                      column: columns,
-                      onColumn: (columns) => setColumns(columns),
-                      params,
-                      onParams: (params) => setParams(params),
-                    });
-                    getData(params);
-                  }}
-                />
+                <Filtered columns={columns} />
                 {ComponentType === "FULL" ? (
                   <Space
                     style={{
@@ -337,9 +328,6 @@ const PackageRegistration = (props: IProps) => {
                           unSelectedRow: arg2,
                           columns,
                           onColumns: (columns) => setColumns(columns),
-                          params,
-                          onParams: (params) => setParams(params),
-                          getData: (params) => getData(params),
                         })
                       }
                     />
@@ -383,10 +371,7 @@ const PackageRegistration = (props: IProps) => {
                 data={data}
                 meta={meta}
                 columns={columns}
-                onChange={(params) => getData(params)}
                 onColumns={(columns) => setColumns(columns)}
-                newParams={params}
-                onParams={(params) => setParams(params)}
                 incomeFilters={filters}
                 isEdit
                 isDelete

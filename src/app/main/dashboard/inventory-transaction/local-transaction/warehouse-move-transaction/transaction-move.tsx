@@ -33,8 +33,8 @@ const TransactionMove = (props: IProps) => {
   const [expenseEmployees, setExpenseEmployees] = useState<IDataEmployee[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const getWarehouses = (params: IParamWarehouse) => {
-    WarehouseService.get(params).then((response) => {
+  const getWarehouses = () => {
+    WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
@@ -108,7 +108,7 @@ const TransactionMove = (props: IProps) => {
     blockContext.unblock();
   };
   useEffect(() => {
-    getWarehouses({});
+    getWarehouses();
     generateCode();
   }, []);
   useEffect(() => {

@@ -1,9 +1,9 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
-import { NewInput, NewSearch, NewSelect } from "@/components/input";
+import Filtered from "@/components/table/filtered";
+import { NewFilterSelect, NewInput, NewSearch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -23,6 +23,10 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { UploadExcelFile } from "@/components/upload-excel-file";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -30,20 +34,19 @@ interface IProps {
 }
 
 const { Title } = Typography;
-
+const key = "inventory/inventories-brand";
 const InventoriesBrand = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<IDataBrand>();
   const blockContext: BlockView = useContext(BlockContext);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [data, setData] = useState<IDataBrand[]>([]);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [countries, setCountries] = useState<IDataCountry[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBrand>();
-  const [params, setNewParams] = useState<IParamBrand>({
-    page: 1,
-    limit: 10,
-  });
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataBrand>();
   const [isUploadModal, setIsUploadModal] = useState<boolean>(false);
@@ -53,21 +56,21 @@ const InventoriesBrand = (props: IProps) => {
       label: "Брэнд",
       isView: true,
       isFiltered: false,
-      dataIndex: "name",
+      dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    countryId: {
+    country: {
       label: "Улс",
       isView: true,
       isFiltered: false,
-      dataIndex: ["country", "name"],
-      type: DataIndexType.COUNTRY,
+      dataIndex: ["country"],
+      type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: ComponentType === "FULL" ? true : false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -84,13 +87,14 @@ const InventoriesBrand = (props: IProps) => {
     if (!state) {
       form.resetFields();
     } else {
-      form.setFieldsValue(row);
+      row && form.setFieldsValue(row);
       setSelectedRow(row);
     }
     setIsOpenModal(true);
     setSelectedRow(row);
   };
-  const getData = async (params: IParamBrand) => {
+  const getData = async () => {
+    const params: IParamBrand = { ...param };
     await BrandService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
@@ -134,11 +138,12 @@ const InventoriesBrand = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData(params);
-  }, [isReload]);
-  useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
     getCountries();
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param, isReload]);
   return (
     <div>
       <div className="information">
@@ -181,20 +186,7 @@ const InventoriesBrand = (props: IProps) => {
           </div>
         </div>
         <div className="second-header">
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key: key,
-                state: state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params,
-                onParams: (params) => setNewParams(params),
-              });
-              getData(params);
-            }}
-          />
+          <Filtered columns={columns} />
           {ComponentType === "FULL" ? (
             <div className="extra">
               <ColumnSettings
@@ -205,9 +197,6 @@ const InventoriesBrand = (props: IProps) => {
                     unSelectedRow: arg2,
                     columns: columns,
                     onColumns: (columns) => setColumns(columns),
-                    params,
-                    onParams: (params) => setNewParams(params),
-                    getData: (params) => getData(params),
                   })
                 }
               />
@@ -245,10 +234,7 @@ const InventoriesBrand = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={(params) => getData(params)}
               onColumns={(columns) => setColumns(columns)}
-              newParams={params}
-              onParams={(params) => setNewParams(params)}
               incomeFilters={filters}
               isEdit
               isDelete
@@ -280,7 +266,7 @@ const InventoriesBrand = (props: IProps) => {
           </Form.Item>
           <Form.Item
             label="Улс"
-            name={"countryId"}
+            name={"country"}
             rules={[
               {
                 required: true,
@@ -288,19 +274,10 @@ const InventoriesBrand = (props: IProps) => {
               },
             ]}
           >
-            <NewSelect
-              allowClear
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, label) =>
-                (label?.label ?? "")
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
+            <NewFilterSelect
               options={countries?.map((country) => ({
                 label: country.name,
-                value: country.id,
+                value: country.name,
               }))}
             />
           </Form.Item>

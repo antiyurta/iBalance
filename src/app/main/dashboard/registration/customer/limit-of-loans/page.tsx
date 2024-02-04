@@ -118,7 +118,7 @@ const LimitOfLoans = () => {
   };
   const consumerFormField = async (id: number) => {
     blockContext.block();
-    await ConsumerService.get({ ids: [id], lendLimits: true })
+    await ConsumerService.get({ ids: [id], isLendLimit: true })
       .then((response) => {
         if (response.response.data.length > 0) {
           openNofi(

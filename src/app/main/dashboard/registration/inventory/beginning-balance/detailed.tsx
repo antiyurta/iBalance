@@ -4,8 +4,8 @@ import { useContext, useEffect, useState } from "react";
 //components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import Filtered from "@/components/table/filtered";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import { DataIndexType, Meta } from "@/service/entities";
 //service
@@ -17,14 +17,17 @@ import {
   IParamBalance,
 } from "@/service/material/balance/entities";
 import { BalanceService } from "@/service/material/balance/service";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "inventory/beginning-balance/detailed";
 const Detailed = () => {
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataBalance[]>([]);
-  const [params, setParams] = useState<IParamBalance>({
-    page: 1,
-    limit: 10,
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterBalance>();
   const [columns, setColumns] = useState<FilteredColumnsBalance>({
@@ -74,21 +77,21 @@ const Detailed = () => {
       label: "Худалдан авсан огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "purchaseAt",
+      dataIndex: ["purchaseAt"],
       type: DataIndexType.DATE,
     },
     expirationAt: {
       label: "Хугацаа дуусах огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "expirationAt",
+      dataIndex: ["expirationAt"],
       type: DataIndexType.DATE,
     },
     quantity: {
       label: "Эхний үлдэгдэл",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: ["quantity"],
       type: DataIndexType.NUMBER,
     },
   });
@@ -107,8 +110,11 @@ const Detailed = () => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData({ ...param });
+  }, [param]);
   return (
     <Row gutter={[12, 24]}>
       <Col sm={24}>
@@ -119,20 +125,7 @@ const Detailed = () => {
           }}
           size={12}
         >
-          <Filtered
-            columns={columns}
-            isActive={(key, state) => {
-              onCloseFilterTag({
-                key,
-                state,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-                params,
-                onParams: (params) => setParams(params),
-              });
-              getData(params ? params : { page: 1, limit: 10 });
-            }}
-          />
+          <Filtered columns={columns} />
           <Space
             style={{
               width: "100%",
@@ -148,9 +141,6 @@ const Detailed = () => {
                   unSelectedRow: arg2,
                   columns: columns,
                   onColumns: (columns) => setColumns(columns),
-                  params,
-                  onParams: (params) => setParams(params),
-                  getData: (params) => getData(params),
                 })
               }
             />
@@ -178,10 +168,7 @@ const Detailed = () => {
           data={data}
           meta={meta}
           columns={columns}
-          onChange={(params) => getData(params)}
           onColumns={(columns) => setColumns(columns)}
-          newParams={params}
-          onParams={(params) => setParams(params)}
           incomeFilters={filters}
         />
       </Col>

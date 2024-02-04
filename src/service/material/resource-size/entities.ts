@@ -1,4 +1,4 @@
-import { ColumnType, GenericResponse, Meta } from "@/service/entities";
+import { ColumnType, GenericResponse, IColumn, Meta } from "@/service/entities";
 import { IDataMaterial } from "../entities";
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 
@@ -12,12 +12,12 @@ export interface IDataResourceSize {
   minDownloadSize: number;
   downloadDay: number;
 }
-export interface IFilterResourceSize {
-  materialCode?: string[]; // Барааны код
-  materialName?: string[]; // Барааны нэр
-  materialSectionId?: number[]; // Барааны бүлэг
-  materialMeasurementName?: string[]; // Барааны хэмжих нэгж
-  materialCountPackage?: number[]; // Багц доторх тоо
+export interface IFilterResourceSize extends IColumn {
+  code?: string[]; // Барааны код
+  name?: string[]; // Барааны нэр
+  materialSectionName?: string[]; // Барааны бүлэг
+  measurementName?: string[]; // Барааны хэмжих нэгж
+  countPackage?: number[]; // Багц доторх тоо
   warehouseName?: string[]; // Байршил
   downloadDay?: number[];
   minResourceSize?: number[]; // Багц доторх тоо

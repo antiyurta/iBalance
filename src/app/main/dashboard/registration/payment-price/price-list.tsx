@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam, onCloseFilterTag } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   FilteredColumnsPrice,
@@ -19,21 +19,24 @@ import SavePrice from "./save-price";
 import { MaterialCommandService } from "@/service/command/service";
 import { CommandType, IDataCommand } from "@/service/command/entities";
 import { PriceFilterForm } from "./price-filter-form";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   type: CommandType;
 }
 const PriceList = (props: IProps) => {
   const { type } = props;
+  const key = `payment-price/price/${type}`;
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [data, setData] = useState<IDataPrice[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterPrice>();
-  const [params, setParams] = useState<IParamPrice>({
-    type,
-    page: 1,
-    limit: 10,
-  });
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsPrice>({
@@ -51,7 +54,7 @@ const PriceList = (props: IProps) => {
       dataIndex: ["command", "commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNumbers: {
+    commandNo: {
       label: "Тушаалын дугаар",
       isView: true,
       isFiltered: false,
@@ -65,18 +68,18 @@ const PriceList = (props: IProps) => {
       dataIndex: ["command", "ruleAt"],
       type: DataIndexType.DATE,
     },
-    isAlls: {
+    isAll: {
       label: "Нийтэд мөрдөх",
       isView: true,
       isFiltered: false,
       dataIndex: ["command", "isAll"],
       type: DataIndexType.BOOLEAN,
     },
-    branchName: {
+    warehouseName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["command", "branch", "name"],
+      dataIndex: ["command", "warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
@@ -132,28 +135,28 @@ const PriceList = (props: IProps) => {
       label: "Нэгж үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "unitAmount",
+      dataIndex: ["unitAmount"],
       type: DataIndexType.MULTI,
     },
     lumpQuantity: {
       label: "Бөөний үнээрх тоо хэмжээ",
       isView: false,
       isFiltered: false,
-      dataIndex: "lumpQuantity",
+      dataIndex: ["lumpQuantity"],
       type: DataIndexType.MULTI,
     },
     lumpAmount: {
       label: "Бөөний нэгжийн үнэ",
       isView: true,
       isFiltered: false,
-      dataIndex: "lumpAmount",
+      dataIndex: ["lumpAmount"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATE,
     },
     updatedBy: {
@@ -167,7 +170,7 @@ const PriceList = (props: IProps) => {
       label: "Үүсгэсэн огноо",
       isView: false,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATE,
     },
     createdBy: {
@@ -178,8 +181,9 @@ const PriceList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamPrice) => {
+  const getData = async () => {
     blockContext.block();
+    const params: IParamPrice = { ...param, type };
     await MaterialPriceService.get(params)
       .then((response) => {
         if (response.success) {
@@ -206,28 +210,18 @@ const PriceList = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -237,9 +231,6 @@ const PriceList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: setParams,
-                      getData,
                     })
                   }
                 />
@@ -275,10 +266,7 @@ const PriceList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               onEdit={(row) => editCommand(row)}

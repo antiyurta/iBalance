@@ -42,7 +42,7 @@ export type FilteredColumnsViewMaterial = {
   [T in keyof IFilterViewMaterial]?: ColumnType;
 };
 
-export interface IParamViewMaterial extends Meta, IParam, IFilterViewMaterial {
+export interface IParamViewMaterial extends IParam, IFilterViewMaterial {
   ids?: number[];
   types: MaterialType[]; // Төрөл
   sectionId?: number;

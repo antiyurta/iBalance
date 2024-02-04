@@ -1,16 +1,24 @@
 import { Breakpoint } from "antd";
 import { Dayjs } from "dayjs";
-
-export enum ToolsIcons {
-  EQUALS = "/icons/tools/Equals.png",
-  NOT_EQUAL = "/icons/tools/notEquals.png",
-  CONTAINS = "/icons/tools/Contains.png",
-  NOT_CONTAINS = "/icons/tools/notContains.png",
-  IS_GREATER = "/icons/tools/isGreetThan.png",
-  IS_GREATOR_OR_EQUAL = "/icons/tools/isGreetThanOrEqual.png",
-  IS_LESS = "/icons/tools/isLessThan.png",
-  IS_LESS_OR_EQUAL = "/icons/tools/isLessThanOrEqual.png",
+export type Tool =
+  | "EQUALS"
+  | "NOT_EQUAL"
+  | "CONTAINS"
+  | "NOT_CONTAINS"
+  | "IS_GREATER"
+  | "IS_GREATOR_OR_EQUAL"
+  | "IS_LESS"
+  | "IS_LESS_OR_EQUAL";
+export interface ITool {
+  logo: string;
+  title: string;
+  operator: Tool;
 }
+export interface SelectObject {
+  value: string | number | boolean;
+  label: string;
+}
+export type TypeCheck = number | string | boolean | SelectObject;
 export enum Operator {
   Equals = "EQUALS",
   NotEqual = "NOT_EQUAL",
@@ -20,6 +28,7 @@ export enum Operator {
   IsGreatorOrEqual = "IS_GREATOR_OR_EQUAL",
   IsLess = "IS_LESS",
   IsLessOrEqual = "IS_LESS_OR_EQUAL",
+  In = "IN",
 }
 export interface GenericResponse {
   success: boolean;
@@ -73,7 +82,7 @@ export interface IFilters {
   isActive: boolean[];
   limitAmount: number[];
   type: string[];
-  countryId: number[];
+  country: string[];
   shortName: string[];
   barCode: string[];
   serial: string[];
@@ -86,7 +95,7 @@ export interface IFilters {
   updatedUser: object[];
   description: string[];
 }
-export interface IFilter {
+export interface IColumn {
   createdAt?: string;
   createdBy?: string[];
   updatedAt?: string;
@@ -98,23 +107,24 @@ export type ColumnType = {
   label: string; // ner mongol
   isView: boolean; // mor haragdah eseh
   isFiltered: boolean; // filterlegdsn eseh
-  dataIndex: string | string[]; // dataIndex
+  dataIndex: string[]; // dataIndex
   type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
   key?: string; // amaraa nemew array object oos ali negin render hiih
 };
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
 
-export interface Queries {
-  param: string;
+export interface IFilter {
+  dataIndex: string[];
   operator?: string;
-  value?: number | string;
-  typeof?: "string" | "number" | "date";
+  filter: string | number | boolean | (string | number | boolean)[];
 }
 export interface IParam {
-  queries?: Queries[];
-  orderParam?: string;
+  filters?: IFilter[];
+  orderParam?: string[];
   order?: RadioType;
+  page?: number;
+  limit?: number;
 }
 export interface IData {
   createdBy: number;
@@ -129,7 +139,6 @@ export enum DataIndexType {
   DATE = "DATE",
   DATETIME = "DATETIME",
   TIME = "TIME",
-  COUNTRY = "COUNTRY",
   //amara nemew 1/24
   ARREY = "ARREY",
   //
@@ -150,10 +159,7 @@ export enum DataIndexType {
   BOOLEAN = "BOOLEAN",
   BOOLEAN_STRING = "BOOLEAN_STRING",
 }
-export enum RadioType {
-  ASC = "ASC",
-  DESC = "DESC",
-}
+export type RadioType = "ASC" | "DESC";
 
 export type DescMode = "NORMAL" | "PICTURE";
 

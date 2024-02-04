@@ -1,7 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
-import Filtered from "@/components/filtered";
+import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   CommandType,
@@ -18,65 +18,67 @@ import Image from "next/image";
 import SavePrice from "./save-price";
 import NewModal from "@/components/modal";
 import { CommandFilterForm } from "./command-filter-form";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   type: CommandType;
 }
 const CommandList = (props: IProps) => {
   const { type } = props;
+  const key = `payment-price/command/${type}`;
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [data, setData] = useState<IDataCommand[]>([]);
   const [selectedCommand, setSelectedCommand] = useState<IDataCommand>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterCommand>();
-  const [params, setParams] = useState<IParamCommand>({
-    type,
-    page: 1,
-    limit: 10,
-  });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-
   const [columns, setColumns] = useState<FilteredColumnsCommand>({
     id: {
       label: "ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "id",
+      dataIndex: ["id"],
       type: DataIndexType.STRING,
     },
     commandAt: {
       label: "Тушаалын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandAt",
+      dataIndex: ["commandAt"],
       type: DataIndexType.DATE,
     },
-    commandNumbers: {
+    commandNo: {
       label: "Тушаалын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: "commandNo",
+      dataIndex: ["commandNo"],
       type: DataIndexType.MULTI,
     },
     ruleAt: {
       label: "Мөрдөж эхлэх огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "ruleAt",
+      dataIndex: ["ruleAt"],
       type: DataIndexType.DATE,
     },
-    isAlls: {
+    isAll: {
       label: "Нийтэд мөрдөх",
       isView: true,
       isFiltered: false,
-      dataIndex: "isAll",
+      dataIndex: ["isAll"],
       type: DataIndexType.BOOLEAN,
     },
-    branchName: {
+    warehouseName: {
       label: "Мөрдөх төв, салбарын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["branch", "name"],
+      dataIndex: ["warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
@@ -97,14 +99,14 @@ const CommandList = (props: IProps) => {
       label: "Баримтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: "quantity",
+      dataIndex: ["quantity"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "createdAt",
+      dataIndex: ["createdAt"],
       type: DataIndexType.DATETIME,
     },
     createdBy: {
@@ -118,7 +120,7 @@ const CommandList = (props: IProps) => {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "updatedAt",
+      dataIndex: ["updatedAt"],
       type: DataIndexType.DATETIME,
     },
     updatedBy: {
@@ -129,7 +131,8 @@ const CommandList = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (params: IParamCommand) => {
+  const getData = async () => {
+    const params: IParamCommand = { ...param, type };
     blockContext.block();
     await MaterialCommandService.get(params)
       .then((response) => {
@@ -146,7 +149,7 @@ const CommandList = (props: IProps) => {
   const onDelete = async (id: number) => {
     await MaterialCommandService.remove(id).then((response) => {
       if (response.success) {
-        getData(params);
+        getData();
       }
     });
   };
@@ -177,28 +180,18 @@ const CommandList = (props: IProps) => {
     } else return "Төрөл тодорхойгүй";
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
-              <Filtered
-                columns={columns}
-                isActive={(key, state) => {
-                  onCloseFilterTag({
-                    key: key,
-                    state: state,
-                    column: columns,
-                    onColumn: setColumns,
-                    params: params,
-                    onParams: setParams,
-                  });
-                  getData(params);
-                }}
-              />
+              <Filtered columns={columns} />
               <div className="extra">
                 <ColumnSettings
                   columns={columns}
@@ -208,9 +201,6 @@ const CommandList = (props: IProps) => {
                       unSelectedRow: arg2,
                       columns,
                       onColumns: setColumns,
-                      params,
-                      onParams: (params) => setParams(params),
-                      getData,
                     })
                   }
                 />
@@ -246,10 +236,7 @@ const CommandList = (props: IProps) => {
               data={data}
               meta={meta}
               columns={columns}
-              onChange={getData}
               onColumns={setColumns}
-              newParams={params}
-              onParams={setParams}
               incomeFilters={filters}
               isEdit
               isDelete

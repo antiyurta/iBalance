@@ -15,8 +15,8 @@ import { useDispatch } from "react-redux";
 // import { PathActions } from "@/feature/core/actions/PathAction";
 import { TitleActions } from "@/feature/core/actions/TitleAction";
 import { useState } from "react";
-import { TabsActions } from "@/feature/core/actions/TabsActions";
 import Image from "next/image";
+import { newTab } from "@/feature/store/slice/tab.slice";
 
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
@@ -229,9 +229,10 @@ const Sidebar = () => {
         clonedMenuItems = data.children;
       } else {
         dispatch(
-          TabsActions.setTabsData({
+          newTab({
             label: data.label,
             key: keyPath.toString().replaceAll(",", ""),
+            closeable: true,
           })
         );
       }

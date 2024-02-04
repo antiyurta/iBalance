@@ -2,8 +2,8 @@ import { IDataConsumer } from "../consumer/entities";
 import {
   ColumnType,
   GenericResponse,
+  IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "../entities";
@@ -35,14 +35,13 @@ export interface IDataCommand extends IData {
   discounts: IDataDiscount[];
   coupons: IDataCoupon[];
 }
-export interface IFilterCommand extends IFilter {
+export interface IFilterCommand extends IColumn {
   id?: number[];
-  commandNo?: string; // Тушаалын дугаар
-  commandNumbers?: string[]; // Тушаалын дугаар
   commandAt?: string[]; // Тушаалын огноо
+  commandNo?: string; // Тушаалын дугаар
   ruleAt?: string[]; // Мөрдөж эхлэх огноо
-  isAlls?: boolean[]; // Бүгд мөрдөх эсэх
-  branchName?: number[]; // Салбар
+  isAll?: boolean[]; // Бүгд мөрдөх эсэх
+  warehouseName?: string[]; // Мөрдөх төв, салбарын нэр
   consumerName?: string[]; // Харилцагчийн нэр
   consumerCode?: string[]; // Харилцагчийн код
   quantity?: number[]; // Тоо ширхэг
