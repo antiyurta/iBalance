@@ -104,10 +104,14 @@ const Thumbnail = (props: IProps) => {
       type: DataIndexType.USER,
     },
   });
-  const getData = async (param: IParamMaterial) => {
+  const getData = async (params: IParamMaterial) => {
     blockContext.block();
-    param.isBalanceRel = true;
-    await MaterialService.get(param)
+    params.isBalanceRel = true;
+    const prm: IParamMaterial = {
+      ...params,
+      ...param,
+    };
+    await MaterialService.get(prm)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);

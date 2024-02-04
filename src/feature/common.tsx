@@ -73,8 +73,10 @@ const isChecked = (state: boolean) => {
   );
 };
 
-function renderCheck(text: any, type: DataIndexType) {
+function renderCheck(text: any, type: DataIndexType, key: string | undefined) {
   switch (type) {
+    case DataIndexType.ARREY:
+      return text?.map((item: any) => item[`${key}`])?.join(" , ");
     case DataIndexType.BOOLEAN:
       return isChecked(text);
     case DataIndexType.BOOLEAN_STRING:
