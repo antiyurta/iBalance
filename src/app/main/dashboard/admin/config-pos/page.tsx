@@ -6,7 +6,11 @@ import Filtered from "@/components/table/filtered";
 import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
@@ -25,47 +29,49 @@ import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 const { Title } = Typography;
+const key = "admin/config-pos";
 const ConfigPos = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<ICreatePos>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
   const [data, setData] = useState<IDataPos[]>([]);
   const [filters, setFilters] = useState<IFilterPos>();
-  const [params, setParams] = useState<IParamPos>({
-    page: 1,
-    limit: 10,
-    isAuth: false,
-    filters: [],
-  });
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [isModal, setIsModal] = useState<boolean>(false);
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedPos, setSelectedPos] = useState<IDataPos>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsPos>({
-    ids: {
+    id: {
       label: "Посын код",
       isView: true,
       isFiltered: false,
       dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
-    names: {
+    name: {
       label: "Посын нэр",
       isView: true,
       isFiltered: false,
       dataIndex: ["name"],
       type: DataIndexType.MULTI,
     },
-    warehouseCodes: {
+    warehouseCode: {
       label: "Байршлын код",
       isView: true,
       isFiltered: false,
       dataIndex: ["warehouse", "code"],
       type: DataIndexType.MULTI,
     },
-    warehouseNames: {
+    warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
@@ -79,13 +85,6 @@ const ConfigPos = () => {
       dataIndex: ["warehouse", "address"],
       type: DataIndexType.MULTI,
     },
-    // warehouseLogos: {
-    //   label: "Лого",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: ["warehouse", "image"],
-    //   type: DataIndexType.MULTI,
-    // },
     isActive: {
       label: "Төлөв",
       isView: true,
@@ -101,12 +100,13 @@ const ConfigPos = () => {
       type: DataIndexType.DATE,
     },
   });
-  const getData = async (params: IParamPos) => {
+  const getData = async () => {
+    const params: IParamPos = { ...param };
     await PosService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
-        // setFilters(response.response.filter);
+        setFilters(response.response.filter);
       }
     });
   };
@@ -123,7 +123,7 @@ const ConfigPos = () => {
       await PosService.patch(selectedPos.id, values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData();
             setIsModal(false);
           }
         })
@@ -132,7 +132,7 @@ const ConfigPos = () => {
       await PosService.post(values)
         .then((response) => {
           if (response.success) {
-            getData(params);
+            getData();
             setIsModal(false);
           }
         })
@@ -144,15 +144,18 @@ const ConfigPos = () => {
     await PosService.remove(id)
       .then((response) => {
         if (response.success) {
-          getData(params);
+          getData();
         }
       })
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
     getWareshouse({});
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
