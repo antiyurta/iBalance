@@ -38,6 +38,7 @@ import {
 import { MaterialService } from "@/service/material/service";
 import { IDataBrand } from "@/service/reference/brand/entities";
 import { BrandService } from "@/service/reference/brand/service";
+import { Operator } from "@/service/entities";
 
 interface Tab {
   label: ReactNode;
@@ -162,7 +163,16 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
     });
   }, []);
   useEffect(() => {
-    employeeIds && getWarehouses({ employeeIds: [...employeeIds] });
+    employeeIds &&
+      getWarehouses({
+        filters: [
+          {
+            dataIndex: ["employeeId"],
+            operator: Operator.In,
+            filter: [...employeeIds],
+          },
+        ],
+      });
   }, [employeeIds]);
 
   const value: ReportContextProps = {

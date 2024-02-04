@@ -82,7 +82,7 @@ export interface IResponseTransaction extends GenericResponse {
   response: IDataTransaction;
 }
 const columns: FilteredColumnsTransaction = {
-  documentCode: {
+  code: {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
@@ -297,7 +297,7 @@ export const getTransactionColumns = (
   movingStatus?: MovingStatus
 ): FilteredColumnsTransaction => {
   const expenseTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -316,7 +316,7 @@ export const getTransactionColumns = (
     "lockedAt",
   ];
   const incomeTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -332,7 +332,7 @@ export const getTransactionColumns = (
     "updatedAt",
   ];
   const localTransaction: (keyof FilteredColumnsTransaction)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -357,7 +357,7 @@ export const getTransactionColumns = (
     [MovingStatus.Purchase]: incomeTransaction,
     [MovingStatus.SaleReturn]: incomeTransaction,
     [MovingStatus.Sales]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -380,7 +380,7 @@ export const getTransactionColumns = (
       "updatedAt",
     ],
     [MovingStatus.PurchaseReturn]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -402,7 +402,7 @@ export const getTransactionColumns = (
     [MovingStatus.InOperation]: expenseTransaction,
     [MovingStatus.ActAmortization]: expenseTransaction,
     [MovingStatus.MovementInWarehouse]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "employeeName",
@@ -437,7 +437,7 @@ export const getTransactionColumns = (
   const keys: (keyof FilteredColumnsTransaction)[] = movingStatus
     ? movingStatusMappings[movingStatus]
     : [
-        "documentCode",
+        "code",
         "documentAt",
         "warehouseName",
         "consumerCode",

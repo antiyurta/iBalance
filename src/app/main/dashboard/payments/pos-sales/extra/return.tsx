@@ -15,7 +15,6 @@ const Return = () => {
             label: "Агуулахын тайлан",
             key: "/payments/list-of-receipt",
             closeable: true,
-            param: {},
           })
         );
       }}

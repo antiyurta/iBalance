@@ -20,11 +20,11 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 
 const columns: FilteredColumnsDocument = {
-  id: {
+  code: {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
-    dataIndex: ["id"],
+    dataIndex: ["code"],
     type: DataIndexType.MULTI,
   },
   documentAt: {
