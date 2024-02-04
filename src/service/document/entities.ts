@@ -102,8 +102,7 @@ export interface IDataDocument extends IData {
 }
 
 export interface IFilterDocument extends IColumn {
-  id?: number;
-  documentCode?: string[];
+  code?: string[];
   movingStatus?: MovingStatus;
   consumerId?: number;
   documentAt?: string;
@@ -161,7 +160,7 @@ export interface IResponseDocumentCode extends GenericResponse {
   response: string;
 }
 const columns: FilteredColumnsDocument = {
-  documentCode: {
+  code: {
     label: "Баримтын дугаар",
     isView: true,
     isFiltered: false,
@@ -320,7 +319,7 @@ export const getDocumentColumns = (
   movingStatus?: MovingStatus
 ): FilteredColumnsDocument => {
   const expenseDocument: (keyof FilteredColumnsDocument)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "consumerCode",
@@ -335,7 +334,7 @@ export const getDocumentColumns = (
     "lockedAt",
   ];
   const localDocument: (keyof FilteredColumnsDocument)[] = [
-    "documentCode",
+    "code",
     "documentAt",
     "warehouseName",
     "description",
@@ -354,7 +353,7 @@ export const getDocumentColumns = (
     (keyof FilteredColumnsDocument)[]
   > = {
     [MovingStatus.Purchase]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -369,7 +368,7 @@ export const getDocumentColumns = (
       "lockedAt",
     ],
     [MovingStatus.SaleReturn]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -385,7 +384,7 @@ export const getDocumentColumns = (
       "lockedAt",
     ],
     [MovingStatus.Sales]: [
-      "documentCode",
+      "code",
       "documentAt",
       "warehouseName",
       "consumerCode",
@@ -417,7 +416,7 @@ export const getDocumentColumns = (
   const keys: (keyof FilteredColumnsDocument)[] = movingStatus
     ? movingStatusMappings[movingStatus]
     : [
-        "documentCode",
+        "code",
         "documentAt",
         "warehouseName",
         "consumerCode",

@@ -68,17 +68,17 @@ export type FilteredColumnsShoppingCart = {
   [T in keyof IFilterShoppingCart]?: ColumnType;
 };
 export interface IFilterShoppingCartMembership extends IColumn {
-  id?: string;
-  posName?: string;
-  membershipCode?: string;
-  membershipName?: string;
-  consumerCode?: string;
-  consumerName?: string;
-  consumerPhone?: string;
-  payAmount?: number;
-  membershipIncreaseAmount?: number;
-  membershipDiscountAmount?: number;
-  membershipAmount?: number;
+  posName: string[];
+  documentCode: string[];
+  membershipCode: string[];
+  membershipName: string[];
+  consumerCode: string[];
+  consumerName: string[];
+  consumerPhone: string[];
+  payAmount: number[];
+  membershipIncreaseAmount: number[];
+  membershipDiscountAmount: number[];
+  membershipAmount: number[];
 }
 export type FilteredColumnsShoppingCartMembership = {
   [T in keyof IFilterShoppingCartMembership]?: ColumnType;

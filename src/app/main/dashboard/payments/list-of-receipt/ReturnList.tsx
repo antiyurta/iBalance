@@ -27,11 +27,11 @@ const key = "payments/list-of-receipt/return-list";
 const ReturnList = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsDocument>({
-    id: {
+    code: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["id"],
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     documentAt: {

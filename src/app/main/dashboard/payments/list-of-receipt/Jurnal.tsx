@@ -37,11 +37,11 @@ const Jurnal = () => {
   const param = getParam(items, key);
   const dispatch = useDispatch<AppDispatch>();
   const [columns, setColumns] = useState<FilteredColumnsDocument>({
-    id: {
+    code: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["id"],
+      dataIndex: ["code"],
       type: DataIndexType.MULTI,
     },
     documentAt: {

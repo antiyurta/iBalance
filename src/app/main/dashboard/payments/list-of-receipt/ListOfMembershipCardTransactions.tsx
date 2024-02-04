@@ -4,7 +4,7 @@ import { DataIndexType, Meta } from "@/service/entities";
 import {
   FilteredColumnsShoppingCartMembership,
   IDataShoppingCart,
-  IFilterShoppingCartMembership,
+  IFilterShoppingCart,
   IParamShoppingCart,
 } from "@/service/pos/shopping-card/entities";
 import { useContext, useEffect, useState } from "react";
@@ -37,11 +37,11 @@ const ListOfMembershipCardTransactions = () => {
         dataIndex: ["openClose", "pos", "name"],
         type: DataIndexType.MULTI,
       },
-      id: {
+      documentCode: {
         label: "Баримтын дугаар",
         isView: true,
         isFiltered: false,
-        dataIndex: ["id"],
+        dataIndex: ["document", "code"],
         type: DataIndexType.MULTI,
       },
       createdAt: {
@@ -62,7 +62,7 @@ const ListOfMembershipCardTransactions = () => {
         label: "Карт, эрхийн бичгийн нэр",
         isView: true,
         isFiltered: false,
-        dataIndex: ["consumerMembership", "name"],
+        dataIndex: ["consumerMembership", "membership", "name"],
         type: DataIndexType.MULTI,
       },
       consumerCode: {
@@ -121,7 +121,7 @@ const ListOfMembershipCardTransactions = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataShoppingCart[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterShoppingCartMembership>();
+  const [filters, setFilters] = useState<IFilterShoppingCart>();
   const [shoppingCart, setShoppingCart] = useState<IDataShoppingCart>();
   const [posDocument, setPosDocument] = useState<IDataDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
@@ -173,6 +173,7 @@ const ListOfMembershipCardTransactions = () => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
+        setFilters(response.response.filter);
       }
     });
   };
