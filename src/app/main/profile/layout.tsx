@@ -7,7 +7,6 @@ import { App } from "antd";
 import Link from "next/link";
 import { useContext } from "react";
 import { useDispatch } from "react-redux";
-import { AuthContextProvider } from "@/feature/context/AuthContext";
 import Header from "./header";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
@@ -32,32 +31,30 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
       });
   };
   return (
-    <AuthContextProvider>
-      <div className="profile">
-        <Header />
-        <div className="body">
-          <div className="menu">
-            <Link className="app-button" href={"/main/profile/general"}>
-              Ерөнхий мэдээлэл
-            </Link>
-            <Link className="app-button" href={"/main/profile/change-password"}>
-              Нууц үг солих
-            </Link>
-            <button className="app-button" onClick={() => onFinish()}>
-              Гарах
-            </button>
-          </div>
-          <div
-            style={{
-              width: 2,
-              height: "100%",
-              background: " rgba(232, 234, 238, 0.40)",
-            }}
-          ></div>
-          <div className="content">{children}</div>
+    <div className="profile">
+      <Header />
+      <div className="body">
+        <div className="menu">
+          <Link className="app-button" href={"/main/profile/general"}>
+            Ерөнхий мэдээлэл
+          </Link>
+          <Link className="app-button" href={"/main/profile/change-password"}>
+            Нууц үг солих
+          </Link>
+          <button className="app-button" onClick={() => onFinish()}>
+            Гарах
+          </button>
         </div>
+        <div
+          style={{
+            width: 2,
+            height: "100%",
+            background: " rgba(232, 234, 238, 0.40)",
+          }}
+        ></div>
+        <div className="content">{children}</div>
       </div>
-    </AuthContextProvider>
+    </div>
   );
 };
 export default withAuth(ProfileLayout);

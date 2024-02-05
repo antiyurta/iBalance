@@ -3,22 +3,24 @@ import { IDataPermission } from "../entities";
 
 export interface IDataResource {
   id: number;
-  name: string;
-  description: string;
+  label: string;
+  key: string;
+  position: number;
   permissions: IDataPermission[];
 }
 
 export interface IFilterResource extends IColumn {
-  id?: number;
-  name?: string;
-  description?: string;
+  id: number[];
+  label: string[];
+  key: string[];
+  position: number[];
 }
 
 export type FilteredColumnsResource = {
   [T in keyof IFilterResource]?: ColumnType;
 };
 
-export interface IParamResource extends IParam, IFilterResource {}
+export interface IParamResource extends IParam {}
 
 export interface IResponseResources extends GenericResponse {
   response: {

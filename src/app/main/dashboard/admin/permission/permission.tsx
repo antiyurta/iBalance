@@ -74,7 +74,7 @@ export const PermissionList = (props: IProps) => {
             title="Цэс"
             render={(_, __, index) => (
               <>
-                <Form.Item name={[index, "resource", "name"]}>
+                <Form.Item name={[index, "resource", "label"]}>
                   <NewInput
                     disabled
                     suffix={

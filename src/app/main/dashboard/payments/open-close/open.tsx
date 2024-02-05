@@ -23,6 +23,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { setPosOpenClose } from "@/feature/store/slice/pos-open-close.slice";
+import { openNofi } from "@/feature/common";
 
 const OpenState = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -61,17 +62,27 @@ const OpenState = () => {
   };
   const onFinish = async (values: IDataPosOpenClose) => {
     blockContext.block();
-    values.posBankNotes = [...moneyForm.getFieldValue("moneys")];
-    await OpenCloseService.postOpen(values)
-      .then((response) => {
-        if (response.success) {
-          dispatch(setPosOpenClose(response.response));
-          router.push("/main/dashboard/payments/pos-sales");
+    await OpenCloseService.get({ isClose: false, posId: values.posId }).then(
+      async (response) => {
+        if (response.success && response.response.data.length > 0) {
+          const { firstName } = response.response.data[0].openerEmployee;
+          openNofi("warning", `${firstName}-ажилтан дээр пос нээлттэй байна.`);
+          blockContext.unblock();
+        } else {
+          values.posBankNotes = [...moneyForm.getFieldValue("moneys")];
+          await OpenCloseService.postOpen(values)
+            .then((response) => {
+              if (response.success) {
+                dispatch(setPosOpenClose(response.response));
+                router.push("/main/dashboard/payments/pos-sales");
+              }
+            })
+            .finally(() => {
+              blockContext.unblock();
+            });
         }
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
+      }
+    );
   };
   const getPos = async (params: IParamPos) => {
     PosService.get(params).then((response) => {

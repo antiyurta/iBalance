@@ -34,10 +34,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { activeKey, tabItems } = useTypedSelector(
     (state: RootState) => state.tabs
   );
-  // const warehouses = useTypedSelector((state) => state.warehouses);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([]);
-  const [user, setUser] = useState<IUser>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const user = useTypedSelector((state) => state.user);
   const warehouse = useTypedSelector((state) => state.warehouse);
 
   const onEdit = (targetKey: TargetKey, action: "add" | "remove") => {
@@ -94,11 +93,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [activeKey]);
   useEffect(() => {
-    authService.authGet().then((response) => {
-      if (response.success) {
-        setUser(response.response);
-      }
-    });
+    // authService.authGet().then((response) => {
+    //   if (response.success) {
+    //     setUser(response.response);
+    //   }
+    // });
     getWarehouses();
   }, []);
   return (

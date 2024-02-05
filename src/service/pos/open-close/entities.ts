@@ -9,6 +9,8 @@ import {
 import { IDataPosBankNote } from "./bank-note/entities";
 import { IDataShoppingCart } from "../shopping-card/entities";
 import { IDataPos } from "../entities";
+import { IDataEmployee } from "@/service/employee/entities";
+import { IDataMoneyTransaction } from "../money-transaction/entities";
 
 export interface IOpenDto {
   openerAmount: number;
@@ -20,9 +22,9 @@ export interface ICloseDto {
   lendAmount: number;
   description: string;
 }
-export interface IParamOpenClose extends Meta {
+export interface IParamOpenClose extends IParam {
   posId?: number;
-  openerUserId?: number;
+  openerEmployeeId?: number;
   isClose?: boolean;
 }
 
@@ -30,32 +32,36 @@ export interface IDataPosOpenClose {
   id: number;
   posId: number;
   pos?: IDataPos;
-  openerUserId: number;
+  openerEmployeeId: number;
+  openerEmployee: IDataEmployee;
   openerAt: string;
   openerAmount: number;
+  workingTime: number;
   isClose: boolean;
-  closerUserId: number;
-  closerAt: number;
+  closerEmployeeId: number;
+  closerAt: string;
   cashAmount: number;
   nonCashAmount: number;
   lendAmount: number;
+  balanceAmount: number;
   posBankNotes: IDataPosBankNote[];
   shoppingCarts: IDataShoppingCart[];
+  moneyTransactions: IDataMoneyTransaction[];
 }
 export interface IFilterPosOpenClose extends IColumn {
-  id: number;
-  posId: number;
-  openerUserId: number;
+  id: number[];
+  posId: number[];
+  openerEmployeeName: number;
   openerAt: string;
-  openerAmount: number;
-  isClose: boolean;
-  closerUserId: number;
+  openerAmount: number[];
+  isClose: boolean[];
+  closerEmployeeName: string[];
   closerAt: number;
-  workingTime: number;
-  balanceAmount: number;
-  cashAmount: number;
-  nonCashAmount: number;
-  lendAmount: number;
+  workingTime: number[];
+  balanceAmount: number[];
+  cashAmount: number[];
+  nonCashAmount: number[];
+  lendAmount: number[];
 }
 export type FilteredColumnsPosOpenClose = {
   [T in keyof IFilterPosOpenClose]?: ColumnType;
@@ -64,6 +70,7 @@ export interface IResponsePosOpenClosers extends GenericResponse {
   response: {
     data: IDataPosOpenClose[];
     meta: Meta;
+    filter: IFilterPosOpenClose;
   };
 }
 export interface IResponsePosOpenClose extends GenericResponse {

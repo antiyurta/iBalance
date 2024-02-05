@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { useTypedSelector, RootState } from "@/feature/store/reducer";
 import { authService } from "@/service/authentication/service";
 import { useDispatch } from "react-redux";
 import { CoreActions } from "@/feature/core/actions/CoreAction";

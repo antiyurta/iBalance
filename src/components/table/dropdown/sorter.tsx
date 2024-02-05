@@ -55,7 +55,7 @@ const Sorter: React.FC<IProps> = ({ dataIndex }) => {
             fontSize: 12,
             lineHeight: "13px",
           }}
-          value={"ASC"}
+          value={"DESC"}
         >
           A-Я
         </NewRadio>
@@ -69,7 +69,7 @@ const Sorter: React.FC<IProps> = ({ dataIndex }) => {
             fontSize: 12,
             lineHeight: "13px",
           }}
-          value={"DESC"}
+          value={"ASC"}
         >
           Я-A
         </NewRadio>

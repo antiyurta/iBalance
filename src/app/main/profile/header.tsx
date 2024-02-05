@@ -1,13 +1,11 @@
-import { Button } from "antd";
-import { EditOutlined } from "@ant-design/icons";
-import { useAuthContext } from "@/feature/context/AuthContext";
 import { UploadImage } from "@/components/upload-image";
 import { useEffect, useState } from "react";
 import { authService } from "@/service/authentication/service";
+import { useTypedSelector } from "@/feature/store/reducer";
 
 const Header = () => {
-  const { user } = useAuthContext();
   const [profileId, setProfileId] = useState<number>();
+  const { user } = useTypedSelector((state) => state);
   const changeProfile = async (imageId: number) => {
     await authService.changeProfile({ imageId });
   };

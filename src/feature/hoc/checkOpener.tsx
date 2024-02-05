@@ -5,6 +5,8 @@ import { OpenCloseService } from "@/service/pos/open-close/service";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store/store";
 import { setPosOpenClose } from "../store/slice/pos-open-close.slice";
+import { useAuthContext } from "../context/AuthContext";
+import { useTypedSelector } from "../store/reducer";
 
 type OPEN = "LOADING" | "DONE" | "FAILED";
 
@@ -13,10 +15,16 @@ export default function checkOpener(Component: React.ComponentType<any>) {
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
     const [isOpen, setIsOpen] = useState<OPEN>("LOADING");
-    const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+    const blockContext: BlockView = useContext(BlockContext);
+    const { employee } = useTypedSelector((state) => state.user);
+    const { posId } = useTypedSelector((state) => state.posOpenClose);
     const getCheck = async () => {
       blockContext.block();
-      OpenCloseService.get({ isClose: false })
+      OpenCloseService.get({
+        isClose: false,
+        posId,
+        openerEmployeeId: employee?.id,
+      })
         .then((response) => {
           if (response.response.data.length == 0) {
             setIsOpen("FAILED");

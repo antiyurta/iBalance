@@ -44,6 +44,7 @@ const persistConfig = {
   storage: storageConfig as any, // Type assertion to `any` to bypass the type check
   whitelist: [
     "core",
+    "user",
     "title",
     "report",
     "tabs",

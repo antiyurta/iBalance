@@ -1,7 +1,11 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
@@ -17,6 +21,11 @@ import { useContext, useEffect, useState } from "react";
 import { IssuesCloseOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
 import CloseState from "../open-close/close";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "payments/list-of-receipt/opening-closing-history";
 const OpeningClosingHistory = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [columns, setColumns] = useState<FilteredColumnsPosOpenClose>({
@@ -41,7 +50,7 @@ const OpeningClosingHistory = () => {
       dataIndex: ["posId"],
       type: DataIndexType.NUMBER,
     },
-    openerUserId: {
+    openerEmployeeName: {
       label: "Нээсэн ажилтан",
       isView: true,
       isFiltered: false,
@@ -62,11 +71,11 @@ const OpeningClosingHistory = () => {
       dataIndex: ["openerAmount"],
       type: DataIndexType.VALUE,
     },
-    closerUserId: {
+    closerEmployeeName: {
       label: "Хаасан хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: ["closerUser", "firstName"],
+      dataIndex: ["closerEmployee", "firstName"],
       type: DataIndexType.MULTI,
     },
     closerAt: {
@@ -120,10 +129,9 @@ const OpeningClosingHistory = () => {
     },
   });
   const [data, setData] = useState<IDataPosOpenClose[]>();
-  const [params, setParams] = useState<IParamOpenClose>({
-    page: 1,
-    limit: 10,
-  });
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterPosOpenClose>();
   const [isClose, setIsClose] = useState<boolean>(false);
@@ -131,7 +139,7 @@ const OpeningClosingHistory = () => {
   enum ItemClose {
     SHOW_CLOSE = "show-close",
   }
-  const items: TableItemType[] = [
+  const newItems: TableItemType[] = [
     {
       key: ItemClose.SHOW_CLOSE,
       label: (
@@ -151,11 +159,13 @@ const OpeningClosingHistory = () => {
       ),
     },
   ];
-  const getData = async (params: IParamOpenClose) => {
+  const getData = async () => {
+    const params: IParamOpenClose = { ...param };
     await OpenCloseService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
+        setFilters(response.response.filter);
       }
     });
   };
@@ -171,8 +181,11 @@ const OpeningClosingHistory = () => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -228,7 +241,7 @@ const OpeningClosingHistory = () => {
             columns={columns}
             onColumns={setColumns}
             incomeFilters={filters}
-            addItems={items}
+            addItems={newItems}
             custom={(_, id) => getOpenClose(id)}
           />
         </Col>

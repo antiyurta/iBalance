@@ -1,10 +1,19 @@
 "use client";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
-import { NewFilterSelect, NewInput, NewTextArea } from "@/components/input";
+import {
+  NewFilterSelect,
+  NewInput,
+  NewInputNumber,
+  NewTextArea,
+} from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import {
+  findIndexInColumnSettings,
+  getParam,
+  onCloseFilterTag,
+} from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
@@ -17,11 +26,19 @@ import { ResourceService } from "@/service/permission/resource/service";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
 
 const { Title } = Typography;
+const key = "admin/permission/resource";
 const ConfigResource = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<IDataResource>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataResource[]>([]);
   const [filters, setFilters] = useState<IFilterResource>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
@@ -29,25 +46,25 @@ const ConfigResource = () => {
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedResource, setSelectedResource] = useState<IDataResource>();
   const [columns, setColumns] = useState<FilteredColumnsResource>({
-    id: {
-      label: "№",
+    position: {
+      label: "Байрлал",
       isView: true,
       isFiltered: false,
-      dataIndex: ["id"],
+      dataIndex: ["position"],
       type: DataIndexType.MULTI,
     },
-    name: {
+    label: {
       label: "Нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["name"],
+      dataIndex: ["label"],
       type: DataIndexType.MULTI,
     },
-    description: {
-      label: "Тайлбар",
+    key: {
+      label: "Түлхүүр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["description"],
+      dataIndex: ["key"],
       type: DataIndexType.MULTI,
     },
     createdAt: {
@@ -59,11 +76,11 @@ const ConfigResource = () => {
     },
   });
   const getData = async () => {
-    await ResourceService.get().then((response) => {
+    await ResourceService.get({ ...param }).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
-        // setFilters(response.response.filter);
+        setFilters(response.response.filter);
       }
     });
   };
@@ -100,8 +117,11 @@ const ConfigResource = () => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData();
+    dispatch(newPane({ key, param: {} }));
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -183,9 +203,9 @@ const ConfigResource = () => {
                 form.resetFields();
                 setSelectedResource(row);
                 form.setFieldsValue({
-                  id: row.id,
-                  name: row.name,
-                  description: row.description,
+                  position: row.position,
+                  label: row.label,
+                  key: row.key,
                 });
                 setIsModal(true);
               }}
@@ -206,11 +226,14 @@ const ConfigResource = () => {
         }
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Нэр" name={"name"}>
+          <Form.Item label="Нэр" name={"label"}>
             <NewInput />
           </Form.Item>
-          <Form.Item label="Тайлбар" name={"description"}>
+          <Form.Item label="Түлхүүр" name={"key"}>
             <NewTextArea />
+          </Form.Item>
+          <Form.Item label="Байрлал" name={"position"}>
+            <NewInputNumber />
           </Form.Item>
         </Form>
       </NewModal>

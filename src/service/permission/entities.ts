@@ -23,6 +23,13 @@ export interface IDataPermission {
   isEdit: boolean;
   isDelete: boolean;
 }
+interface MyPermissionDto {
+  label: string;
+  key: string;
+  isAdd: boolean;
+  isEdit: boolean;
+  isDelete: boolean;
+}
 
 export interface IFilterPermission extends IFilter {
   roleId?: number;
@@ -37,4 +44,7 @@ export interface IParamPermission extends Meta, IParam, IFilterPermission {}
 
 export interface IResponsePermissions extends GenericResponse {
   response: IDataPermission[];
+}
+export interface IResponseMyPermissions extends GenericResponse {
+  response: MyPermissionDto[];
 }
