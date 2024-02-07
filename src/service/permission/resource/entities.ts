@@ -6,7 +6,10 @@ export interface IDataResource {
   label: string;
   key: string;
   position: number;
-  permissions: IDataPermission[];
+  resourceId: number;
+  resource?: IDataResource;
+  resources?: IDataResource[];
+  permissions?: IDataPermission[];
 }
 
 export interface IFilterResource extends IColumn {
@@ -23,11 +26,7 @@ export type FilteredColumnsResource = {
 export interface IParamResource extends IParam {}
 
 export interface IResponseResources extends GenericResponse {
-  response: {
-    data: IDataResource[];
-    meta: Meta;
-    filter: IFilterResource;
-  };
+  response: IDataResource[];
 }
 
 export interface IResponseResource extends GenericResponse {

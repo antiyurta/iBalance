@@ -1,12 +1,11 @@
 import NewCard from "@/components/Card";
-import { NewCheckbox, NewInput, NewTextArea } from "@/components/input";
-import { IDataRole, IParamRole } from "@/service/permission/role/entities";
-import { Button, Col, Form, Row, Space } from "antd";
-import Image from "next/image";
-import { PermissionList } from "./permission";
+import { NewInput, NewTextArea } from "@/components/input";
+import { IDataRole } from "@/service/permission/role/entities";
+import { Button, Col, Divider, Form, Row } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { RoleService } from "@/service/permission/role/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import TreeList from "./component/tree";
 
 export const Role = () => {
   const [form] = Form.useForm<IDataRole>();
@@ -74,19 +73,27 @@ export const Role = () => {
                 {role.name}
               </Button>
             ))}
+          </NewCard>
+        </Col>
+        <Col span={16}>
+          <NewCard title="Зөвшөөрөл">
             <Form.Item name="name" label="Нэр">
               <NewInput onFocus={() => selectRole(undefined)} />
             </Form.Item>
             <Form.Item name="description" label="Тайлбар">
               <NewTextArea />
             </Form.Item>
-          </NewCard>
-        </Col>
-        <Col span={16}>
-          <NewCard title="Зөвшөөрөл">
-            <PermissionList form={form} isEdit={isEdit} />
+            <Divider />
+            <TreeList isEdit={true} />
+            <Divider />
             <Form.Item>
-              <Button htmlType="submit">Хадгалах</Button>
+              <Button
+                htmlType="submit"
+                type="primary"
+                style={{ width: "100%" }}
+              >
+                Хадгалах
+              </Button>
             </Form.Item>
           </NewCard>
         </Col>

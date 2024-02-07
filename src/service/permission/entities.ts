@@ -23,12 +23,15 @@ export interface IDataPermission {
   isEdit: boolean;
   isDelete: boolean;
 }
-interface MyPermissionDto {
+export interface IMenuItem {
   label: string;
   key: string;
+  icon: string;
+  isView: boolean;
   isAdd: boolean;
   isEdit: boolean;
   isDelete: boolean;
+  children?: IMenuItem[];
 }
 
 export interface IFilterPermission extends IFilter {
@@ -46,5 +49,5 @@ export interface IResponsePermissions extends GenericResponse {
   response: IDataPermission[];
 }
 export interface IResponseMyPermissions extends GenericResponse {
-  response: MyPermissionDto[];
+  response: IMenuItem[];
 }
