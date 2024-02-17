@@ -1,23 +1,11 @@
 "use client";
-
 import {
   NewInput,
   NewInputNumber,
   NewSelect,
   NewSwitch,
 } from "@/components/input";
-import {
-  App,
-  Button,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space,
-  Tabs,
-  Typography,
-} from "antd";
-import Image from "next/image";
+import { App, Col, Form, Row, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 //hariltsagchin jagsaalt
 import CustomerList from "./customerList";
@@ -40,7 +28,8 @@ import {
 import { limitOfLoansService } from "@/service/limit-of-loans/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { openNofi } from "@/feature/common";
-const { Title } = Typography;
+import PageTitle from "@/components/page-title";
+import { ConsumerSelect } from "@/components/consumer-select";
 
 const LimitOfLoans = () => {
   const { message } = App.useApp();
@@ -48,13 +37,9 @@ const LimitOfLoans = () => {
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [isReloadList, setIsReloadList] = useState<boolean>(false);
   const [isAccounts, setIsAccounts] = useState<boolean>(false);
-  const [consumers, setConsumers] = useState<IDataConsumer[]>([]);
-  const [consumerDictionary, setConsumerDictionary] =
-    useState<Map<number, IDataConsumer>>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<IDataLimitOfLoans>();
   const onDelete = async (id: number) => {
     blockContext.block();
@@ -102,48 +87,34 @@ const LimitOfLoans = () => {
       }
     });
   };
-  const getConsumers = async (params: IParamConsumer) => {
-    await ConsumerService.get(params).then((response) => {
-      if (response.success) {
-        const data = response.response.data;
-        setConsumers(response.response.data);
-        setConsumerDictionary(
-          data.reduce((dict, consumer) => {
-            dict.set(consumer.id, consumer);
-            return dict;
-          }, new Map<number, IDataConsumer>())
-        );
-      }
-    });
-  };
-  const consumerFormField = async (id: number) => {
-    blockContext.block();
-    await ConsumerService.get({ ids: [id], isLendLimit: true })
-      .then((response) => {
-        if (response.response.data.length > 0) {
-          openNofi(
-            "error",
-            `${response.response.data[0].code} кодтой харилцагч бүртгэлтэй байна`
-          );
-          form.setFieldsValue({
-            consumerId: "",
-          });
-        } else {
-          const consumer = consumerDictionary?.get(id);
-          if (consumer) {
-            form.setFieldsValue({
-              consumerId: consumer.id,
-              name: consumer.name,
-              sectionId: consumer.sectionId,
-              isActive: consumer.isActive,
-            });
-          }
-        }
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
-  };
+  // const consumerFormField = async (id: number) => {
+  //   blockContext.block();
+  //   data
+  //   await ConsumerService.get({ ids: [id], isLendLimit: true })
+  //     .then((response) => {
+  //       if (response.response.data.length > 0) {
+  //         openNofi(
+  //           "error",
+  //           `${response.response.data[0].code} кодтой харилцагч бүртгэлтэй байна`
+  //         );
+  //         form.setFieldsValue({
+  //           consumerId: "",
+  //         });
+  //       } else {
+  //         if (consumer) {
+  //           form.setFieldsValue({
+  //             consumerId: consumer.id,
+  //             name: consumer.name,
+  //             sectionId: consumer.sectionId,
+  //             isActive: consumer.isActive,
+  //           });
+  //         }
+  //       }
+  //     })
+  //     .finally(() => {
+  //       blockContext.unblock();
+  //     });
+  // };
   const onFinish = async (values: IInputLimitOfLoans) => {
     if (editMode && selectedRow) {
       await limitOfLoansService
@@ -187,7 +158,6 @@ const LimitOfLoans = () => {
     },
   ];
   useEffect(() => {
-    getConsumers({});
     getTreeSections();
   }, []);
   useEffect(() => {
@@ -197,34 +167,13 @@ const LimitOfLoans = () => {
   }, [isAccounts]);
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)} />
       <Row
         style={{
           paddingTop: 16,
         }}
         gutter={[12, 24]}
       >
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>Үндсэн бүртгэл / Харилцагч / Зээлийн лимит</Title>
-            <Button
-              type="primary"
-              onClick={() => openModal(false)}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Зээлийн лимит оруулах
-            </Button>
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"
@@ -265,53 +214,20 @@ const LimitOfLoans = () => {
           >
             <div className="inputs-gird-4">
               <Form.Item label="Харилцагчийн код">
-                <Space.Compact>
-                  <div
-                    className="extraButton"
-                    onClick={() => setIsOpenPopOver(true)}
-                  >
-                    <Image
-                      src="/icons/clipboardBlack.svg"
-                      width={16}
-                      height={16}
-                      alt="clipboard"
-                    />
-                  </div>
-                  <Form.Item
-                    name="consumerId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Харилцагчийн код заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, label) =>
-                        (label?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={consumers?.map((consumer) => ({
-                        value: consumer.id,
-                        label: consumer.code,
-                      }))}
-                      onClear={() => {
-                        form.resetFields([
-                          ["name"],
-                          ["sectionId"],
-                          ["isActive"],
-                        ]);
-                      }}
-                      onSelect={consumerFormField}
-                      placeholder="Харилцагчийн код"
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <ConsumerSelect
+                  form={form}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Харилцагчийн код заавал",
+                    },
+                  ]}
+                  name={"consumerId"}
+                  onClear={() => {
+                    form.resetFields([["name"], ["sectionId"], ["isActive"]]);
+                  }}
+                  // onSelect={(row) => consumerFormField(row.id)}
+                />
               </Form.Item>
               <Form.Item
                 label="Харилцагчийн нэр"
@@ -411,20 +327,6 @@ const LimitOfLoans = () => {
             ) : null}
           </div>
         </Form>
-      </NewModal>
-      <NewModal
-        title={" "}
-        width={1300}
-        open={isOpenPopOver}
-        onCancel={() => setIsOpenPopOver(false)}
-      >
-        <Information
-          ComponentType="MIDDLE"
-          onClickModal={(row: IDataConsumer) => {
-            consumerFormField(row.id);
-            setIsOpenPopOver(false);
-          }}
-        />
       </NewModal>
     </div>
   );

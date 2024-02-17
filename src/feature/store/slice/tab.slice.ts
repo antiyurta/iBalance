@@ -5,6 +5,10 @@ interface ITabItem {
   label: ReactNode;
   key: string;
   closeable: boolean;
+  breadcrumb: string[];
+  isAdd?: boolean;
+  isEdit?: boolean;
+  isDelete?: boolean;
 }
 interface ITab {
   activeKey: string;
@@ -17,6 +21,7 @@ const initialState: ITab = {
       label: "Хянах самбар",
       key: "/main/dashboard",
       closeable: false,
+      breadcrumb: ["Хянах самбар"]
     },
   ],
 };

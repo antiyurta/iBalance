@@ -11,6 +11,7 @@ import { CoreActions } from "@/feature/core/actions/CoreAction";
 import { useRouter } from "next/navigation";
 import { NewCheckbox, NewInput, NewInputPassword } from "@/components/input";
 import { AppDispatch } from "@/feature/store/store";
+import { emptyTabs } from "@/feature/store/slice/tab.slice";
 
 export interface ILoginData {
   email: string;
@@ -37,6 +38,7 @@ const Login = () => {
           dispatch(CoreActions.setLoginData(response));
           dispatch(CoreActions.setRememberMe(values.email));
           dispatch(CoreActions.setLoggedIn(true));
+          dispatch(emptyTabs());
           notification.success({
             message: "Амжилттай нэвтэрлээ",
           });

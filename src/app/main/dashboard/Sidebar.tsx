@@ -1,5 +1,4 @@
 "use client";
-
 import { Button, Menu } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -33,11 +32,12 @@ const getMenuItems = (items: IMenuItem[]): MenuItem[] => {
 };
 const Sidebar = () => {
   const dispatch = useDispatch();
+  const [permissions, setPermissions] = useState<IMenuItem[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [collapsed, setCollapsed] = useState<boolean>(false);
   // fuctions
-  const filterMenuItem = (keyPath: string[]) => {
-    let currentMenu = menuItems.find((item) => item.key === keyPath[0]);
+  const filterPermission = (keyPath: string[]) => {
+    let currentMenu = permissions.find((item) => item.key === keyPath[0]);
     for (let i = 1; i < keyPath.length; i++) {
       if (!currentMenu || !currentMenu.children) {
         return null;
@@ -50,14 +50,29 @@ const Sidebar = () => {
   };
   const menuClick = (keyPath: string[]) => {
     const key = keyPath.reverse();
-    const data = filterMenuItem(key);
+    const data = filterPermission(key);
     dispatch(
       newTab({
         label: data?.label,
         key: key.toString().replaceAll(",", ""),
         closeable: true,
+        breadcrumb: generateBreadcrumbItems(key),
+        isAdd: data?.isAdd,
+        isEdit: data?.isEdit,
+        isDelete: data?.isDelete,
       })
     );
+  };
+  const generateBreadcrumbItems = (keyPath: string[]): string[] => {
+    const breadcrumbItems = [];
+
+    for (let i = 0; i < keyPath.length; i++) {
+      const menuItem = filterPermission(keyPath.slice(0, i + 1));
+      if (menuItem) {
+        breadcrumbItems.push(menuItem.label);
+      }
+    }
+    return breadcrumbItems;
   };
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -65,6 +80,7 @@ const Sidebar = () => {
   const getPermission = () => {
     PermissionService.myPermissions().then((response) => {
       if (response.success) {
+        setPermissions(response.response);
         const items = getMenuItems(response.response);
         setMenuItems(items);
       }

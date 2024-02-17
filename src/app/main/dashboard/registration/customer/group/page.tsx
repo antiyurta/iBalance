@@ -8,16 +8,14 @@ import {
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import { App, Button, Col, Form, Popover, Row, Space, Typography } from "antd";
+import { App, Button, Col, Form, Popover, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import Information from "../information/information";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
 import Export from "@/components/Export";
-
-const { Title } = Typography;
-
+import PageTitle from "@/components/page-title";
 const Group = () => {
   const { modal } = App.useApp();
   const [addForm] = Form.useForm();
@@ -175,36 +173,20 @@ const Group = () => {
   }, []);
   return (
     <div>
+      <PageTitle
+        onClick={() => {
+          setEditMode(false);
+          setSelectedGroupId(undefined);
+          setIsOpenAddModal(true);
+          addForm.resetFields();
+        }}
+      />
       <Row
         style={{
           paddingTop: 16,
         }}
         gutter={[12, 24]}
       >
-        <Col span={24}>
-          <Space size={24}>
-            <Title level={3}>Үндсэн бүртгэл / Харилцагч / Бүлэг</Title>
-            <Button
-              type="primary"
-              onClick={() => {
-                setEditMode(false);
-                setSelectedGroupId(undefined);
-                setIsOpenAddModal(true);
-                addForm.resetFields();
-              }}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
         <Col sm={24}>
           <Space
             style={{

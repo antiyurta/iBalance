@@ -21,6 +21,7 @@ import Information from "../information/information";
 import { IDataInitialBalance } from "@/service/consumer/initial-balance/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import dayjs, { Dayjs } from "dayjs";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 
@@ -193,31 +194,8 @@ const BeginningBalance = () => {
   }, []);
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)} />
       <Row gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>Үндсэн бүртгэл / Харилцагч / Эхний үлдэгдэл</Title>
-            <Button
-              type="primary"
-              onClick={() => {
-                openModal(false);
-              }}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Эхний үлдэгдэл
-            </Button>
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"

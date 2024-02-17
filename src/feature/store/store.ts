@@ -45,7 +45,6 @@ const persistConfig = {
   whitelist: [
     "core",
     "user",
-    "title",
     "report",
     "tabs",
     "pane",
