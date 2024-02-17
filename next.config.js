@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
+    domains: [process.env.NEXT_PUBLIC_HOST],
     remotePatterns: [
       {
         protocol: "http",

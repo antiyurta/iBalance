@@ -1,10 +1,4 @@
-import {
-  ColumnType,
-  GenericResponse,
-  IFilter,
-  IParam,
-  Meta,
-} from "../entities";
+import { GenericResponse } from "../entities";
 import { IDataResource } from "./resource/entities";
 import { IDataRole } from "./role/entities";
 export interface IEmployeePermission {
@@ -17,7 +11,7 @@ export interface IDataPermission {
   role?: IDataRole;
   userId?: number;
   resourceId: number;
-  resource: IDataResource;
+  resource?: IDataResource;
   isAdd: boolean;
   isView: boolean;
   isEdit: boolean;
@@ -33,18 +27,9 @@ export interface IMenuItem {
   isDelete: boolean;
   children?: IMenuItem[];
 }
-
-export interface IFilterPermission extends IFilter {
-  roleId?: number;
-  userId?: number;
+export interface IParamPermission {
+  employeeId: number;
 }
-
-export type FilteredColumnsPermission = {
-  [T in keyof IFilterPermission]?: ColumnType;
-};
-
-export interface IParamPermission extends Meta, IParam, IFilterPermission {}
-
 export interface IResponsePermissions extends GenericResponse {
   response: IDataPermission[];
 }

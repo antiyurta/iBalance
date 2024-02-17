@@ -3,7 +3,8 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { CoreActions } from "@/feature/core/actions/CoreAction";
 import withAuth from "@/feature/hoc/withAuth";
 import { authService } from "@/service/authentication/service";
-import { App } from "antd";
+import { App, Button } from "antd";
+import { PoweroffOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useContext } from "react";
 import { useDispatch } from "react-redux";
@@ -41,9 +42,14 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
           <Link className="app-button" href={"/main/profile/change-password"}>
             Нууц үг солих
           </Link>
-          <button className="app-button" onClick={() => onFinish()}>
+          <Button
+            type="primary"
+            danger
+            icon={<PoweroffOutlined />}
+            onClick={() => onFinish()}
+          >
             Гарах
-          </button>
+          </Button>
         </div>
         <div
           style={{

@@ -15,7 +15,6 @@ import { IDataPosOpenClose } from "@/service/pos/open-close/entities";
 import { OpenCloseService } from "@/service/pos/open-close/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { useRouter } from "next/navigation";
-import { NumericFormat } from "react-number-format";
 import { IDataPosBankNote } from "@/service/pos/open-close/bank-note/entities";
 import { IDataPos, IParamPos } from "@/service/pos/entities";
 import { PosService } from "@/service/pos/service";

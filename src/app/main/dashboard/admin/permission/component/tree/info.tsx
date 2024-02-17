@@ -1,12 +1,18 @@
 import { Checkbox } from "antd";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { CheckboxProps } from "antd/lib";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+export interface ICheck {
+  isAdd: boolean;
+  isEdit: boolean;
+  isDelete: boolean;
+}
 interface IProps {
   title: string;
   isEdit?: boolean;
+  onCheck: (value: ICheck) => void;
 }
-export const TreeInfo: React.FC<IProps> = ({ title, isEdit }) => {
+export const TreeInfo: React.FC<IProps> = ({ title, isEdit, onCheck }) => {
   const options = [
     { label: "Нэмэх", value: "isAdd" },
     { label: "Засах", value: "isEdit" },
@@ -24,6 +30,14 @@ export const TreeInfo: React.FC<IProps> = ({ title, isEdit }) => {
   const onCheckAllChange: CheckboxProps["onChange"] = (e) => {
     setCheckedList(e.target.checked ? options.map((item) => item.value) : []);
   };
+  useEffect(() => {
+    const check: ICheck = {
+      isAdd: Boolean(checkedList.find((item) => item == "isAdd")),
+      isEdit: Boolean(checkedList.find((item) => item == "isEdit")),
+      isDelete: Boolean(checkedList.find((item) => item == "isDelete")),
+    };
+    onCheck(check);
+  }, [checkedList]);
   return (
     <div>
       <span

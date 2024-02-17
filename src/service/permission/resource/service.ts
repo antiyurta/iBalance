@@ -7,8 +7,11 @@ import {
 } from "./entities";
 import { GenericResponse } from "@/service/entities";
 
-function get(params?: IParamResource): Promise<IResponseResources> {
+function getAll(params?: IParamResource): Promise<IResponseResources> {
   return api.get("warehouse-permission/resource", { params });
+}
+function get(params?: IParamResource): Promise<IResponseResources> {
+  return api.get("warehouse-permission/resource/tree", { params });
 }
 
 function getById(id: number): Promise<IResponseResources> {
@@ -26,6 +29,7 @@ function remove(id: number): Promise<GenericResponse> {
 }
 
 export const ResourceService = {
+  getAll,
   get,
   getById,
   post,

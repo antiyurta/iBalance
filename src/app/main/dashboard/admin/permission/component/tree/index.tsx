@@ -4,21 +4,31 @@ import {
   FolderOpenOutlined,
   FileOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { TreeHeader } from "./header";
-import { TreeInfo } from "./info";
+import { ICheck, TreeInfo } from "./info";
 import { IDataResource } from "@/service/permission/resource/entities";
 import { NewInput } from "@/components/input";
 import { useResourceContext } from "../../context/ResourceContext";
+import { IDataPermission } from "@/service/permission/entities";
+import { ResourceService } from "@/service/permission/resource/service";
 const { TreeNode } = Tree;
 interface IProps {
-    isEdit?: boolean;
+  isEdit?: boolean;
+  permissions: IDataPermission[];
+  setPermissions: Dispatch<SetStateAction<IDataPermission[]>>;
 }
-const TreeList: React.FC<IProps> = ({ isEdit }) => {
+const TreeList: React.FC<IProps> = ({
+  isEdit,
+  permissions,
+  setPermissions,
+}) => {
   const { resources } = useResourceContext();
+  const [allResources, setAllResources] = useState<IDataResource[]>([]);
   const [isExpand, setIsExpand] = useState<boolean>(false);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+  const [keys, setKeys] = useState<string[]>([]);
   const renderTreeNodes = (data: IDataResource[]) => {
     return data.map((item) => {
       if (item.resources) {
@@ -35,14 +45,44 @@ const TreeList: React.FC<IProps> = ({ isEdit }) => {
       return (
         <TreeNode
           key={item.key}
-          title={<TreeInfo title={item.label} isEdit={isEdit} />}
+          title={
+            <TreeInfo
+              title={item.label}
+              isEdit={Boolean(checkedKeys.find((key) => key == item.key))}
+              onCheck={(value) => onNodeCheck(item, value)}
+            />
+          }
           switcherIcon={<FileOutlined />}
         />
       );
     });
   };
+  const getAllResources = () => {
+    ResourceService.getAll().then((response) => {
+      if (response.success) {
+        setAllResources(response.response);
+      }
+    });
+  };
   const onSelect = (selectedKeys: React.Key[], info: any) => {
     console.log("selected", selectedKeys, info);
+  };
+  const onNodeCheck = (item: IDataResource, value: ICheck) => {
+    const permission: IDataPermission = {
+      resourceId: item.id,
+      isView: true,
+      isAdd: value.isAdd,
+      isEdit: value.isEdit,
+      isDelete: value.isDelete,
+    };
+    const updatedPermissions = [...permissions];
+    const existingIndex = updatedPermissions.findIndex(
+      (perm) => perm.resourceId === item.id
+    );
+    if (existingIndex !== -1) {
+      updatedPermissions[existingIndex] = permission;
+    }
+    setPermissions(updatedPermissions);
   };
   const onExpand = (expandedKeysValue: React.Key[]) => {
     setExpandedKeys(expandedKeysValue);
@@ -62,13 +102,33 @@ const TreeList: React.FC<IProps> = ({ isEdit }) => {
       .filter((item, i, self) => item && self.indexOf(item) === i) as string[];
     setExpandedKeys(expandedKeysValue);
   };
-  const onCheck = (checkedKeys: any) => {
+  const onCheck = (checkedKeys: any, info: any) => {
+    setKeys([...checkedKeys, ...info.halfCheckedKeys]);
     setCheckedKeys(checkedKeys);
   };
+  useEffect(() => {
+    getAllResources();
+  }, []);
   useEffect(() => {
     if (isExpand) handleExpand("");
     else setExpandedKeys([]);
   }, [isExpand]);
+  useEffect(() => {
+    const newPermissions: IDataPermission[] = [];
+    for (const key of keys) {
+      const resource = allResources.find((item) => item.key == key);
+      if (resource) {
+        newPermissions.push({
+          resourceId: resource.id,
+          isAdd: false,
+          isView: true,
+          isEdit: false,
+          isDelete: false,
+        });
+      }
+    }
+    setPermissions(newPermissions);
+  }, [keys]);
   return (
     <div className="directory-tree">
       <TreeHeader isExpand={isExpand} setIsExpand={setIsExpand} />
