@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewInput } from "@/components/input";
-import {
-  findIndexInColumnSettings,
-  getParam,
-  onCloseFilterTag,
-} from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import {
   ComponentType,
   DataIndexType,
@@ -18,7 +14,7 @@ import {
   IParamReferenceAccount,
 } from "@/service/reference/account/entities";
 import { referenceAccountService } from "@/service/reference/account/service";
-import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
+import { Button, Col, Form, Input, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import NewModal from "@/components/modal";
@@ -28,13 +24,12 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import PageTitle from "@/components/page-title";
 
 interface IProps {
   ComponentType: ComponentType;
   onClickModal?: (row: IDataReferenceAccount) => void;
 }
-
-const { Title } = Typography;
 const key = "customer/receivable-account";
 const ReceivableAccount = (props: IProps) => {
   const { ComponentType = "FULL", onClickModal } = props;
@@ -139,39 +134,16 @@ const ReceivableAccount = (props: IProps) => {
   }, [param]);
   return (
     <div>
+      {ComponentType === "FULL" && (
+        <PageTitle
+          onClick={() => {
+            form.resetFields();
+            setEditMode(false);
+            setIsOpenModal(true);
+          }}
+        />
+      )}
       <Row gutter={[12, 24]}>
-        {ComponentType === "FULL" ? (
-          <>
-            <Col md={24} lg={16} xl={19}>
-              <Space size={24}>
-                <Title level={3}>
-                  Үндсэн бүртгэл / Харилцагч / Авлага дансны бүртгэл
-                </Title>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    form.resetFields();
-                    setEditMode(false);
-                    setIsOpenModal(true);
-                  }}
-                  icon={
-                    <Image
-                      src={"/images/AddIcon.svg"}
-                      width={12}
-                      height={12}
-                      alt="addicon"
-                    />
-                  }
-                >
-                  Шинээр бүртгэх
-                </Button>
-              </Space>
-            </Col>
-            <Col md={24} lg={8} xl={5}>
-              <Input.Search />
-            </Col>
-          </>
-        ) : null}
         <Col sm={24}>
           <Space
             style={{

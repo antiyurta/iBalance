@@ -2,6 +2,7 @@
 
 import { Col, Row, Space, Tabs, Typography } from "antd";
 import { useReportContext } from "@/feature/context/ReportsContext";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
@@ -37,17 +38,13 @@ const Reports = () => {
   };
   return (
     <div>
+      <PageTitle />
       <Row
         style={{
           paddingTop: 16,
         }}
         gutter={[12, 24]}
       >
-        <Col span={24}>
-          <Space size={24}>
-            <Title level={2}>Тайлан / Агуулахын тайлан</Title>
-          </Space>
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"

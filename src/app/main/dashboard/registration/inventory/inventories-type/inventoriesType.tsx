@@ -25,6 +25,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 
@@ -153,37 +154,7 @@ const InventoriesType = (props: IProps) => {
   return (
     <div>
       <div className="information">
-        <div className="header">
-          <div className="left">
-            {ComponentType === "FULL" ? (
-              <Title level={3}>Үндсэн бүртгэл / Бараа материал / Данс</Title>
-            ) : null}
-            {ComponentType === "MODAL" ? <Title level={3}>Данс</Title> : null}
-            <button className="app-button" onClick={newType}>
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-              Шинээр бүртгэх
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
-                <Image
-                  src={"/images/SearchIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="searchIcon"
-                />
-              }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
-          </div>
-        </div>
+        <PageTitle onClick={newType} />
         <div className="second-header">
           <Filtered columns={columns} />
           <div className="extra">

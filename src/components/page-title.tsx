@@ -1,11 +1,12 @@
 import { useTypedSelector } from "@/feature/store/reducer";
-import { Breadcrumb, Button, Col, Divider, Row, Space, Typography } from "antd";
+import { Breadcrumb, Button, Col, Row, Space } from "antd";
 import Image from "next/image";
-const { Title } = Typography;
+import { ReactNode } from "react";
 interface IProps {
-  onClick: () => void;
+  onClick?: () => void;
+  children?: ReactNode;
 }
-const PageTitle: React.FC<IProps> = ({ onClick }) => {
+const PageTitle: React.FC<IProps> = ({ onClick, children }) => {
   const tab = useTypedSelector((state) => state.tabs);
   const currentTab = tab.tabItems.find((item) => item.key == tab.activeKey);
   return (
@@ -17,21 +18,24 @@ const PageTitle: React.FC<IProps> = ({ onClick }) => {
               <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>
             ))}
           </Breadcrumb>
-          <Button
-            hidden={!currentTab?.isAdd}
-            type="primary"
-            onClick={() => onClick()}
-            icon={
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
-              />
-            }
-          >
-            Шинээр бүртгэх
-          </Button>
+          {onClick !== undefined && (
+            <Button
+              hidden={!currentTab?.isAdd}
+              type="primary"
+              onClick={() => onClick()}
+              icon={
+                <Image
+                  src={"/images/AddIcon.svg"}
+                  width={12}
+                  height={12}
+                  alt="addicon"
+                />
+              }
+            >
+              Шинээр бүртгэх
+            </Button>
+          )}
+          {children}
         </Space>
       </Col>
     </Row>
