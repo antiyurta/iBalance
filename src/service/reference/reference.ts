@@ -1,10 +1,6 @@
 import { api } from "../../feature/interceptor/interceptor";
 import { IResponseCountry } from "./country/entities";
-import {
-  IDataReference,
-  IParamReference,
-  IResponseReference,
-} from "./entity";
+import { IDataReference, IParamReference, IResponseReference } from "./entity";
 
 function getCountries(): Promise<IResponseCountry> {
   return api.get("reference/country", {

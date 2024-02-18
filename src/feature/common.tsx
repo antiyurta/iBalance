@@ -339,11 +339,16 @@ const filterCascader = (inputValue: string, path: DefaultOptionType[]) => {
 };
 
 const getFile = async (id: number) => {
-  return await ReferenceService.getImage(id).then((response) => {
+  try {
+    const response = await ReferenceService.getImage(id);
+    console.log("response =====>", response);
     const file = new Blob([response], { type: response.type });
     const fileUrl = URL.createObjectURL(file);
     return fileUrl;
-  });
+  } catch (error) {
+    console.error('Error fetching file:', error);
+    return "/images/emptyMarket.png";
+  }
 };
 
 interface FieldData {

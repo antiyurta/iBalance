@@ -49,22 +49,15 @@ const Groups = () => {
       isSale: true,
       materialTypes: [],
     }).then(async (response) => {
-      console.log('it is working ======>', response);
-      
-      const result: IGroup[] = [];
-      await Promise.all(
+      const result: IGroup[] = await Promise.all(
         response.response.data.map(async (section) => {
-          result.push({
+          return {
             name: section.name,
-            src:
-              section.fileId != null
-                ? await getFile(section.fileId)
-                : "/images/emptyMarket.png",
+            src: section.fileId !== null ? await getFile(section.fileId) : '/images/emptyMarket.png',
             sectionId: section.id,
-          });
+          };
         })
       );
-      console.log("results =====>", result);
       setSections(result);
     });
   };

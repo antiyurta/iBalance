@@ -1,11 +1,7 @@
 "use client";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
-import {
-  NewFilterSelect,
-  NewInput,
-  NewSwitch,
-} from "@/components/input";
+import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { findIndexInColumnSettings } from "@/feature/common";
@@ -23,6 +19,7 @@ import { RoleService } from "@/service/permission/role/service";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
+import PageTitle from "@/components/page-title";
 const { Title } = Typography;
 const Users = () => {
   const [columns, setColumns] = useState<FilteredColumnsEmployee>({
@@ -149,30 +146,14 @@ const Users = () => {
   }, []);
   return (
     <>
+      <PageTitle
+        onClick={() => {
+          form.resetFields();
+          setSelectedEmployee(undefined);
+          setIsAddModal(true);
+        }}
+      />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>Админ / Хэрэглэгчийн бүртгэл</Title>
-            <Button
-              type="primary"
-              onClick={() => {
-                form.resetFields();
-                setSelectedEmployee(undefined);
-                setIsAddModal(true);
-              }}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
         <Col span={isFilterToggle ? 20 : 24}>
           <div className="information">
             <div className="second-header">
