@@ -186,6 +186,7 @@ const ListOfReceipt = () => {
                   label: "Гишүүнчлэлийн бүртгэл",
                   key: "/registration/customer/information",
                   closeable: true,
+                  breadcrumb: ["Бүртгэл", "Харилцагч", "Бүртгэл"]
                 })
               );
               setIsAddAction(false);
@@ -218,6 +219,7 @@ const ListOfReceipt = () => {
                   label: "Агуулахын тайлан",
                   key: "/reports",
                   closeable: false,
+                  breadcrumb: ["Тайлан"]
                 })
               );
               setIsAddAction(false);
