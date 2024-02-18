@@ -1,17 +1,7 @@
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import {
-  App,
-  Button,
-  Col,
-  Form,
-  Input,
-  Popover,
-  Row,
-  Space,
-  Typography,
-} from "antd";
-import { SignalFilled, SwapOutlined } from "@ant-design/icons";
+import { App, Button, Col, Form, Row, Space } from "antd";
+import { SwapOutlined } from "@ant-design/icons";
 
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -32,7 +22,6 @@ import {
   FilteredColumnsConsumer,
   IDataConsumer,
   IFilterConsumer,
-  IParamConsumer,
 } from "@/service/consumer/entities";
 //service iid
 import { ConsumerService } from "@/service/consumer/service";
@@ -60,8 +49,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
-
-const { Title } = Typography;
+import PageTitle from "@/components/page-title";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -390,33 +378,10 @@ const Information = (props: IProps) => {
   }, [param]);
   return (
     <>
+      {ComponentType === "FULL" && (
+        <PageTitle onClick={() => openModal(false)} />
+      )}
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {ComponentType === "FULL" ? (
-          <>
-            <Col md={24} lg={16} xl={19}>
-              <Space size={24}>
-                <Title level={3}>Үндсэн бүртгэл / Харилцагч / Бүртгэл</Title>
-                <Button
-                  type="primary"
-                  onClick={() => openModal(false)}
-                  icon={
-                    <Image
-                      src={"/images/AddIcon.svg"}
-                      width={12}
-                      height={12}
-                      alt="addicon"
-                    />
-                  }
-                >
-                  Шинээр бүртгэх
-                </Button>
-              </Space>
-            </Col>
-            <Col md={24} lg={8} xl={5}>
-              <Input.Search />
-            </Col>
-          </>
-        ) : null}
         {isOpenTree ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree

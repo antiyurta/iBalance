@@ -50,6 +50,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import PageTitle from "@/components/page-title";
 const { Title } = Typography;
 
 interface IProps {
@@ -61,9 +62,6 @@ const key = "inventory/package-registration";
 const PackageRegistration = (props: IProps) => {
   const { ComponentType, type, onClickModal } = props;
   const [form] = Form.useForm(); // add hiih Form
-  const [switchForm] = Form.useForm(); // buleg solih
-  const [isOpenPopOverLittle, setIsOpenPopOverLittle] =
-    useState<boolean>(false);
   const [data, setData] = useState<IDataMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterMaterial>();
@@ -272,35 +270,10 @@ const PackageRegistration = (props: IProps) => {
   }, [isOpenModal]);
   return (
     <>
+      {ComponentType === "FULL" && (
+        <PageTitle onClick={() => openModal(false)} />
+      )}
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {ComponentType === "FULL" ? (
-          <>
-            <Col md={24} lg={16} xl={19}>
-              <Space size={24}>
-                <Title level={5}>
-                  Үндсэн бүртгэл / Бараа материал / Багцын бүртгэл
-                </Title>
-                <Button
-                  type="primary"
-                  onClick={() => openModal(false)}
-                  icon={
-                    <Image
-                      src={"/images/AddIcon.svg"}
-                      width={12}
-                      height={12}
-                      alt="addicon"
-                    />
-                  }
-                >
-                  Шинээр бүртгэх
-                </Button>
-              </Space>
-            </Col>
-            <Col md={24} lg={8} xl={5}>
-              <Input.Search />
-            </Col>
-          </>
-        ) : null}
         <Col span={24}>
           <Row gutter={[0, 12]}>
             <Col span={24}>

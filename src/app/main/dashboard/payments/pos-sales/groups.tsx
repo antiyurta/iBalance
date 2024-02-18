@@ -46,9 +46,11 @@ const Groups = () => {
   const getMaterialSections = async () => {
     await MaterialSectionService.get({
       isExpand: false,
-      isSale: [true],
+      isSale: true,
       materialTypes: [],
     }).then(async (response) => {
+      console.log('it is working ======>', response);
+      
       const result: IGroup[] = [];
       await Promise.all(
         response.response.data.map(async (section) => {
@@ -62,6 +64,7 @@ const Groups = () => {
           });
         })
       );
+      console.log("results =====>", result);
       setSections(result);
     });
   };

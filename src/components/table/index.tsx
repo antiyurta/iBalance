@@ -71,6 +71,8 @@ function NewTable(props: ITable) {
   } = props;
   const pane = useTypedSelector((state) => state.pane);
   const param = getParam(pane.items, pane.activeKey);
+  const tab = useTypedSelector((state) => state.tabs);
+  const currentTab = tab.tabItems.find((item) => item.key === tab.activeKey);
   const dispatch = useDispatch<AppDispatch>();
   const dragProps = {
     onDragEnd(fromIndex: number, toIndex: number) {
@@ -97,56 +99,54 @@ function NewTable(props: ITable) {
       return [];
     }
   };
-  const items = [
-    isEdit
-      ? {
-          key: "edit",
-          label: (
-            <div className="popupButton">
-              <Image src="/icons/Edit.png" width={16} height={16} alt="edit" />
-              <p
-                style={{
-                  color: "#FD7E14",
-                  margin: 0,
-                  fontSize: "14px",
-                  fontWeight: 400,
-                  lineHeight: "16px",
-                }}
-              >
-                Засварлах
-              </p>
-            </div>
-          ),
-        }
-      : null,
-    isDelete
-      ? {
-          key: "delete",
-          label: (
-            <div className="popupButton">
-              <Image
-                src="/icons/DeleteOff.png"
-                width={16}
-                height={16}
-                alt="delete"
-              />
-              <p
-                style={{
-                  color: "#DC3545",
-                  margin: 0,
-                  fontSize: "14px",
-                  fontWeight: 400,
-                  lineHeight: "16px",
-                }}
-              >
-                Устгах
-              </p>
-            </div>
-          ),
-        }
-      : null,
-    ...mergeItems(),
-  ];
+  const items = [...mergeItems()];
+  if (isEdit && currentTab?.isEdit) {
+    items.push({
+      key: "edit",
+      label: (
+        <div className="popupButton">
+          <Image src="/icons/Edit.png" width={16} height={16} alt="edit" />
+          <p
+            style={{
+              color: "#FD7E14",
+              margin: 0,
+              fontSize: "14px",
+              fontWeight: 400,
+              lineHeight: "16px",
+            }}
+          >
+            Засварлах
+          </p>
+        </div>
+      ),
+    });
+  }
+  if (isDelete && currentTab?.isDelete) {
+    items.push({
+      key: "delete",
+      label: (
+        <div className="popupButton">
+          <Image
+            src="/icons/DeleteOff.png"
+            width={16}
+            height={16}
+            alt="delete"
+          />
+          <p
+            style={{
+              color: "#DC3545",
+              margin: 0,
+              fontSize: "14px",
+              fontWeight: 400,
+              lineHeight: "16px",
+            }}
+          >
+            Устгах
+          </p>
+        </div>
+      ),
+    });
+  }
   return (
     <ConfigProvider locale={mnMn}>
       <DragListView.DragColumn {...dragProps}>

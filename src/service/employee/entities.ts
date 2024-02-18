@@ -6,6 +6,7 @@ import {
   IParam,
   Meta,
 } from "../entities";
+import { IDataPermission } from "../permission/entities";
 import { IDataRole } from "../permission/role/entities";
 
 type TypeGender = "MAN" | "WOMAN";
@@ -31,6 +32,7 @@ export interface IDataEmployee {
   roleId: number;
   warehouseRoleId: number;
   warehouseRole?: IDataRole;
+  warehousePermissions: IDataPermission[];
   isTreasure: boolean;
   isCashier: boolean;
 }

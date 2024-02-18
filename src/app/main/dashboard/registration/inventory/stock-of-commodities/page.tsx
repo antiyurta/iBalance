@@ -19,6 +19,7 @@ import NewModal from "@/components/modal";
 import { MaterialSelect } from "@/components/material-select";
 import { NewInput } from "@/components/input";
 import EditableTableResourseSize from "./editableTableResourceSize";
+import PageTitle from "@/components/page-title";
 const { Title } = Typography;
 const StockOfCommoditiesPage = () => {
   const [form] = Form.useForm();
@@ -70,30 +71,8 @@ const StockOfCommoditiesPage = () => {
   };
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)}/>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>
-              Үндсэн бүртгэл / Бараа материал / Зохистой нөөцийн хэмжээ
-            </Title>
-            <Button
-              type="primary"
-              onClick={() => {
-                openModal(false);
-              }}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"

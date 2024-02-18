@@ -7,7 +7,7 @@ export interface IParamMaterialSection {
   materialAccountId?: number[];
   sectionId?: number[];
   isExpand?: boolean;
-  isSale?: boolean[];
+  isSale?: boolean;
 }
 
 export interface IDataMaterialSection {

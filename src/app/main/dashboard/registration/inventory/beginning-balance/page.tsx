@@ -27,6 +27,7 @@ import { MaterialSelect } from "@/components/material-select";
 import { IDataMaterial, MaterialType } from "@/service/material/entities";
 import { hasUniqueValues } from "@/feature/common";
 import dayjs from "dayjs";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 const BeginningBalancePage = () => {
@@ -101,28 +102,8 @@ const BeginningBalancePage = () => {
   };
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)} />
       <Row gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>
-              Үндсэн бүртгэл / Бараа материал / Эхний үлдэгдэл
-            </Title>
-            <Button
-              type="primary"
-              onClick={() => openModal(false)}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"
@@ -225,7 +206,9 @@ const BeginningBalancePage = () => {
                       : [];
                     if (!hasUniqueValues(arr)) {
                       return Promise.reject(
-                        new Error("Байршил-хугацаа дуусах огноо давхардсан байна.")
+                        new Error(
+                          "Байршил-хугацаа дуусах огноо давхардсан байна."
+                        )
                       );
                     }
                   },

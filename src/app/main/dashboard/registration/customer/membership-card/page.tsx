@@ -36,6 +36,7 @@ import { NumericFormat } from "react-number-format";
 import { hasUniqueValues } from "@/feature/common";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { Operator } from "@/service/entities";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 const MembershipCard = () => {
@@ -235,45 +236,23 @@ const MembershipCard = () => {
   }, []);
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)}>
+        <Button
+          type="primary"
+          onClick={() => openModalCard(false)}
+          icon={
+            <Image
+              src={"/images/AddIcon.svg"}
+              width={12}
+              height={12}
+              alt="addicon"
+            />
+          }
+        >
+          Карт, эрхийн бичиг бүртгэл
+        </Button>
+      </PageTitle>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>
-              Үндсэн бүртгэл / Харилцагч / Гишүүнчлэлийн бүртгэл
-            </Title>
-            <Button
-              type="primary"
-              onClick={() => openModal(false)}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => openModalCard(false)}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Карт, эрхийн бичиг бүртгэл
-            </Button>
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"

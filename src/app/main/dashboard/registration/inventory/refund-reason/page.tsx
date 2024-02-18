@@ -3,6 +3,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
+import PageTitle from "@/components/page-title";
 import { NewTable } from "@/components/table";
 import Filtered from "@/components/table/filtered";
 import { findIndexInColumnSettings, getParam } from "@/feature/common";
@@ -125,28 +126,8 @@ const RefundReasonPage = () => {
   }, [param, isReloadList]);
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)} />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>
-              Үндсэн бүртгэл / Бараа материал / Буцаалтын шалтгаан
-            </Title>
-            <Button
-              type="primary"
-              onClick={() => openModal(false)}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
         <Col span={24}>
           <Space
             style={{

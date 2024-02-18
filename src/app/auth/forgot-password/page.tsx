@@ -1,13 +1,12 @@
 "use client";
 import React, { useContext } from "react";
 import { Button, Form, App } from "antd";
-import Link from "next/link";
 import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import {  UserOutlined } from "@ant-design/icons";
 import { authService } from "@/service/authentication/service";
 import { useRouter } from "next/navigation";
-import { NewCheckbox, NewInput, NewInputPassword } from "@/components/input";
+import { NewInput } from "@/components/input";
 import { NextPage } from "next";
 
 export interface IForgotPassword {

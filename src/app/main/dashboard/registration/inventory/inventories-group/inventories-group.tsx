@@ -33,6 +33,7 @@ import { MaterialService } from "@/service/material/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { MaterialType } from "@/service/material/entities";
 import { getFile } from "@/feature/common";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 
@@ -273,34 +274,15 @@ const InventoriesGroup = (props: IProps) => {
   }, []);
   return (
     <div>
+      <PageTitle
+        onClick={() => {
+          setEditMode(false);
+          setSelectedGroupId(undefined);
+          setIsOpenAddModal(true);
+          addForm.resetFields();
+        }}
+      />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={3}>Үндсэн бүртгэл / Бараа материал / Бүлэг</Title>
-            <Button
-              type="primary"
-              onClick={() => {
-                setEditMode(false);
-                setSelectedGroupId(undefined);
-                setIsOpenAddModal(true);
-                addForm.resetFields();
-              }}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
-        </Col>
         <Col sm={24}>
           <Space
             style={{

@@ -8,6 +8,10 @@ import { useContext, useEffect, useState } from "react";
 import { FormItemProps } from "antd/lib/form";
 import { IChangeProfile } from "@/service/authentication/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { setUser } from "@/feature/store/slice/user.slice";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
 
 const { Title } = Typography;
 
@@ -18,12 +22,13 @@ interface EditableFormItemProps extends FormItemProps {
 const General = () => {
   const [form] = Form.useForm();
   const { set } = useAuthContext();
+  const dispatch = useDispatch<AppDispatch>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const blockContext: BlockView = useContext(BlockContext);
 
   const getProfile = async () => {
     authService.authGet().then((response) => {
-      set(response.response);
+      dispatch(setUser(response.response));
       form.setFieldsValue({
         firstName: response.response.firstName,
         lastName: response.response.lastName,

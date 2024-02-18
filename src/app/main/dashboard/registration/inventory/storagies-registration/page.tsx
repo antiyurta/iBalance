@@ -3,6 +3,7 @@
 import StoragiesRegistration from "./StoragiesRegistration";
 import { Tabs } from "antd";
 import { StoragiesGroup } from "./storage-group";
+import PageTitle from "@/components/page-title";
 const StoragiesRegistrationPage = () => {
   const items = [
     {
@@ -17,7 +18,10 @@ const StoragiesRegistrationPage = () => {
     },
   ];
   return (
-    <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
+    <>
+      <PageTitle onClick={() => {}} />
+      <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
+    </>
   );
 };
 export default StoragiesRegistrationPage;

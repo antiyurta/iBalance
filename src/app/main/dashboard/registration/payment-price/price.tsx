@@ -7,6 +7,7 @@ import PriceList from "./price-list";
 import { CommandType } from "@/service/command/entities";
 import DiscountList from "./discount/discount-list";
 import CouponList from "./coupon/coupon-list";
+import PageTitle from "@/components/page-title";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -50,23 +51,18 @@ const Price = (props: IProps) => {
     },
   ];
   return (
-    <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-      {ComponentType === "FULL" ? (
-        <>
-          <Col md={24} lg={16} xl={19}>
-            <Space size={24}>
-              <Title level={3}>Үндсэн бүртгэл / Төлбөр, үнэ / {name}</Title>
-            </Space>
-          </Col>
-          <Col md={24} lg={8} xl={5}>
-            <Input.Search />
-          </Col>
-        </>
-      ) : null}
-      <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-      </Col>
-    </Row>
+    <>
+      <PageTitle />
+      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
+    </>
   );
 };
 export default Price;

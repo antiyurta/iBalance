@@ -1,5 +1,4 @@
 "use client";
-
 import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
@@ -74,6 +73,7 @@ import { ConsumerSelect } from "@/components/consumer-select";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import PageTitle from "@/components/page-title";
 interface IProps {
   ComponentType: ComponentType;
   materialTypes: MaterialType[];
@@ -483,37 +483,8 @@ const InventoriesRegistration = (props: IProps) => {
   }, [isActive]);
   return (
     <div>
+      <PageTitle onClick={() => openModal(false)}/>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {ComponentType === "FULL" ? (
-          <>
-            <Col md={24} lg={16} xl={19}>
-              <Space size={24}>
-                <Title level={3}>
-                  Үндсэн бүртгэл / Бараа материал / Бүртгэл
-                </Title>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    openModal(false);
-                  }}
-                  icon={
-                    <Image
-                      src={"/images/AddIcon.svg"}
-                      width={12}
-                      height={12}
-                      alt="addicon"
-                    />
-                  }
-                >
-                  Шинээр бүртгэх
-                </Button>
-              </Space>
-            </Col>
-            <Col md={24} lg={8} xl={5}>
-              <Input.Search />
-            </Col>
-          </>
-        ) : null}
         {isOpenTree ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree

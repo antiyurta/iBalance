@@ -27,6 +27,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import PageTitle from "@/components/page-title";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -149,40 +150,14 @@ const InventoriesBrand = (props: IProps) => {
       <div className="information">
         <div className="header">
           <div className="left">
-            {ComponentType === "FULL" ? (
-              <Title level={3}>Үндсэн бүртгэл / Бараа материал / Брэнд</Title>
-            ) : (
-              <Title level={3}>Брэнд</Title>
-            )}
-            <button
-              className="app-button"
-              onClick={() => {
-                openModal(false);
-                getCountries();
-              }}
-            >
-              <Image
-                src={"/images/AddIcon.svg"}
-                width={12}
-                height={12}
-                alt="addicon"
+            {ComponentType == "FULL" && (
+              <PageTitle
+                onClick={() => {
+                  openModal(false);
+                  getCountries();
+                }}
               />
-              Брэнд бүртгэх
-            </button>
-          </div>
-          <div className="right">
-            <NewSearch
-              prefix={
-                <Image
-                  src={"/images/SearchIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="searchIcon"
-                />
-              }
-              allowClear={true}
-              onSearch={(values: string) => console.log(values)}
-            />
+            )}
           </div>
         </div>
         <div className="second-header">

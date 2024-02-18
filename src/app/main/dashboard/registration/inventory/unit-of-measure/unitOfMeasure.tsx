@@ -22,6 +22,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import PageTitle from "@/components/page-title";
 export interface IDataUnit {
   id: number;
   sectionId: number | null;
@@ -171,37 +172,15 @@ const UnitOfMeasure = (props: IProps) => {
   }, [param]);
   return (
     <>
+      {ComponentsType == "FULL" && (
+        <PageTitle onClick={() => openModal(false)} />
+      )}
       <Row
         style={{
           paddingTop: 12,
         }}
         gutter={[12, 24]}
       >
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            {ComponentsType === "FULL" ? (
-              <>
-                <Title level={3}>
-                  Үндсэн бүртгэл / Бараа материал / Хэмжих нэгж
-                </Title>
-                <button className="app-button" onClick={() => openModal(false)}>
-                  <Image
-                    src={"/images/AddIcon.svg"}
-                    width={12}
-                    height={12}
-                    alt="addicon"
-                  />
-                  Шинээр бүртгэх
-                </button>
-              </>
-            ) : (
-              <Title level={3}>Хэмжих нэгж</Title>
-            )}
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <NewSearch />
-        </Col>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
             data={units}

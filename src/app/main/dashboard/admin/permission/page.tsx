@@ -1,18 +1,28 @@
 "use client";
 import { Col, Row, Space, Tabs, Typography } from "antd";
 import { TabsProps } from "antd/lib";
-import { useState } from "react";
 import { Role } from "./role";
-import ConfigResource from "./resource";
-import PermissionUser from "./user";
+import PermissionEmployee from "./employee";
+import { ProviderResource } from "./context/ResourceContext";
+import TreeList from "./component/tree";
+import { IDataPermission } from "@/service/permission/entities";
+import { SetStateAction } from "react";
 const { Title } = Typography;
 const Permission = () => {
-  const [activeKey, setActiveKey] = useState<string>("item-1");
   const items: TabsProps["items"] = [
     {
       key: "item-1",
       label: "Цэсний тохиргоо",
-      children: <ConfigResource />,
+      children: (
+        <TreeList
+          permissions={[]}
+          setPermissions={function (
+            value: SetStateAction<IDataPermission[]>
+          ): void {
+            // throw new Error("Function not implemented.");
+          }}
+        />
+      ),
     },
     {
       key: "item-2",
@@ -22,7 +32,7 @@ const Permission = () => {
     {
       key: "item-3",
       label: "Хэрэглэгчийн зөвшөөрөл",
-      children: <PermissionUser />,
+      children: <PermissionEmployee />,
     },
   ];
   return (
@@ -33,7 +43,13 @@ const Permission = () => {
         </Space>
       </Col>
       <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
+        <ProviderResource>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </ProviderResource>
       </Col>
     </Row>
   );

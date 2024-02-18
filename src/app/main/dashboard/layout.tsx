@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import withAuth from "@/feature/hoc/withAuth";
-import { Button, Tabs, TabsProps, Tooltip } from "antd";
+import { Button, Row, Tabs, TabsProps, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,15 +29,15 @@ type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const title = useTypedSelector((state: RootState) => state.title);
+  const tab = useTypedSelector((state: RootState) => state.tabs);
+  const currentTab = tab.tabItems.find((item) => item.key == tab.activeKey);
   const blockContext: BlockView = useContext(BlockContext);
   const { activeKey, tabItems } = useTypedSelector(
     (state: RootState) => state.tabs
   );
-  // const warehouses = useTypedSelector((state) => state.warehouses);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([]);
-  const [user, setUser] = useState<IUser>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const user = useTypedSelector((state) => state.user);
   const warehouse = useTypedSelector((state) => state.warehouse);
 
   const onEdit = (targetKey: TargetKey, action: "add" | "remove") => {
@@ -94,11 +94,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [activeKey]);
   useEffect(() => {
-    authService.authGet().then((response) => {
-      if (response.success) {
-        setUser(response.response);
-      }
-    });
+    // authService.authGet().then((response) => {
+    //   if (response.success) {
+    //     setUser(response.response);
+    //   }
+    // });
     getWarehouses();
   }, []);
   return (
@@ -123,7 +123,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       >
         <div className="navbar">
           <div className="left">
-            <p>{title.label}</p>
+            <p>{currentTab?.breadcrumb[0]}</p>
           </div>
           <div className="right">
             <div className="date">
