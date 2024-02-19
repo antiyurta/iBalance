@@ -13,13 +13,19 @@ import { useResourceContext } from "../../context/ResourceContext";
 import { IDataPermission } from "@/service/permission/entities";
 import { ResourceService } from "@/service/permission/resource/service";
 const { TreeNode } = Tree;
+export interface ITreeDefaultData {
+  viewKey: number;
+  actionKeys: string[];
+}
 interface IProps {
   isEdit?: boolean;
+  defaultData: ITreeDefaultData[];
   permissions: IDataPermission[];
   setPermissions: Dispatch<SetStateAction<IDataPermission[]>>;
 }
 const TreeList: React.FC<IProps> = ({
   isEdit,
+  defaultData,
   permissions,
   setPermissions,
 }) => {
@@ -28,14 +34,14 @@ const TreeList: React.FC<IProps> = ({
   const [isExpand, setIsExpand] = useState<boolean>(false);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
-  const [keys, setKeys] = useState<string[]>([]);
+  const [keys, setKeys] = useState<number[]>([]);
   const renderTreeNodes = (data: IDataResource[]) => {
     return data.map((item) => {
       if (item.resources) {
         return (
           <TreeNode
             title={item.label}
-            key={item.key}
+            key={item.id}
             switcherIcon={<FolderOpenOutlined />}
           >
             {renderTreeNodes(item.resources)}
@@ -44,12 +50,16 @@ const TreeList: React.FC<IProps> = ({
       }
       return (
         <TreeNode
-          key={item.key}
+          key={item.id}
           title={
             <TreeInfo
               title={item.label}
-              isEdit={Boolean(checkedKeys.find((key) => key == item.key))}
+              isEdit={Boolean(checkedKeys.find((key) => key == item.id))}
               onCheck={(value) => onNodeCheck(item, value)}
+              defaultCheckedList={
+                defaultData.find((value) => value.viewKey == item.id)
+                  ?.actionKeys || []
+              }
             />
           }
           switcherIcon={<FileOutlined />}
@@ -74,6 +84,7 @@ const TreeList: React.FC<IProps> = ({
       isAdd: value.isAdd,
       isEdit: value.isEdit,
       isDelete: value.isDelete,
+      resource: item,
     };
     const updatedPermissions = [...permissions];
     const existingIndex = updatedPermissions.findIndex(
@@ -105,9 +116,11 @@ const TreeList: React.FC<IProps> = ({
   const onCheck = (checkedKeys: any, info: any) => {
     setKeys([...checkedKeys, ...info.halfCheckedKeys]);
     setCheckedKeys(checkedKeys);
+    console.log("is working ========> onCheck", checkedKeys);
   };
   useEffect(() => {
     getAllResources();
+    console.log("is working ========> getAllResources");
   }, []);
   useEffect(() => {
     if (isExpand) handleExpand("");
@@ -116,7 +129,7 @@ const TreeList: React.FC<IProps> = ({
   useEffect(() => {
     const newPermissions: IDataPermission[] = [];
     for (const key of keys) {
-      const resource = allResources.find((item) => item.key == key);
+      const resource = allResources.find((item) => item.id == key);
       if (resource) {
         newPermissions.push({
           resourceId: resource.id,
@@ -124,11 +137,18 @@ const TreeList: React.FC<IProps> = ({
           isView: true,
           isEdit: false,
           isDelete: false,
+          resource,
         });
       }
     }
     setPermissions(newPermissions);
+    console.log("is working ========> keys");
   }, [keys]);
+  useEffect(() => {
+    const viewKeys = defaultData.map((item) => item.viewKey.toString())
+    setCheckedKeys(viewKeys);
+    console.log("is working ========> defaultKeys", viewKeys);
+  }, [defaultData]);
   return (
     <div className="directory-tree">
       <TreeHeader isExpand={isExpand} setIsExpand={setIsExpand} />

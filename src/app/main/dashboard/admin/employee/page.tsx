@@ -1,27 +1,34 @@
 "use client";
+import { NextPage } from "next";
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewFilterSelect, NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import {
   EmployeeType,
   FilteredColumnsEmployee,
   IDataEmployee,
+  IFilterEmployee,
   IParamEmployee,
 } from "@/service/employee/entities";
 import { EmployeeService } from "@/service/employee/service";
 import { DataIndexType, Meta } from "@/service/entities";
 import { IDataRole, IParamRole } from "@/service/permission/role/entities";
 import { RoleService } from "@/service/permission/role/service";
-import { Button, Col, Form, Row, Space, Typography } from "antd";
+import { Col, Form, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import PageTitle from "@/components/page-title";
-const { Title } = Typography;
-const Users = () => {
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+
+const key = "admin/employee";
+const EmployeePage: NextPage = () => {
   const [columns, setColumns] = useState<FilteredColumnsEmployee>({
     email: {
       label: "Мэйл",
@@ -51,7 +58,7 @@ const Users = () => {
       dataIndex: ["phoneNo"],
       type: DataIndexType.MULTI,
     },
-    warehouseRoleId: {
+    warehouseRoleName: {
       label: "Чиг үүрэг",
       isView: true,
       isFiltered: false,
@@ -82,18 +89,24 @@ const Users = () => {
   });
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<IDataEmployee>();
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataEmployee[]>([]);
+  const [filters, setFilters] = useState<IFilterEmployee>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [isAddModal, setIsAddModal] = useState<boolean>(false);
   const [selectedEmployee, setSelectedEmployee] = useState<IDataEmployee>();
   const [roles, setRoles] = useState<IDataRole[]>([]);
 
-  const getData = async (params?: IParamEmployee) => {
+  const getData = async () => {
+    const params: IParamEmployee = { ...param };
     await EmployeeService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setMeta(response.response.meta);
+        setFilters(response.response.filter);
       }
     });
   };
@@ -141,9 +154,12 @@ const Users = () => {
     }
   };
   useEffect(() => {
-    getData();
+    dispatch(newPane({ key, param: {} }));
     getRole();
   }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <>
       <PageTitle
@@ -203,7 +219,7 @@ const Users = () => {
               meta={meta}
               columns={columns}
               onColumns={setColumns}
-              incomeFilters={undefined}
+              incomeFilters={filters}
               isEdit
               onEdit={(row: IDataEmployee) => edit(row)}
             />
@@ -263,4 +279,4 @@ const Users = () => {
     </>
   );
 };
-export default Users;
+export default EmployeePage;

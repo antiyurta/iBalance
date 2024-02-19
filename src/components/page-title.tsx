@@ -2,6 +2,7 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { Breadcrumb, Button, Col, Row, Space } from "antd";
 import Image from "next/image";
 import { ReactNode } from "react";
+import { AddButton } from "./add-button";
 interface IProps {
   onClick?: () => void;
   children?: ReactNode;
@@ -19,21 +20,7 @@ const PageTitle: React.FC<IProps> = ({ onClick, children }) => {
             ))}
           </Breadcrumb>
           {onClick !== undefined && (
-            <Button
-              hidden={!currentTab?.isAdd}
-              type="primary"
-              onClick={() => onClick()}
-              icon={
-                <Image
-                  src={"/images/AddIcon.svg"}
-                  width={12}
-                  height={12}
-                  alt="addicon"
-                />
-              }
-            >
-              Шинээр бүртгэх
-            </Button>
+            <AddButton hidden={!currentTab?.isAdd} onClick={() => onClick()} />
           )}
           {children}
         </Space>

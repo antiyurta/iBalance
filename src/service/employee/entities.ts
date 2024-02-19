@@ -37,17 +37,21 @@ export interface IDataEmployee {
   isCashier: boolean;
 }
 export interface IFilterEmployee extends IColumn {
-  email?: string;
-  phoneNo?: string;
-  registerNumber?: string;
-  firstName?: string;
-  lastName?: string;
-  warehouseRoleId?: number;
+  email?: string[];
+  phoneNo?: string[];
+  registerNumber?: string[];
+  firstName?: string[];
+  lastName?: string[];
+  warehouseRoleName?: string[];
+  isTreasure?: boolean[];
+  isCashier?: boolean[];
+}
+export interface IParamEmployee extends IParam {
+  warehouseId?: number;
   isTreasure?: boolean;
   isCashier?: boolean;
-  warehouseId?: number;
+  isWarehouseRole?: boolean;
 }
-export interface IParamEmployee extends IParam, IFilterEmployee {}
 export type FilteredColumnsEmployee = {
   [T in keyof IFilterEmployee]?: ColumnType;
 };
@@ -55,6 +59,7 @@ export interface IResponseEmployees extends GenericResponse {
   response: {
     data: IDataEmployee[];
     meta: Meta;
+    filter: IFilterEmployee,
   };
 }
 export interface IResponseEmployee extends GenericResponse {

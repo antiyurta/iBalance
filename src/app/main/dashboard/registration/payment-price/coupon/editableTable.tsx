@@ -12,7 +12,7 @@ import {
   message,
 } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,

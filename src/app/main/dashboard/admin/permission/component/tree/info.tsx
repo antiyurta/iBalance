@@ -11,14 +11,15 @@ interface IProps {
   title: string;
   isEdit?: boolean;
   onCheck: (value: ICheck) => void;
+  defaultCheckedList: string[];
 }
-export const TreeInfo: React.FC<IProps> = ({ title, isEdit, onCheck }) => {
+export const TreeInfo: React.FC<IProps> = ({ title, isEdit, onCheck, defaultCheckedList }) => {
   const options = [
     { label: "Нэмэх", value: "isAdd" },
     { label: "Засах", value: "isEdit" },
     { label: "Устгах", value: "isDelete" },
   ];
-  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
+  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>(defaultCheckedList);
 
   const checkAll = options.length === checkedList.length;
   const indeterminate =

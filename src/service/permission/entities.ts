@@ -11,7 +11,7 @@ export interface IDataPermission {
   role?: IDataRole;
   userId?: number;
   resourceId: number;
-  resource?: IDataResource;
+  resource: IDataResource;
   isAdd: boolean;
   isView: boolean;
   isEdit: boolean;
@@ -28,7 +28,9 @@ export interface IMenuItem {
   children?: IMenuItem[];
 }
 export interface IParamPermission {
-  employeeId: number;
+  roleId?: number;
+  employeeId?: number;
+  isView?: boolean;
 }
 export interface IResponsePermissions extends GenericResponse {
   response: IDataPermission[];

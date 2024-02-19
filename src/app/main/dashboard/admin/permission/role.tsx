@@ -6,19 +6,19 @@ import {
   Col,
   Divider,
   Form,
+  Popconfirm,
   Row,
   Table,
   TableProps,
   Tooltip,
 } from "antd";
-import { AuditOutlined } from "@ant-design/icons";
-import { useContext, useEffect, useState } from "react";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { RoleService } from "@/service/permission/role/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import TreeList from "./component/tree";
+import TreeList, { ITreeDefaultData } from "./component/tree";
 import { IDataPermission } from "@/service/permission/entities";
-import NewModal from "@/components/modal";
-import { RoleInfo } from "./component/role-info";
+import { AddButton } from "@/components/add-button";
 const layout = { labelCol: { span: 4 }, wrapperCol: { span: 20 } };
 const defaultValues = {
   id: undefined,
@@ -26,30 +26,21 @@ const defaultValues = {
   description: undefined,
   permissions: undefined,
 };
+
 export const Role = () => {
   const [form] = Form.useForm<IDataRole>();
   const blockContext: BlockView = useContext(BlockContext);
   const [roles, setRoles] = useState<IDataRole[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<IDataPermission[]>([]);
-  const [isModal, setIsModal] = useState<boolean>(false);
-  const [selectedRole, setSelectedRole] = useState<IDataRole>();
+  const [editingIndex, setEditingIndex] = useState<number>();
+  const [defaultData, setDefaultData] = useState<ITreeDefaultData[]>([]);
+
   const columns: TableProps<IDataRole>["columns"] = [
     {
       title: "Нэр",
+      dataIndex: "name",
       key: "name",
-      render: (_, record) => (
-        <Button
-          type="link"
-          onClick={() => {
-            setIsEdit(true);
-            form.setFieldsValue(record);
-            setPermissions(record.permissions);
-          }}
-        >
-          {record.name}
-        </Button>
-      ),
     },
     {
       title: "Тайлбар",
@@ -59,18 +50,42 @@ export const Role = () => {
     {
       title: "Үйлдэл",
       key: "action",
-      render: (_, record) => (
-        <Tooltip title="Дэлгэрэнгүй харах">
-          <Button
-            type="primary"
-            shape="circle"
-            icon={<AuditOutlined />}
-            onClick={() => {
-              setIsModal(true);
-              setSelectedRole(record);
-            }}
-          />
-        </Tooltip>
+      render: (_, record, index) => (
+        <Fragment key={index}>
+          <Tooltip title="Засах">
+            <Button
+              type={index == editingIndex ? "primary" : "default"}
+              icon={<EditOutlined />}
+              shape={"circle"}
+              style={{ marginRight: 8 }}
+              onClick={() => {
+                setEditingIndex(index);
+                setIsEdit(true);
+                form.setFieldsValue(record);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Устгах">
+            <Popconfirm
+              title="Та итгэлтэй байна уу？"
+              okText="Тийм"
+              cancelText="Үгүй"
+              onConfirm={() => onDelete(record.id)}
+            >
+              <Button
+                danger
+                icon={
+                  <DeleteOutlined
+                    style={{
+                      color: "red",
+                    }}
+                  />
+                }
+                shape={"circle"}
+              />
+            </Popconfirm>
+          </Tooltip>
+        </Fragment>
       ),
     },
   ];
@@ -83,14 +98,18 @@ export const Role = () => {
   };
   const onFinish = (values: IDataRole) => {
     blockContext.block();
-    values.permissions = permissions;
+    if (permissions.length == 0 && editingIndex !== undefined) {
+      values.permissions = roles[editingIndex].permissions;
+    } else values.permissions = permissions;
     if (isEdit && values.id) {
       RoleService.patch(values.id, values)
         .then((response) => {
           if (response.success) {
             form.resetFields();
             setIsEdit(false);
+            setEditingIndex(undefined);
             getRole();
+            setDefaultData([]);
           }
         })
         .finally(() => blockContext.unblock());
@@ -106,9 +125,36 @@ export const Role = () => {
         .finally(() => blockContext.unblock());
     }
   };
+  const onEdit = () => {
+    if (editingIndex !== undefined) {
+      const data: ITreeDefaultData[] = roles[editingIndex].permissions
+        .filter((item) => item.isView && item.resource)
+        .map((item) => ({
+          viewKey: item.resource.id,
+          actionKeys: [
+            item.isAdd ? "isAdd" : undefined,
+            item.isEdit ? "isEdit" : undefined,
+            item.isDelete ? "isDelete" : undefined,
+          ].filter(Boolean) as string[],
+        }));
+      setDefaultData(data);
+    }
+  };
+  const onDelete = async (id?: number) => {
+    id &&
+      (await RoleService.remove(id).then((response) => {
+        if (response.success) {
+          getRole();
+        }
+      }));
+  };
   useEffect(() => {
     getRole();
   }, []);
+  useEffect(() => {
+    console.log("it is working =======>");
+    onEdit();
+  }, [editingIndex]);
   return (
     <Form {...layout} form={form} onFinish={onFinish}>
       <Row gutter={24}>
@@ -116,18 +162,18 @@ export const Role = () => {
           <NewCard
             title="Эрх"
             extra={
-              <Button
-                type="link"
+              <AddButton
                 onClick={() => {
                   setIsEdit(false);
                   form.setFieldsValue(defaultValues);
+                  setEditingIndex(undefined);
+                  setDefaultData([]);
                 }}
-              >
-                Нэмэх
-              </Button>
+              />
             }
           >
             <Table
+              rowKey={"id"}
               dataSource={roles}
               columns={columns}
               scroll={{ y: 500 }}
@@ -140,16 +186,17 @@ export const Role = () => {
             <Form.Item name="id" label="#">
               <NewInput disabled />
             </Form.Item>
-            <Form.Item name="name" label="Нэр">
+            <Form.Item name="name" label="Нэр" required>
               <NewInput />
             </Form.Item>
-            <Form.Item name="description" label="Тайлбар">
+            <Form.Item name="description" label="Тайлбар" required>
               <NewTextArea />
             </Form.Item>
             <Divider />
             <TreeList
+              defaultData={defaultData}
               isEdit={true}
-              permissions={permissions}
+              permissions={editingIndex ? roles[editingIndex].permissions : []}
               setPermissions={setPermissions}
             />
             <Divider />
@@ -164,14 +211,6 @@ export const Role = () => {
             </Form.Item>
           </NewCard>
         </Col>
-        <NewModal
-          title={selectedRole?.name}
-          open={isModal}
-          onCancel={() => setIsModal(false)}
-          footer={false}
-        >
-          <RoleInfo role={selectedRole} />
-        </NewModal>
       </Row>
     </Form>
   );
