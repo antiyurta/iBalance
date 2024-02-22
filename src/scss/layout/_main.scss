@@ -621,6 +621,8 @@ html {
 }
 
 .group {
+  min-height: 250px;
+  width: 100%;
   display: flex;
   flex-direction: row;
   gap: 12px;

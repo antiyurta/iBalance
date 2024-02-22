@@ -1,30 +1,18 @@
 "use client";
-import { Col, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Tabs } from "antd";
 import { TabsProps } from "antd/lib";
 import { Role } from "./role";
 import PermissionEmployee from "./employee";
 import { ProviderResource } from "./context/ResourceContext";
-import TreeList from "./component/tree";
-import { IDataPermission } from "@/service/permission/entities";
-import { SetStateAction } from "react";
 import PageTitle from "@/components/page-title";
-const { Title } = Typography;
-const Permission = () => {
+import { NextPage } from "next";
+import { Resource } from "./resource";
+const Permission: NextPage = () => {
   const items: TabsProps["items"] = [
     {
       key: "item-1",
       label: "Цэсний тохиргоо",
-      children: (
-        <TreeList
-          permissions={[]}
-          setPermissions={function (
-            value: SetStateAction<IDataPermission[]>
-          ): void {
-            // throw new Error("Function not implemented.");
-          }}
-          defaultData={[]}
-        />
-      ),
+      children: <Resource />,
     },
     {
       key: "item-2",

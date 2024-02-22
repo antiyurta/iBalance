@@ -18,13 +18,11 @@ export interface ITreeDefaultData {
   actionKeys: string[];
 }
 interface IProps {
-  isEdit?: boolean;
   defaultData: ITreeDefaultData[];
   permissions: IDataPermission[];
   setPermissions: Dispatch<SetStateAction<IDataPermission[]>>;
 }
 const TreeList: React.FC<IProps> = ({
-  isEdit,
   defaultData,
   permissions,
   setPermissions,
@@ -103,28 +101,28 @@ const TreeList: React.FC<IProps> = ({
     handleExpand(value);
   };
   const handleExpand = (value: string) => {
-    const expandedKeysValue = resources
-      .map((item) => {
-        if (item.label.toLowerCase().includes(value.toLowerCase())) {
-          return item.key;
-        }
-        return null;
-      })
-      .filter((item, i, self) => item && self.indexOf(item) === i) as string[];
-    setExpandedKeys(expandedKeysValue);
+    if (value == "") onExpand([]);
+    else {
+      const expandedKeysValue = allResources
+        .filter((item) =>
+          item.label.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((item) => String(item.id));
+      onExpand(expandedKeysValue);
+    }
   };
   const onCheck = (checkedKeys: any, info: any) => {
     setKeys([...checkedKeys, ...info.halfCheckedKeys]);
     setCheckedKeys(checkedKeys);
-    console.log("is working ========> onCheck", checkedKeys);
   };
   useEffect(() => {
     getAllResources();
-    console.log("is working ========> getAllResources");
   }, []);
   useEffect(() => {
-    if (isExpand) handleExpand("");
-    else setExpandedKeys([]);
+    if (isExpand) {
+      const keys = allResources.map((item) => String(item.id));
+      onExpand(keys);
+    } else onExpand([]);
   }, [isExpand]);
   useEffect(() => {
     const newPermissions: IDataPermission[] = [];
@@ -145,7 +143,7 @@ const TreeList: React.FC<IProps> = ({
     console.log("is working ========> keys");
   }, [keys]);
   useEffect(() => {
-    const viewKeys = defaultData.map((item) => item.viewKey.toString())
+    const viewKeys = defaultData.map((item) => item.viewKey.toString());
     setCheckedKeys(viewKeys);
     console.log("is working ========> defaultKeys", viewKeys);
   }, [defaultData]);
@@ -166,7 +164,7 @@ const TreeList: React.FC<IProps> = ({
         onSelect={onSelect}
         onCheck={onCheck}
         checkedKeys={checkedKeys}
-        checkable={isEdit}
+        checkable={true}
       >
         {renderTreeNodes(resources)}
       </Tree>
