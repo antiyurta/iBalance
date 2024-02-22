@@ -113,7 +113,6 @@ const PermissionEmployee = () => {
         </div>
         <Divider />
         <TreeList
-          isEdit={true}
           permissions={permissions}
           setPermissions={setPermissions}
           defaultData={defaultData}
