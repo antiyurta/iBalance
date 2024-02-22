@@ -195,7 +195,6 @@ export const Role = () => {
             <Divider />
             <TreeList
               defaultData={defaultData}
-              isEdit={true}
               permissions={editingIndex ? roles[editingIndex].permissions : []}
               setPermissions={setPermissions}
             />
