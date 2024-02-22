@@ -84,6 +84,7 @@ const TreeList: React.FC<IProps> = ({
       isDelete: value.isDelete,
       resource: item,
     };
+    console.log("is working =====>", permission);
     const updatedPermissions = [...permissions];
     const existingIndex = updatedPermissions.findIndex(
       (perm) => perm.resourceId === item.id
@@ -140,12 +141,10 @@ const TreeList: React.FC<IProps> = ({
       }
     }
     setPermissions(newPermissions);
-    console.log("is working ========> keys");
   }, [keys]);
   useEffect(() => {
     const viewKeys = defaultData.map((item) => item.viewKey.toString());
     setCheckedKeys(viewKeys);
-    console.log("is working ========> defaultKeys", viewKeys);
   }, [defaultData]);
   return (
     <div className="directory-tree">

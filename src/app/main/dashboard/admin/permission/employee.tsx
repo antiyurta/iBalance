@@ -44,14 +44,17 @@ const PermissionEmployee = () => {
       form.setFieldValue("isCashier", employee.isCashier);
       await PermissionService.get({ employeeId }).then(async (response) => {
         if (response.success) {
-          if (response.response.length > 0) getDefaultData(response.response);
-          else {
+          if (response.response.length > 0) {
+            getDefaultData(response.response);
+            setPermissions(response.response);
+          } else {
             await PermissionService.get({
               roleId: employee.warehouseRoleId,
               isView: true,
             }).then((response) => {
               if (response.success) {
                 getDefaultData(response.response);
+                setPermissions(response.response);
               }
             });
           }
@@ -63,14 +66,18 @@ const PermissionEmployee = () => {
     setDefaultPermissions(permissions);
     const data: ITreeDefaultData[] = permissions
       .filter((item) => item.isView && item.resource)
-      .map((item) => ({
-        viewKey: item.resource.id,
-        actionKeys: [
-          item.isAdd ? "isAdd" : undefined,
-          item.isEdit ? "isEdit" : undefined,
-          item.isDelete ? "isDelete" : undefined,
-        ].filter(Boolean) as string[],
-      }));
+      .map((item) => {
+        console.log('item ======>', item);
+        return {
+          viewKey: item.resource.id,
+          actionKeys: [
+            item.isAdd ? "isAdd" : undefined,
+            item.isEdit ? "isEdit" : undefined,
+            item.isDelete ? "isDelete" : undefined,
+          ].filter(Boolean) as string[],
+        };
+      });
+    console.log("default data =====>", data);
     setDefaultData(data);
   };
   useEffect(() => {

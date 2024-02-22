@@ -35,7 +35,6 @@ export const Role = () => {
   const [permissions, setPermissions] = useState<IDataPermission[]>([]);
   const [editingIndex, setEditingIndex] = useState<number>();
   const [defaultData, setDefaultData] = useState<ITreeDefaultData[]>([]);
-
   const columns: TableProps<IDataRole>["columns"] = [
     {
       title: "Нэр",
@@ -152,7 +151,6 @@ export const Role = () => {
     getRole();
   }, []);
   useEffect(() => {
-    console.log("it is working =======>");
     onEdit();
   }, [editingIndex]);
   return (
@@ -195,7 +193,7 @@ export const Role = () => {
             <Divider />
             <TreeList
               defaultData={defaultData}
-              permissions={editingIndex ? roles[editingIndex].permissions : []}
+              permissions={permissions}
               setPermissions={setPermissions}
             />
             <Divider />
