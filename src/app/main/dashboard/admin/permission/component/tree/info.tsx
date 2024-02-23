@@ -19,7 +19,6 @@ export const TreeInfo: React.FC<IProps> = ({ title, isEdit, onCheck, defaultChec
     { label: "Засах", value: "isEdit" },
     { label: "Устгах", value: "isDelete" },
   ];
-  console.log("defaultCheckedList", defaultCheckedList);
   const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
   const checkAll = options.length === checkedList.length;
   const indeterminate =

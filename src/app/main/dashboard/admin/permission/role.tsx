@@ -16,7 +16,7 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { RoleService } from "@/service/permission/role/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import TreeList, { ITreeDefaultData } from "./component/tree";
+import TreeList from "./component/tree";
 import { IDataPermission } from "@/service/permission/entities";
 import { AddButton } from "@/components/add-button";
 const layout = { labelCol: { span: 4 }, wrapperCol: { span: 20 } };
@@ -34,7 +34,7 @@ export const Role = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<IDataPermission[]>([]);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [defaultData, setDefaultData] = useState<ITreeDefaultData[]>([]);
+  // const [defaultData, setDefaultData] = useState<ITreeDefaultData[]>([]);
   const columns: TableProps<IDataRole>["columns"] = [
     {
       title: "Нэр",
@@ -108,7 +108,7 @@ export const Role = () => {
             setIsEdit(false);
             setEditingIndex(undefined);
             getRole();
-            setDefaultData([]);
+            // setDefaultData([]);
           }
         })
         .finally(() => blockContext.unblock());
@@ -126,17 +126,7 @@ export const Role = () => {
   };
   const onEdit = () => {
     if (editingIndex !== undefined) {
-      const data: ITreeDefaultData[] = roles[editingIndex].permissions
-        .filter((item) => item.isView && item.resource)
-        .map((item) => ({
-          viewKey: item.resource.id,
-          actionKeys: [
-            item.isAdd ? "isAdd" : undefined,
-            item.isEdit ? "isEdit" : undefined,
-            item.isDelete ? "isDelete" : undefined,
-          ].filter(Boolean) as string[],
-        }));
-      setDefaultData(data);
+      setPermissions(roles[editingIndex].permissions);
     }
   };
   const onDelete = async (id?: number) => {
@@ -165,7 +155,7 @@ export const Role = () => {
                   setIsEdit(false);
                   form.setFieldsValue(defaultValues);
                   setEditingIndex(undefined);
-                  setDefaultData([]);
+                  // setDefaultData([]);
                 }}
               />
             }
@@ -192,7 +182,7 @@ export const Role = () => {
             </Form.Item>
             <Divider />
             <TreeList
-              defaultData={defaultData}
+              // defaultData={defaultData}
               permissions={permissions}
               setPermissions={setPermissions}
             />

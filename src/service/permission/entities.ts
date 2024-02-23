@@ -12,10 +12,10 @@ export interface IDataPermission {
   userId?: number;
   resourceId: number;
   resource: IDataResource;
-  isAdd: boolean;
-  isView: boolean;
-  isEdit: boolean;
-  isDelete: boolean;
+  isAdd?: boolean;
+  isView?: boolean;
+  isEdit?: boolean;
+  isDelete?: boolean;
 }
 export interface IMenuItem {
   label: string;
