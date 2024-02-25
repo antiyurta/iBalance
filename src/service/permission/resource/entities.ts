@@ -5,6 +5,7 @@ export interface IDataResource {
   id: number;
   label: string;
   key: string;
+  icon: string;
   position: number;
   resourceId: number;
   resource?: IDataResource;

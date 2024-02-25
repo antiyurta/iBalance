@@ -9,13 +9,9 @@ import { TreeHeader } from "./header";
 import { ICheck, TreeInfo } from "./info";
 import { IDataResource } from "@/service/permission/resource/entities";
 import { NewInput } from "@/components/input";
-import { useResourceContext } from "../../context/ResourceContext";
+import { useResourceContext } from "../../../../../../../feature/context/ResourceContext";
 import { IDataPermission } from "@/service/permission/entities";
 const { TreeNode } = Tree;
-interface ITreeDefaultData {
-  viewKey: number;
-  actionKeys: string[];
-}
 interface IProps {
   permissions: IDataPermission[];
   setPermissions: Dispatch<SetStateAction<IDataPermission[]>>;
@@ -113,13 +109,9 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
       onExpand(expandedKeysValue);
     }
   };
-  const onCheck = (checkedKeys: React.Key[], halfCheckedKeys?: React.Key[]) => {
-    const keys = halfCheckedKeys
-      ? checkedKeys.concat(halfCheckedKeys)
-      : checkedKeys;
-    console.log("keys ====>", keys);
+  const onCheck = (checkedKeys: React.Key[]) => {
     const newPermissions: IDataPermission[] = [];
-    for (const key of keys) {
+    for (const key of checkedKeys) {
       const resource = getAllResources(resources).find(
         (item) => String(item.id) === key
       );
@@ -130,7 +122,6 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
         });
       }
     }
-    console.log("newPermissions ===>", newPermissions);
     setPermissions(newPermissions);
   };
   useEffect(() => {
@@ -140,10 +131,6 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
     } else onExpand([]);
   }, [isExpand]);
   useEffect(() => {
-    console.log(
-      "check keys ====>",
-      permissions.map((item) => String(item.resource.id))
-    );
     setCheckedKeys(permissions.map((item) => String(item.resource.id)));
   }, [permissions]);
   return (
@@ -161,9 +148,7 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
         expandedKeys={expandedKeys}
         autoExpandParent={true}
         onSelect={onSelect}
-        onCheck={(checkedKeys, { halfCheckedKeys }) =>
-          onCheck(checkedKeys as React.Key[], halfCheckedKeys)
-        }
+        onCheck={(checkedKeys) => onCheck(checkedKeys as React.Key[])}
         checkedKeys={checkedKeys}
         checkable={true}
       >

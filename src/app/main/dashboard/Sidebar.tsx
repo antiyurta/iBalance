@@ -5,39 +5,64 @@ import { useDispatch } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { newTab } from "@/feature/store/slice/tab.slice";
 import { PermissionService } from "@/service/permission/service";
-import { IMenuItem } from "@/service/permission/entities";
+import { IDataPermission, IMenuItem } from "@/service/permission/entities";
 import Image from "next/image";
+import { ResourceService } from "@/service/permission/resource/service";
+import { IDataResource } from "@/service/permission/resource/entities";
+import { useResourceContext } from "@/feature/context/ResourceContext";
 interface MenuItem {
   label: React.ReactNode;
   key: React.Key;
   icon: React.ReactNode;
   children?: MenuItem[];
 }
-const getMenuItems = (items: IMenuItem[]): MenuItem[] => {
-  return items
-    .filter((item) => item.isView)
-    .map((item) => {
-      const menuItem: MenuItem = {
-        label: item.label,
-        key: item.key,
-        icon: item.icon && (
-          <Image src={item.icon} width={18} height={18} alt={item.label} />
-        ),
-      };
-      if (item.children && item.children.length > 0) {
-        menuItem.children = getMenuItems(item.children);
-      }
-      return menuItem;
-    });
-};
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const [permissions, setPermissions] = useState<IMenuItem[]>([]);
+  const { resources } = useResourceContext();
+  const [permissions, setPermissions] = useState<IDataPermission[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [collapsed, setCollapsed] = useState<boolean>(false);
   // fuctions
-  const filterPermission = (keyPath: string[]) => {
-    let currentMenu = permissions.find((item) => item.key === keyPath[0]);
+  const getMenuItems = (items: IDataResource[]): MenuItem[] => {
+    return items
+      .map((item) => {
+        let resourceIds = [item.id];
+        if (item.resources && item.resources.length > 0) {
+          resourceIds = resourceIds.concat(item.resources.map((res) => res.id));
+        }
+        const menuItem = getView(resourceIds, item);
+        if (menuItem && item.resources && item.resources.length > 0) {
+          menuItem.children = getMenuItems(item.resources);
+        }
+        return menuItem;
+      })
+      .filter((item) => item !== undefined) as MenuItem[];
+  };
+  const getView = (
+    resourceIds: number[],
+    resource: IDataResource
+  ): MenuItem | undefined => {
+    const permission = permissions.find((item) => {
+      return item.id && resourceIds.includes(item.resource.id);
+    });
+    if (permission) {
+      const menuItem: MenuItem = {
+        label: resource.label,
+        key: resource.key,
+        icon: resource.icon && (
+          <Image
+            src={resource.icon}
+            width={18}
+            height={18}
+            alt={resource.label}
+          />
+        ),
+      };
+      return menuItem;
+    }
+  };
+  const filterMenu = (keyPath: string[]) => {
+    let currentMenu = menuItems.find((item) => item.key === keyPath[0]);
     for (let i = 1; i < keyPath.length; i++) {
       if (!currentMenu || !currentMenu.children) {
         return null;
@@ -48,18 +73,24 @@ const Sidebar = () => {
     }
     return currentMenu;
   };
+  const findPermission = (key: React.Key) => {
+    return permissions.find(
+      (item) => item.resource.key == key
+    );
+  };
   const menuClick = (keyPath: string[]) => {
     const key = keyPath.reverse();
-    const data = filterPermission(key);
+    const data = filterMenu(key);
+    const permission = data && findPermission(data.key);
     dispatch(
       newTab({
         label: data?.label,
         key: key.toString().replaceAll(",", ""),
         closeable: true,
         breadcrumb: generateBreadcrumbItems(key),
-        isAdd: data?.isAdd,
-        isEdit: data?.isEdit,
-        isDelete: data?.isDelete,
+        isAdd: permission?.isAdd,
+        isEdit: permission?.isEdit,
+        isDelete: permission?.isDelete,
       })
     );
   };
@@ -67,28 +98,29 @@ const Sidebar = () => {
     const breadcrumbItems = [];
 
     for (let i = 0; i < keyPath.length; i++) {
-      const menuItem = filterPermission(keyPath.slice(0, i + 1));
+      const menuItem = filterMenu(keyPath.slice(0, i + 1));
       if (menuItem) {
         breadcrumbItems.push(menuItem.label);
       }
     }
-    return breadcrumbItems;
+    return breadcrumbItems as string[];
   };
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
   const getPermission = () => {
-    PermissionService.myPermissions().then((response) => {
+    PermissionService.get({ isView: true }).then((response) => {
       if (response.success) {
         setPermissions(response.response);
-        const items = getMenuItems(response.response);
-        setMenuItems(items);
       }
     });
   };
   useEffect(() => {
     getPermission();
   }, []);
+  useEffect(() => {
+    setMenuItems(getMenuItems(resources));
+  }, [resources, permissions]);
   return (
     <div
       style={{

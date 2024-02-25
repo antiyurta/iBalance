@@ -6,7 +6,7 @@ import {
   FileOutlined,
 } from "@ant-design/icons";
 import { useContext, useEffect, useState } from "react";
-import { useResourceContext } from "./context/ResourceContext";
+import { useResourceContext } from "../../../../../feature/context/ResourceContext";
 import { Form, Tree, TreeProps } from "antd";
 import { IDataResource } from "@/service/permission/resource/entities";
 import { ResourceService } from "@/service/permission/resource/service";
