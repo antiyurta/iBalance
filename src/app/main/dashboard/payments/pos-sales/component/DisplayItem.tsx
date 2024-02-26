@@ -1,5 +1,4 @@
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
-import { TypeSegment } from "../page";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { useContext, useEffect, useState } from "react";
@@ -16,9 +15,10 @@ import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service"
 import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
 import { Coupon } from "./coupon";
 import { Operator } from "@/service/entities";
+import { DisplayType } from "./tool-header/display-tool";
 
 interface IProps {
-  type: TypeSegment;
+  type: DisplayType;
   material: IDataViewMaterial;
 }
 
@@ -110,13 +110,13 @@ const DisplayItem = (props: IProps) => {
   return (
     <>
       {item ? (
-        <div className={type === "group" ? "item-group" : "item-list"}>
-          <div className={type === "group" ? "image" : "left"}>
+        <div className={type === "grid" ? "item-group" : "item-list"}>
+          <div className={type === "grid" ? "image" : "left"}>
             <Link href={"/main/dashboard/payments/pos-sales/" + item.id}>
               <Image
                 src={item.src}
-                width={type === "group" ? 120 : 50}
-                height={type === "group" ? 120 : 50}
+                width={type === "grid" ? 120 : 50}
+                height={type === "grid" ? 120 : 50}
                 alt={item.name}
               />
             </Link>
@@ -147,7 +147,7 @@ const DisplayItem = (props: IProps) => {
                 </div>
               </div>
             ) : null}
-            {type === "group" ? (
+            {type === "grid" ? (
               <>
                 {item.coupon ? (
                   <div className="extra-bottom">
@@ -195,7 +195,7 @@ const DisplayItem = (props: IProps) => {
               </Button>
             </div>
           ) : null}
-          {type === "group" ? (
+          {type === "grid" ? (
             <>
               <div className="title">
                 <p className="top">{item?.name}</p>

@@ -106,7 +106,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       style={{
         display: "flex",
         width: "100%",
-        height: "100%",
       }}
     >
       <Sidebar />
@@ -118,7 +117,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           gap: 12,
           overflow: "auto",
           width: "100%",
-          height: "100%",
         }}
       >
         <div className="navbar">
@@ -168,7 +166,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           style={{
             display: "flex",
             flexDirection: "column",
-            height: "100%",
           }}
         >
           <Tabs

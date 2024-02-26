@@ -2,10 +2,11 @@ import { NewInputNumber } from "@/components/input";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { Operator } from "@/service/entities";
 import { MaterialService } from "@/service/material/service";
 import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { BarcodeOutlined, QrcodeOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Space, Tooltip } from "antd";
 import { KeyboardEvent, useContext, useState } from "react";
 export const CodeSearch = () => {
   const blockContext: BlockView = useContext(BlockContext);
@@ -19,7 +20,11 @@ export const CodeSearch = () => {
   };
   const getMaterial = async () => {
     blockContext.block();
-    const material = await MaterialService.get({ barCode: [barcode] })
+    const material = await MaterialService.get({
+      filters: [
+        { dataIndex: ["barCode"], operator: Operator.Equals, filter: barcode },
+      ],
+    })
       .then((response) => {
         if (!response.success) blockContext.unblock();
         if (response.success && response.response.data.length > 0) {
@@ -43,12 +48,14 @@ export const CodeSearch = () => {
     setBarcode("");
   };
   return (
-    <div style={{ display: "flex", background: "white" }}>
-      <Button
-        type="link"
-        icon={isCode ? <QrcodeOutlined /> : <BarcodeOutlined />}
-        onClick={() => setIsCode(!isCode)}
-      />
+    <Space>
+      <Tooltip title={isCode ? "Дотоод код" : "Баркод"}>
+        <Button
+          type="default"
+          icon={isCode ? <QrcodeOutlined /> : <BarcodeOutlined />}
+          onClick={() => setIsCode(!isCode)}
+        />
+      </Tooltip>
       <NewInputNumber
         style={{ width: "100%" }}
         value={barcode}
@@ -56,6 +63,6 @@ export const CodeSearch = () => {
         onKeyDown={getBlock}
         onPressEnter={() => getMaterial()}
       />
-    </div>
+    </Space>
   );
 };

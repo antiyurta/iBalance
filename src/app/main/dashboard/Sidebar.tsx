@@ -73,9 +73,7 @@ const Sidebar = () => {
     return currentMenu;
   };
   const findPermission = (key: React.Key) => {
-    return permissions.find(
-      (item) => item.resource.key == key
-    );
+    return permissions.find((item) => item.resource.key == key);
   };
   const menuClick = (keyPath: string[]) => {
     const key = keyPath.reverse();
@@ -148,7 +146,7 @@ const Sidebar = () => {
           background: "transparent",
           border: "none",
           overflow: "auto",
-          height: 700,
+          height: "calc(100%, -50px)",
           minWidth: collapsed ? "" : 240,
         }}
         onClick={(e) => menuClick(e.keyPath)}
