@@ -17,16 +17,6 @@ export interface IDataPermission {
   isEdit?: boolean;
   isDelete?: boolean;
 }
-export interface IMenuItem {
-  label: string;
-  key: string;
-  icon: string;
-  isView: boolean;
-  isAdd: boolean;
-  isEdit: boolean;
-  isDelete: boolean;
-  children?: IMenuItem[];
-}
 export interface IParamPermission {
   roleId?: number;
   employeeId?: number;
@@ -36,5 +26,5 @@ export interface IResponsePermissions extends GenericResponse {
   response: IDataPermission[];
 }
 export interface IResponseMyPermissions extends GenericResponse {
-  response: IMenuItem[];
+  response: IDataPermission[];
 }
