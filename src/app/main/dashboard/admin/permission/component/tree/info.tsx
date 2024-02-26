@@ -1,25 +1,33 @@
+import { IDataPermission } from "@/service/permission/entities";
 import { Checkbox } from "antd";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { CheckboxProps } from "antd/lib";
 import { useEffect, useState } from "react";
-export interface ICheck {
-  isAdd: boolean;
-  isEdit: boolean;
-  isDelete: boolean;
-}
 interface IProps {
   title: string;
   isEdit?: boolean;
-  onCheck: (value: ICheck) => void;
-  defaultCheckedList: string[];
+  onCheck: (value: IDataPermission) => void;
+  permission?: IDataPermission;
 }
-export const TreeInfo: React.FC<IProps> = ({ title, isEdit, onCheck, defaultCheckedList }) => {
+export const TreeInfo: React.FC<IProps> = ({
+  title,
+  isEdit,
+  onCheck,
+  permission,
+}) => {
   const options = [
     { label: "Нэмэх", value: "isAdd" },
     { label: "Засах", value: "isEdit" },
     { label: "Устгах", value: "isDelete" },
   ];
-  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
+  const defaultValues = [];
+  if (permission) {
+    permission.isAdd == true && defaultValues.push("isAdd");
+    permission.isEdit == true && defaultValues.push("isEdit");
+    permission.isDelete == true && defaultValues.push("isDelete");
+  }
+  const [checkedList, setCheckedList] =
+    useState<CheckboxValueType[]>(defaultValues);
   const checkAll = options.length === checkedList.length;
   const indeterminate =
     checkedList.length > 0 && checkedList.length < options.length;
@@ -31,16 +39,13 @@ export const TreeInfo: React.FC<IProps> = ({ title, isEdit, onCheck, defaultChec
     setCheckedList(e.target.checked ? options.map((item) => item.value) : []);
   };
   useEffect(() => {
-    setCheckedList(defaultCheckedList);
-  }, []);
-  useEffect(() => {
-    const check: ICheck = {
-      isAdd: Boolean(checkedList.find((item) => item == "isAdd")),
-      isEdit: Boolean(checkedList.find((item) => item == "isEdit")),
-      isDelete: Boolean(checkedList.find((item) => item == "isDelete")),
-    };
-    onCheck(check);
-  }, [checkedList]);
+    if (permission) {
+      permission.isAdd = checkedList.includes("isAdd");
+      permission.isEdit = checkedList.includes("isEdit");
+      permission.isDelete = checkedList.includes("isDelete");
+      onCheck(permission);
+    }
+  }, [permission, checkedList]);
   return (
     <div>
       <span

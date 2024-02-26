@@ -123,6 +123,7 @@ export const Role = () => {
         })
         .finally(() => blockContext.unblock());
     }
+    setPermissions([]);
   };
   const onEdit = () => {
     if (editingIndex !== undefined) {

@@ -13,11 +13,10 @@ import { IDataEmployee } from "@/service/employee/entities";
 const PermissionEmployee = () => {
   const [form] = Form.useForm<IEmployeePermission>();
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
-  const [defaultPermissions, setDefaultPermissions] = useState<
-    IDataPermission[]
-  >([]);
+  // const [defaultPermissions, setDefaultPermissions] = useState<
+  //   IDataPermission[]
+  // >([]);
   const [permissions, setPermissions] = useState<IDataPermission[]>([]);
-  // const [defaultData, setDefaultData] = useState<ITreeDefaultData[]>([]);
   const getEmployee = async () => {
     await EmployeeService.get({ isWarehouseRole: true }).then((response) => {
       if (response.success) {
@@ -26,13 +25,11 @@ const PermissionEmployee = () => {
     });
   };
   const onFinish = (values: IEmployeePermission) => {
-    if (permissions.length == 0) {
-      values.permissions = defaultPermissions;
-    } else values.permissions = permissions;
+    values.permissions = permissions;
     PermissionService.post(values).then((response) => {
       if (response.success) {
         form.resetFields();
-        // setDefaultData([]);
+        setPermissions([]);
       }
     });
   };
@@ -45,7 +42,6 @@ const PermissionEmployee = () => {
       await PermissionService.get({ employeeId }).then(async (response) => {
         if (response.success) {
           if (response.response.length > 0) {
-            getDefaultData(response.response);
             setPermissions(response.response);
           } else {
             await PermissionService.get({
@@ -53,7 +49,6 @@ const PermissionEmployee = () => {
               isView: true,
             }).then((response) => {
               if (response.success) {
-                getDefaultData(response.response);
                 setPermissions(response.response);
               }
             });
@@ -62,29 +57,9 @@ const PermissionEmployee = () => {
       });
     }
   };
-  const getDefaultData = (permissions: IDataPermission[]) => {
-    setDefaultPermissions(permissions);
-    // const data: ITreeDefaultData[] = permissions
-    //   .filter((item) => item.isView && item.resource)
-    //   .map((item) => {
-    //     return {
-    //       viewKey: item.resource.id,
-    //       actionKeys: [
-    //         item.isAdd ? "isAdd" : undefined,
-    //         item.isEdit ? "isEdit" : undefined,
-    //         item.isDelete ? "isDelete" : undefined,
-    //       ].filter(Boolean) as string[],
-    //     };
-    //   });
-    // setDefaultData(data);
-    setPermissions(permissions);
-  };
   useEffect(() => {
     getEmployee();
   }, []);
-  useEffect(() => {
-    console.log("permissions ======>", permissions);
-  }, [permissions]);
   return (
     <Form layout="vertical" form={form} onFinish={onFinish}>
       <NewCard title="Зөвшөөрөл">
@@ -124,7 +99,6 @@ const PermissionEmployee = () => {
         <TreeList
           permissions={permissions}
           setPermissions={setPermissions}
-          // defaultData={defaultData}
         />
         <Divider />
         <Form.Item>

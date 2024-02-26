@@ -5,9 +5,8 @@ import { useDispatch } from "react-redux";
 import React, { useEffect, useState } from "react";
 import { newTab } from "@/feature/store/slice/tab.slice";
 import { PermissionService } from "@/service/permission/service";
-import { IDataPermission, IMenuItem } from "@/service/permission/entities";
+import { IDataPermission } from "@/service/permission/entities";
 import Image from "next/image";
-import { ResourceService } from "@/service/permission/resource/service";
 import { IDataResource } from "@/service/permission/resource/entities";
 import { useResourceContext } from "@/feature/context/ResourceContext";
 interface MenuItem {
@@ -109,7 +108,7 @@ const Sidebar = () => {
     setCollapsed(!collapsed);
   };
   const getPermission = () => {
-    PermissionService.get({ isView: true }).then((response) => {
+    PermissionService.myPermissions().then((response) => {
       if (response.success) {
         setPermissions(response.response);
       }

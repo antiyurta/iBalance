@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { TreeHeader } from "./header";
-import { ICheck, TreeInfo } from "./info";
+import { TreeInfo } from "./info";
 import { IDataResource } from "@/service/permission/resource/entities";
 import { NewInput } from "@/components/input";
 import { useResourceContext } from "../../../../../../../feature/context/ResourceContext";
@@ -26,12 +26,6 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
       const permission = permissions.find(
         (permission) => permission.resource.id == item.id
       );
-      const checkedList: string[] = [];
-      if (permission) {
-        permission.isAdd && checkedList.push("isAdd");
-        permission.isEdit && checkedList.push("isEdit");
-        permission.isDelete && checkedList.push("isDelete");
-      }
       if (item.resources) {
         return (
           <TreeNode
@@ -51,7 +45,8 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
               title={item.label}
               isEdit={Boolean(checkedKeys.find((key) => key == item.id))}
               onCheck={(value) => onNodeCheck(item, value)}
-              defaultCheckedList={checkedList}
+              permission={permission}
+              // defaultCheckedList={checkedList}
             />
           }
           switcherIcon={<FileOutlined />}
@@ -72,21 +67,15 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
   const onSelect = (selectedKeys: React.Key[], info: any) => {
     console.log("selected", selectedKeys, info);
   };
-  const onNodeCheck = (item: IDataResource, value: ICheck) => {
-    const permission: IDataPermission = {
-      resourceId: item.id,
-      isView: true,
-      isAdd: value.isAdd,
-      isEdit: value.isEdit,
-      isDelete: value.isDelete,
-      resource: item,
-    };
+  const onNodeCheck = (item: IDataResource, value: IDataPermission) => {
     const updatedPermissions = [...permissions];
     const existingIndex = updatedPermissions.findIndex(
       (perm) => perm.resourceId === item.id
     );
     if (existingIndex !== -1) {
-      updatedPermissions[existingIndex] = permission;
+      updatedPermissions[existingIndex].isAdd = value.isAdd;
+      updatedPermissions[existingIndex].isEdit = value.isEdit;
+      updatedPermissions[existingIndex].isDelete = value.isDelete;
     }
     setPermissions(updatedPermissions);
   };
@@ -110,19 +99,25 @@ const TreeList: React.FC<IProps> = ({ permissions, setPermissions }) => {
     }
   };
   const onCheck = (checkedKeys: React.Key[]) => {
-    const newPermissions: IDataPermission[] = [];
+    const updatedPermissions = permissions.filter((item) =>
+      checkedKeys.includes(item.resourceId)
+    );
     for (const key of checkedKeys) {
-      const resource = getAllResources(resources).find(
-        (item) => String(item.id) === key
+      const existingIndex = updatedPermissions.findIndex(
+        (perm) => perm.resourceId === Number(key)
       );
-      if (resource) {
-        newPermissions.push({
-          resourceId: resource.id,
+      const resource = getAllResources(resources).find(
+        (item) => item.id === Number(key)
+      );
+      if (existingIndex == -1 && resource) {
+        updatedPermissions.push({
+          resourceId: Number(key),
+          isView: true,
           resource,
         });
       }
     }
-    setPermissions(newPermissions);
+    setPermissions(updatedPermissions);
   };
   useEffect(() => {
     if (isExpand) {
