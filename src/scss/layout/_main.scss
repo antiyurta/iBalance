@@ -143,50 +143,6 @@ body {
     line-height: 14px;
     font-weight: 500;
   }
-  // .extra {
-  //   display: flex;
-  //   flex-direction: row;
-  //   gap: 8px;
-  //   width: 100%;
-  //   position: relative;
-  //   .extraButton {
-  //     align-items: center;
-  //     justify-content: center;
-  //     background-color: #272e3b;
-  //     padding: 0px;
-  //     margin: 0px;
-  //     display: flex;
-  //     align-self: flex-end;
-  //     border-radius: 4px;
-  //     min-width: 32px;
-  //     height: 32px;
-  //     &:hover {
-  //       cursor: pointer;
-  //     }
-  //   }
-  //   // > .ant-form-item {
-  //   //   width: 100%;
-  //   //   > .ant-form-item-row {
-  //   //     height: 62px;
-  //   //     > .ant-form-item-label {
-  //   //       display: flex;
-  //   //       top: 0px;
-  //   //       left: -36px;
-  //   //       height: 32px;
-  //   //     }
-  //   //     > .ant-form-item-control {
-  //   //       position: absolute;
-  //   //       top: 29px;
-  //   //     }
-  //   //   }
-  //   // }
-  //   // > .ant-form-item.ant-form-item-has-error {
-  //   //   > .ant-form-item-control {
-  //   //     position: absolute;
-  //   //     top: 29px;
-  //   //   }
-  //   // }
-  // }
 }
 
 .popupButton:disabled {
@@ -621,7 +577,6 @@ html {
 }
 
 .group {
-  min-height: 250px;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -711,29 +666,6 @@ html {
     padding: 20px 4px !important;
     border: 1px solid white;
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
-  }
-}
-.segment {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  > .segment-item {
-    width: 40px;
-    height: 40px;
-    padding: 10px;
-    border-radius: 8px;
-    background: $color-gray-200;
-  }
-  > .segment-item-active {
-    width: 40px;
-    height: 40px;
-    padding: 10px;
-    border-radius: 8px;
-    color: white;
-    background: $color-primary;
-  }
-  &:hover {
-    cursor: pointer;
   }
 }
 

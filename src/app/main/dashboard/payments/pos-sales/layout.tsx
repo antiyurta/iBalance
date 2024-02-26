@@ -18,18 +18,8 @@ const PosSalesLayouts = ({ children }: { children: React.ReactNode }) => {
           gutter={[12, 24]}
         >
           <Col sm={24} xl={16}>
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-              }}
-            >
-              <Groups />
-              {children}
-            </div>
+            <Groups />
+            {children}
           </Col>
           <Col sm={24} xl={8}>
             <PayController />

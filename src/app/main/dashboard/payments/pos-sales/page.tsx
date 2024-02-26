@@ -1,6 +1,6 @@
 "use client";
 
-import { Col, Divider, Row } from "antd";
+import { Button, Col, Divider, Row } from "antd";
 import { NewSearch } from "@/components/input";
 import { BarsOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { useContext, useEffect, useState } from "react";
@@ -12,6 +12,8 @@ import { Meta } from "@/service/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
 import DisplayItem from "./component/DisplayItem";
+import { CodeSearch } from "./component/code-search";
+import Image from "next/image";
 
 export type TypeSegment = "list" | "group";
 
@@ -63,21 +65,19 @@ const PosSales = () => {
     getMaterials(1);
   }, [value]);
   return (
-    <Row gutter={[12, 12]}>
-      <Col span={24}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <NewSearch
-            style={{
-              width: 400,
-            }}
-            placeholder="Бараанаас хайх"
-            enterButton
-            onSearch={onSearchMaterial}
+    <div className="pos-container">
+      <div className="tool-container">
+        <CodeSearch />
+        <div className="tool-extra">
+          <Button
+            icon={
+              <Image
+                src={"/icons/pos/shopping-cart.svg"}
+                alt=""
+                width={24}
+                height={24}
+              />
+            }
           />
           <div className="segment">
             <div
@@ -110,38 +110,8 @@ const PosSales = () => {
             </div>
           </div>
         </div>
-      </Col>
-      <Col
-        id="scrollableDiv"
-        style={{
-          width: "100%",
-          position: "absolute",
-          top: 170,
-          height: "calc(100% - 190px)",
-          overflow: "auto",
-        }}
-        span={24}
-      >
-        <InfiniteScroll
-          dataLength={materials.length}
-          next={() => getMaterials(meta.page ? meta.page + 1 : 1)}
-          endMessage={<Divider plain>Энэ бүгд нь өөр байхгүй🤐</Divider>}
-          scrollableTarget="scrollableDiv"
-          hasMore={meta.hasNextPage ? meta.hasNextPage : false}
-          loader={false}
-        >
-          <div className={`material-${isActiveSegment}`}>
-            {materials?.map((material, index) => (
-              <DisplayItem
-                key={index}
-                type={isActiveSegment}
-                material={material}
-              />
-            ))}
-          </div>
-        </InfiniteScroll>
-      </Col>
-    </Row>
+      </div>
+    </div>
   );
 };
 export default PosSales;
