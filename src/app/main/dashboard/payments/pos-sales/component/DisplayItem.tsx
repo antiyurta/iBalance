@@ -11,11 +11,14 @@ import { Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { NumericFormat } from "react-number-format";
 import { displayCoupon, checkCoupon } from "../injection";
-import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
-import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
 import { Coupon } from "./coupon";
 import { Operator } from "@/service/entities";
 import { DisplayType } from "./tool-header/display-tool";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { saveGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { IGoods } from "@/service/pos/entities";
 
 interface IProps {
   type: DisplayType;
@@ -37,6 +40,8 @@ interface IDisplayItem {
 
 const DisplayItem = (props: IProps) => {
   const { type, material } = props;
+  const dispatch = useDispatch<AppDispatch>();
+  const goods = useTypedSelector((state) => state.shoppingGoods);
   const { isReload, setReload } = usePaymentGroupContext();
   const blockContext: BlockView = useContext(BlockContext);
   const [item, setItem] = useState<IDisplayItem>();
@@ -74,18 +79,25 @@ const DisplayItem = (props: IProps) => {
       );
     }
   };
-  const onFinish = async (data: CreateGoodsDto) => {
-    blockContext.block();
-    await ShoppingGoodsService.post(data)
-      .finally(() => {
-        setReload(!isReload);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
+  const onFinish = async (data: IDisplayItem) => {
+    const currentIndex = goods.findIndex((item) => item.materialId == data.id);
+    const currentGoods: IGoods = {
+      materialId: data.id,
+      materialName: data.name,
+      imageUrl: data.src,
+      sectionName: data.sectionName,
+      unitAmount: data.unitAmount,
+      quantity: 1,
+      discountAmount: 0,
+      payAmount: data.unitAmount,
+      totalAmount: data.unitAmount,
+    };
+    if (currentIndex !== -1) {
+      currentGoods.quantity = goods[currentIndex].quantity + 1;
+      currentGoods.payAmount =
+        goods[currentIndex].unitAmount * (goods[currentIndex].quantity + 1);
+    }
+    dispatch(saveGoods(currentGoods));
   };
   const configureData = async () => {
     setItem({
@@ -188,7 +200,7 @@ const DisplayItem = (props: IProps) => {
                 style={{
                   width: "100%",
                 }}
-                onClick={() => onFinish({ materialId: item.id, quantity: 1 })}
+                onClick={() => onFinish(item)}
                 icon={<ShoppingCartOutlined />}
               >
                 Сагслах
@@ -234,7 +246,7 @@ const DisplayItem = (props: IProps) => {
                   width: "100%",
                 }}
                 icon={<ShoppingCartOutlined />}
-                onClick={() => onFinish({ materialId: item.id, quantity: 1 })}
+                onClick={() => onFinish(item)}
               >
                 Сагслах
               </Button>

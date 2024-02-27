@@ -713,7 +713,7 @@ html {
   align-items: center;
   gap: 6px;
   border-radius: 6px;
-  border: 1px solid #277a54;
+  border: 1px solid $color-secondary;
   &:hover {
     cursor: pointer;
   }
@@ -726,6 +726,7 @@ html {
   gap: 6px;
   border-radius: 6px;
   border: 1px solid $color-primary;
+  background: $color-green-100;
   &:hover {
     cursor: pointer;
   }

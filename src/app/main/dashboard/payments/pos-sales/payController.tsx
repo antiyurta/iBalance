@@ -7,76 +7,26 @@ import ShoppingGoods from "./component/ShoppingGoods";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
 import { NumericFormat } from "react-number-format";
 import ExtraIndex from "./extra";
-import { IDataShoppingGoods } from "@/service/pos/shopping-card/goods/entites";
-import { ShoppingTempService } from "@/service/pos/shopping-card/temp/service";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { setShoppingCart } from "@/feature/store/slice/shopping-cart.slice";
 import { CodeSearch } from "./component/code-search";
+import { createTemp } from "@/feature/store/slice/point-of-sale/temp.slice";
+import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
+import { emptyShoppingCart, onShoppingCart } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 
 const { Title } = Typography;
 const PayController = () => {
-  const blockContext: BlockView = useContext(BlockContext);
-  const { isReload, setReload, isReloadCart } = usePaymentGroupContext();
   const dispatch = useDispatch<AppDispatch>();
-  const { shoppingCart } = useTypedSelector((state) => state);
-  const { posOpenClose } = useTypedSelector((state) => state);
-  const [isOpenModalSteps, setIsOpenModalSteps] = useState<boolean>(false);
-  const [shoppingGoods, setShoppingGoods] = useState<IDataShoppingGoods[]>([]);
+  const shoppingGoods = useTypedSelector((state) => state.shoppingGoods);
+  const { isModal } = useTypedSelector((state) => state.shoppingCart);
 
-  const getShoppingGoods = async () => {
-    await ShoppingGoodsService.get()
-      .then((response) => {
-        if (response.success) {
-          setShoppingGoods(response.response);
-          setReload(true);
-        }
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
+  const createShoppingTemps = () => {
+    dispatch(createTemp(shoppingGoods));
+    dispatch(emptyGoods());
   };
-  const createShoppingTemps = async () => {
-    await ShoppingTempService.post({
-      goodsIds: shoppingGoods.map((goods) => goods.id),
-    }).then((response) => {
-      if (response.success) {
-        getShoppingGoods();
-        setReload(true);
-      }
-    });
-  };
-  const createShoppingCart = async () => {
-    await ShoppingCartService.post({
-      openCloseId: posOpenClose.id,
-      goodsIds: shoppingGoods.map((goods) => goods.id),
-    }).then((response) => {
-      if (response.success) {
-        setIsOpenModalSteps(true);
-        dispatch(setShoppingCart(response.response));
-      }
-    });
-  };
-  const getShoppingCart = async () => {
-    if (shoppingCart) {
-      await ShoppingCartService.getById(shoppingCart.id).then((response) => {
-        if (response.success) {
-          setShoppingCart(response.response);
-        }
-      });
-    }
-  };
-  useEffect(() => {
-    getShoppingCart();
-  }, [isReloadCart]);
-  useEffect(() => {
-    getShoppingGoods();
-  }, [isReload]);
-
   return (
     <>
       <div
@@ -132,7 +82,7 @@ const PayController = () => {
           }}
         >
           {shoppingGoods?.map((goods) => (
-            <Item key={goods.id} data={goods} />
+            <Item key={goods.materialId} data={goods} />
           ))}
         </div>
         <div
@@ -277,7 +227,7 @@ const PayController = () => {
               }}
               type="primary"
               disabled={shoppingGoods.length > 0 ? false : true}
-              onClick={() => createShoppingCart()}
+              onClick={() => dispatch(onShoppingCart())}
             >
               Үргэлжлүүлэх
             </Button>
@@ -286,13 +236,13 @@ const PayController = () => {
       </div>
       <NewModal
         title=" "
-        open={isOpenModalSteps}
-        onCancel={() => setIsOpenModalSteps(false)}
+        open={isModal}
+        onCancel={() => dispatch(emptyShoppingCart())}
         width={400}
         footer={null}
         destroyOnClose
       >
-        {shoppingCart ? <StepIndex shoppingCart={shoppingCart} /> : null}
+        <StepIndex />
       </NewModal>
     </>
   );

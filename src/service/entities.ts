@@ -127,11 +127,11 @@ export interface IParam {
   limit?: number;
 }
 export interface IData {
-  createdBy: number;
-  updatedBy: number;
-  createdAt: string | Dayjs;
-  updatedAt: string;
-  deletedAt: string;
+  createdBy?: number;
+  updatedBy?: number;
+  createdAt?: string | Dayjs;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 export enum DataIndexType {
   MULTI = "MULTI", // too bolon string

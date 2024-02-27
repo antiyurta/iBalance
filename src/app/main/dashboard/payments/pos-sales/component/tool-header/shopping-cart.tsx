@@ -1,8 +1,11 @@
+import { useTypedSelector } from "@/feature/store/reducer";
 import { Badge, Button } from "antd";
 import Image from "next/image";
 
-const ShoppingCartButton: React.FC = () => (
-  <Badge count={3}>
+const ShoppingCartButton: React.FC = () => {
+  const goods = useTypedSelector((state) => state.shoppingGoods);
+  return (
+  <Badge count={goods.length}>
     <Button
       icon={
         <Image
@@ -14,5 +17,5 @@ const ShoppingCartButton: React.FC = () => (
       }
     />
   </Badge>
-);
+)};
 export default ShoppingCartButton;

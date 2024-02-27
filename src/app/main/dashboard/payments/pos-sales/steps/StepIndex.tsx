@@ -1,9 +1,12 @@
 import { Typography } from "antd";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { prevStep } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 
 const { Title } = Typography;
 
@@ -12,21 +15,9 @@ interface IStep {
   content: ReactNode;
 }
 
-interface IProps {
-  shoppingCart: IDataShoppingCart;
-}
-
-const StepIndex = (props: IProps) => {
-  const { shoppingCart } = props;
-  const [currentStep, setCurrentStep] = useState<number>(0);
-
-  const prev = () => {
-    setCurrentStep(currentStep - 1);
-  };
-  const next = () => {
-    setCurrentStep(currentStep + 1);
-  };
-
+const StepIndex: React.FC = () => {
+  const { currentStep = 0 } = useTypedSelector((state) => state.shoppingCart);
+  const dispatch = useDispatch<AppDispatch>();
   const steps: IStep[] = [
     {
       label: (
@@ -39,12 +30,7 @@ const StepIndex = (props: IProps) => {
           Гишүүнчлэлтэй эсэх:
         </Title>
       ),
-      content: (
-        <Step1
-          data={shoppingCart}
-          isNext={next}
-        />
-      ),
+      content: <Step1 />,
     },
     {
       label: (
@@ -57,11 +43,11 @@ const StepIndex = (props: IProps) => {
           Төлөх дүн:
         </Title>
       ),
-      content: <Step2 isPrev={prev} isNext={next} shoppingCart={shoppingCart} />,
+      content: <Step2 />,
     },
     {
       label: " ",
-      content: <Step3 isPrev={prev} shoppingCart={shoppingCart} />,
+      content: <Step3 />,
     },
   ];
   return (

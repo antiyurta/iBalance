@@ -9,28 +9,31 @@ import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import PayRequests from "./Step2/payRequests";
 import { openNofi } from "@/feature/common";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
-import { PosInvoiceService } from "@/service/pos/invoice/service";
 import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { useTypedSelector } from "@/feature/store/reducer";
+import {
+  onPaid,
+  prevStep,
+  stepPayment,
+} from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 
 const { Title } = Typography;
-interface IProps {
-  isPrev?: () => void;
-  isNext?: () => void;
-  shoppingCart: IDataShoppingCart;
-}
 
-const Step2 = (props: IProps) => {
+const Step2: React.FC = () => {
   const [form] = Form.useForm();
-  const { isPrev, isNext, shoppingCart } = props;
+  const dispatch = useDispatch<AppDispatch>();
+  const goods = useTypedSelector((state) => state.shoppingGoods);
+  const { invoices } = useTypedSelector((state) => state.shoppingCart);
   const [formMessage, setFormMessage] = useState<string>("");
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [activeKey, setActiveKey] = useState<number>();
   const [paymentMethods, setPaymentMethods] =
     useState<IDataReferencePaymentMethod[]>();
-  const [invoices, setInvoices] = useState<IDataPaymentInvoice[]>([]);
   const [isInvoiceReload, setIsInvoiceReload] = useState<boolean>(false);
-  const [amountDiff, setAmountDiff] = useState<number>(0);
+  const [amountDiff, setAmountDiff] = useState<number>(2000);
+  const totalAmount = goods.reduce((total, item) => total + item.payAmount, 0);
   const getPaymentMethods = async () => {
     blockContext.block();
     await ReferencePaymentMethodService.get({})
@@ -41,15 +44,6 @@ const Step2 = (props: IProps) => {
         blockContext.unblock();
       });
   };
-  const getInvoices = () => {
-    PosInvoiceService.get({ shoppingCartId: shoppingCart.id }).then(
-      (response) => {
-        if (response.success) {
-          setInvoices(response.response);
-        }
-      }
-    );
-  };
   const setRequest = async (values: { amount: number }) => {
     if (!activeKey) {
       openNofi("error", "Төлбөрийн хэлбэр сонгоно уу");
@@ -57,51 +51,14 @@ const Step2 = (props: IProps) => {
       form.resetFields();
       const method = paymentMethods?.find((method) => method.id === activeKey);
       if (method) {
-        PosInvoiceService.post({
-          shoppingCartId: shoppingCart.id,
-          paymentMethodId: method.id,
-          amount: values.amount,
-        }).then((response) => {
-          if (response.success) {
-            getInvoices();
-          }
-        });
+        dispatch(onPaid({ payMethodId: method.id, payAmount: values.amount }));
         setActiveKey(undefined);
       }
     }
   };
-  const isHaveReduxMethod = (id: number): boolean => {
-    let isDisabled = false;
-    if (invoices.find((invoice) => invoice.paymentMethodId === id)) {
-      isDisabled = true;
-    } else isDisabled = false;
-    return isDisabled;
-  };
-  // const getShoppingGoods = async () => {
-  //   await ShoppingGoodsService.get()
-  //     .then((response) => {
-  //       if (response.success) {
-  //         setShoppingGoods(response.response);
-  //         console.log(response.response);
-  //         // setReload(false);
-  //       }
-  //     })
-  //     .finally(() => {
-  //       blockContext.unblock();
-  //     });
-  // };
   useEffect(() => {
     getPaymentMethods();
-    // getShoppingGoods();
   }, []);
-  useEffect(() => {
-    getInvoices();
-  }, [isInvoiceReload]);
-  useEffect(() => {
-    setAmountDiff(
-      shoppingCart.payAmount - invoices.reduce((total: number, item) => total + Number(item.amount), 0)
-    );
-  }, [invoices]);
   return (
     <div
       style={{
@@ -126,7 +83,7 @@ const Step2 = (props: IProps) => {
           level={1}
         >
           <NumericFormat
-            value={shoppingCart.payAmount}
+            value={totalAmount}
             thousandSeparator=","
             decimalScale={2}
             fixedDecimalScale
@@ -144,14 +101,16 @@ const Step2 = (props: IProps) => {
                 <div
                   key={index}
                   onClick={() => {
-                    if (!isHaveReduxMethod(method.id)) {
-                      form.resetFields();
-                      setActiveKey(method.id);
-                      setFormMessage(method.name || "");
-                    }
+                    form.resetFields();
+                    dispatch(onPaid({ payMethodId: method.id, payAmount: 0 }));
+                    setActiveKey(method.id);
+                    setFormMessage(method.name || "");
                   }}
                   className={
-                    isHaveReduxMethod(method.id)
+                    invoices
+                      .filter((item) => item.payAmount > 0)
+                      .map((item) => item.payMethodId)
+                      .includes(method.id)
                       ? "payment-type-box-disabled"
                       : activeKey === method.id
                       ? "payment-type-box-active"
@@ -179,45 +138,43 @@ const Step2 = (props: IProps) => {
         </div>
         {activeKey ? (
           <Form form={form}>
-            <Form.Item>
-              <Space.Compact>
-                <Form.Item
-                  label={<Title level={2}>{formMessage}</Title>}
-                  name={"amount"}
-                  rules={[
-                    {
-                      required: true,
-                      message: `${formMessage} Үнийн дүн оруулна уу`,
-                    },
-                  ]}
-                >
-                  <NewInputNumber
-                    formatter={(value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    }
-                    parser={(value) => value!.replace(/(,*)/g, "")}
-                    max={amountDiff}
-                    step="0.1"
-                    onDoubleClick={() => {
-                      form.setFieldValue("amount", amountDiff);
-                    }}
-                  />
-                </Form.Item>
-                <Button
-                  style={{
-                    height: 36,
-                  }}
-                  onClick={() => {
-                    form.validateFields().then(setRequest);
-                  }}
-                  icon={<RightOutlined />}
+            <Space.Compact>
+              <Form.Item
+                label={<Title level={2}>{formMessage}</Title>}
+                name={"amount"}
+                rules={[
+                  {
+                    required: true,
+                    message: `${formMessage} Үнийн дүн оруулна уу`,
+                  },
+                ]}
+              >
+                <NewInputNumber
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value!.replace(/(,*)/g, "")}
+                  // max={amountDiff}
+                  step="0.1"
+                  // onDoubleClick={() => {
+                  //   form.setFieldValue("amount", amountDiff);
+                  // }}
                 />
-              </Space.Compact>
-            </Form.Item>
+              </Form.Item>
+              <Button
+                style={{
+                  height: 36,
+                }}
+                onClick={() => {
+                  form.validateFields().then(setRequest);
+                }}
+                icon={<RightOutlined />}
+              />
+            </Space.Compact>
           </Form>
         ) : null}
         <PayRequests
-          invoices={invoices}
+          invoices={[]}
           isReload={() => setIsInvoiceReload(!isInvoiceReload)}
           amountDiff={amountDiff}
         />
@@ -232,11 +189,11 @@ const Step2 = (props: IProps) => {
           <Button
             title="Буцах"
             // disabled={methods?.length ? true : false}
-            onClick={isPrev}
+            onClick={() => dispatch(prevStep())}
             icon={<LeftOutlined />}
           />
           <Button
-            onClick={isNext}
+            onClick={() => dispatch(stepPayment())}
             type="primary"
             style={{
               width: "100%",
