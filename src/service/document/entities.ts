@@ -12,9 +12,8 @@ import {
 import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
-import { IDataShoppingCart } from "../pos/shopping-card/entities";
 import { Dayjs } from "dayjs";
-import { IDataPos, IGoods } from "../pos/entities";
+import { IDataPos } from "../pos/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -93,8 +92,6 @@ export interface IDataDocument extends IData {
   lottery?: string;
   internalCode?: string;
   qrData?: string;
-  shoppingCartId: string;
-  shoppingCart: IDataShoppingCart;
   status: DocumentStatus;
   posId: number;
   pos?: IDataPos;

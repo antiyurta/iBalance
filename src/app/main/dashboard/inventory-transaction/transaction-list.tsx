@@ -64,7 +64,7 @@ export const TransactionList = (props: IProps) => {
   const editDocument = async (transaction: IDataTransaction) => {
     if (transaction.document?.isLock) {
       openNofi("warning", "Баримт түгжигдсэн байна.");
-    } else {
+    } else if (transaction.documentId) {
       blockContext.block();
       await DocumentService.getById(transaction.documentId)
         .then((response) => {

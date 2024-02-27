@@ -7,45 +7,40 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { IDataShoppingTemp } from "@/service/pos/shopping-card/temp/entities";
-import { ShoppingTempService } from "@/service/pos/shopping-card/temp/service";
 import { NumericFormat } from "react-number-format";
+import { ITemp } from "@/service/pos/entities";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { removeTemp } from "@/feature/store/slice/point-of-sale/temp.slice";
+import { saveGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
 const ShoppingGoods = () => {
   const { isReload, setReload } = usePaymentGroupContext();
-  const [data, setData] = useState<IDataShoppingTemp[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const shoppingTemps = useTypedSelector((state) => state.shoppingTemp);
   const [isOpenModalSave, setIsOpenModalSave] = useState<boolean>(false);
-  const getShoppingGoods = async () => {
-    await ShoppingTempService.get().then((response) => {
-      if (response.success) {
-        setData(response.response);
-        setReload(false);
-      }
-    });
-  };
-  const columns: ColumnsType<IDataShoppingTemp> = [
+  const columns: ColumnsType<ITemp> = [
     {
       title: "№",
       dataIndex: "id",
-      render: (id: number) => {
+      render: (_, __, index) => {
         return (
           <Button
             type="dashed"
             icon={<SwapOutlined />}
-            onClick={() =>
-              ShoppingTempService.empty(id).then((response) => {
-                if (response.success) {
-                  setIsOpenModalSave(false);
-                  setReload(true);
-                }
-              })
-            }
+            onClick={() => {
+              shoppingTemps[index].goods.map((item) => {
+                dispatch(saveGoods(item));
+              });
+              dispatch(removeTemp(index));
+            }}
           ></Button>
         );
       },
     },
     {
       title: "Тоо хэмжээ",
-      render: (row: IDataShoppingTemp) => {
+      render: (row: ITemp) => {
         return (
           <div
             style={{
@@ -106,16 +101,12 @@ const ShoppingGoods = () => {
     {
       title: " ",
       dataIndex: "id",
-      render: (id: number) => {
+      render: (_, __, index) => {
         return (
           <Popconfirm
             title="Delete the task"
             description="Are you sure to delete this task?"
-            onConfirm={() => {
-              ShoppingTempService.remove(id).then(() => {
-                getShoppingGoods();
-              });
-            }}
+            onConfirm={() => dispatch(removeTemp(index))}
             placement="left"
             okText="Yes"
             cancelText="No"
@@ -139,12 +130,6 @@ const ShoppingGoods = () => {
       },
     },
   ];
-  useEffect(() => {
-    isReload && getShoppingGoods();
-  }, [isReload]);
-  useEffect(() => {
-    getShoppingGoods();
-  }, [isOpenModalSave]);
   return (
     <div>
       <button
@@ -154,7 +139,7 @@ const ShoppingGoods = () => {
         }}
         onClick={() => setIsOpenModalSave(true)}
       >
-        <Badge count={data.length}>
+        <Badge count={shoppingTemps.length}>
           <Image src="/images/save.png" width={24} height={24} alt="save" />
         </Badge>
       </button>
@@ -169,7 +154,7 @@ const ShoppingGoods = () => {
           bordered
           columns={columns}
           pagination={false}
-          dataSource={data}
+          dataSource={shoppingTemps}
         />
       </NewModal>
     </div>

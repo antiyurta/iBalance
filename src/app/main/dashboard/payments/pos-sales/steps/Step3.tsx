@@ -11,7 +11,6 @@ import {
 import { Button, Form, Space, Typography } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import Bill from "./Step3/Bill";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { DocumentService } from "@/service/document/service";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { useTypedSelector } from "@/feature/store/reducer";

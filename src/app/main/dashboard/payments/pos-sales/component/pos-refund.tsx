@@ -37,7 +37,7 @@ const PosRefund = (props: IProps) => {
       amount: posDocument?.amount,
       billId: posDocument?.billId,
       documentAt: posDocument?.documentAt,
-      paidAmount: posDocument?.shoppingCart.paidAmount,
+      paidAmount: 0,
       discountAmount: posDocument?.discountAmount,
       consumerDiscountAmount: posDocument?.consumerDiscountAmount,
     });

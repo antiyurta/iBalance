@@ -17,7 +17,6 @@ interface IStep {
 
 const StepIndex: React.FC = () => {
   const { currentStep = 0 } = useTypedSelector((state) => state.shoppingCart);
-  const dispatch = useDispatch<AppDispatch>();
   const steps: IStep[] = [
     {
       label: (

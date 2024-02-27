@@ -42,8 +42,6 @@ const DisplayItem = (props: IProps) => {
   const { type, material } = props;
   const dispatch = useDispatch<AppDispatch>();
   const goods = useTypedSelector((state) => state.shoppingGoods);
-  const { isReload, setReload } = usePaymentGroupContext();
-  const blockContext: BlockView = useContext(BlockContext);
   const [item, setItem] = useState<IDisplayItem>();
 
   const GetNewAmount = (props: { item: IDisplayItem }) => {

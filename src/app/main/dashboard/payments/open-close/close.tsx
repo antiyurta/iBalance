@@ -19,10 +19,8 @@ import {
   IDataReferencePaymentMethod,
   PaymentType,
 } from "@/service/reference/payment-method/entities";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { MoneyTransactionService } from "@/service/pos/money-transaction/service";
 import { MovingStatus } from "@/service/document/entities";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import dayjs from "dayjs";
 import { PosInvoiceService } from "@/service/pos/invoice/service";
 import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
@@ -45,7 +43,6 @@ const CloseState = (props: IProps) => {
   const [moneyTransactions, setMoneyTransactions] = useState<
     IDataMoneyTransaction[]
   >([]);
-  const [shoppingCarts, setShoppingCarts] = useState<IDataShoppingCart[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<
     IDataReferencePaymentMethod[]
   >([]);
@@ -66,22 +63,7 @@ const CloseState = (props: IProps) => {
       .then((response) => {
         if (response.success) {
           setOpenClose(response.response);
-          setShoppingCarts(response.response.shoppingCarts);
         }
-      })
-      .then(() => {
-        setMembershipAmount(
-          shoppingCarts.reduce(
-            (total, item) => total + Number(item.membershipDiscountAmount),
-            0
-          )
-        );
-        setGifAmount(
-          shoppingCarts.reduce(
-            (total, item) => total + Number(item.giftAmount),
-            0
-          )
-        );
       })
       .finally(() => blockContext.unblock());
   };
@@ -136,64 +118,30 @@ const CloseState = (props: IProps) => {
   const getStatisticSale = (): StatisticDoc[] => {
     const totalSale: StatisticDoc = {
       state: "Нийт борлуулалт",
-      qty: closeNumber({ value: shoppingCarts.length }),
-      amount: closeNumber({
-        value: shoppingCarts.reduce(
-          (total, item) => total + Number(item.totalAmount),
-          0
-        ),
-      }),
+      qty: 0,
+      amount: 0,
     };
-    const refundShoppingCarts = shoppingCarts.filter(
-      (item) =>
-        item.transactionDocument?.movingStatus == MovingStatus.PosSaleReturn
-    );
     const refund: StatisticDoc = {
       state: "Буцаалт",
-      qty: closeNumber({ value: refundShoppingCarts.length, isBracket: true }),
-      amount: closeNumber({
-        value: refundShoppingCarts.reduce(
-          (total, item) => total + Number(item.transactionDocument?.amount),
-          0
-        ),
-        isBracket: true,
-      }),
+      qty: 0,
+      amount: 0,
     };
-    const materialShoppingCarts = shoppingCarts.filter(
-      (item) => item.transactionDocument?.discountAmount || 0 > 0
-    );
     const materialDiscount: StatisticDoc = {
       state: "Бараа материалын хөнгөлөлт, урамшуулал",
-      qty: closeNumber({ value: materialShoppingCarts.length }),
-      amount: closeNumber({
-        value: materialShoppingCarts.reduce(
-          (total, item) =>
-            total + Number(item.transactionDocument?.discountAmount),
-          0
-        ),
-      }),
+      qty: 0,
+      amount: 0
     };
-    const consumerShoppingCarts = shoppingCarts.filter(
-      (item) =>
-        Number(item.membershipDiscountAmount) > 0 || Number(item.giftAmount) > 0
-    );
     const consumerDiscount: StatisticDoc = {
       state: "Харилцагч, гишүүнчлэлийн хөнгөлөлт",
-      qty: closeNumber({ value: consumerShoppingCarts.length }),
+      qty: 0,
       amount: closeNumber({ value: membershipAmount + giftAmount }),
     };
-    const realShoppingCarts = shoppingCarts.filter(
-      (item) =>
-        item.transactionDocument?.movingStatus !== MovingStatus.PosSaleReturn
-    );
+    const realShoppingCarts = 0;
     const sale: StatisticDoc = {
       state: <div style={{ fontWeight: "bold" }}>Цэвэр борлуулалт</div>,
-      qty: closeNumber({ value: realShoppingCarts.length, isBold: true }),
+      qty: closeNumber({ value: 0, isBold: true }),
       amount: closeNumber({
-        value: realShoppingCarts.reduce(
-          (total, item) => total + Number(item.payAmount),
-          0
-        ),
+        value: 0,
         isBold: true,
       }),
     };
@@ -203,15 +151,7 @@ const CloseState = (props: IProps) => {
     setIsCashLoading(true);
     const beginingMoney = openClose?.openerAmount || 0;
     const { add, subtract } = getMoneyTransaction(PaymentType.Cash);
-    const refundShoppingCarts = shoppingCarts.filter(
-      (item) =>
-        item.transactionDocument?.movingStatus == MovingStatus.PosSaleReturn
-    );
-    const refundMoney = refundShoppingCarts.reduce(
-      (total, item) => total + Number(item.transactionDocument?.amount),
-      0
-    );
-    const realMoney = cashMoney + beginingMoney + add - subtract - refundMoney;
+    const realMoney = cashMoney + beginingMoney + add - subtract - 0;
     const totalCash: StatisticDoc = {
       state: "Нийт бэлэн борлуулалт",
       amount: closeNumber({ value: cashMoney }),
@@ -230,7 +170,7 @@ const CloseState = (props: IProps) => {
     };
     const refundCash: StatisticDoc = {
       state: "Буцаалт хасах",
-      amount: closeNumber({ value: refundMoney, isBracket: true }),
+      amount: closeNumber({ value: 0, isBracket: true }),
     };
     const realCash: StatisticDoc = {
       state: "Байх ёстой үлдэгдэл",
@@ -436,7 +376,8 @@ const CloseState = (props: IProps) => {
       </div>
       <Divider />
       <Title level={3}>
-        Нийт зөрүү (Бэлэн + Бэлэн бус + Зээл) = [{cashAmount}] + [{nonCashAmount}] + [{lendAmount}] = [-5,000.00]
+        Нийт зөрүү (Бэлэн + Бэлэн бус + Зээл) = [{cashAmount}] + [
+        {nonCashAmount}] + [{lendAmount}] = [-5,000.00]
       </Title>
 
       <Form

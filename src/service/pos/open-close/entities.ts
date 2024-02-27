@@ -2,12 +2,10 @@ import {
   ColumnType,
   GenericResponse,
   IColumn,
-  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
 import { IDataPosBankNote } from "./bank-note/entities";
-import { IDataShoppingCart } from "../shopping-card/entities";
 import { IDataPos } from "../entities";
 import { IDataEmployee } from "@/service/employee/entities";
 import { IDataMoneyTransaction } from "../money-transaction/entities";
@@ -45,7 +43,6 @@ export interface IDataPosOpenClose {
   lendAmount: number;
   balanceAmount: number;
   posBankNotes: IDataPosBankNote[];
-  shoppingCarts: IDataShoppingCart[];
   moneyTransactions: IDataMoneyTransaction[];
 }
 export interface IFilterPosOpenClose extends IColumn {

@@ -1,14 +1,12 @@
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { IDataConsumer } from "@/service/consumer/entities";
 import { IDataConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { ConsumerService } from "@/service/consumer/service";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { Form, Typography } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { NumericFormat } from "react-number-format";
 
 const { Title } = Typography;
@@ -39,28 +37,7 @@ const Membership: React.FC = () => {
         setSelectedMembership(response.response);
       }
     });
-    // await ShoppingCartService.patch(data.id, {
-    //   consumerMembershipId: id,
-    //   membershipDiscountAmount: 0,
-    // }).then((response) => {
-    //   if (response.success) {
-    //     setReloadCart();
-    //   }
-    // });
   };
-  useEffect(() => {
-    // if (data.consumerMembershipId) {
-    //   getMembershipCard(data.consumerMembershipId).then(async () => {
-    //     if (selectedMembership?.consumer) {
-    //       const { id } = selectedMembership?.consumer;
-    //       await ConsumerService.getById(id).then((response) => {
-    //         setConsumer(response.response);
-    //       });
-    //     }
-    //   });
-    //   form.setFieldValue("consumerMembershipId", data.consumerMembershipId);
-    // }
-  }, []);
   const Discount = () => {
     // if (membership?.membership.isSave && membership.membership.isPercent) {
     return (
