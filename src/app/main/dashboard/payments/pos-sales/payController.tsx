@@ -5,7 +5,6 @@ import { Button, Typography } from "antd";
 import StepIndex from "./steps/StepIndex";
 import ShoppingGoods from "./component/ShoppingGoods";
 import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { NumericFormat } from "react-number-format";
 import ExtraIndex from "./extra";

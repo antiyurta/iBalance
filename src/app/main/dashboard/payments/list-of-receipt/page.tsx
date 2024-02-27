@@ -25,12 +25,7 @@ import { PlusOutlined, LeftOutlined } from "@ant-design/icons";
 import NewModal from "@/components/modal";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
-import {
-  ICreateGiftCart,
-  IParamBalanceGift,
-} from "@/service/pos/gift-cart/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { GiftCartService } from "@/service/pos/gift-cart/service";
 import {
   NewDatePicker,
   NewFilterSelect,
@@ -93,30 +88,13 @@ const ListOfReceipt = () => {
       }
     });
   };
-  const createGiftCart = async (incomeGift: ICreateGiftCart) => {
+  const createGiftCart = async (incomeGift: any) => {
     if (giftType == "expense" && balance == 0) {
       openNofi("warning", "Үлдэгдэл 0 байна.");
     } else {
-      blockContext.block();
-      incomeGift.warehouseId = warehouse.id;
-      await GiftCartService.post(incomeGift)
-        .then((response) => {
-          if (response.success) {
-            setIsGift(false);
-          }
-        })
-        .finally(() => blockContext.unblock());
     }
   };
-  const getBalance = async (params: IParamBalanceGift) => {
-    await GiftCartService.balance(params).then((response) => {
-      if (response.success) {
-        setBalance(
-          response.response.findLast((item) => item.qty > 0)?.qty || 0
-        );
-      }
-    });
-  };
+  const getBalance = async (params: any) => {};
   const getSelectedMembership = async (id: number) => {
     await MembershipService.getById(id).then((response) => {
       if (response.success) {
@@ -186,7 +164,7 @@ const ListOfReceipt = () => {
                   label: "Гишүүнчлэлийн бүртгэл",
                   key: "/registration/customer/information",
                   closeable: true,
-                  breadcrumb: ["Бүртгэл", "Харилцагч", "Бүртгэл"]
+                  breadcrumb: ["Бүртгэл", "Харилцагч", "Бүртгэл"],
                 })
               );
               setIsAddAction(false);
@@ -219,7 +197,7 @@ const ListOfReceipt = () => {
                   label: "Агуулахын тайлан",
                   key: "/reports",
                   closeable: false,
-                  breadcrumb: ["Тайлан"]
+                  breadcrumb: ["Тайлан"],
                 })
               );
               setIsAddAction(false);

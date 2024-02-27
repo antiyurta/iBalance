@@ -73,7 +73,7 @@ const SimilarMaterials = (props: IProps) => {
                 }}
               >
                 {el.map((item, index) => (
-                  <DisplayItem key={index} type={"group"} material={item} />
+                  <DisplayItem key={index} type={"grid"} material={item} />
                 ))}
               </div>
             </SwiperSlide>

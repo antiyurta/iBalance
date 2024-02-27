@@ -1,12 +1,9 @@
 import { NewInput } from "@/components/input";
 import { Button, Form, Input, Table } from "antd";
 import { RightOutlined } from "@ant-design/icons";
-import { GiftCartService } from "@/service/pos/gift-cart/service";
-import { IDataGiftCart } from "@/service/pos/gift-cart/entities";
 import { ColumnsType } from "antd/es/table";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { MinusCircleOutlined } from "@ant-design/icons";
 const Bonus: React.FC = () => {
@@ -15,7 +12,7 @@ const Bonus: React.FC = () => {
   const { shoppingCart } = useTypedSelector((state) => state);
   const [form] = Form.useForm();
   const code = Form.useWatch("code", form);
-  const columns: ColumnsType<IDataGiftCart> = [
+  const columns: ColumnsType<any> = [
     {
       title: "Карт",
       dataIndex: ["membership", "name"],
@@ -28,7 +25,7 @@ const Bonus: React.FC = () => {
       title: "Үйлдэл",
       dataIndex: "",
       key: "x",
-      render: (_: any, record: IDataGiftCart) => (
+      render: (_: any, record: any) => (
         <Button
           type="link"
           danger

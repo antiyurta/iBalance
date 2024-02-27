@@ -60,7 +60,7 @@ export const TransactionWarehouseList = (props: IProps) => {
   const editDocument = async (transaction: IDataTransaction) => {
     if (transaction.document?.isLock) {
       openNofi("warning", "Баримт түгжигдсэн байна.");
-    } else {
+    } else if (transaction.warehouseDocumentId) {
       blockContext.block();
       await WarehouseDocumentService.getById(transaction.warehouseDocumentId)
         .then((response) => {

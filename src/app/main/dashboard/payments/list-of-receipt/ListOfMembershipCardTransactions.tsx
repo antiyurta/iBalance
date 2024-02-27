@@ -1,18 +1,11 @@
 import { NewTable, TableItemType } from "@/components/table";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
-import {
-  FilteredColumnsShoppingCartMembership,
-  IDataShoppingCart,
-  IFilterShoppingCart,
-  IParamShoppingCart,
-} from "@/service/pos/shopping-card/entities";
 import { useContext, useEffect, useState } from "react";
 import { QrcodeOutlined, EyeOutlined } from "@ant-design/icons";
 import { Col, Row, Space } from "antd";
 import Filtered from "@/components/table/filtered";
 import { findIndexInColumnSettings, getParam } from "@/feature/common";
-import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import ColumnSettings from "@/components/columnSettings";
 import Image from "next/image";
 import { IDataDocument } from "@/service/document/entities";
@@ -28,101 +21,96 @@ import { newPane } from "@/feature/store/slice/param.slice";
 const key = "payments/list-of-receipt/return-list";
 const ListOfMembershipCardTransactions = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [columns, setColumns] = useState<FilteredColumnsShoppingCartMembership>(
-    {
-      posName: {
-        label: "Поссын нэр",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["openClose", "pos", "name"],
-        type: DataIndexType.MULTI,
-      },
-      documentCode: {
-        label: "Баримтын дугаар",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["document", "code"],
-        type: DataIndexType.MULTI,
-      },
-      createdAt: {
-        label: "Баримтын огноо",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["createdAt"],
-        type: DataIndexType.DATE,
-      },
-      membershipCode: {
-        label: "Картын дугаар",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["consumerMembership", "code"],
-        type: DataIndexType.MULTI,
-      },
-      membershipName: {
-        label: "Карт, эрхийн бичгийн нэр",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["consumerMembership", "membership", "name"],
-        type: DataIndexType.MULTI,
-      },
-      consumerCode: {
-        label: "Харилцагчийн код",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["consumerMembership", "consumer", "code"],
-        type: DataIndexType.MULTI,
-      },
-      consumerName: {
-        label: "Харилцагчийн нэр",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["consumerMembership", "consumer", "name"],
-        type: DataIndexType.MULTI,
-      },
-      consumerPhone: {
-        label: "Утасны дугаар",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["consumerMembership", "consumer", "phone"],
-        type: DataIndexType.MULTI,
-      },
-      payAmount: {
-        label: "Төлөх дүн",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["payAmount"],
-        type: DataIndexType.VALUE,
-      },
-      membershipIncreaseAmount: {
-        label: "Нэмэгдсэн оноо",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["membershipIncreaseAmount"],
-        type: DataIndexType.VALUE,
-      },
-      membershipDiscountAmount: {
-        label: "Ашигласан оноо",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["membershipDiscountAmount"],
-        type: DataIndexType.VALUE,
-      },
-      membershipAmount: {
-        label: "Үлдэгдэл оноо",
-        isView: true,
-        isFiltered: false,
-        dataIndex: ["consumerMembership", "amount"],
-        type: DataIndexType.VALUE,
-      },
-    }
-  );
+  const [columns, setColumns] = useState<any>({
+    posName: {
+      label: "Поссын нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["openClose", "pos", "name"],
+      type: DataIndexType.MULTI,
+    },
+    documentCode: {
+      label: "Баримтын дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["document", "code"],
+      type: DataIndexType.MULTI,
+    },
+    createdAt: {
+      label: "Баримтын огноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["createdAt"],
+      type: DataIndexType.DATE,
+    },
+    membershipCode: {
+      label: "Картын дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumerMembership", "code"],
+      type: DataIndexType.MULTI,
+    },
+    membershipName: {
+      label: "Карт, эрхийн бичгийн нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumerMembership", "membership", "name"],
+      type: DataIndexType.MULTI,
+    },
+    consumerCode: {
+      label: "Харилцагчийн код",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumerMembership", "consumer", "code"],
+      type: DataIndexType.MULTI,
+    },
+    consumerName: {
+      label: "Харилцагчийн нэр",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumerMembership", "consumer", "name"],
+      type: DataIndexType.MULTI,
+    },
+    consumerPhone: {
+      label: "Утасны дугаар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumerMembership", "consumer", "phone"],
+      type: DataIndexType.MULTI,
+    },
+    payAmount: {
+      label: "Төлөх дүн",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["payAmount"],
+      type: DataIndexType.VALUE,
+    },
+    membershipIncreaseAmount: {
+      label: "Нэмэгдсэн оноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["membershipIncreaseAmount"],
+      type: DataIndexType.VALUE,
+    },
+    membershipDiscountAmount: {
+      label: "Ашигласан оноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["membershipDiscountAmount"],
+      type: DataIndexType.VALUE,
+    },
+    membershipAmount: {
+      label: "Үлдэгдэл оноо",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["consumerMembership", "amount"],
+      type: DataIndexType.VALUE,
+    },
+  });
   const { items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, key);
   const dispatch = useDispatch<AppDispatch>();
-  const [data, setData] = useState<IDataShoppingCart[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterShoppingCart>();
-  const [shoppingCart, setShoppingCart] = useState<IDataShoppingCart>();
   const [posDocument, setPosDocument] = useState<IDataDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
   const [isTransaction, setIsTransaction] = useState<boolean>(false);
@@ -168,15 +156,6 @@ const ListOfMembershipCardTransactions = () => {
       ),
     },
   ];
-  const getData = async (params?: IParamShoppingCart) => {
-    await ShoppingCartService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-        setFilters(response.response.filter);
-      }
-    });
-  };
   const getDocument = async (id: number) => {
     blockContext.block();
     DocumentService.getById(id)
@@ -187,34 +166,11 @@ const ListOfMembershipCardTransactions = () => {
       })
       .finally(() => blockContext.unblock());
   };
-  const itemClick = async (key: string, id: string): Promise<void> => {
-    blockContext.block();
-    await ShoppingCartService.getById(id)
-      .then((response) => {
-        if (response.success) {
-          setShoppingCart(response.response);
-        }
-      })
-      .finally(async () => {
-        if (shoppingCart && shoppingCart.transactionDocument) {
-          if (key == ItemAction.SHOW_DOCUMENT) {
-            getDocument(shoppingCart.transactionDocument.id).then(() =>
-              setIsBill(true)
-            );
-          } else if (key == ItemAction.SHOW_TRANSACTION) {
-            getDocument(shoppingCart.transactionDocument.id).then(() =>
-              setIsTransaction(true)
-            );
-          }
-        }
-        blockContext.unblock();
-      });
-  };
+  const itemClick = async (key: string, id: string): Promise<void> => {};
   useEffect(() => {
     dispatch(newPane({ key, param: {} }));
   }, []);
   useEffect(() => {
-    getData();
   }, [param]);
   return (
     <div>
@@ -266,11 +222,11 @@ const ListOfMembershipCardTransactions = () => {
             scroll={{ x: 1000 }}
             rowKey="id"
             doubleClick={true}
-            data={data}
+            data={[]}
             meta={meta}
             columns={columns}
             onColumns={setColumns}
-            incomeFilters={filters}
+            incomeFilters={[]}
             addItems={newItems}
             custom={(key, id) => itemClick(key, String(id))}
           />

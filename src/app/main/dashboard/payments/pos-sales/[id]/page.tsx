@@ -8,27 +8,28 @@ import {
 } from "@ant-design/icons";
 import { Badge, Breadcrumb, Col, Row, Space, Typography } from "antd";
 import { useParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 //swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { getFile } from "@/feature/common";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import SimilarMaterials from "./similar-materials";
 import { NumericFormat } from "react-number-format";
 import NumberInput from "../component/number-input";
-import { ShoppingGoodsService } from "@/service/pos/shopping-card/goods/service";
-import { CreateGoodsDto } from "@/service/pos/shopping-card/goods/entites";
+import { IGoods } from "@/service/pos/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { saveGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
 
 const { Title } = Typography;
 
 const MaterialDetail = () => {
   const params = useParams();
-  const { setReload, isReload } = usePaymentGroupContext();
-  const blockContext: BlockView = useContext(BlockContext);
+  const dispatch = useDispatch<AppDispatch>();
+  const goods = useTypedSelector((state) => state.shoppingGoods);
   const [material, setMaterial] = useState<IDataViewMaterial>();
   const [images, setImages] = useState<string[]>([]);
   const [qty, setQty] = useState<number>(0);
@@ -38,18 +39,25 @@ const MaterialDetail = () => {
       setMaterial(response.response);
     }
   };
-  const onFinish = async (data: CreateGoodsDto) => {
-    blockContext.block();
-    await ShoppingGoodsService.post(data)
-      .finally(() => {
-        setReload(!isReload);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
+  const onFinish = async (data: IDataViewMaterial) => {
+    const currentIndex = goods.findIndex((item) => item.materialId == data.id);
+    const currentGoods: IGoods = {
+      materialId: data.id,
+      materialName: data.name,
+      imageUrl: images.length > 0 ? images[0] : "/images/emptyMarket.png",
+      sectionName: data.sectionName,
+      unitAmount: data.unitAmount,
+      quantity: 1,
+      discountAmount: 0,
+      payAmount: data.unitAmount,
+      totalAmount: data.unitAmount,
+    };
+    if (currentIndex !== -1) {
+      currentGoods.quantity = goods[currentIndex].quantity + 1;
+      currentGoods.payAmount =
+        goods[currentIndex].unitAmount * (goods[currentIndex].quantity + 1);
+    }
+    dispatch(saveGoods(currentGoods));
   };
   const getImages = async () => {
     if (material) {
@@ -223,10 +231,7 @@ const MaterialDetail = () => {
                   }}
                   onClick={() => {
                     if (material) {
-                      onFinish({
-                        materialId: material.id,
-                        quantity: qty,
-                      });
+                      onFinish(material);
                     }
                   }}
                 >

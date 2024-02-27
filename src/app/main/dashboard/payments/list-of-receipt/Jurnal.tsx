@@ -344,9 +344,7 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        {document?.shoppingCart ? (
-          <StepIndex shoppingCart={document.shoppingCart} />
-        ) : null}
+        <StepIndex />
       </NewModal>
       <NewModal
         title="Буцаалт хийх"

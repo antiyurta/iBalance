@@ -1,23 +1,16 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
-import {
-  FilteredColumnsGiftCart,
-  IDataGiftCart,
-  IFilterGiftCart,
-  IParamGiftCart,
-} from "@/service/pos/gift-cart/entities";
-import { GiftCartService } from "@/service/pos/gift-cart/service";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 
 const ListOfGiftCard = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [columns, setColumns] = useState<FilteredColumnsGiftCart>({
+  const [columns, setColumns] = useState<any>({
     id: {
       label: "Баримтын дугаар",
       isView: true,
@@ -82,21 +75,8 @@ const ListOfGiftCard = () => {
       type: DataIndexType.VALUE,
     },
   });
-  const [data, setData] = useState<IDataGiftCart[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [params, setParams] = useState<IParamGiftCart>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterGiftCart>();
-  const getData = async (params: IParamGiftCart) => {
-    await GiftCartService.get(params).then((response) => {
-      if (response.success) {
-        setMeta(response.response.meta);
-        setData(response.response.data);
-      }
-    });
-  };
-  useEffect(() => {
-    getData(params);
-  }, []);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -151,7 +131,7 @@ const ListOfGiftCard = () => {
             meta={meta}
             columns={columns}
             onColumns={setColumns}
-            incomeFilters={filters}
+            incomeFilters={[]}
           />
         </Col>
       </Row>

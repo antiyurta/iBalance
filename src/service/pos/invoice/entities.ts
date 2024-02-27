@@ -1,5 +1,4 @@
 import { GenericResponse, IData } from "@/service/entities";
-import { IDataShoppingCart } from "../shopping-card/entities";
 import { PaymentType } from "@/service/reference/payment-method/entities";
 
 export interface GetInvoiceDto {
@@ -20,7 +19,6 @@ export interface CheckInvoiceDto {
 export interface IDataPaymentInvoice extends IData {
   id: string;
   shoppingCartId: string;
-  shoppingCart: IDataShoppingCart;
   paymentMethodId: number;
   paymentMethodLogo: string;
   paymentMethodName: string;

@@ -107,7 +107,8 @@ const TransactionCencus = (props: IProps) => {
           countPackage: transaction.material?.countPackage,
           unitAmount: transaction.unitAmount || 0,
           lastQty: transaction.lastQty,
-          quantity: transaction.lastQty + (transaction.excessOrDeficiency || 0),
+          quantity:
+            transaction.lastQty || 0 + (transaction.excessOrDeficiency || 0),
           excessOrDeficiency: transaction.excessOrDeficiency,
           totalAmount: transaction.amount,
           description: transaction.description,
@@ -163,9 +164,9 @@ const TransactionCencus = (props: IProps) => {
                 <NewFilterSelect
                   onChange={(id) => {
                     form.resetFields(["employeeId"]);
-                    const employees = warehouses.find(
-                      (warehouse) => warehouse.id === id
-                    )?.employees || [];
+                    const employees =
+                      warehouses.find((warehouse) => warehouse.id === id)
+                        ?.employees || [];
                     setEmployees(employees);
                     getMaterials({
                       warehouseId,

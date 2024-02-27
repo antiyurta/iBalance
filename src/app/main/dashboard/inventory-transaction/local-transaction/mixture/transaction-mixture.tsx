@@ -75,10 +75,10 @@ const TransactionMixture = (props: IProps) => {
     } else {
       setIsEdit(true);
       const ingredients = selectedDocument.transactions?.filter(
-        (transaction) => transaction.expenseQty > 0
+        (transaction) => transaction.expenseQty || 0 > 0
       );
       const exits = selectedDocument.transactions?.filter(
-        (transaction) => transaction.incomeQty > 0
+        (transaction) => transaction.incomeQty || 0 > 0
       );
       form.setFieldsValue({
         ...selectedDocument,
