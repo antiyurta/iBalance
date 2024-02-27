@@ -14,7 +14,7 @@ import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { IDataShoppingCart } from "../pos/shopping-card/entities";
 import { Dayjs } from "dayjs";
-import { IDataPos } from "../pos/entities";
+import { IDataPos, IGoods } from "../pos/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -56,10 +56,10 @@ export enum DocumentStatus {
 }
 export interface IPosDocumentDto {
   regno?: string;
-  shoppingCartId: string;
   warehouseId: number;
   posId: number;
   code: string;
+  transactions: IDataTransaction[];
 }
 export interface IDataDocument extends IData {
   id: number;

@@ -1,35 +1,20 @@
 import { Button, Switch, Typography } from "antd";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { NumericFormat } from "react-number-format";
 import Membership from "./Step1/Membership";
 import Bonus from "./Step1/Bonus";
-import { RootState, useTypedSelector } from "@/feature/store/reducer";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { stepDiscount } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 import { useDispatch } from "react-redux";
-// import {
-//   setIsMembership,
-//   setIsSaveAndSetSaveValue,
-//   setIsUseSaveAndSetUseValue,
-// } from "@/feature/core/reducer/PosReducer";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
+import { AppDispatch } from "@/feature/store/store";
 
 const { Title } = Typography;
-
-interface IProps {
-  data: IDataShoppingCart;
-  isPrev?: () => void;
-  isNext?: () => void;
-}
-
-const Step1 = (props: IProps) => {
-  const { data, isNext } = props;
+const Step1: React.FC = () => {
   const [isMembership, setIsMembership] = useState<boolean>(false);
   const [isBonus, setIsBonus] = useState<boolean>(false);
-  const getMembership = () => {
-    setIsMembership(data.consumerMembershipId !== null);
-  };
-  useEffect(() => {
-    getMembership()
-  }, [data]);
+  const dispatch = useDispatch<AppDispatch>();
+  const goods = useTypedSelector((state) => state.shoppingGoods);
+  const totalAmount = goods.reduce((total, item) => total + item.payAmount, 0);
   return (
     <div>
       <div
@@ -50,7 +35,7 @@ const Step1 = (props: IProps) => {
           <Title level={2}>Гишүүнчлэлтэй эсэх:</Title>
           <Switch checked={isMembership} onChange={setIsMembership} />
         </div>
-        {isMembership ? <Membership data={data} /> : null}
+        {isMembership && <Membership />}
         <div
           style={{
             width: "100%",
@@ -69,7 +54,7 @@ const Step1 = (props: IProps) => {
           <Title level={2}>Бэлгийн карттай эсэх:</Title>
           <Switch onChange={setIsBonus} />
         </div>
-        {isBonus ? <Bonus data={data} /> : null}
+        {isBonus && <Bonus />}
         <div
           style={{
             width: "100%",
@@ -94,7 +79,7 @@ const Step1 = (props: IProps) => {
               }}
             >
               <NumericFormat
-                value={data.totalAmount}
+                value={3000}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -103,64 +88,6 @@ const Step1 = (props: IProps) => {
               />
             </Title>
           </div>
-          {/* {isUseSave ? (
-            <div className="numbers">
-              <Title
-                style={{
-                  fontSize: 16,
-                  fontWeight: 400,
-                  color: "#DC3545",
-                }}
-              >
-                Ашигласан оноо:
-              </Title>
-              <Title
-                style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: "#DC3545",
-                }}
-              >
-                <NumericFormat
-                  value={useValue}
-                  thousandSeparator=","
-                  decimalScale={2}
-                  fixedDecimalScale
-                  displayType="text"
-                  suffix="₮"
-                />
-              </Title>
-            </div>
-          ) : null} */}
-          {/* {!isSave ? (
-            <div className="numbers">
-              <Title
-                style={{
-                  fontSize: 16,
-                  fontWeight: 400,
-                  color: "#DC3545",
-                }}
-              >
-                Харилцагчийн хөнгөлөлт:
-              </Title>
-              <Title
-                style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: "#DC3545",
-                }}
-              >
-                <NumericFormat
-                  value={saveValue}
-                  thousandSeparator=","
-                  decimalScale={2}
-                  fixedDecimalScale
-                  displayType="text"
-                  suffix="₮"
-                />
-              </Title>
-            </div>
-          ) : null} */}
           {isBonus ? (
             <div className="numbers">
               <Title
@@ -199,7 +126,7 @@ const Step1 = (props: IProps) => {
           >
             Төлөх дүн:
             <NumericFormat
-              value={data.payAmount}
+              value={totalAmount}
               thousandSeparator=","
               decimalScale={2}
               fixedDecimalScale
@@ -209,12 +136,15 @@ const Step1 = (props: IProps) => {
           </Title>
           <Button
             type="primary"
-            onClick={() => {
-              // paidAmount(
-              //   isUseSave ? data.totalAmount - useValue : data.totalAmount - saveValue
-              // );
-              isNext?.();
-            }}
+            onClick={() =>
+              dispatch(
+                stepDiscount({
+                  membershipId: 0,
+                  useMembershipPoint: 0,
+                  useGiftPoint: 0,
+                })
+              )
+            }
           >
             Үргэлжлүүлэх
           </Button>

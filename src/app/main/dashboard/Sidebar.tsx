@@ -2,7 +2,7 @@
 import { Button, Menu } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import React, { useEffect, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import { newTab } from "@/feature/store/slice/tab.slice";
 import { PermissionService } from "@/service/permission/service";
 import { IDataPermission } from "@/service/permission/entities";
@@ -25,10 +25,7 @@ const Sidebar = () => {
   const getMenuItems = (items: IDataResource[]): MenuItem[] => {
     return items
       .map((item) => {
-        let resourceIds = [item.id];
-        if (item.resources && item.resources.length > 0) {
-          resourceIds = resourceIds.concat(item.resources.map((res) => res.id));
-        }
+        const resourceIds = getChildIds(item);
         const menuItem = getView(resourceIds, item);
         if (menuItem && item.resources && item.resources.length > 0) {
           menuItem.children = getMenuItems(item.resources);
@@ -37,6 +34,21 @@ const Sidebar = () => {
       })
       .filter((item) => item !== undefined) as MenuItem[];
   };
+  function getChildIds(parentResource: IDataResource): number[] {
+    const childIds: number[] = [];
+    function traverse(resources: IDataResource[] | undefined) {
+      if (!resources) return;
+      for (const resource of resources) {
+        childIds.push(resource.id);
+        traverse(resource.resources);
+      }
+    }
+    if (parentResource) {
+      childIds.push(parentResource.id);
+      traverse(parentResource.resources);
+    }
+    return childIds;
+  }
   const getView = (
     resourceIds: number[],
     resource: IDataResource
@@ -73,9 +85,7 @@ const Sidebar = () => {
     return currentMenu;
   };
   const findPermission = (key: React.Key) => {
-    return permissions.find(
-      (item) => item.resource.key == key
-    );
+    return permissions.find((item) => item.resource.key == key);
   };
   const menuClick = (keyPath: string[]) => {
     const key = keyPath.reverse();
@@ -120,6 +130,9 @@ const Sidebar = () => {
   useEffect(() => {
     setMenuItems(getMenuItems(resources));
   }, [resources, permissions]);
+  useEffect(() => {
+    console.log("menuItems =====>", menuItems);
+  }, [menuItems]);
   return (
     <div
       style={{
@@ -148,7 +161,7 @@ const Sidebar = () => {
           background: "transparent",
           border: "none",
           overflow: "auto",
-          height: 700,
+          height: "calc(100%, -50px)",
           minWidth: collapsed ? "" : 240,
         }}
         onClick={(e) => menuClick(e.keyPath)}

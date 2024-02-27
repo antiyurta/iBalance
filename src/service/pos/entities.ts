@@ -3,7 +3,6 @@ import {
   GenericResponse,
   IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -51,4 +50,24 @@ export interface IResponsePointOfSales extends GenericResponse {
     meta: Meta;
     filter: IFilterPos;
   };
+}
+/** Худалдаж авах бараа */
+export interface IGoods {
+  materialId: number;
+  materialName: string;
+  imageUrl: string;
+  sectionName: string;
+  unitAmount: number;
+  discountAmount: number;
+  quantity: number;
+  payAmount: number;
+  totalAmount: number;
+}
+/** Түр хадгалах бараа */
+export interface ITemp {
+  quantity: number;
+  counter: number;
+  amount: number;
+  date: Date;
+  goods: IGoods[];
 }

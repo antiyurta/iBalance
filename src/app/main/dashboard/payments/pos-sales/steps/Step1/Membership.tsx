@@ -6,22 +6,15 @@ import { IDataConsumer } from "@/service/consumer/entities";
 import { IDataConsumerMembership } from "@/service/consumer/membership/entities";
 import { ConsumerMembershipService } from "@/service/consumer/membership/service";
 import { ConsumerService } from "@/service/consumer/service";
-import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { ShoppingCartService } from "@/service/pos/shopping-card/service";
 import { Form, Typography } from "antd";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 
 const { Title } = Typography;
 
-interface IProps {
-  data: IDataShoppingCart;
-}
-
-const Membership = (props: IProps) => {
-  const { data } = props;
+const Membership: React.FC = () => {
   const [form] = Form.useForm();
-  const { setReloadCart } = usePaymentGroupContext();
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [consumer, setConsumer] = useState<IDataConsumer>();
   const [selectedMembership, setSelectedMembership] =
@@ -46,27 +39,27 @@ const Membership = (props: IProps) => {
         setSelectedMembership(response.response);
       }
     });
-    await ShoppingCartService.patch(data.id, {
-      consumerMembershipId: id,
-      membershipDiscountAmount: 0,
-    }).then((response) => {
-      if (response.success) {
-        setReloadCart();
-      }
-    });
+    // await ShoppingCartService.patch(data.id, {
+    //   consumerMembershipId: id,
+    //   membershipDiscountAmount: 0,
+    // }).then((response) => {
+    //   if (response.success) {
+    //     setReloadCart();
+    //   }
+    // });
   };
   useEffect(() => {
-    if (data.consumerMembershipId) {
-      getMembershipCard(data.consumerMembershipId).then(async () => {
-        if (selectedMembership?.consumer) {
-          const { id } = selectedMembership?.consumer;
-          await ConsumerService.getById(id).then((response) => {
-            setConsumer(response.response);
-          });
-        }
-      });
-      form.setFieldValue("consumerMembershipId", data.consumerMembershipId);
-    }
+    // if (data.consumerMembershipId) {
+    //   getMembershipCard(data.consumerMembershipId).then(async () => {
+    //     if (selectedMembership?.consumer) {
+    //       const { id } = selectedMembership?.consumer;
+    //       await ConsumerService.getById(id).then((response) => {
+    //         setConsumer(response.response);
+    //       });
+    //     }
+    //   });
+    //   form.setFieldValue("consumerMembershipId", data.consumerMembershipId);
+    // }
   }, []);
   const Discount = () => {
     // if (membership?.membership.isSave && membership.membership.isPercent) {
@@ -79,8 +72,9 @@ const Membership = (props: IProps) => {
         type="secondary"
       >
         Нэмэгдсэн оноо:
+        {/* data.membershipIncreaseAmount */}
         <NumericFormat
-          value={data.membershipIncreaseAmount}
+          value={3000}
           thousandSeparator=","
           decimalScale={2}
           fixedDecimalScale

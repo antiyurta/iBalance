@@ -9,23 +9,28 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Space, Typography } from "antd";
-import { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Bill from "./Step3/Bill";
 import { IDataShoppingCart } from "@/service/pos/shopping-card/entities";
 import { DocumentService } from "@/service/document/service";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { useTypedSelector } from "@/feature/store/reducer";
-
-interface IProps {
-  isPrev?: () => void;
-  shoppingCart: IDataShoppingCart;
-}
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { emptyShoppingCart, prevStep } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
 
 const { Title } = Typography;
 
 type TaxType = "PERSON" | "BUSINESS";
 
-const Step3 = (props: IProps) => {
+const Step3: React.FC = () => {
+  const blockContext: BlockView = useContext(BlockContext);
+  const dispatch = useDispatch<AppDispatch>();
+  const warehouse = useTypedSelector((state) => state.warehouse);
+  const { posId } = useTypedSelector((state) => state.posOpenClose);
+  const goods = useTypedSelector((state) => state.shoppingGoods);
   const [form] = Form.useForm();
   const [isActiveTaxType, setIsActiveTaxType] = useState<TaxType>("PERSON");
   const [merchantInfo, setMerchantInfo] = useState<
@@ -34,9 +39,6 @@ const Step3 = (props: IProps) => {
   const [isBill, setIsBill] = useState<boolean>(false);
   const [posDocument, setPosDocument] = useState<IDataDocument>();
   const regno = Form.useWatch("regno", form);
-  const { id } = useTypedSelector((state) => state.warehouse);
-  const { posId } = useTypedSelector((state) => state.posOpenClose);
-  const { isPrev, shoppingCart } = props;
   const getInfo = async (values: { regno: number }) => {
     await EbarimtService.getOrganizationInfo(values.regno).then((response) => {
       if (response.response.status) {
@@ -48,24 +50,38 @@ const Step3 = (props: IProps) => {
     });
   };
   const saveDocument = async () => {
-    let code = '';
-    await DocumentService.generateCode({ movingStatus: MovingStatus.Pos }).then((response) => {
-      if (response.success) {
-        code = response.response;
+    let code = "";
+    blockContext.block();
+    await DocumentService.generateCode({ movingStatus: MovingStatus.Pos }).then(
+      (response) => {
+        if (response.success) {
+          code = response.response;
+        }
       }
-    });
+    );
     await DocumentService.postPosDocument({
-      shoppingCartId: shoppingCart.id,
       regno,
       code,
-      warehouseId: id,
+      warehouseId: warehouse.id,
       posId,
-    }).then((response) => {
-      if (response.success) {
-        setIsBill(true);
-        setPosDocument(response.response);
-      }
-    });
+      transactions: goods.map((item) => ({
+        materialId: item.materialId,
+        unitAmount: item.unitAmount,
+        discountAmount: item.discountAmount,
+        expenseQty: item.quantity,
+        amount: item.payAmount,
+        totalAmount: item.payAmount,
+      })),
+    })
+      .then((response) => {
+        if (response.success) {
+          setIsBill(true);
+          setPosDocument(response.response);
+          dispatch(emptyGoods());
+          dispatch(emptyShoppingCart());
+        }
+      })
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
     if (isActiveTaxType === "PERSON") {
@@ -179,7 +195,7 @@ const Step3 = (props: IProps) => {
             Төлсөн дүн
           </Title>
           <Title level={3} type="secondary">
-            {shoppingCart.payAmount}
+            {0}
           </Title>
         </div>
         <div className="numbers">
@@ -187,7 +203,7 @@ const Step3 = (props: IProps) => {
             Ибаримт руу илгээх дүн:
           </Title>
           <Title level={3} type="secondary">
-            {shoppingCart.payAmount}
+            {0}
           </Title>
         </div>
         <Title
@@ -197,7 +213,6 @@ const Step3 = (props: IProps) => {
           }}
         >
           НӨАТ: {"0.00"}
-          {/* TODO НӨАТ: { '0.00' }  */}
         </Title>
         <Title
           level={3}
@@ -215,7 +230,10 @@ const Step3 = (props: IProps) => {
             gap: 12,
           }}
         >
-          <Button onClick={isPrev} icon={<LeftOutlined />} />
+          <Button
+            onClick={() => dispatch(prevStep())}
+            icon={<LeftOutlined />}
+          />
           <Button
             htmlType="submit"
             type="primary"

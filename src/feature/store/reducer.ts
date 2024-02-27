@@ -5,8 +5,10 @@ import UserReducer from "./slice/user.slice";
 import TabsReducer from "./slice/tab.slice";
 import PaneReducer from "./slice/param.slice";
 import WarehouseReducer from "./slice/warehouse.slice";
-import ShoppingCartReducer from "./slice/shopping-cart.slice";
-import PosOpenClose from "./slice/pos-open-close.slice";
+import PosOpenCloseReducer from "./slice/pos-open-close.slice";
+import ShoppingCartReducer from "./slice/point-of-sale/shopping-cart.slice";
+import ShoppingGoodsReducer from "./slice/point-of-sale/goods.slice";
+import ShoppingTempReducer from "./slice/point-of-sale/temp.slice";
 
 const rootReducer = combineReducers({
   core: coreReducer,
@@ -14,8 +16,10 @@ const rootReducer = combineReducers({
   tabs: TabsReducer,
   pane: PaneReducer,
   warehouse: WarehouseReducer,
+  posOpenClose: PosOpenCloseReducer,
   shoppingCart: ShoppingCartReducer,
-  posOpenClose: PosOpenClose,
+  shoppingGoods: ShoppingGoodsReducer,
+  shoppingTemp: ShoppingTempReducer, 
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

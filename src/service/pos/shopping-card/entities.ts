@@ -7,7 +7,6 @@ import {
   IParam,
   Meta,
 } from "@/service/entities";
-import { IDataShoppingGoods } from "./goods/entites";
 import { IDataDocument } from "@/service/document/entities";
 import { IDataPaymentInvoice } from "../invoice/entities";
 import { IDataPosOpenClose } from "../open-close/entities";
@@ -40,7 +39,7 @@ export interface IDataShoppingCart extends IData {
   payAmount: number;
   paidAmount: number;
   giftAmount: number;
-  goods: IDataShoppingGoods[];
+  // goods: IDataShoppingGoods[];
   giftCarts: IDataGiftCart[];
   transactionDocument?: IDataDocument;
   paymentInvoices: IDataPaymentInvoice[];

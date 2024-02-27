@@ -19,12 +19,12 @@ export interface IDataTransaction extends IData {
   id?: number;
   materialId?: number;
   material?: IDataMaterial;
-  warehouseDocumentId: number;
-  documentId: number;
+  warehouseDocumentId?: number;
+  documentId?: number;
   document?: IDataDocument;
-  lastQty: number;
-  incomeQty: number;
-  expenseQty: number;
+  lastQty?: number;
+  incomeQty?: number;
+  expenseQty?: number;
   unitAmount?: number;
   totalAmount?: number;
   amount?: number;
@@ -33,7 +33,7 @@ export interface IDataTransaction extends IData {
   excessOrDeficiency?: number;
   convertMaterialId?: number;
   convertMaterial?: IDataMaterial;
-  convertQuantity: number;
+  convertQuantity?: number;
   convertLastQty?: number;
   description?: string;
   refundDocumentId?: number;
