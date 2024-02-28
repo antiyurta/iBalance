@@ -21,7 +21,7 @@ import {
 const { Title } = Typography;
 const PayController = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { totalAmount } = usePaymentContext();
+  const { payAmount } = usePaymentContext();
   const shoppingGoods = useTypedSelector((state) => state.shoppingGoods);
   const { isModal } = useTypedSelector((state) => state.shoppingCart);
 
@@ -193,7 +193,7 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={totalAmount}
+                value={payAmount}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
