@@ -1,17 +1,14 @@
 import { NewInputNumber } from "@/components/input";
 import { getFile, openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { saveGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
 import { AppDispatch } from "@/feature/store/store";
-import { Operator } from "@/service/entities";
 import { MaterialType } from "@/service/material/entities";
-import { MaterialService } from "@/service/material/service";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { IGoods } from "@/service/pos/entities";
 import { BarcodeOutlined, QrcodeOutlined } from "@ant-design/icons";
-import { Button, Space, Tooltip } from "antd";
+import { Button, Tooltip } from "antd";
 import { KeyboardEvent, useContext, useState } from "react";
 import { useDispatch } from "react-redux";
 export const CodeSearch = () => {

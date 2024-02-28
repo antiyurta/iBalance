@@ -1,9 +1,6 @@
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { IDataCoupon } from "@/service/command/coupon/entities";
-import { IDataDiscount } from "@/service/command/discount/entities";
 import { getFile } from "@/feature/common";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +9,6 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import { NumericFormat } from "react-number-format";
 import { displayCoupon, checkCoupon } from "../injection";
 import { Coupon } from "./coupon";
-import { Operator } from "@/service/entities";
 import { DisplayType } from "./tool-header/display-tool";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";

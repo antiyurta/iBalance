@@ -170,8 +170,7 @@ const ListOfMembershipCardTransactions = () => {
   useEffect(() => {
     dispatch(newPane({ key, param: {} }));
   }, []);
-  useEffect(() => {
-  }, [param]);
+  useEffect(() => {}, [param]);
   return (
     <div>
       <Row gutter={[0, 12]}>
@@ -238,7 +237,7 @@ const ListOfMembershipCardTransactions = () => {
         open={isBill}
         onCancel={() => setIsBill(false)}
       >
-        {posDocument ? <Bill posDocument={posDocument} /> : null}
+        {/* {posDocument ? <Bill posDocument={posDocument} /> : null} */}
       </NewModal>
       <NewModal
         width={1500}
@@ -248,7 +247,7 @@ const ListOfMembershipCardTransactions = () => {
         footer={null}
         destroyOnClose
       >
-        {posDocument ? <TransactionPos selectedDocument={posDocument} /> : null}
+        {/* {posDocument ? <TransactionPos selectedDocument={posDocument} /> : null} */}
       </NewModal>
     </div>
   );
