@@ -1,14 +1,10 @@
 import Image from "next/image";
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import { DeleteOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
-import { Button, Popconfirm, Space } from "antd";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { getFile } from "@/feature/common";
+import { Button, Popconfirm } from "antd";
 import { NumericFormat } from "react-number-format";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { useTypedSelector } from "@/feature/store/reducer";
 import { IGoods } from "@/service/pos/entities";
 import {
   removeGoods,
@@ -21,7 +17,6 @@ interface IProps {
 
 const Item = (props: IProps) => {
   const { data } = props;
-  const { setReload } = usePaymentGroupContext();
   const dispatch = useDispatch<AppDispatch>();
   const onChange = (quantity: number) => {
     dispatch(

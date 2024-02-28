@@ -1,20 +1,8 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  getParam,
-  onCloseFilterTag,
-} from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import {
-  FilteredColumnsDocument,
-  IDataDocument,
-  IFilterDocument,
-  IParamDocument,
-  MovingStatus,
-} from "@/service/document/entities";
-import { DocumentService } from "@/service/document/service";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
@@ -23,71 +11,70 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import {
+  FilteredColumnsPosDocument,
+  IDataPosDocument,
+  IFilterPosDocument,
+} from "@/service/document/pos-document/entites";
+import { PosDocumentService } from "@/service/document/pos-document/service";
 const key = "payments/list-of-receipt/return-list";
-const ReturnList = () => {
+const ReturnList: React.FC = () => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [columns, setColumns] = useState<FilteredColumnsDocument>({
+  const [columns, setColumns] = useState<FilteredColumnsPosDocument>({
     code: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["code"],
+      dataIndex: ["document", "code"],
       type: DataIndexType.MULTI,
     },
     documentAt: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["documentAt"],
+      dataIndex: ["document", "documentAt"],
       type: DataIndexType.DATETIME,
     },
     warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: ["warehouse", "name"],
+      dataIndex: ["document", "warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumer", "code"],
+      dataIndex: ["document", "consumer", "code"],
       type: DataIndexType.MULTI,
     },
     consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumer", "name"],
+      dataIndex: ["document", "consumer", "name"],
       type: DataIndexType.MULTI,
     },
     incomeCount: {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["incomeCount"],
+      dataIndex: ["document", "incomeCount"],
       type: DataIndexType.MULTI,
     },
     incomeQuantity: {
       label: "Борлуулалтын ширхэг",
       isView: true,
       isFiltered: false,
-      dataIndex: ["incomeQuantity"],
+      dataIndex: ["document", "incomeQuantity"],
       type: DataIndexType.MULTI,
     },
-    // paymentMethodNames: {
-    //   label: "Төлбөрийн хэлбэр",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: ["shoppingCart", "invoices", "name"],
-    //   type: DataIndexType.MULTI,
-    // },
-    amount: {
+    totalAmount: {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: ["amount"],
+      dataIndex: ["totalAmount"],
       type: DataIndexType.VALUE,
     },
     payAmount: {
@@ -97,49 +84,45 @@ const ReturnList = () => {
       dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
     },
-    // paidAmount: {
-    //   label: "Төлсөн дүн",
-    //   isView: true,
-    //   isFiltered: false,
-    //   dataIndex: ["shoppingCart", "paidAmount"],
-    //   type: DataIndexType.VALUE,
-    // },
-    discountAmount: {
+    paidAmount: {
+      label: "Төлсөн дүн",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["paidAmount"],
+      type: DataIndexType.VALUE,
+    },
+    goodsDiscountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: ["discountAmount"],
+      dataIndex: ["goodsDiscountAmount"],
       type: DataIndexType.VALUE,
     },
-    membershipDiscountAmount: {
+    membershipPoint: {
       label: "Ашигласан оноо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "membershipDiscountAmount"],
+      dataIndex: ["membershipPoint"],
       type: DataIndexType.VALUE,
     },
-    giftAmount: {
+    giftCartPoint: {
       label: "Бэлгийн карт",
       isView: true,
       isFiltered: false,
-      dataIndex: ["shoppingCart", "giftAmount"],
+      dataIndex: ["giftCartPoint"],
       type: DataIndexType.VALUE,
     },
   });
-  const [data, setData] = useState<IDataDocument[]>([]);
-  const [filters, setFilters] = useState<IFilterDocument>();
+  const [data, setData] = useState<IDataPosDocument[]>([]);
+  const [filters, setFilters] = useState<IFilterPosDocument>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const { items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, key);
   const dispatch = useDispatch<AppDispatch>();
 
   const getData = async () => {
-    const params: IParamDocument = {
-      ...param,
-      movingStatus: MovingStatus.PosSaleReturn,
-    };
     blockContext.block();
-    await DocumentService.get(params)
+    await PosDocumentService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);

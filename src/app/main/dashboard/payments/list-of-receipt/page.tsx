@@ -38,6 +38,7 @@ import dayjs from "dayjs";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { openNofi } from "@/feature/common";
 import { newTab } from "@/feature/store/slice/tab.slice";
+import PageTitle from "@/components/page-title";
 type GiftType = "income" | "expense";
 const { Title } = Typography;
 const ListOfReceipt = () => {
@@ -63,16 +64,16 @@ const ListOfReceipt = () => {
       key: "item-2",
       children: <ReturnList />,
     },
-    {
-      label: "Гишүүнчлэлийн картын гүйлгээний жагсаалт",
-      key: "item-3",
-      children: <ListOfMembershipCardTransactions />,
-    },
-    {
-      label: "Бэлгийн картын гүйлгээний жагсаалт",
-      key: "item-4",
-      children: <ListOfGiftCard />,
-    },
+    // {
+    //   label: "Гишүүнчлэлийн картын гүйлгээний жагсаалт",
+    //   key: "item-3",
+    //   children: <ListOfMembershipCardTransactions />,
+    // },
+    // {
+    //   label: "Бэлгийн картын гүйлгээний жагсаалт",
+    //   key: "item-4",
+    //   children: <ListOfGiftCard />,
+    // },
     {
       label: "Өдрийн нээлт, хаалтын түүх",
       key: "item-5",
@@ -111,27 +112,18 @@ const ListOfReceipt = () => {
     getMemberships();
   }, []);
   return (
-    <div>
+    <>
+      <PageTitle>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddAction(true)}>
+          Нэмэлт үйлдүүд
+        </Button>
+      </PageTitle>
       <Row
         style={{
           paddingTop: 16,
         }}
         gutter={[12, 24]}
       >
-        <Col md={24} lg={16} xl={19}>
-          <Space size={24}>
-            <Title level={2}>Төлбөр тооцоо / Баримтын жагсаалт</Title>
-            <Button
-              icon={<PlusOutlined />}
-              onClick={() => setIsAddAction(true)}
-            >
-              Нэмэлт үйлдүүд
-            </Button>
-          </Space>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <Input.Search />
-        </Col>
         <Col span={24}>
           <Tabs
             className="lineTop"
@@ -407,7 +399,7 @@ const ListOfReceipt = () => {
           </Space>
         </Form>
       </NewModal>
-    </div>
+    </>
   );
 };
 export default ListOfReceipt;

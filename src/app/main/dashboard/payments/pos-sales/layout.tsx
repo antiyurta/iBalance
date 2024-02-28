@@ -4,13 +4,13 @@ import { Col, Row } from "antd";
 import Groups from "./groups";
 
 import PayController from "./payController";
-import { PaymentGroupProvider } from "@/feature/context/PaymentGroupContext";
+import { ProviderPaymentGroup } from "@/feature/context/PaymentGroupContext";
 import checkOpener from "@/feature/hoc/checkOpener";
 
 const PosSalesLayouts = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <PaymentGroupProvider>
+      <ProviderPaymentGroup>
         <Row
           style={{
             height: "100%",
@@ -25,7 +25,7 @@ const PosSalesLayouts = ({ children }: { children: React.ReactNode }) => {
             <PayController />
           </Col>
         </Row>
-      </PaymentGroupProvider>
+      </ProviderPaymentGroup>
     </>
   );
 };

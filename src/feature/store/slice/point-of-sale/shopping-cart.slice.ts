@@ -1,3 +1,4 @@
+import { PaymentType } from "@/service/reference/payment-method/entities";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 type TaxType = "Company" | "Citizen";
 interface IShoppingCart {
@@ -16,8 +17,11 @@ interface IStepDiscount {
   useMembershipPoint: number;
   useGiftPoint: number;
 }
-interface IInvoice {
+export interface IInvoice {
   payMethodId: number;
+  methodName: string;
+  logo: string;
+  type: PaymentType;
   payAmount: number;
 }
 interface IStepReport {
@@ -47,14 +51,24 @@ const shoppingCart = createSlice({
       return state;
     },
     onPaid: (state, action: PayloadAction<IInvoice>) => {
-      const { payMethodId, payAmount } = action.payload;
+      const invoice = action.payload;
       const currentIndex = state.invoices.findIndex(
-        (item) => item.payMethodId == payMethodId
+        (item) => item.payMethodId == invoice.payMethodId
       );
       if (currentIndex == -1) {
-        state.invoices.push({ payMethodId, payAmount });
+        state.invoices.push(invoice);
       } else {
-        state.invoices[currentIndex].payAmount = payAmount;
+        state.invoices[currentIndex].payAmount = invoice.payAmount;
+      }
+      return state;
+    },
+    removePaid: (state, action: PayloadAction<IInvoice>) => {
+      const invoice = action.payload;
+      const currentIndex = state.invoices.findIndex(
+        (item) => item.payMethodId == invoice.payMethodId
+      );
+      if (currentIndex !== -1) {
+        state.invoices.splice(currentIndex, 1);
       }
       return state;
     },
@@ -77,6 +91,7 @@ export const {
   onShoppingCart,
   stepDiscount,
   onPaid,
+  removePaid,
   stepPayment,
   stepReport,
   prevStep,

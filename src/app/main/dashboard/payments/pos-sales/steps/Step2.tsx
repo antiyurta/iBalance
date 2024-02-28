@@ -18,22 +18,20 @@ import {
   prevStep,
   stepPayment,
 } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 
 const { Title } = Typography;
 
 const Step2: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
-  const goods = useTypedSelector((state) => state.shoppingGoods);
   const { invoices } = useTypedSelector((state) => state.shoppingCart);
+  const { payAmount, paidAmount } = usePaymentContext();
   const [formMessage, setFormMessage] = useState<string>("");
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [activeKey, setActiveKey] = useState<number>();
   const [paymentMethods, setPaymentMethods] =
     useState<IDataReferencePaymentMethod[]>();
-  const [isInvoiceReload, setIsInvoiceReload] = useState<boolean>(false);
-  const [amountDiff, setAmountDiff] = useState<number>(2000);
-  const totalAmount = goods.reduce((total, item) => total + item.payAmount, 0);
   const getPaymentMethods = async () => {
     blockContext.block();
     await ReferencePaymentMethodService.get({})
@@ -51,7 +49,15 @@ const Step2: React.FC = () => {
       form.resetFields();
       const method = paymentMethods?.find((method) => method.id === activeKey);
       if (method) {
-        dispatch(onPaid({ payMethodId: method.id, payAmount: values.amount }));
+        dispatch(
+          onPaid({
+            payMethodId: method.id,
+            payAmount: values.amount,
+            methodName: method.name || "",
+            type: method.type,
+            logo: method.logo,
+          })
+        );
         setActiveKey(undefined);
       }
     }
@@ -83,7 +89,7 @@ const Step2: React.FC = () => {
           level={1}
         >
           <NumericFormat
-            value={totalAmount}
+            value={payAmount}
             thousandSeparator=","
             decimalScale={2}
             fixedDecimalScale
@@ -102,7 +108,15 @@ const Step2: React.FC = () => {
                   key={index}
                   onClick={() => {
                     form.resetFields();
-                    dispatch(onPaid({ payMethodId: method.id, payAmount: 0 }));
+                    dispatch(
+                      onPaid({
+                        payMethodId: method.id,
+                        payAmount: 0,
+                        methodName: method.name || "",
+                        logo: method.logo || "",
+                        type: method.type,
+                      })
+                    );
                     setActiveKey(method.id);
                     setFormMessage(method.name || "");
                   }}
@@ -118,7 +132,7 @@ const Step2: React.FC = () => {
                   }
                 >
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${method.logo}`}
+                    src={method.logo}
                     width={24}
                     height={24}
                     alt={method.name || ""}
@@ -136,7 +150,7 @@ const Step2: React.FC = () => {
               );
             })}
         </div>
-        {activeKey ? (
+        {activeKey && (
           <Form form={form}>
             <Space.Compact>
               <Form.Item
@@ -154,11 +168,11 @@ const Step2: React.FC = () => {
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
                   parser={(value) => value!.replace(/(,*)/g, "")}
-                  // max={amountDiff}
+                  max={payAmount - paidAmount}
                   step="0.1"
-                  // onDoubleClick={() => {
-                  //   form.setFieldValue("amount", amountDiff);
-                  // }}
+                  onDoubleClick={() => {
+                    form.setFieldValue("amount", payAmount - paidAmount);
+                  }}
                 />
               </Form.Item>
               <Button
@@ -172,12 +186,8 @@ const Step2: React.FC = () => {
               />
             </Space.Compact>
           </Form>
-        ) : null}
-        <PayRequests
-          invoices={[]}
-          isReload={() => setIsInvoiceReload(!isInvoiceReload)}
-          amountDiff={amountDiff}
-        />
+        )}
+        <PayRequests />
         <div
           style={{
             width: "100%",
@@ -198,7 +208,7 @@ const Step2: React.FC = () => {
             style={{
               width: "100%",
             }}
-            // disabled={amountDiff <= 0 ? false : true}
+            disabled={payAmount - paidAmount <= 0 ? false : true}
           >
             Үргэлжлүүлэх
           </Button>

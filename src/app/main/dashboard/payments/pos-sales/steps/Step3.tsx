@@ -12,13 +12,19 @@ import { Button, Form, Space, Typography } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import Bill from "./Step3/Bill";
 import { DocumentService } from "@/service/document/service";
-import { IDataDocument, MovingStatus } from "@/service/document/entities";
+import { MovingStatus } from "@/service/document/entities";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { emptyShoppingCart, prevStep } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import {
+  emptyShoppingCart,
+  prevStep,
+} from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
+import { PosDocumentService } from "@/service/document/pos-document/service";
+import { IDataPosDocument } from "@/service/document/pos-document/entites";
 
 const { Title } = Typography;
 
@@ -28,15 +34,17 @@ const Step3: React.FC = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const dispatch = useDispatch<AppDispatch>();
   const warehouse = useTypedSelector((state) => state.warehouse);
-  const { posId } = useTypedSelector((state) => state.posOpenClose);
+  const posOpenClose = useTypedSelector((state) => state.posOpenClose);
+  const { invoices } = useTypedSelector((state) => state.shoppingCart);
   const goods = useTypedSelector((state) => state.shoppingGoods);
+  const { paidAmount } = usePaymentContext();
   const [form] = Form.useForm();
   const [isActiveTaxType, setIsActiveTaxType] = useState<TaxType>("PERSON");
   const [merchantInfo, setMerchantInfo] = useState<
     IDataMerchantInfo | undefined
   >();
   const [isBill, setIsBill] = useState<boolean>(false);
-  const [posDocument, setPosDocument] = useState<IDataDocument>();
+  const [posDocument, setPosDocument] = useState<IDataPosDocument>();
   const regno = Form.useWatch("regno", form);
   const getInfo = async (values: { regno: number }) => {
     await EbarimtService.getOrganizationInfo(values.regno).then((response) => {
@@ -58,11 +66,16 @@ const Step3: React.FC = () => {
         }
       }
     );
-    await DocumentService.postPosDocument({
+    const res = await PosDocumentService.post({
       regno,
       code,
       warehouseId: warehouse.id,
-      posId,
+      openCloseId: posOpenClose.id,
+      invoices: invoices.map((item) => ({
+        type: item.type,
+        paymentMethodName: item.methodName,
+        incomeAmount: item.payAmount,
+      })),
       transactions: goods.map((item) => ({
         materialId: item.materialId,
         unitAmount: item.unitAmount,
@@ -71,16 +84,19 @@ const Step3: React.FC = () => {
         amount: item.payAmount,
         totalAmount: item.payAmount,
       })),
-    })
-      .then((response) => {
-        if (response.success) {
+    });
+    if (res.success) {
+      await PosDocumentService.getById(res.response.id)
+        .then((response) => {
+          if (response.success) {
+            setPosDocument(response.response);
+          }
+        })
+        .finally(() => {
+          blockContext.unblock();
           setIsBill(true);
-          setPosDocument(response.response);
-          dispatch(emptyGoods());
-          dispatch(emptyShoppingCart());
-        }
-      })
-      .finally(() => blockContext.unblock());
+        });
+    }
   };
   useEffect(() => {
     if (isActiveTaxType === "PERSON") {
@@ -194,7 +210,7 @@ const Step3: React.FC = () => {
             Төлсөн дүн
           </Title>
           <Title level={3} type="secondary">
-            {0}
+            {paidAmount}
           </Title>
         </div>
         <div className="numbers">
@@ -202,7 +218,7 @@ const Step3: React.FC = () => {
             Ибаримт руу илгээх дүн:
           </Title>
           <Title level={3} type="secondary">
-            {0}
+            {paidAmount}
           </Title>
         </div>
         <Title
@@ -252,9 +268,13 @@ const Step3: React.FC = () => {
         width={300}
         title="Баримт"
         open={isBill}
-        onCancel={() => setIsBill(false)}
+        onCancel={() => {
+          setIsBill(false);
+          dispatch(emptyGoods());
+          dispatch(emptyShoppingCart());
+        }}
       >
-        {posDocument ? <Bill posDocument={posDocument} /> : null}
+        {posDocument && <Bill posDocument={posDocument} />}
       </NewModal>
     </>
   );

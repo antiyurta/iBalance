@@ -1,26 +1,20 @@
 import Image from "next/image";
-import { Typography } from "antd";
+import { Button, Typography } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { NumericFormat } from "react-number-format";
-import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
-import { PosInvoiceService } from "@/service/pos/invoice/service";
+import { removePaid } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { useTypedSelector } from "@/feature/store/reducer";
+import React from "react";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 
 const { Title } = Typography;
 
-interface IProps {
-  isReload: () => void;
-  invoices: IDataPaymentInvoice[];
-  amountDiff: number;
-}
-
-const PayRequests = (props: IProps) => {
-  const { invoices, isReload, amountDiff } = props;
-  const remove = (id: string) => {
-    PosInvoiceService.remove(id).then((response) => {
-      if (response.success) {
-        isReload();
-      }
-    });
-  };
+const PayRequests: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { invoices } = useTypedSelector((state) => state.shoppingCart);
+  const { payAmount, paidAmount } = usePaymentContext();
   return (
     <div
       style={{
@@ -45,17 +39,16 @@ const PayRequests = (props: IProps) => {
                 display: "flex",
                 flexDirection: "row",
                 gap: 12,
-                alignSelf: "end",
-                alignItems: "flex-end",
+                alignItems: "center",
               }}
             >
               <Image
-                src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${invoice.paymentMethodLogo}`}
+                src={invoice.logo}
                 width={18}
                 height={18}
-                alt={invoice.paymentMethodName}
+                alt={invoice.methodName}
               />
-              <Title level={3}>{invoice.paymentMethodName}</Title>
+              <Title level={3}>{invoice.methodName}</Title>
               <Title
                 level={3}
                 style={{
@@ -63,7 +56,7 @@ const PayRequests = (props: IProps) => {
                 }}
               >
                 <NumericFormat
-                  value={invoice.amount}
+                  value={invoice.payAmount}
                   thousandSeparator=","
                   decimalScale={2}
                   fixedDecimalScale
@@ -71,13 +64,12 @@ const PayRequests = (props: IProps) => {
                   suffix="₮"
                 />
               </Title>
-
-              <button
-                // disabled={method.type === PaymentType.Cash ? false : true}
-                onClick={() => remove(invoice.id)}
-              >
-                X
-              </button>
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => dispatch(removePaid(invoice))}
+              />
             </div>
           );
         })}
@@ -87,19 +79,19 @@ const PayRequests = (props: IProps) => {
           level={3}
           style={{
             fontWeight: 400,
-            color: Math.sign(amountDiff) != -1 ? "black" : "red",
+            color: Math.sign(payAmount) != -1 ? "black" : "red",
           }}
         >
-          {Math.sign(amountDiff) != -1 ? "Үлдэгдэл:" : "Хариулт:"}
+          {Math.sign(payAmount - paidAmount) != -1 ? "Үлдэгдэл:" : "Хариулт:"}
         </Title>
         <Title
           level={3}
           style={{
-            color: Math.sign(amountDiff) != -1 ? "black" : "red",
+            color: Math.sign(payAmount - paidAmount) != -1 ? "black" : "red",
           }}
         >
           <NumericFormat
-            value={amountDiff}
+            value={payAmount - paidAmount}
             thousandSeparator=","
             decimalScale={2}
             fixedDecimalScale

@@ -43,9 +43,6 @@ const CloseState = (props: IProps) => {
   const [moneyTransactions, setMoneyTransactions] = useState<
     IDataMoneyTransaction[]
   >([]);
-  const [paymentMethods, setPaymentMethods] = useState<
-    IDataReferencePaymentMethod[]
-  >([]);
   const [membershipAmount, setMembershipAmount] = useState<number>(0);
   const [giftAmount, setGifAmount] = useState<number>(0);
   const [cashMoney, setCashMoney] = useState<number>(0);
@@ -69,7 +66,8 @@ const CloseState = (props: IProps) => {
   };
   const getMoney = (type: PaymentType): number => {
     return invoices.reduce(
-      (total, item) => (total + item.type == type ? Number(item.amount) : 0),
+      (total, item) =>
+        total + item.type == type ? Number(item.incomeAmount) : 0,
       0
     );
   };
@@ -89,25 +87,13 @@ const CloseState = (props: IProps) => {
     return { add, subtract };
   };
   const getPayMethod = async () => {
-    await ReferencePaymentMethodService.get({
-      isActive: true,
-      type: PaymentType.NotCash,
-    }).then((response) => {
-      if (response.success) {
-        setPaymentMethods(response.response);
-      }
-    });
-    await PosInvoiceService.get({ openCloseId, isPaid: true })
-      .then((response) => {
+    await PosInvoiceService.get({ openCloseId, isPaid: true }).then(
+      (response) => {
         if (response.success) {
           setInvoices(response.response);
         }
-      })
-      .then(() => {
-        setCashMoney(getMoney(PaymentType.Cash));
-        setNotcashMoney(getMoney(PaymentType.NotCash));
-        setLendMoney(getMoney(PaymentType.Lend));
-      });
+      }
+    );
     await MoneyTransactionService.get({
       openCloseId,
       isTransaction: false,
@@ -129,7 +115,7 @@ const CloseState = (props: IProps) => {
     const materialDiscount: StatisticDoc = {
       state: "Бараа материалын хөнгөлөлт, урамшуулал",
       qty: 0,
-      amount: 0
+      amount: 0,
     };
     const consumerDiscount: StatisticDoc = {
       state: "Харилцагч, гишүүнчлэлийн хөнгөлөлт",
@@ -248,19 +234,17 @@ const CloseState = (props: IProps) => {
       state: "Нийт бэлэн бус борлуулалт",
       amount: closeNumber({ value: notcashMoney }),
     });
-    for (const paymentMethod of paymentMethods) {
-      const amount = invoices.reduce(
-        (total, item) =>
-          total + item.paymentMethodId == paymentMethod.id ? item.amount : 0,
-        0
-      );
+    const notCashInvoices = invoices.filter(
+      (item) => item.type == PaymentType.NotCash
+    );
+    for (const item of notCashInvoices) {
       notCashDoc.push({
         state: (
           <ul>
-            <li>{paymentMethod.name}</li>
+            <li>{item.paymentMethodName}</li>
           </ul>
         ),
-        amount: closeNumber({ value: amount }),
+        amount: closeNumber({ value: item.incomeAmount || 0 }),
       });
     }
     notCashDoc.push({
@@ -320,6 +304,11 @@ const CloseState = (props: IProps) => {
         .finally(() => blockContext.unblock());
     }
   };
+  useEffect(() => {
+    setCashMoney(getMoney(PaymentType.Cash));
+    setNotcashMoney(getMoney(PaymentType.NotCash));
+    setLendMoney(getMoney(PaymentType.Lend));
+  }, [invoices]);
   useEffect(() => {
     openCloseId && getOpenClose(openCloseId);
     getStatisticCash();

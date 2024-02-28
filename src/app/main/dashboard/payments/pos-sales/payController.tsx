@@ -3,9 +3,8 @@ import NewModal from "@/components/modal";
 import Item from "./component/Item";
 import { Button, Typography } from "antd";
 import StepIndex from "./steps/StepIndex";
-import ShoppingGoods from "./component/ShoppingGoods";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
-import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import ShoppingTemp from "./component/ShoppingTemp";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 import { NumericFormat } from "react-number-format";
 import ExtraIndex from "./extra";
 import { useTypedSelector } from "@/feature/store/reducer";
@@ -14,11 +13,15 @@ import { AppDispatch } from "@/feature/store/store";
 import { CodeSearch } from "./component/code-search";
 import { createTemp } from "@/feature/store/slice/point-of-sale/temp.slice";
 import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
-import { emptyShoppingCart, onShoppingCart } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import {
+  emptyShoppingCart,
+  onShoppingCart,
+} from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 
 const { Title } = Typography;
 const PayController = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { totalAmount } = usePaymentContext();
   const shoppingGoods = useTypedSelector((state) => state.shoppingGoods);
   const { isModal } = useTypedSelector((state) => state.shoppingCart);
 
@@ -190,10 +193,7 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={shoppingGoods?.reduce(
-                  (total, item) => total + Number(item.payAmount),
-                  0
-                )}
+                value={totalAmount}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -209,7 +209,7 @@ const PayController = () => {
               gap: 8,
             }}
           >
-            <ShoppingGoods />
+            <ShoppingTemp />
             <button
               className="app-button-regular"
               style={{
