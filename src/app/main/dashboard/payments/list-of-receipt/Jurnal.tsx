@@ -2,14 +2,6 @@ import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
 import { findIndexInColumnSettings, getParam } from "@/feature/common";
-import {
-  FilteredColumnsDocument,
-  IDataDocument,
-  IFilterDocument,
-  IParamDocument,
-  MovingStatus,
-} from "@/service/document/entities";
-import { DocumentService } from "@/service/document/service";
 import { DataIndexType, Meta } from "@/service/entities";
 import { Col, Row, Space } from "antd";
 import Image from "next/image";
@@ -30,88 +22,107 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
+import {
+  FilteredColumnsPosDocument,
+  IDataPosDocument,
+  IFilterPosDocument,
+} from "@/service/document/pos-document/entites";
+import { PosDocumentService } from "@/service/document/pos-document/service";
 const key = "payments/list-of-receipt/document";
-const Jurnal = () => {
+interface IPopupButtonProp {
+  color: string;
+  label: string;
+  icon: React.ReactNode;
+}
+const PopupButton: React.FC<IPopupButtonProp> = ({ color, label, icon }) => (
+  <div className="popupButton" style={{ color }}>
+    {icon}
+    <p
+      style={{
+        margin: 0,
+        fontSize: "14px",
+        fontWeight: 400,
+        lineHeight: "16px",
+      }}
+    >
+      {label}
+    </p>
+  </div>
+);
+const Jurnal: React.FC = () => {
   const blockContext: BlockView = useContext(BlockContext);
   const { items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, key);
   const dispatch = useDispatch<AppDispatch>();
-  const [columns, setColumns] = useState<FilteredColumnsDocument>({
+  const [columns, setColumns] = useState<FilteredColumnsPosDocument>({
     code: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["code"],
+      dataIndex: ["document", "code"],
       type: DataIndexType.MULTI,
     },
     documentAt: {
       label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["documentAt"],
+      dataIndex: ["document", "documentAt"],
       type: DataIndexType.DATE,
-    },
-    status: {
-      label: "Төлөв",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["status"],
-      type: DataIndexType.ENUM,
     },
     warehouseName: {
       label: "Байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: ["warehouse", "name"],
+      dataIndex: ["document", "warehouse", "name"],
       type: DataIndexType.MULTI,
     },
     consumerCode: {
       label: "Харилцагчийн код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumer", "code"],
+      dataIndex: ["document", "consumer", "code"],
       type: DataIndexType.MULTI,
     },
     consumerName: {
       label: "Харилцагчийн нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumer", "name"],
+      dataIndex: ["document", "consumer", "name"],
       type: DataIndexType.MULTI,
     },
     expenseCount: {
       label: "Борлуулалтын тоо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["expenseCount"],
+      dataIndex: ["document", "expenseCount"],
       type: DataIndexType.MULTI,
     },
     expenseQuantity: {
       label: "Борлуулалтын тоо хэмжээ",
       isView: true,
       isFiltered: false,
-      dataIndex: ["expenseQuantity"],
+      dataIndex: ["document", "expenseQuantity"],
       type: DataIndexType.MULTI,
     },
-    amount: {
+    totalAmount: {
       label: "Нийт дүн",
       isView: true,
       isFiltered: false,
-      dataIndex: ["amount"],
+      dataIndex: ["totalAmount"],
       type: DataIndexType.VALUE,
     },
-    discountAmount: {
+    goodsDiscountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: ["discountAmount"],
+      dataIndex: ["goodsDiscountAmount"],
       type: DataIndexType.VALUE,
     },
-    consumerDiscountAmount: {
+    membershipPoint: {
       label: "Харилцагчийн хөнгөлөлт",
       isView: true,
       isFiltered: false,
-      dataIndex: ["consumerDiscountAmount"],
+      dataIndex: ["membershipPoint"],
       type: DataIndexType.VALUE,
     },
     payAmount: {
@@ -129,14 +140,14 @@ const Jurnal = () => {
       type: DataIndexType.BOOLEAN,
     },
   });
-  const [data, setData] = useState<IDataDocument[]>();
+  const [data, setData] = useState<IDataPosDocument[]>();
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [filters, setFilters] = useState<IFilterDocument>();
+  const [filters, setFilters] = useState<IFilterPosDocument>();
   const [isBill, setIsBill] = useState<boolean>(false);
   const [isTransaction, setIsTransaction] = useState<boolean>(false);
   const [isPay, setIsPay] = useState<boolean>(false);
   const [isRefund, setIsRefund] = useState<boolean>(false);
-  const [document, setDocument] = useState<IDataDocument>();
+  const [posDocument, setPosDocument] = useState<IDataPosDocument>();
   enum ItemAction {
     SHOW_DOCUMENT = "show-document",
     SHOW_TRANSACTION = "show-transaction",
@@ -147,82 +158,48 @@ const Jurnal = () => {
     {
       key: ItemAction.SHOW_DOCUMENT,
       label: (
-        <div className="popupButton" style={{ color: "#0D6EFD" }}>
-          <QrcodeOutlined width={16} height={16} alt="Баримт харах" />
-          <p
-            style={{
-              margin: 0,
-              fontSize: "14px",
-              fontWeight: 400,
-              lineHeight: "16px",
-            }}
-          >
-            Баримт харах
-          </p>
-        </div>
+        <PopupButton
+          icon={<QrcodeOutlined width={16} height={16} alt="Баримт харах" />}
+          color={"#0D6EFD"}
+          label={"Баримт харах"}
+        />
       ),
     },
     {
       key: ItemAction.SHOW_TRANSACTION,
       label: (
-        <div className="popupButton">
-          <EyeOutlined width={16} height={16} alt="Гүйлгээ харах" />
-          <p
-            style={{
-              margin: 0,
-              fontSize: "14px",
-              fontWeight: 400,
-              lineHeight: "16px",
-            }}
-          >
-            Гүйлгээ харах
-          </p>
-        </div>
+        <PopupButton
+          icon={<EyeOutlined width={16} height={16} alt="Гүйлгээ харах" />}
+          color={"#000"}
+          label={"Гүйлгээ харах"}
+        />
       ),
     },
     {
       key: ItemAction.SHOW_PAY,
       label: (
-        <div className="popupButton" style={{ color: "#FFC107" }}>
-          <CreditCardOutlined width={16} height={16} alt="Төлөлт бүртгэх" />
-          <p
-            style={{
-              margin: 0,
-              fontSize: "14px",
-              fontWeight: 400,
-              lineHeight: "16px",
-            }}
-          >
-            Төлөлт бүртгэх
-          </p>
-        </div>
+        <PopupButton
+          icon={
+            <CreditCardOutlined width={16} height={16} alt="Төлөлт бүртгэх" />
+          }
+          color={"#FFC107"}
+          label={"Төлөлт бүртгэх"}
+        />
       ),
     },
     {
       key: ItemAction.SHOW_REFUND,
       label: (
-        <div className="popupButton" style={{ color: "#DC3545" }}>
-          <DeleteOutlined width={16} height={16} alt="Буцаалт хийх" />
-          <p
-            style={{
-              margin: 0,
-              fontSize: "14px",
-              fontWeight: 400,
-              lineHeight: "16px",
-            }}
-          >
-            Буцаалт хийх
-          </p>
-        </div>
+        <PopupButton
+          icon={<DeleteOutlined width={16} height={16} alt="Буцаалт хийх" />}
+          color={"#DC3545"}
+          label={"Буцаалт хийх"}
+        />
       ),
     },
   ];
   const getData = async () => {
-    const params: IParamDocument = {
-      ...param,
-      movingStatus: MovingStatus.Pos,
-    };
-    await DocumentService.get(params).then((response) => {
+    await PosDocumentService.get(param).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setFilters(response.response.filter);
@@ -232,10 +209,10 @@ const Jurnal = () => {
   };
   const itemClick = async (key: string, id: number): Promise<void> => {
     blockContext.block();
-    await DocumentService.getById(id)
+    await PosDocumentService.getById(id)
       .then((response) => {
         if (response.success) {
-          setDocument(response.response);
+          setPosDocument(response.response);
         }
       })
       .finally(async () => {
@@ -325,7 +302,7 @@ const Jurnal = () => {
         open={isBill}
         onCancel={() => setIsBill(false)}
       >
-        {document ? <Bill posDocument={document} /> : null}
+        {posDocument && <Bill posDocument={posDocument} />}
       </NewModal>
       <NewModal
         width={1500}
@@ -335,7 +312,7 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        <TransactionPos selectedDocument={document} />
+        <TransactionPos posDocument={posDocument} />
       </NewModal>
       <NewModal
         title="Төлбөр төлөх"
@@ -353,7 +330,7 @@ const Jurnal = () => {
         footer={null}
         destroyOnClose
       >
-        <PosRefund posDocument={document} onSave={setIsRefund} />
+        <PosRefund posDocument={posDocument} onSave={setIsRefund} />
       </NewModal>
     </div>
   );

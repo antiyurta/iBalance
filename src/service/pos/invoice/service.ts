@@ -1,8 +1,7 @@
 import { api } from "@/feature/interceptor/interceptor";
 import {
-  CheckInvoiceDto,
-  CreateInvoiceDto,
   GetInvoiceDto,
+  IDataPaymentInvoice,
   IResponsePaymentInvoice,
   IResponsePaymentInvoices,
 } from "./entities";
@@ -10,10 +9,7 @@ import {
 function get(params: GetInvoiceDto): Promise<IResponsePaymentInvoices> {
   return api.get("pos-invoice", { params });
 }
-function check(params: CheckInvoiceDto): Promise<IResponsePaymentInvoice> {
-  return api.get("pos-invoice/check", { params });
-}
-function post(body: CreateInvoiceDto): Promise<IResponsePaymentInvoice> {
+function post(body: IDataPaymentInvoice): Promise<IResponsePaymentInvoice> {
   return api.post("pos-invoice", body);
 }
 function remove(id: string): Promise<IResponsePaymentInvoice> {
@@ -22,7 +18,6 @@ function remove(id: string): Promise<IResponsePaymentInvoice> {
 
 export const PosInvoiceService = {
   get,
-  check,
   post,
   remove,
 };

@@ -1,11 +1,10 @@
 import Image from "next/image";
 import { QRCode } from "antd";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataPosDocument } from "@/service/document/pos-document/entites";
 interface IProps {
-  posDocument: IDataDocument;
+  posDocument: IDataPosDocument;
 }
-const Bill = (props: IProps) => {
-  const { posDocument } = props;
+const Bill: React.FC<IProps> = ({ posDocument }) => {
   return (
     <div className="bill">
       <div className="bill-header">
@@ -110,25 +109,26 @@ const Bill = (props: IProps) => {
             </tr>
           </thead>
           <tbody>
-            {posDocument.transactions?.map((transaction, index) => (
-              <tr key={index}>
-                <td>{transaction.material?.name}</td>
-                <td>{transaction.expenseQty}</td>
-                <td>{transaction.unitAmount}</td>
-                <td>{transaction.totalAmount}</td>
-                <td>{transaction.amount}</td>
-              </tr>
-            ))}
+            {posDocument.document &&
+              posDocument.document.transactions?.map((transaction, index) => (
+                <tr key={index}>
+                  <td>{transaction.material?.name}</td>
+                  <td>{transaction.expenseQty}</td>
+                  <td>{transaction.unitAmount}</td>
+                  <td>{transaction.totalAmount}</td>
+                  <td>{transaction.amount}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
         <div className="result">
           <div className="items">
             <h4>Нийт үнэ</h4>
-            <h4>{posDocument.amount}</h4>
+            <h4>{posDocument.totalAmount}</h4>
           </div>
           <div className="items">
             <h5>Нийт хөнгөлөлт</h5>
-            <h5>{posDocument.discountAmount}</h5>
+            <h5>{posDocument.goodsDiscountAmount}</h5>
           </div>
           <div className="items">
             <h4>Хариулт</h4>

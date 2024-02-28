@@ -3,10 +3,9 @@ import { AntTable } from "@/components/table";
 import { Badge, Button, Popconfirm } from "antd";
 import { SwapOutlined, CloseOutlined } from "@ant-design/icons";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
 import { NumericFormat } from "react-number-format";
 import { ITemp } from "@/service/pos/entities";
 import { useDispatch } from "react-redux";
@@ -14,8 +13,7 @@ import { AppDispatch } from "@/feature/store/store";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { removeTemp } from "@/feature/store/slice/point-of-sale/temp.slice";
 import { saveGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
-const ShoppingGoods = () => {
-  const { isReload, setReload } = usePaymentGroupContext();
+const ShoppingTemp: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const shoppingTemps = useTypedSelector((state) => state.shoppingTemp);
   const [isOpenModalSave, setIsOpenModalSave] = useState<boolean>(false);
@@ -160,4 +158,4 @@ const ShoppingGoods = () => {
     </div>
   );
 };
-export default ShoppingGoods;
+export default ShoppingTemp;

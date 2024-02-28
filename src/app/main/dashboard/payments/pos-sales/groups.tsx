@@ -7,7 +7,7 @@ import {
 import { ReactNode, useEffect, useState } from "react";
 import { MaterialSectionService } from "@/service/material/section/service";
 import Image from "next/image";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 import { getFile } from "@/feature/common";
 
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
@@ -41,7 +41,7 @@ const Groups = () => {
     );
   };
 
-  const { value, set } = usePaymentGroupContext();
+  const { sectionId, setSectionId } = usePaymentContext();
   const [sections, setSections] = useState<IGroup[]>([]);
   const getMaterialSections = async () => {
     await MaterialSectionService.get({
@@ -53,7 +53,10 @@ const Groups = () => {
         response.response.data.map(async (section) => {
           return {
             name: section.name,
-            src: section.fileId !== null ? await getFile(section.fileId) : '/images/emptyMarket.png',
+            src:
+              section.fileId !== null
+                ? await getFile(section.fileId)
+                : "/images/emptyMarket.png",
             sectionId: section.id,
           };
         })
@@ -73,8 +76,8 @@ const Groups = () => {
         <Col span={24}>
           <div className="group">
             <div
-              onClick={() => set("all")}
-              className={value != "all" ? "box" : "box-active"}
+              onClick={() => setSectionId(undefined)}
+              className={sectionId != undefined ? "box" : "box-active"}
             >
               <ShoppingOutlined
                 style={{
@@ -136,9 +139,9 @@ const Groups = () => {
                   <SwiperSlide key={index}>
                     <div
                       key={index}
-                      onClick={() => set(section.sectionId)}
+                      onClick={() => setSectionId(section.sectionId)}
                       className={
-                        section.sectionId === value ? "box-active" : "box"
+                        section.sectionId === sectionId ? "box-active" : "box"
                       }
                     >
                       <Image

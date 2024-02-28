@@ -4,17 +4,16 @@ import { Button, Form } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import { openNofi } from "@/feature/common";
-import { IDataDocument } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
+import { IDataPosDocument } from "@/service/document/pos-document/entites";
 interface IProps {
-  posDocument?: IDataDocument;
+  posDocument?: IDataPosDocument;
   onSave?: (state: boolean) => void;
 }
-const PosRefund = (props: IProps) => {
-  const { posDocument, onSave } = props;
+const PosRefund: React.FC<IProps> = ({ posDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isHide, setIsHide] = useState<boolean>(false);
-  const [refundForm] = Form.useForm();
+  const [refundForm] = Form.useForm<IDataPosDocument>();
   const onFinish = () => {
     if (!posDocument) {
       openNofi("warning", "Баримт сонгогдоогүй байна.");
@@ -33,14 +32,7 @@ const PosRefund = (props: IProps) => {
     }
   };
   useEffect(() => {
-    refundForm.setFieldsValue({
-      amount: posDocument?.amount,
-      billId: posDocument?.billId,
-      documentAt: posDocument?.documentAt,
-      paidAmount: 0,
-      discountAmount: posDocument?.discountAmount,
-      consumerDiscountAmount: posDocument?.consumerDiscountAmount,
-    });
+    refundForm.setFieldsValue({ ...posDocument });
   }, [posDocument]);
   return (
     <Form layout="vertical" form={refundForm} onFinish={onFinish}>

@@ -7,14 +7,14 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { stepDiscount } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 
 const { Title } = Typography;
 const Step1: React.FC = () => {
   const [isMembership, setIsMembership] = useState<boolean>(false);
   const [isBonus, setIsBonus] = useState<boolean>(false);
+  const { payAmount } = usePaymentContext();
   const dispatch = useDispatch<AppDispatch>();
-  const goods = useTypedSelector((state) => state.shoppingGoods);
-  const totalAmount = goods.reduce((total, item) => total + item.payAmount, 0);
   return (
     <div>
       <div
@@ -79,7 +79,7 @@ const Step1: React.FC = () => {
               }}
             >
               <NumericFormat
-                value={3000}
+                value={payAmount}
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
@@ -126,7 +126,7 @@ const Step1: React.FC = () => {
           >
             Төлөх дүн:
             <NumericFormat
-              value={totalAmount}
+              value={payAmount}
               thousandSeparator=","
               decimalScale={2}
               fixedDecimalScale

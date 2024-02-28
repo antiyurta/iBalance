@@ -1,31 +1,28 @@
 import { GenericResponse, IData } from "@/service/entities";
 import { PaymentType } from "@/service/reference/payment-method/entities";
+import { IDataPosOpenClose } from "../open-close/entities";
+import { IDataPosDocument } from "@/service/document/pos-document/entites";
+import { IDataEmployee } from "@/service/employee/entities";
 
 export interface GetInvoiceDto {
-  shoppingCartId?: string;
   openCloseId?: number;
   type?: PaymentType;
   isPaid?: boolean;
 }
-export interface CreateInvoiceDto {
-  shoppingCartId: string;
-  paymentMethodId: number;
-  amount: number; // Төлөх дүн
-}
-export interface CheckInvoiceDto {
-  refNumber: string; // Захиалгын код
-  paymentMethodId: number; //Төлбөр төрөл
-}
 export interface IDataPaymentInvoice extends IData {
-  id: string;
-  shoppingCartId: string;
-  paymentMethodId: number;
-  paymentMethodLogo: string;
-  paymentMethodName: string;
-  amount: number;
-  isPaid: boolean;
-  currency: string;
+  id?: number;
+  openCloseId?: number;
+  openClose?: IDataPosOpenClose;
+  posDocumentId?: number;
+  posDocument?: IDataPosDocument;
+  employeeId?: number;
+  employee?: IDataEmployee;
   type: PaymentType;
+  isLocal?: boolean;
+  paymentMethodName?: string;
+  incomeAmount?: number;
+  expenseAmount?: number;
+  description?: string;
 }
 
 export interface IResponsePaymentInvoices extends GenericResponse {

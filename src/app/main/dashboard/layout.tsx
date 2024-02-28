@@ -166,6 +166,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           style={{
             display: "flex",
             flexDirection: "column",
+            height: "100%",
+            minHeight: "850px",
           }}
         >
           <Tabs

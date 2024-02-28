@@ -13,7 +13,6 @@ import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { Dayjs } from "dayjs";
-import { IDataPos } from "../pos/entities";
 
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
@@ -44,22 +43,6 @@ export enum MovingStatus {
   /** Захиалгын борлуулалт */
   BookingSale = "BOOKING_SALE",
 }
-/** Гүйлгээний төлвүүд */
-export enum DocumentStatus {
-  /** Төлөлт гүйцэд хийгдсэн */
-  Paid = "PAID",
-  /** Төлөлт зээлтэй */
-  Lending = "LENDING",
-  /** Төлөлт буцаагдсан */
-  Refund = "REFUND",
-}
-export interface IPosDocumentDto {
-  regno?: string;
-  warehouseId: number;
-  posId: number;
-  code: string;
-  transactions: IDataTransaction[];
-}
 export interface IDataDocument extends IData {
   id: number;
   code: string;
@@ -86,15 +69,6 @@ export interface IDataDocument extends IData {
   consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт
   payAmount: number; // төлөх дүн
   movingStatus: MovingStatus;
-  isEbarimt: boolean;
-  billId?: string;
-  macAddress?: string;
-  lottery?: string;
-  internalCode?: string;
-  qrData?: string;
-  status: DocumentStatus;
-  posId: number;
-  pos?: IDataPos;
   transactions?: IDataTransaction[];
 }
 
@@ -116,14 +90,6 @@ export interface IFilterDocument extends IColumn {
   bookingId?: number[];
   description?: string[];
   isLock?: boolean;
-  amount?: number[];
-  discountAmount?: number[];
-  consumerDiscountAmount?: number[];
-  membershipDiscountAmount?: number[];
-  giftAmount?: number[];
-  status?: DocumentStatus[];
-  payAmount?: number[];
-  isEbarimt?: boolean[];
   lockedBy?: number[];
   lockedAt?: string[];
 }
@@ -136,7 +102,6 @@ export interface IParamDocument extends IParam {
   hideMovingStatuses?: MovingStatus[];
   movingStatus?: MovingStatus;
   interval?: DateFilter;
-  status?: DocumentStatus;
   warehouseId?: number;
   consumerId?: number;
   isLock?: boolean;
@@ -213,34 +178,6 @@ const columns: FilteredColumnsDocument = {
     dataIndex: ["incomeQuantity"],
     type: DataIndexType.MULTI,
   },
-  amount: {
-    label: "Төлөх дүн",
-    isView: true,
-    isFiltered: false,
-    dataIndex: ["amount"],
-    type: DataIndexType.VALUE,
-  },
-  discountAmount: {
-    label: "Бараа материалын үнийн хөнгөлөлт",
-    isView: true,
-    isFiltered: false,
-    dataIndex: ["discountAmount"],
-    type: DataIndexType.VALUE,
-  },
-  consumerDiscountAmount: {
-    label: "Харилцагчийн хөнгөлөлт",
-    isView: true,
-    isFiltered: false,
-    dataIndex: ["consumerDiscountAmount"],
-    type: DataIndexType.VALUE,
-  },
-  payAmount: {
-    label: "Төлөх дүн",
-    isView: true,
-    isFiltered: false,
-    dataIndex: ["payAmount"],
-    type: DataIndexType.VALUE,
-  },
   expenseCount: {
     label: "Зарлагын тоо",
     isView: true,
@@ -304,13 +241,6 @@ const columns: FilteredColumnsDocument = {
     dataIndex: ["lockeddAt"],
     type: DataIndexType.DATETIME,
   },
-  // userId = {
-  //   label: "Хариуцсан нярав",
-  //   isView: true,
-  //   isFiltered: false,
-  //   dataIndex: ["user", "firstName"],
-  //   type: DataIndexType.USER,
-  // }; TODO
 };
 export const getDocumentColumns = (
   movingStatus?: MovingStatus
@@ -387,10 +317,6 @@ export const getDocumentColumns = (
       "consumerCode",
       "consumerName",
       "description",
-      "amount",
-      "discountAmount",
-      "consumerDiscountAmount",
-      "payAmount",
       "expenseCount",
       "expenseQuantity",
       "isLock",

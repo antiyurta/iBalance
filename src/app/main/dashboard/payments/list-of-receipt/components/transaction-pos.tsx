@@ -26,13 +26,12 @@ import {
 } from "@/service/reference/payment-method/entities";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
 import { UserSelect } from "@/components/user-select";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataPosDocument } from "@/service/document/pos-document/entites";
 interface IProps {
-  selectedDocument?: IDataDocument;
+  posDocument?: IDataPosDocument;
 }
-const TransactionPos = (props: IProps) => {
-  const { selectedDocument } = props;
-  const [form] = Form.useForm<IDataDocument>();
+const TransactionPos: React.FC<IProps> = ({ posDocument }) => {
+  const [form] = Form.useForm<IDataPosDocument>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<
     IDataReferencePaymentMethod[]
@@ -54,12 +53,8 @@ const TransactionPos = (props: IProps) => {
   useEffect(() => {
     getWarehouses({});
     getPaymentMethods({});
-    form.setFieldsValue({
-      ...selectedDocument,
-      documentAt: dayjs(selectedDocument?.documentAt),
-      createdAt: dayjs(selectedDocument?.createdAt),
-    });
-  }, [selectedDocument]);
+    form.setFieldsValue({ ...posDocument });
+  }, [posDocument]);
   return (
     <Row gutter={[12, 24]}>
       <Col span={24}>

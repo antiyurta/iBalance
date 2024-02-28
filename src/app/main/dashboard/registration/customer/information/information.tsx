@@ -382,7 +382,7 @@ const Information = (props: IProps) => {
         <PageTitle onClick={() => openModal(false)} />
       )}
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-        {isOpenTree ? (
+        {isOpenTree && (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
               data={sections}
@@ -399,7 +399,7 @@ const Information = (props: IProps) => {
               }}
             />
           </Col>
-        ) : null}
+        )}
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>
             {ComponentType === "LITTLE" ? (

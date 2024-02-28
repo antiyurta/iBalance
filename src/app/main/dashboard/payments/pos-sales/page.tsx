@@ -2,7 +2,7 @@
 import { Col, Divider, Row } from "antd";
 import { NewInput, NewSearch } from "@/components/input";
 import { useContext, useEffect, useState } from "react";
-import { usePaymentGroupContext } from "@/feature/context/PaymentGroupContext";
+import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 import { MaterialType } from "@/service/material/entities";
 import { QrcodeOutlined } from "@ant-design/icons";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
@@ -11,12 +11,11 @@ import { Meta } from "@/service/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
 import DisplayItem from "./component/DisplayItem";
-import { CodeSearch } from "./component/code-search";
 import ShoppingCartButton from "./component/tool-header/shopping-cart";
 import DisplayTool, { DisplayType } from "./component/tool-header/display-tool";
 
 const PosSales = () => {
-  const { value } = usePaymentGroupContext();
+  const { sectionId } = usePaymentContext();
   const blockContext: BlockView = useContext(BlockContext);
   const [materials, setMaterials] = useState<IDataViewMaterial[]>([]);
   const [meta, setMeta] = useState<Meta>({
@@ -28,7 +27,7 @@ const PosSales = () => {
     blockContext.block();
     await ViewMaterialService.get({
       types: [MaterialType.Material],
-      sectionId: value === "all" ? undefined : value,
+      sectionId,
       moreUnitAmount: 0,
       page: page,
       limit: meta.limit,
@@ -50,7 +49,7 @@ const PosSales = () => {
     await ViewMaterialService.get({
       types: [MaterialType.Material],
       name: searchValue,
-      sectionId: value === "all" ? undefined : value,
+      sectionId,
     })
       .then((response) => {
         setMaterials(response.response.data);
@@ -61,7 +60,7 @@ const PosSales = () => {
   };
   useEffect(() => {
     getMaterials(1);
-  }, [value]);
+  }, [sectionId]);
   return (
     <div className="pos-container">
       <div className="tool-container">

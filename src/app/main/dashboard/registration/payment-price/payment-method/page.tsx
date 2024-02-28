@@ -1,15 +1,27 @@
 "use client";
 import Image from "next/image";
+import { NextPage } from "next";
 import { IDataReferencePaymentMethod } from "@/service/reference/payment-method/entities";
 import { ReferencePaymentMethodService } from "@/service/reference/payment-method/service";
-import { App, Col, Input, Row, Space, Table } from "antd";
-import { useEffect, useState } from "react";
-import Title from "antd/lib/typography/Title";
-import { NewSwitch } from "@/components/input";
+import { Button, Col, Form, Popconfirm, Row, Table } from "antd";
+import { Fragment, useEffect, useState } from "react";
 import { ColumnsType } from "antd/es/table";
-const PaymentMethodPage = () => {
-  const { modal } = App.useApp();
+import PageTitle from "@/components/page-title";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import NewModal from "@/components/modal";
+import {
+  NewInput,
+  NewInputNumber,
+  NewSelect,
+  NewSwitch,
+} from "@/components/input";
+import { PaymentMethodIconData, PaymentTypeData } from "@/feature/data";
+const PaymentMethodPage: NextPage = () => {
+  const icons = PaymentMethodIconData;
+  const [form] = Form.useForm<IDataReferencePaymentMethod>();
   const [data, setData] = useState<IDataReferencePaymentMethod[]>([]);
+  const [isEditModal, setIsEditModal] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<IDataReferencePaymentMethod>();
   const columns: ColumnsType<IDataReferencePaymentMethod> = [
     {
       title: "ID",
@@ -18,16 +30,15 @@ const PaymentMethodPage = () => {
     },
     {
       title: "Зураг",
-      dataIndex: "imageUrl",
-      key: "imageUrl",
-      render: (text) => (
-        <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_PATH}/${text}`}
-          width={48}
-          height={48}
-          alt={text}
-        />
-      ),
+      dataIndex: "logo",
+      key: "logo",
+      render: (value) => {
+        return value ? (
+          <Image src={value} width={24} height={24} alt={value} />
+        ) : (
+          ""
+        );
+      },
     },
     {
       title: "Төлбөрийн хэлбэр",
@@ -38,21 +49,45 @@ const PaymentMethodPage = () => {
       title: "Төрөл",
       key: "type",
       dataIndex: "type",
+      render: (value) => {
+        const index = PaymentTypeData.findIndex((item) => item.value == value);
+        return index != -1 ? PaymentTypeData[index].label : "";
+      },
     },
     {
-      title: "Идэвхтэй эсэх",
+      title: "Үйлдэл",
       key: "action",
       render: (_, record) => (
-        <NewSwitch
-          defaultChecked={record.isActive}
-          onChange={(value: boolean) => {
-            if (!value) {
-              confirm(record.id, value);
-            } else {
-              onFinish(record.id, value);
-            }
-          }}
-        />
+        <Fragment key={record.id}>
+          <Button
+            icon={<EditOutlined />}
+            shape={"circle"}
+            style={{ marginRight: 8 }}
+            onClick={() => {
+              form.setFieldsValue(record);
+              setIsEditModal(true);
+              setSelectedRow(record);
+            }}
+          />
+          <Popconfirm
+            title="Та итгэлтэй байна уу？"
+            okText="Тийм"
+            cancelText="Үгүй"
+            onConfirm={() => onDelete(record.id)}
+          >
+            <Button
+              danger
+              icon={
+                <DeleteOutlined
+                  style={{
+                    color: "red",
+                  }}
+                />
+              }
+              shape={"circle"}
+            />
+          </Popconfirm>
+        </Fragment>
       ),
     },
   ];
@@ -63,53 +98,97 @@ const PaymentMethodPage = () => {
       }
     });
   };
-  const confirm = (id: number, isActive: boolean) => {
-    modal.warning({
-      title: "Анхааруулга",
-      content: (
-        <div>
-          <p>Төлбөрийн хэлбэрийг идэвхгүй болгохдоо итгэлтэй байна уу?</p>
-        </div>
-      ),
-      cancelText: "Болих",
-      okText: "Тийм",
-      closable: true,
-      onOk: () => onFinish(id, isActive),
-    });
+  const onFinish = async (row: IDataReferencePaymentMethod) => {
+    if (selectedRow) {
+      await ReferencePaymentMethodService.patch(selectedRow.id, row).then(
+        (response) => {
+          if (response.success) {
+            getData();
+            setIsEditModal(false);
+            form.resetFields();
+            setSelectedRow(undefined);
+          }
+        }
+      );
+    } else {
+      await ReferencePaymentMethodService.post(row).then((response) => {
+        if (response.success) {
+          getData();
+          setIsEditModal(false);
+          form.resetFields();
+          setSelectedRow(undefined);
+        }
+      });
+    }
   };
-  const onFinish = async (id: number, isActive: boolean) => {
-    await ReferencePaymentMethodService.patch(id, {
-      id,
-      isActive,
-    }).then((response) => {
-      if (response.success) {
-        getData();
-      }
-    });
+  const onDelete = async (id: number) => {
+    await ReferencePaymentMethodService.remove(id);
+    getData();
   };
   useEffect(() => {
     getData();
   }, []);
   return (
-    <Row gutter={[12, 24]}>
-      <Col md={24} lg={16} xl={19}>
-        <Space size={24}>
-          <Title level={3}>
-            Үндсэн бүртгэл / Төлбөр, үнэ / Төлбөрийн хэлбэр
-          </Title>
-        </Space>
-      </Col>
-      <Col md={24} lg={8} xl={5}>
-        <Input.Search />
-      </Col>
-      <Col md={24} lg={14} xl={24}>
-        <Row gutter={[0, 12]}>
-          <Col span={24}>
-            <Table columns={columns} dataSource={data} rowKey={"id"} />;
-          </Col>
-        </Row>
-      </Col>
-    </Row>
+    <>
+      <PageTitle
+        onClick={() => {
+          setIsEditModal(true);
+        }}
+      />
+      <Row gutter={[12, 24]}>
+        <Col md={24} lg={14} xl={24}>
+          <Row gutter={[0, 12]}>
+            <Col span={24}>
+              <Table columns={columns} dataSource={data} rowKey={"id"} />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <NewModal
+        open={isEditModal}
+        title="Төлбөрийн хэлбэр"
+        onOk={() =>
+          form.validateFields().then((value) => {
+            onFinish(value);
+          })
+        }
+        onCancel={() => setIsEditModal(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item label="Лого" name="logo">
+            <NewSelect
+              options={icons.map((item) => ({
+                label: (
+                  <Image
+                    src={item.icon}
+                    alt={item.title}
+                    width={24}
+                    height={24}
+                  />
+                ),
+                value: item.icon,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item label="Нэр" name="name">
+            <NewInput />
+          </Form.Item>
+          <Form.Item label="Төрөл" name="type">
+            <NewSelect options={PaymentTypeData} />
+          </Form.Item>
+          <Form.Item label="Хураамж" name="fee">
+            <NewInputNumber />
+          </Form.Item>
+          <Form.Item
+            label="Идэвхтэй эсэх"
+            name="isActive"
+            valuePropName="checked"
+          >
+            <NewSwitch />
+          </Form.Item>
+        </Form>
+      </NewModal>
+    </>
   );
 };
 export default PaymentMethodPage;
