@@ -64,7 +64,7 @@ const InventoriesGroup = (props: IProps) => {
   } = useTypedSelector((state: RootState) => state.core);
   const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
   const [params, setParams] = useState<IParamMaterialSection>({
-    materialTypes: [type],
+    materialType: type,
   });
   const [sections, setSections] = useState<IDataMaterialSection[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
@@ -165,7 +165,7 @@ const InventoriesGroup = (props: IProps) => {
   };
   const checkTreeIn = async (sectionId: number) => {
     await MaterialSectionService.get({
-      materialTypes: [type],
+      materialType: type,
       sectionId: [sectionId],
     }).then((response) => {
       if (response.response.data.length > 0) {
@@ -339,7 +339,7 @@ const InventoriesGroup = (props: IProps) => {
         <InventoriesRegistration
           ComponentType="LITTLE"
           onClickModal={(e) => setIsOpenChangeModal(e)}
-          materialTypes={[type]}
+          materialType={type}
         />
       </NewModal>
       <NewModal

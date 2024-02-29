@@ -1,6 +1,6 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
-import { NewInput, NewSearch } from "@/components/input";
+import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
 import { NewTable } from "@/components/table";
 import { UploadExcelFile } from "@/components/upload-excel-file";

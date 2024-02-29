@@ -132,10 +132,10 @@ const Step2: React.FC = () => {
                   }
                 >
                   <Image
-                    src={method.logo}
+                    src={method.logo || "/icons/pos/pay-cash.svg"}
                     width={24}
                     height={24}
-                    alt={method.name || ""}
+                    alt={method.name || "Төлбөр"}
                   />
                   <Title
                     level={4}

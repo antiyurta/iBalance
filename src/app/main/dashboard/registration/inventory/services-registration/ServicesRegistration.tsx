@@ -303,7 +303,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   useEffect(() => {
     dispatch(newPane({ key, param: {} }));
-    getMaterialSection({ materialTypes: [type] });
+    getMaterialSection({ materialType: type });
   }, []);
   useEffect(() => {
     getData({ ...param, types: [MaterialType.Service] });
