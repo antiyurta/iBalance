@@ -1,47 +1,30 @@
 import { Divider, Table } from "antd";
 import Column from "antd/es/table/Column";
-import { CSSProperties, ReactNode, StyleHTMLAttributes } from "react";
+import { CSSProperties } from "react";
 import { NumericFormat } from "react-number-format";
-export interface StatisticDoc {
-  state: ReactNode;
-  qty?: ReactNode;
-  amount: ReactNode;
+export interface ICloseColumn {
+  state: React.ReactNode;
+  qty?: IRowProps;
+  amount: IRowProps;
 }
-interface IProps {
-  title: string;
-  dataSource: StatisticDoc[];
-  isQty?: boolean;
-  isLoading?: boolean;
-}
-export const CloseTable = (props: IProps) => {
-  const { title, dataSource, isQty, isLoading } = props;
-  return (
-    <>
-      <Divider>{title}</Divider>
-      <Table pagination={false} dataSource={dataSource} loading={isLoading}>
-        <Column align="left" width={300} dataIndex={"state"} title="Төлөв" />
-        {isQty && (
-          <Column
-            align="left"
-            width={150}
-            dataIndex={"qty"}
-            title="Тоо хэмжээ"
-          />
-        )}
-        <Column align="left" width={150} dataIndex={"amount"} title="Дүн" />
-      </Table>
-    </>
-  );
-};
 /** Тоо хэмжээгийн props */
-interface IQtyProps {
+interface IRowProps {
   value: number;
   isBracket?: boolean;
   isBold?: boolean;
   isDanger?: boolean;
 }
-export const closeNumber = (props: IQtyProps) => {
-  const { value, isBracket, isBold, isDanger } = props;
+interface IProps {
+  title: string;
+  dataSource: ICloseColumn[];
+  isQty?: boolean;
+}
+const RowRender: React.FC<IRowProps> = ({
+  value = 0,
+  isBracket,
+  isBold,
+  isDanger,
+}) => {
   const style: CSSProperties = {
     fontWeight: isBold ? "bold" : "normal",
     color: isDanger ? "red" : "black",
@@ -61,3 +44,54 @@ export const closeNumber = (props: IQtyProps) => {
     </>
   );
 };
+const CloseTable: React.FC<IProps> = ({
+  title,
+  dataSource,
+  isQty,
+}) => {
+  return (
+    <>
+      <Divider>{title}</Divider>
+      <Table pagination={false} dataSource={dataSource}>
+        <Column
+          align="left"
+          width={300}
+          dataIndex={"state"}
+          key={"state"}
+          title="Төлөв"
+        />
+        {isQty && (
+          <Column
+            align="left"
+            width={150}
+            dataIndex={"qty"}
+            key={"qty"}
+            title="Тоо хэмжээ"
+            render={(row: IRowProps) => (
+              <RowRender
+                value={row.value}
+                isBracket={row.isBracket}
+                isBold={row.isBold}
+              />
+            )}
+          />
+        )}
+        <Column
+          align="left"
+          width={150}
+          dataIndex={"amount"}
+          key={"amount"}
+          title="Дүн"
+          render={(row: IRowProps) => (
+            <RowRender
+              value={row.value}
+              isBracket={row.isBracket}
+              isBold={row.isBold}
+            />
+          )}
+        />
+      </Table>
+    </>
+  );
+};
+export default CloseTable;

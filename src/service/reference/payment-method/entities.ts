@@ -1,12 +1,11 @@
 import { GenericResponse, IColumn, IData, IParam, Meta } from "@/service/entities";
 /** Төлбөрийн хэлбэр */
 export enum PaymentType {
-  /** Бэлэн */
-  Cash = "CASH",
-  /** Зээл */
-  Lend = "LEND",
-  /** Бэлэн бус */
-  NotCash = "NOT_CASH",
+  Cash = "CASH", // Бэлэн
+  Lend = "LEND", // Зээл
+  NotCash = "NOT_CASH", // Бэлэн бус
+  GiftCart = 'GIFT_CART', // Бэлгийн карт
+  Membership = 'MEMBERSHIP', // Гишүүнчлэл
 }
 export interface IDataReferencePaymentMethod {
   id: number;
