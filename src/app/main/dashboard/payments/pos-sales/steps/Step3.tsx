@@ -44,6 +44,7 @@ const Step3: React.FC = () => {
     IDataMerchantInfo | undefined
   >();
   const [isBill, setIsBill] = useState<boolean>(false);
+  const [isPrint, setIsPrint] = useState<boolean>(false);
   const [posDocument, setPosDocument] = useState<IDataPosDocument>();
   const regno = Form.useWatch("regno", form);
   const getInfo = async (values: { regno: number }) => {
@@ -264,18 +265,9 @@ const Step3: React.FC = () => {
           </Button>
         </div>
       </div>
-      <NewModal
-        width={300}
-        title="Баримт"
-        open={isBill}
-        onCancel={() => {
-          setIsBill(false);
-          dispatch(emptyGoods());
-          dispatch(emptyShoppingCart());
-        }}
-      >
-        {posDocument && <Bill posDocument={posDocument} />}
-      </NewModal>
+      {posDocument && (
+        <Bill isBill={isBill} setIsBill={setIsBill} posDocument={posDocument} />
+      )}
     </>
   );
 };
