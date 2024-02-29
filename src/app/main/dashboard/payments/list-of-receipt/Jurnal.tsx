@@ -54,6 +54,7 @@ const Jurnal: React.FC = () => {
   const { items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, key);
   const dispatch = useDispatch<AppDispatch>();
+  const [isPrint, setIsPrint] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsPosDocument>({
     code: {
       label: "Баримтын дугаар",
@@ -296,14 +297,9 @@ const Jurnal: React.FC = () => {
           />
         </Col>
       </Row>
-      <NewModal
-        width={300}
-        title="Баримт"
-        open={isBill}
-        onCancel={() => setIsBill(false)}
-      >
-        {posDocument && <Bill posDocument={posDocument} />}
-      </NewModal>
+      {posDocument && (
+        <Bill isBill={isBill} setIsBill={setIsBill} posDocument={posDocument} />
+      )}
       <NewModal
         width={1500}
         title="Поссын борлуулалт"
