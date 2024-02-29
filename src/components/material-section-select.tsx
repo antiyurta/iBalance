@@ -7,6 +7,7 @@ import { Rule } from "antd/es/form";
 import NewDirectoryTree from "./directoryTree";
 import { MaterialSectionService } from "@/service/material/section/service";
 import { IDataMaterialSection } from "@/service/material/section/entities";
+import { MaterialType } from "@/service/material/entities";
 interface IProps {
   form: FormInstance;
   rules: Rule[];
@@ -22,7 +23,7 @@ export const MaterialSectionSelect = (props: IProps) => {
 
   const getMaterialSection = async () => {
     await MaterialSectionService.get({
-      materialTypes: [],
+      materialType: MaterialType.Material,
     }).then((response) => {
       setSections(response.response.data);
     });

@@ -257,7 +257,7 @@ const PackageRegistration = (props: IProps) => {
       });
   };
   useEffect(() => {
-    getMaterialSection({ materialTypes: [type] });
+    getMaterialSection({ materialType: type });
     dispatch(newPane({ key, param: {} }));
   }, []);
   useEffect(() => {

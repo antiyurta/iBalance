@@ -107,7 +107,7 @@ const Thumbnail = (props: IProps) => {
 
   const getMaterialSections = async () => {
     await MaterialSectionService.get({
-      materialTypes: [MaterialType.Material],
+      materialType: MaterialType.Material,
     }).then((response) => {
       setMaterialSections(response.response.data);
     });

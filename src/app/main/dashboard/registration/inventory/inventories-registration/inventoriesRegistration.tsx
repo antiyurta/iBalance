@@ -39,7 +39,6 @@ import {
   Button,
   Col,
   Form,
-  Input,
   Popover,
   Row,
   Space,
@@ -76,7 +75,7 @@ import { newPane } from "@/feature/store/slice/param.slice";
 import PageTitle from "@/components/page-title";
 interface IProps {
   ComponentType: ComponentType;
-  materialTypes: MaterialType[];
+  materialType: MaterialType;
   onClickModal?: (row: any) => void;
 }
 
@@ -96,7 +95,7 @@ interface MyUploadFile extends UploadFile {
 const { Title } = Typography;
 const key = "inventory/inventories-registration";
 const InventoriesRegistration = (props: IProps) => {
-  const { ComponentType = "FULL", materialTypes, onClickModal } = props;
+  const { ComponentType = "FULL", materialType, onClickModal } = props;
   const [form] = Form.useForm();
   const [switchForm] = Form.useForm();
   const isActive = Form.useWatch("isActive", form);
@@ -303,7 +302,7 @@ const InventoriesRegistration = (props: IProps) => {
     });
   };
   const getMaterialSections = async () => {
-    await MaterialSectionService.get({ materialTypes }).then((response) => {
+    await MaterialSectionService.get({ materialType }).then((response) => {
       setMaterialSections(response.response.data);
     });
   };

@@ -3,7 +3,7 @@ import { IDataMaterialAccount } from "../account/entities";
 import { MaterialType } from "../entities";
 
 export interface IParamMaterialSection {
-  materialTypes: MaterialType[];
+  materialType: MaterialType;
   materialAccountId?: number[];
   sectionId?: number[];
   isExpand?: boolean;

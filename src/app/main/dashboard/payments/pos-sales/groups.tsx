@@ -14,6 +14,7 @@ import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { MaterialType } from "@/service/material/entities";
 
 const { Title } = Typography;
 
@@ -47,7 +48,7 @@ const Groups = () => {
     await MaterialSectionService.get({
       isExpand: false,
       isSale: true,
-      materialTypes: [],
+      materialType: MaterialType.Material,
     }).then(async (response) => {
       const result: IGroup[] = await Promise.all(
         response.response.data.map(async (section) => {

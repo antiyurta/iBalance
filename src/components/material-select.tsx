@@ -5,7 +5,7 @@ import { CSSProperties, useEffect, useState } from "react";
 import NewModal from "./modal";
 import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
-import { IDataMaterial } from "@/service/material/entities";
+import { IDataMaterial, MaterialType } from "@/service/material/entities";
 import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
 import { fieldValue } from "@/feature/common";
 import {
@@ -100,7 +100,7 @@ export const MaterialSelect = (props: IProps) => {
             if (material) onSelect?.(material);
             setIsOpenPopOver(false);
           }}
-          materialTypes={params ? params.types : []}
+          materialType={MaterialType.Material}
         />
       </NewModal>
     </>

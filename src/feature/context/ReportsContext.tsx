@@ -158,7 +158,7 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
     getMaterial({ types: [MaterialType.Material] });
     getWarehouseSection({ type: TreeSectionType.Warehouse, isExpand: false });
     getMaterialSection({
-      materialTypes: [MaterialType.Material],
+      materialType: MaterialType.Material,
       isExpand: false,
     });
   }, []);
