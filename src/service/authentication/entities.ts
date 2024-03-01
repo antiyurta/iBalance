@@ -8,6 +8,8 @@ interface GenericResponse {
 interface IHospital {
   address: string;
   name: string;
+  email: string;
+  phone: string;
 }
 interface IRole {
   id: number;
