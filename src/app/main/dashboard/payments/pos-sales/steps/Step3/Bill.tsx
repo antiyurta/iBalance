@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
 import { emptyShoppingCart } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import { useTypedSelector } from "@/feature/store/reducer";
 interface IProps {
   posDocument: IDataPosDocument;
   isBill: boolean;
@@ -16,6 +17,8 @@ interface IProps {
 }
 const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { employee, hospital } = useTypedSelector((state) => state.user);
+  const warehouse = useTypedSelector((state) => state.warehouse);
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
@@ -41,14 +44,9 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
       <div className="bill" ref={printRef}>
         <div className="bill-header">
           <div className="top">
-            <Image
-              src={"/images/iBALANCE.png"}
-              loading="eager"
-              priority={true}
-              alt="textLogo"
-              width={80}
-              height={14}
-            />
+            <div>
+              <p>{hospital?.name}</p>
+            </div>
             <div
               style={{
                 display: "flex",
@@ -64,7 +62,7 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
                 width={12}
                 height={12}
               />
-              <p>www.iBalance.mn</p>
+              <p>{hospital?.email}</p>
             </div>
             <div
               style={{
@@ -81,7 +79,7 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
                 width={12}
                 height={12}
               />
-              <p>88889181</p>
+              <p>{hospital?.phone}</p>
             </div>
           </div>
           <div className="bottom">
@@ -95,7 +93,7 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
                 height={16}
               />
               <p>Ажилтан:</p>
-              <p>110206</p>
+              <p>{employee?.firstName}</p>
             </div>
             <div className="pos">
               <Image
@@ -114,19 +112,19 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
         <div className="warehouse-info">
           <div className="info">
             <h5>Салбар:</h5>
-            <p>Төв салбар</p>
+            <p>{warehouse.name}</p>
           </div>
           <div className="address">
             <h5>Хаяг:</h5>
-            <p>Баянгол наруто</p>
+            <p>{hospital?.address}</p>
           </div>
           <div className="date">
             <h5>Огноо:</h5>
-            <p>2023.10.25 15:44</p>
+            <p>{posDocument.createdAt}</p>
           </div>
           <div className="ddtd">
             <h5>ДДТД:</h5>
-            <p>1230321326546512132465451321564654561</p>
+            <p>{posDocument.billId}</p>
           </div>
         </div>
         <div className="services">
@@ -159,12 +157,26 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
               <h4>{posDocument.totalAmount}</h4>
             </div>
             <div className="items">
-              <h5>Нийт хөнгөлөлт</h5>
-              <h5>{posDocument.goodsDiscountAmount}</h5>
+              <h4>Нийт хөнгөлөлт</h4>
+              <h4>{posDocument.membershipPoint}</h4>
             </div>
             <div className="items">
+              <h4>Нийт хямдрал</h4>
+              <h4>{posDocument.goodsDiscountAmount}</h4>
+            </div>
+            <div className="items">
+              <h4>Дүн</h4>
+              <h4>{posDocument.paidAmount}</h4>
+            </div>
+            {posDocument.invoices?.map((item) => (
+              <ul className="items" key={item.id}>
+                <li>{item.paymentMethodName}</li>
+                <li>{item.incomeAmount}</li>
+              </ul>
+            ))}
+            <div className="items">
               <h4>Хариулт</h4>
-              <h4>0</h4>
+              <h4>{posDocument.paidAmount - posDocument.payAmount}</h4>
             </div>
           </div>
         </div>
@@ -177,8 +189,11 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
             <p>{posDocument.lottery}</p>
             <p>EBarimt-ын дүн</p>
             <p>{posDocument.payAmount}</p>
+            
           </div>
         </div>
+        <p>ТАНД БАЯРЛАЛАА</p>
+        <p>Та худалдан авсан бараагаа тооцооны хуудсын хамт авч ирээд тухайн өдөртөө буцаах боломжтой</p>
       </div>
     </NewModal>
   );

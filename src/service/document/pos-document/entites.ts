@@ -43,6 +43,7 @@ export interface IDataPosDocument extends IData {
   totalAmount: number; // Нийт дүн
   payAmount: number; // Төлөх
   paidAmount: number; // Төлсөн дүн
+  invoices?: IDataPaymentInvoice[]; // Төлбөр төлөлт
 }
 export interface IFilterPosDocument extends IColumn {
   code?: string[];

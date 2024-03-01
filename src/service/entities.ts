@@ -129,7 +129,7 @@ export interface IParam {
 export interface IData {
   createdBy?: number;
   updatedBy?: number;
-  createdAt?: string | Dayjs;
+  createdAt?: string;
   updatedAt?: string;
   deletedAt?: string;
 }
