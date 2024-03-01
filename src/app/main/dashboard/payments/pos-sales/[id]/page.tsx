@@ -314,7 +314,7 @@ const MaterialDetail = () => {
           </Col>
         </Row>
       </Col>
-      <Col span={24}>
+      {/* <Col span={24}>
         <Title
           style={{
             fontSize: 16,
@@ -326,12 +326,8 @@ const MaterialDetail = () => {
         </Title>
       </Col>
       <Col span={24}>
-        {material ? (
-          <div className="material-group">
-            <SimilarMaterials sectionId={material?.sectionId} />
-          </div>
-        ) : null}
-      </Col>
+        {material && <SimilarMaterials sectionId={material?.sectionId} />}
+      </Col> */}
     </Row>
   );
 };

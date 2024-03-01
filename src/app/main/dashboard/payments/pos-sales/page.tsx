@@ -13,54 +13,11 @@ import { IDataViewMaterial } from "@/service/material/view-material/entities";
 import DisplayItem from "./component/DisplayItem";
 import ShoppingCartButton from "./component/tool-header/shopping-cart";
 import DisplayTool, { DisplayType } from "./component/tool-header/display-tool";
+import GoodsContainer from "./component/goods-container";
 
 const PosSales = () => {
-  const { sectionId } = usePaymentContext();
-  const blockContext: BlockView = useContext(BlockContext);
-  const [materials, setMaterials] = useState<IDataViewMaterial[]>([]);
-  const [meta, setMeta] = useState<Meta>({
-    page: 1,
-    limit: 12,
-  });
   const [display, setDisplay] = useState<DisplayType>("grid");
-  const getMaterials = async (page: number) => {
-    blockContext.block();
-    await ViewMaterialService.get({
-      types: [MaterialType.Material],
-      sectionId,
-      moreUnitAmount: 0,
-      page: page,
-      limit: meta.limit,
-    })
-      .then((response) => {
-        if (page === 1) {
-          setMaterials(response.response.data);
-        } else {
-          setMaterials([...materials, ...response.response.data]);
-        }
-        setMeta(response.response.meta);
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
-  };
-  const onSearchMaterial = async (searchValue: string) => {
-    blockContext.block();
-    await ViewMaterialService.get({
-      types: [MaterialType.Material],
-      name: searchValue,
-      sectionId,
-    })
-      .then((response) => {
-        setMaterials(response.response.data);
-      })
-      .finally(() => {
-        blockContext.unblock();
-      });
-  };
-  useEffect(() => {
-    getMaterials(1);
-  }, [sectionId]);
+  const [searchValue, setSearchValue] = useState<string>();
   return (
     <div className="pos-container">
       <div className="tool-container">
@@ -69,28 +26,14 @@ const PosSales = () => {
           placeholder="Бараанаас хайх..."
           prefix={<QrcodeOutlined />}
           allowClear
-          onSearch={onSearchMaterial}
+          onSearch={setSearchValue}
         />
         <div className="tool-extra">
           <ShoppingCartButton />
           <DisplayTool display={display} setDisplay={setDisplay} />
         </div>
       </div>
-      <InfiniteScroll
-        className="goods-container"
-        dataLength={materials.length}
-        next={() => getMaterials(meta.page ? meta.page + 1 : 1)}
-        endMessage={<Divider plain>Энэ бүгд нь өөр байхгүй🤐</Divider>}
-        scrollableTarget="scrollableDiv"
-        hasMore={meta.hasNextPage ? meta.hasNextPage : false}
-        loader={false}
-      >
-        <div className={`material-${display}`}>
-          {materials?.map((material, index) => (
-            <DisplayItem key={index} type={display} material={material} />
-          ))}
-        </div>
-      </InfiniteScroll>
+      <GoodsContainer display={display} searchValue={searchValue} />
     </div>
   );
 };

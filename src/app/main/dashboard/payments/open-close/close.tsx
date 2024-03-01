@@ -49,6 +49,11 @@ const CloseState = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setOpenClose(response.response);
+            form.setFieldsValue({
+              cashAmount: response.response.cashAmount,
+              nonCashAmount: response.response.nonCashAmount,
+              lendAmount: response.response.lendAmount,
+            });
           }
         })
         .finally(() => blockContext.unblock());
@@ -364,7 +369,7 @@ const CloseState = (props: IProps) => {
         <Title level={3}>
           Нийт зөрүү (Бэлэн + Бэлэн бус + Зээл) = [{cashAmount}] + [
           {nonCashAmount}] + [{lendAmount}] = [
-          {cashAmount + nonCashAmount + lendAmount}]
+          {Number(cashAmount) + Number(nonCashAmount) + Number(lendAmount)}]
         </Title>
       </div>
       <Form

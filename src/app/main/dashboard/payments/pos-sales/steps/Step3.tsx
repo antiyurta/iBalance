@@ -16,12 +16,8 @@ import { MovingStatus } from "@/service/document/entities";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import {
-  emptyShoppingCart,
-  prevStep,
-} from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import { prevStep } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
 import { usePaymentContext } from "@/feature/context/PaymentGroupContext";
 import { PosDocumentService } from "@/service/document/pos-document/service";
 import { IDataPosDocument } from "@/service/document/pos-document/entites";
@@ -44,7 +40,6 @@ const Step3: React.FC = () => {
     IDataMerchantInfo | undefined
   >();
   const [isBill, setIsBill] = useState<boolean>(false);
-  const [isPrint, setIsPrint] = useState<boolean>(false);
   const [posDocument, setPosDocument] = useState<IDataPosDocument>();
   const regno = Form.useWatch("regno", form);
   const getInfo = async (values: { regno: number }) => {
