@@ -37,7 +37,6 @@ const SimilarMaterials = (props: IProps) => {
       chunkedArray.push(array.slice(index, index + size));
       index += size;
     }
-    console.log("chunkedArray", chunkedArray);
     return chunkedArray;
   };
   useEffect(() => {
@@ -49,39 +48,27 @@ const SimilarMaterials = (props: IProps) => {
     }
   }, [materials]);
   return (
-    <div className="group">
-      <Swiper
-        modules={[Pagination, Navigation]}
-        effect="fade"
-        className="swiper-one-item"
-        spaceBetween={30}
-        centeredSlides={false}
-        pagination={{ clickable: true }}
-        navigation={true}
-      >
-        <SwiperButton move="prev" />
-        <>
-          {dividedMaterials.map((el, i) => (
-            <SwiperSlide key={i}>
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  gap: 4,
-                }}
-              >
-                {el.map((item, index) => (
-                  <DisplayItem key={index} type={"grid"} material={item} />
-                ))}
-              </div>
-            </SwiperSlide>
+    <Swiper
+      modules={[Pagination, Navigation]}
+      effect="fade"
+      spaceBetween={30}
+      centeredSlides={false}
+      pagination={{ clickable: true }}
+      navigation={true}
+    >
+      <SwiperButton move="prev" />
+      {dividedMaterials.map((el, i) => (
+        <SwiperSlide
+          key={i}
+          className="material-grid"
+        >
+          {el.map((item, index) => (
+            <DisplayItem key={index} type={"grid"} material={item} />
           ))}
-        </>
-        <SwiperButton move="next" />
-      </Swiper>
-    </div>
+        </SwiperSlide>
+      ))}
+      <SwiperButton move="next" />
+    </Swiper>
   );
 };
 export default SimilarMaterials;

@@ -10,11 +10,13 @@ import { useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 import {
+  DocumentStatus,
   FilteredColumnsPosDocument,
   IDataPosDocument,
   IFilterPosDocument,
+  IParamPosDocument,
 } from "@/service/document/pos-document/entites";
 import { PosDocumentService } from "@/service/document/pos-document/service";
 const key = "payments/list-of-receipt/return-list";
@@ -122,7 +124,11 @@ const ReturnList: React.FC = () => {
 
   const getData = async () => {
     blockContext.block();
-    await PosDocumentService.get(param)
+    const params: IParamPosDocument = {
+      ...param,
+      status: DocumentStatus.Refund,
+    };
+    await PosDocumentService.get(params)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);

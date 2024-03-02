@@ -110,7 +110,7 @@ const OpeningClosingHistory = () => {
       label: "Хаасан бэлэн бус мөнгө",
       isView: true,
       isFiltered: false,
-      dataIndex: ["cashAmount"],
+      dataIndex: ["nonCashAmount"],
       type: DataIndexType.VALUE,
     },
     updatedAt: {

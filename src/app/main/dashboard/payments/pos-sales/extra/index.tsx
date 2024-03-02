@@ -6,7 +6,7 @@ import {
   SnippetsOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
-import { Typography } from "antd";
+import { Button, Typography } from "antd";
 import { useState } from "react";
 import Transfer from "./transfer";
 import Return from "./return";
@@ -21,16 +21,15 @@ const ExtraIndex = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   return (
     <div>
-      <button
+      <Button
         onClick={() => setIsOpenModal(true)}
-        className="app-button-regular"
         style={{
           width: "100%",
         }}
       >
         <PlusCircleOutlined />
         Нэмэлт үйлдэл
-      </button>
+      </Button>
       <NewModal
         title=" "
         width={360}
@@ -103,7 +102,20 @@ const ExtraIndex = () => {
               Баримтын жагсаалт харах
             </Title>
           </div>
-          <div className="payment-type-box-gray">
+          <div
+            className="payment-type-box-gray"
+            onClick={() => {
+              setIsOpenModal(false);
+              dispatch(
+                newTab({
+                  label: "Баримтын жагсаалт",
+                  key: "/payments/list-of-receipt",
+                  closeable: true,
+                  breadcrumb: ["Төлбөр", "Баримтын жагсаалт"],
+                })
+              );
+            }}
+          >
             <SnippetsOutlined
               style={{
                 color: "#86909C",

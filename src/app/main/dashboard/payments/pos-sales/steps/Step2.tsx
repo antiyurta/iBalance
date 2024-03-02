@@ -9,7 +9,6 @@ import Image from "next/image";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import PayRequests from "./Step2/payRequests";
 import { openNofi } from "@/feature/common";
-import { IDataPaymentInvoice } from "@/service/pos/invoice/entities";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { useTypedSelector } from "@/feature/store/reducer";
@@ -168,7 +167,6 @@ const Step2: React.FC = () => {
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
                   parser={(value) => value!.replace(/(,*)/g, "")}
-                  max={payAmount - paidAmount}
                   step="0.1"
                   onDoubleClick={() => {
                     form.setFieldValue("amount", payAmount - paidAmount);

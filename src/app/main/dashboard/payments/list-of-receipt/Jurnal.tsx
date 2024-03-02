@@ -23,9 +23,11 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
 import {
+  DocumentStatus,
   FilteredColumnsPosDocument,
   IDataPosDocument,
   IFilterPosDocument,
+  IParamPosDocument,
 } from "@/service/document/pos-document/entites";
 import { PosDocumentService } from "@/service/document/pos-document/service";
 const key = "payments/list-of-receipt/document";
@@ -54,7 +56,6 @@ const Jurnal: React.FC = () => {
   const { items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, key);
   const dispatch = useDispatch<AppDispatch>();
-  const [isPrint, setIsPrint] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsPosDocument>({
     code: {
       label: "Баримтын дугаар",
@@ -200,7 +201,8 @@ const Jurnal: React.FC = () => {
     },
   ];
   const getData = async () => {
-    await PosDocumentService.get(param).then((response) => {
+    const params: IParamPosDocument = { ...param, status: DocumentStatus.Paid }
+    await PosDocumentService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);
         setFilters(response.response.filter);

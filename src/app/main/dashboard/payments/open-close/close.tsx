@@ -49,6 +49,11 @@ const CloseState = (props: IProps) => {
         .then((response) => {
           if (response.success) {
             setOpenClose(response.response);
+            form.setFieldsValue({
+              cashAmount: response.response.cashAmount,
+              nonCashAmount: response.response.nonCashAmount,
+              lendAmount: response.response.lendAmount,
+            });
           }
         })
         .finally(() => blockContext.unblock());
@@ -97,49 +102,47 @@ const CloseState = (props: IProps) => {
       .reduce((total, item) => total + (Number(item.incomeAmount) || 0), 0);
   };
   const getStatisticSale = (): ICloseColumn[] => {
-    const totalSale: ICloseColumn = {
-      state: "Нийт борлуулалт",
-      qty: { value: posDocuments.length },
-      amount: {
-        value: posDocuments.reduce(
-          (total, item) => total + Number(item.paidAmount),
-          0
-        ),
-      },
-    };
     const refundDocuments = posDocuments.filter(
       (item) => item.status == DocumentStatus.Refund
     );
-    const refund: ICloseColumn = {
-      state: "Буцаалт",
-      qty: { value: refundDocuments.length },
-      amount: {
-        value: refundDocuments.reduce(
-          (total, item) => total + Number(item.paidAmount),
-          0
-        ),
+    const total = posDocuments.reduce(
+      (total, item) => total + Number(item.paidAmount),
+      0
+    );
+    const refund = refundDocuments.reduce(
+      (total, item) => total + Number(item.paidAmount),
+      0
+    );
+    return [
+      {
+        state: "Нийт борлуулалт",
+        qty: { value: posDocuments.length },
+        amount: { value: total },
       },
-    };
-    const materialDiscount: ICloseColumn = {
-      state: "Бараа материалын хөнгөлөлт, урамшуулал",
-      qty: { value: 0 },
-      amount: { value: 0 },
-    };
-    const consumerDiscount: ICloseColumn = {
-      state: "Харилцагч, гишүүнчлэлийн хөнгөлөлт",
-      qty: { value: 0 },
-      amount: { value: 0 + 0 },
-    };
-    consumerDiscount;
-    const sale: ICloseColumn = {
-      state: <div style={{ fontWeight: "bold" }}>Цэвэр борлуулалт</div>,
-      qty: { value: 0, isBold: true },
-      amount: {
-        value: 0,
-        isBold: true,
+      {
+        state: "Буцаалт",
+        qty: { value: refundDocuments.length },
+        amount: { value: refund },
       },
-    };
-    return [totalSale, refund, materialDiscount, consumerDiscount, sale];
+      {
+        state: "Бараа материалын хөнгөлөлт, урамшуулал",
+        qty: { value: 0 },
+        amount: { value: 0 },
+      },
+      {
+        state: "Харилцагч, гишүүнчлэлийн хөнгөлөлт",
+        qty: { value: 0 },
+        amount: { value: 0 + 0 },
+      },
+      {
+        state: <div style={{ fontWeight: "bold" }}>Цэвэр борлуулалт</div>,
+        qty: { value: 0, isBold: true },
+        amount: {
+          value: total - refund,
+          isBold: true,
+        },
+      },
+    ];
   };
   const getCash = (): ICloseColumn[] => {
     const columns = [
@@ -364,7 +367,7 @@ const CloseState = (props: IProps) => {
         <Title level={3}>
           Нийт зөрүү (Бэлэн + Бэлэн бус + Зээл) = [{cashAmount}] + [
           {nonCashAmount}] + [{lendAmount}] = [
-          {cashAmount + nonCashAmount + lendAmount}]
+          {Number(cashAmount) + Number(nonCashAmount) + Number(lendAmount)}]
         </Title>
       </div>
       <Form

@@ -1,13 +1,13 @@
 import { api } from "@/feature/interceptor/interceptor";
 import {
+  IParamPosDocument,
   IPosDocumentDto,
   IResponsePosDocument,
   IResponsePosDocuments,
 } from "./entites";
-import { GenericResponse, IParam } from "@/service/entities";
-import { IResponseDocument } from "../entities";
+import { GenericResponse } from "@/service/entities";
 
-function get(params?: IParam): Promise<IResponsePosDocuments> {
+function get(params?: IParamPosDocument): Promise<IResponsePosDocuments> {
   return api.get("pos-document", { params });
 }
 function getById(id: number): Promise<IResponsePosDocument> {

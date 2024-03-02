@@ -17,187 +17,187 @@
       gap: 10px;
     }
   }
-  .goods_container {
+  .goods-container {
     display: flex;
-    width: 100%;
-    gap: 8px 16px;
     flex-wrap: wrap;
-  }
-  .material-list {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    .item-list {
-      display: flex;
-      flex-direction: row;
-      padding: 12px;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      border-radius: 8px;
-      background: white;
-      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
-      > .left {
-        p {
-          margin: 0px !important;
-        }
+    gap: 8px 16px;
+    height: calc(100vh - 350px);
+    overflow: scroll;
+    .material-list {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      .item-list {
         display: flex;
         flex-direction: row;
-        gap: 12px;
-        > .title {
+        padding: 12px;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
+        > .left {
+          p {
+            margin: 0px !important;
+          }
           display: flex;
-          flex-direction: column;
-          gap: 8px;
-          > .price {
+          flex-direction: row;
+          gap: 12px;
+          > .title {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             gap: 8px;
-            > p.top {
-              color: #142a38;
-              font-size: 12px;
-              font-weight: 700;
-              line-height: normal;
-            }
-            > .p-bottom {
+            > .price {
               display: flex;
               flex-direction: row;
               gap: 8px;
-              color: #86909c;
-              font-size: 10px;
-              font-weight: 400;
-              line-height: normal;
+              > p.top {
+                color: #142a38;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: normal;
+              }
+              > .p-bottom {
+                display: flex;
+                flex-direction: row;
+                gap: 8px;
+                color: #86909c;
+                font-size: 10px;
+                font-weight: 400;
+                line-height: normal;
+              }
             }
           }
         }
-      }
-      > .right {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        > .extra {
+        > .right {
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
           gap: 8px;
-          .discount {
-            padding: 7px 4px;
-            border-radius: 6px;
-            background: red;
-            p {
-              margin: 0px;
-              font-size: 12px;
-              font-weight: 500;
-              color: white;
+          > .extra {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            .discount {
+              padding: 7px 4px;
+              border-radius: 6px;
+              background: red;
+              p {
+                margin: 0px;
+                font-size: 12px;
+                font-weight: 500;
+                color: white;
+              }
+            }
+            .coupon {
+              padding: 7px 4px;
+              border-radius: 6px;
+              background: $color-warning;
+              p {
+                margin: 0px;
+                font-size: 12px;
+                font-weight: 500;
+                color: white;
+              }
             }
           }
-          .coupon {
-            padding: 7px 4px;
-            border-radius: 6px;
-            background: $color-warning;
-            p {
-              margin: 0px;
-              font-size: 12px;
-              font-weight: 500;
-              color: white;
+          > button {
+            > .span.ant-btn-icon {
+              font-size: 16px;
             }
+            padding: 2px 5px 2px 5px !important;
+            height: 20px !important;
           }
-        }
-        > button {
-          > .span.ant-btn-icon {
-            font-size: 16px;
-          }
-          padding: 2px 5px 2px 5px !important;
-          height: 20px !important;
         }
       }
     }
   }
-
-  .material-grid {
-    width: 100%;
+}
+.material-grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  .item-group {
+    min-width: 145px;
+    max-width: 145px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    .item-group {
-      min-width: 145px;
-      max-width: 145px;
-      display: flex;
-      padding: 12px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      border-radius: 8px;
-      background: white;
-      box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
-      justify-content: space-between;
-      p {
-        margin: 0px !important;
-      }
-      > .image {
-        position: relative;
-        > .extra-bottom {
-          position: absolute;
-          bottom: 0px;
-          display: flex;
-          padding: 7px 4px;
-          align-items: flex-start;
-          height: 28px;
-          border-radius: 6px;
-          background: $color-warning;
-          p {
-            font-size: 12px;
-            font-weight: 500;
-            color: white;
-          }
-        }
-        > .extra-top {
-          position: absolute;
-          top: 0px;
-          right: 0px;
-          display: flex;
-          padding: 7px 4px;
-          align-items: flex-start;
-          height: 28px;
-          border-radius: 6px;
-          background: red;
-          p {
-            font-size: 12px;
-            font-weight: 500;
-            color: white;
-          }
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
+    justify-content: space-between;
+    p {
+      margin: 0px !important;
+    }
+    > .image {
+      position: relative;
+      > .extra-bottom {
+        position: absolute;
+        bottom: 0px;
+        display: flex;
+        padding: 7px 4px;
+        align-items: flex-start;
+        height: 28px;
+        border-radius: 6px;
+        background: $color-warning;
+        p {
+          font-size: 12px;
+          font-weight: 500;
+          color: white;
         }
       }
-      > .title {
-        > p.top {
-          color: #142a38;
-          font-size: 10px;
-          font-weight: 700;
-          line-height: normal;
-        }
-        > p.bottom {
-          color: #86909c;
-          font-size: 10px;
-          font-weight: 400;
-          line-height: normal;
+      > .extra-top {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        display: flex;
+        padding: 7px 4px;
+        align-items: flex-start;
+        height: 28px;
+        border-radius: 6px;
+        background: red;
+        p {
+          font-size: 12px;
+          font-weight: 500;
+          color: white;
         }
       }
-      > .price {
-        width: 100%;
-        > p.top {
-          color: #86909c;
-          font-size: 10px;
-          font-weight: 400;
+    }
+    > .title {
+      > p.top {
+        color: #142a38;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: normal;
+      }
+      > p.bottom {
+        color: #86909c;
+        font-size: 10px;
+        font-weight: 400;
+        line-height: normal;
+      }
+    }
+    > .price {
+      width: 100%;
+      > p.top {
+        color: #86909c;
+        font-size: 10px;
+        font-weight: 400;
+        line-height: normal;
+      }
+      > .bottom {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        > p {
+          font-size: 12px;
+          font-weight: 500;
           line-height: normal;
-        }
-        > .bottom {
-          display: flex;
-          justify-content: space-between;
-          gap: 8px;
-          > p {
-            font-size: 12px;
-            font-weight: 500;
-            line-height: normal;
-          }
         }
       }
     }

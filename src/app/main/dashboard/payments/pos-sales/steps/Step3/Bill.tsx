@@ -182,7 +182,7 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
         </div>
         <div className="barimt">
           <div>
-            <QRCode type="svg" bordered={false} size={100} value="ibalacne" />
+            <QRCode type="svg" bordered={false} size={100} value={posDocument.qrData} />
           </div>
           <div className="ebarimt-info">
             <p>Сугалааны дугаар</p>
