@@ -12,7 +12,7 @@ const Return = () => {
       onClick={() => {
         dispatch(
           newTab({
-            label: "Агуулахын тайлан",
+            label: "Баримтын жагсаалт",
             key: "/payments/list-of-receipt",
             closeable: true,
             breadcrumb: ["Төлбөр", "Баримтын жагсаалт"],

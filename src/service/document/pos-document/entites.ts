@@ -5,6 +5,7 @@ import {
   GenericResponse,
   IColumn,
   IData,
+  IParam,
   Meta,
 } from "@/service/entities";
 import { IDataTransaction } from "../transaction/entities";
@@ -44,6 +45,9 @@ export interface IDataPosDocument extends IData {
   payAmount: number; // Төлөх
   paidAmount: number; // Төлсөн дүн
   invoices?: IDataPaymentInvoice[]; // Төлбөр төлөлт
+}
+export interface IParamPosDocument extends IParam {
+  status?: DocumentStatus;
 }
 export interface IFilterPosDocument extends IColumn {
   code?: string[];
