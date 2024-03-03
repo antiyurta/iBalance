@@ -4,6 +4,7 @@ import { Space } from "antd";
 import { Dispatch, SetStateAction, useState } from "react";
 import PopoverTool from "./popover-tool";
 import { Dayjs } from "dayjs";
+import DatePicker from "react-multi-date-picker";
 const datePickers: Tool[] = ["THAT", "IS_GREATOR_OR_EQUAL", "IS_LESS_OR_EQUAL"];
 const groupPickers: Tool[] = ["MONTH", "QUARTER", "YEAR"];
 interface IProps {
@@ -40,7 +41,7 @@ export const IntervalDate: React.FC<IProps> = ({
         />
       )}
       {tool.operator == "SELECTION" && (
-        <NewDatePicker multiple onChange={(date: any) => setDates(date)} />
+        <DatePicker multiple onChange={(date: any) => setDates(date)} />
       )}
     </Space.Compact>
   );
