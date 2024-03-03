@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
 import {
   DataIndexType,
+  FilterValueType,
   IFilter,
-  IParam,
-  ITool,
   Operator,
   Tool,
   TypeCheck,
 } from "@/service/entities";
-import { getParam, getUniqueValues, typeOfFilters } from "@/feature/common";
+import { getParam } from "@/feature/common";
 import Sorter from "./sorter";
 import DropdownSearch from "./search";
 import DropdownTitle from "./title";
 import CheckboxGroup from "./checkbox-group";
-import { useRouter } from "next/navigation";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { Dayjs } from "dayjs";
 import { useDispatch } from "react-redux";
@@ -32,48 +30,34 @@ interface IProps {
 }
 
 const NewDropdown = (props: IProps) => {
-  const { label, dataIndex, type, filters, isFiltered, handleSearch } = props;
-  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters || []);
+  const {
+    label,
+    dataIndex,
+    type,
+    filters = [],
+    isFiltered,
+    handleSearch,
+  } = props;
+  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>([]);
+  const [newFilters, setNewFilters] = useState<IFilter[]>([]);
   const [isClear, setIsClear] = useState<boolean>(false);
   const { activeKey, items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, activeKey);
   const dispatch = useDispatch<AppDispatch>();
   const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
-  const addOrUpdateFilter = (
-    dataIndex: string[],
-    filterValue: CheckboxValueType[],
-    filters: IFilter[]
-  ) => {
-    // dataIndex талбарын утгыг шалгана
-    const existingFilterIndex = filters.findIndex(
-      (filter) => JSON.stringify(filter.dataIndex) === JSON.stringify(dataIndex)
+  const updateFilter = (operator: Tool, filter: FilterValueType): IFilter[] => {
+    const updatedFilters = [...newFilters];
+    const existingIndex = updatedFilters.findIndex(
+      (item) => JSON.stringify(item.dataIndex) === JSON.stringify(dataIndex)
     );
-
-    if (existingFilterIndex !== -1) {
-      if (filterValue.length == 0) {
-        return filters.filter((_, index) => index !== existingFilterIndex);
-      } else {
-        // dataIndex талбарын утгын өөрчлөлтөөр тодорхойлсон фильтрийг шинэчилнэ
-        return filters.map((filter, index) =>
-          index === existingFilterIndex
-            ? { ...filter, operator: Operator.In, filter: filterValue }
-            : filter
-        );
-      }
+    if (existingIndex == -1) {
+      return [...updatedFilters, { dataIndex, operator, filter }];
     } else {
-      // dataIndex талбарын утгыг ашиглан шинэ фильтрийг үүсгэнэ
-      return [
-        ...filters,
-        { dataIndex: dataIndex, operator: Operator.In, filter: filterValue },
-      ];
+      updatedFilters[existingIndex] = { dataIndex, operator, filter };
+      return updatedFilters;
     }
   };
   const search = () => {
-    const newFilters = addOrUpdateFilter(
-      dataIndex,
-      checkedList,
-      param?.filters || []
-    );
     dispatch(
       changeParam({
         ...param,
@@ -87,9 +71,9 @@ const NewDropdown = (props: IProps) => {
   const filterCheckbox = (
     type: DataIndexType,
     operator: Tool,
-    value?: string | number | Dayjs
+    value: string | number | Dayjs[]
   ): TypeCheck[] => {
-    if (!value || type == DataIndexType.DATE) {
+    if (type == DataIndexType.DATE) {
       return filters;
     } else {
       if (operator == "CONTAINS") {
@@ -112,15 +96,12 @@ const NewDropdown = (props: IProps) => {
       } else return filters;
     }
   };
-  // TODO filter - ийн check tei values
-  // useEffect(() => {
-  //   const checkFilters =
-  //     param?.filters?.filter(
-  //       (item) => JSON.stringify(item.dataIndex) === JSON.stringify(dataIndex)
-  //     ) || [];
-  //   const checkedValues = getUniqueValues(checkFilters, "filter");
-  //   setCheckedList(checkedValues as CheckboxValueType[]);
-  // }, [param?.filters]);
+  useEffect(() => {
+    setCheckboxes(filters);
+  }, [filters]);
+  useEffect(() => {
+    setNewFilters(updateFilter("IN", checkedList));
+  }, [checkedList]);
   return (
     <div
       style={{
@@ -157,7 +138,13 @@ const NewDropdown = (props: IProps) => {
         <DropdownSearch
           type={type}
           onChange={(operator, value) => {
-            setCheckboxes(filterCheckbox(type, operator, value));
+            if (value) {
+              if (type == (DataIndexType.DATE || DataIndexType.DATETIME)) {
+                setNewFilters(updateFilter(operator, value as Dayjs[]));
+              } else {
+                setCheckboxes(filterCheckbox(type, operator, value));
+              }
+            }
           }}
         />
         {type != (DataIndexType.DATE || DataIndexType.DATETIME) && (

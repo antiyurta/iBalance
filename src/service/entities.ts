@@ -1,6 +1,7 @@
 import { Breakpoint } from "antd";
 import { Dayjs } from "dayjs";
 export type Tool =
+  | "IN"
   | "EQUALS"
   | "NOT_EQUAL"
   | "CONTAINS"
@@ -8,7 +9,13 @@ export type Tool =
   | "IS_GREATER"
   | "IS_GREATOR_OR_EQUAL"
   | "IS_LESS"
-  | "IS_LESS_OR_EQUAL";
+  | "IS_LESS_OR_EQUAL"
+  | "THAT"
+  | "BETWEEN"
+  | "SELECTION"
+  | "YEAR"
+  | "MONTH"
+  | "QUARTER";
 export interface ITool {
   logo: string;
   title: string;
@@ -113,11 +120,15 @@ export type ColumnType = {
 };
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };
-
+export type FilterValueType =
+  | string
+  | number
+  | boolean
+  | (string | number | boolean | Dayjs)[];
 export interface IFilter {
   dataIndex: string[];
-  operator?: string;
-  filter: string | number | boolean | (string | number | boolean)[];
+  operator?: Tool;
+  filter: FilterValueType;
 }
 export interface IParam {
   filters?: IFilter[];

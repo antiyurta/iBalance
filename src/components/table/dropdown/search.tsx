@@ -1,38 +1,10 @@
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
+import { NewInput, NewInputNumber } from "@/components/input";
 import { DataIndexType, ITool, Tool } from "@/service/entities";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { SearchOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
-import { InputNumberProps, InputProps, Space } from "antd";
+import { InputNumberProps, InputProps } from "antd";
 import PopoverTool from "./popover-tool";
-
-const DateSearch: React.FC<{
-  date: Dayjs;
-  setDate: Dispatch<SetStateAction<Dayjs>>;
-}> = ({ date, setDate }) => {
-  return (
-    <Space.Compact>
-      <div className="extraButton">
-        <PopoverTool
-          dataIndexType={DataIndexType.DATE}
-          operator={(tool) => {
-            tool;
-          }}
-        />
-      </div>
-      <NewDatePicker
-        style={{
-          width: "100%",
-        }}
-        value={date}
-        onChange={(date) => date && setDate(date)}
-      />
-      <div className="extraButton-right">
-        <SearchOutlined onClick={() => console.log("it is working ")} />
-      </div>
-    </Space.Compact>
-  );
-};
+import { IntervalDate } from "./interval-date";
 const InputSearch: React.FC<InputProps> = (props) => (
   <NewInput
     {...props}
@@ -54,10 +26,10 @@ const NumberSearch: React.FC<InputNumberProps> = (props) => (
 );
 interface IProps {
   type: DataIndexType;
-  onChange?: (operator: Tool, value?: string | number | Dayjs) => void;
+  onChange?: (operator: Tool, value?: string | number | Dayjs[]) => void;
 }
 const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
-  const [date, setDate] = useState<Dayjs>(dayjs());
+  const [dates, setDates] = useState<Dayjs[]>([dayjs(new Date())]);
   const [inputValue, setInputValue] = useState<string>();
   const [inputNumberValue, setInputNumberValue] = useState<number>();
   const [tool, setTool] = useState<ITool>({
@@ -71,6 +43,9 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
   useEffect(() => {
     onChange?.(tool.operator, inputNumberValue);
   }, [inputNumberValue]);
+  useEffect(() => {
+    onChange?.(tool.operator, dates);
+  }, [tool, dates]);
   return (
     <div
       style={{
@@ -81,7 +56,7 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
       }}
     >
       {type == DataIndexType.DATE && (
-        <DateSearch date={date} setDate={setDate} />
+        <IntervalDate tool={tool} setTool={setTool} dates={dates} setDates={setDates} />
       )}
       {type == DataIndexType.MULTI && (
         <InputSearch
@@ -97,7 +72,7 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
           }
         />
       )}
-      {type == DataIndexType.NUMBER && (
+      {(type == DataIndexType.NUMBER || type == DataIndexType.VALUE) && (
         <NumberSearch
           value={inputNumberValue}
           onChange={(value) => setInputNumberValue(Number(value))}
