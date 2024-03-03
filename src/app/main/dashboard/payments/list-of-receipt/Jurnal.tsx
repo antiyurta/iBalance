@@ -97,14 +97,14 @@ const Jurnal: React.FC = () => {
       isView: true,
       isFiltered: false,
       dataIndex: ["document", "expenseCount"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.NUMBER,
     },
     expenseQuantity: {
       label: "Борлуулалтын тоо хэмжээ",
       isView: true,
       isFiltered: false,
       dataIndex: ["document", "expenseQuantity"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.NUMBER,
     },
     totalAmount: {
       label: "Нийт дүн",

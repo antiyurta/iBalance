@@ -3,7 +3,12 @@ import { App, ConfigProvider, Dropdown, Table } from "antd";
 import mnMn from "antd/es/locale/mn_MN";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import DragListView from "react-drag-listview";
-import { Meta, ColumnType, ComponentType } from "@/service/entities";
+import {
+  Meta,
+  ColumnType,
+  ComponentType,
+  DataIndexType,
+} from "@/service/entities";
 import NewDropdown from "./dropdown";
 import { getParam, onCloseFilterTag, renderCheck } from "@/feature/common";
 import Image from "next/image";
@@ -200,7 +205,11 @@ function NewTable(props: ITable) {
                         label={value.label}
                         dataIndex={value.dataIndex}
                         type={value.type}
-                        filters={incomeFilters?.[key]}
+                        filters={
+                          Boolean(incomeFilters?.[key])
+                            ? incomeFilters?.[key]
+                            : []
+                        }
                         isFiltered={value.isFiltered}
                         handleSearch={(params, state) => {
                           confirm();

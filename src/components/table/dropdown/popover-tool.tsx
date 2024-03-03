@@ -1,73 +1,65 @@
-import { DataIndexType, ITool } from "@/service/entities";
+import { FilterToolData } from "@/feature/data";
+import { DataIndexType, ITool, Operator, Tool } from "@/service/entities";
 import { Popover } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
+const stringSearch: Tool[] = [
+  "EQUALS",
+  "NOT_EQUAL",
+  "CONTAINS",
+  "NOT_CONTAINS",
+];
+const numberSearch: Tool[] = [
+  "EQUALS",
+  "NOT_EQUAL",
+  "IS_GREATER",
+  "IS_GREATOR_OR_EQUAL",
+  "IS_LESS",
+  "IS_LESS_OR_EQUAL",
+];
+const dateSearch: Tool[] = [
+  "THAT",
+  "BETWEEN",
+  "IS_LESS_OR_EQUAL",
+  "IS_GREATOR_OR_EQUAL",
+  "SELECTION",
+  "YEAR",
+  "QUARTER",
+  "MONTH",
+];
 interface IProps {
   dataIndexType: DataIndexType;
   operator: (tool: ITool) => void;
 }
-
-const tools: ITool[] = [
-  {
-    logo: "/icons/tools/Equals.png",
-    title: "Equals",
-    operator: "EQUALS",
-  },
-  {
-    logo: "/icons/tools/notEquals.png",
-    title: "Does not equals",
-    operator: "NOT_EQUAL",
-  },
-  {
-    logo: "/icons/tools/Contains.png",
-    title: "Contains",
-    operator: "CONTAINS",
-  },
-  {
-    logo: "/icons/tools/notContains.png",
-    title: "Does Not Contain",
-    operator: "NOT_CONTAINS",
-  },
-  {
-    logo: "/icons/tools/isGreetThan.png",
-    title: "Is greater than",
-    operator: "IS_GREATER",
-  },
-  {
-    logo: "/icons/tools/isGreetThanOrEqual.png",
-    title: "Is greater than or equal to",
-    operator: "IS_GREATER",
-  },
-  {
-    logo: "/icons/tools/isLessThan.png",
-    title: "Is less than",
-    operator: "IS_LESS",
-  },
-  {
-    logo: "/icons/tools/isLessThanOrEqual.png",
-    title: "Is less than equal to",
-    operator: "IS_LESS_OR_EQUAL",
-  },
-];
 const PopoverTool: React.FC<IProps> = ({ dataIndexType, operator }) => {
-  const [newTools, setNewTools] = useState<ITool[]>(tools);
+  const [newTools, setNewTools] = useState<ITool[]>([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [tool, setTool] = useState<ITool>({
-    logo: "/icons/tools/Equals.png",
-    title: "Equals",
-    operator: "EQUALS",
-  });
+  const [tool, setTool] = useState<ITool>(
+    dataIndexType == DataIndexType.DATE
+      ? {
+          logo: "/icons/tools/Equals.png",
+          title: "Тухайн",
+          operator: "THAT",
+        }
+      : {
+          logo: "/icons/tools/Equals.png",
+          title: "Equals",
+          operator: "EQUALS",
+        }
+  );
   useEffect(() => {
     if (dataIndexType == DataIndexType.MULTI) {
       setNewTools(
-        tools.filter(
-          (item) =>
-            item.operator === "EQUALS" ||
-            item.operator === "NOT_EQUAL" ||
-            item.operator === "CONTAINS" ||
-            item.operator === "NOT_CONTAINS"
-        )
+        FilterToolData.filter((item) => stringSearch.includes(item.operator))
+      );
+    } else if (dataIndexType == DataIndexType.DATE) {
+      setNewTools(
+        FilterToolData.filter((item) => dateSearch.includes(item.operator))
+      );
+    } else if (dataIndexType == DataIndexType.VALUE || DataIndexType.NUMBER) {
+      setNewTools(
+        FilterToolData.filter((item) => numberSearch.includes(item.operator))
       );
     }
   }, [dataIndexType]);
