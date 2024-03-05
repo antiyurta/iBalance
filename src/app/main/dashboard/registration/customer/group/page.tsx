@@ -1,6 +1,6 @@
 "use client";
 import { SignalFilled } from "@ant-design/icons";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
@@ -16,6 +16,7 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { ConsumerService } from "@/service/consumer/service";
 import Export from "@/components/Export";
 import PageTitle from "@/components/page-title";
+import NewTreeSelect from "@/components/tree/tree-select";
 const Group = () => {
   const { modal } = App.useApp();
   const [addForm] = Form.useForm();
@@ -221,9 +222,7 @@ const Group = () => {
         </Col>
         <Col sm={24}>
           <NewDirectoryTree
-            extra="FULL"
             data={sections}
-            isLeaf={true}
             onEdit={checkEdit}
             onDelete={onDelete}
           />
@@ -288,57 +287,12 @@ const Group = () => {
               style={{
                 width: "100%",
               }}
+              name={"sectionId"}
             >
-              <Space.Compact>
-                <div className="extraButton">
-                  <Popover
-                    placement="bottom"
-                    open={isOpenPopOverAdd}
-                    onOpenChange={(state) => setIsOpenPopOverAdd(state)}
-                    content={
-                      <NewDirectoryTree
-                        extra="HALF"
-                        data={sections}
-                        isLeaf={true}
-                        onClick={(keys, isLeaf) => {
-                          checkSectionInConsumer(keys[0]);
-                          addForm.setFieldsValue({
-                            sectionId: keys![0],
-                            isExpand: !isLeaf,
-                          });
-                          setIsOpenPopOverAdd(false);
-                        }}
-                      />
-                    }
-                    trigger={"click"}
-                  >
-                    <SignalFilled rotate={-90} />
-                  </Popover>
-                </div>
-                <Form.Item
-                  style={{
-                    width: "100%",
-                  }}
-                  name="sectionId"
-                  rules={[
-                    {
-                      required: addForm.getFieldValue("isExpand"),
-                      message: "Харилцагчийн бүлэг заавал",
-                    },
-                  ]}
-                >
-                  <NewSelect
-                    disabled={true}
-                    style={{
-                      width: "100%",
-                    }}
-                    options={sections?.map((section: IDataTreeSection) => ({
-                      label: section.name,
-                      value: section.id,
-                    }))}
-                  />
-                </Form.Item>
-              </Space.Compact>
+              <NewTreeSelect
+                sections={sections}
+                onChange={(value) => addForm.setFieldValue("sectionId", value)}
+              />
             </Form.Item>
             <div className="switches-col">
               <Form.Item

@@ -2,7 +2,7 @@ import { FormInstance, Popover, Space } from "antd";
 import { Rule } from "antd/es/form";
 import { SignalFilled } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
-import NewDirectoryTree from "./directoryTree";
+import NewDirectoryTree from "./directoryTree.old";
 import { Form } from "antd/lib";
 import { NewSelect } from "./input";
 import {

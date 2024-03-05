@@ -1,5 +1,5 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/directoryTree.old";
 import Filtered from "@/components/table/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";

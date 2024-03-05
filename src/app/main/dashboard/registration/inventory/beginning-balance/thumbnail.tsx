@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/directoryTree.old";
 import Filtered from "@/components/table/filtered";
 import {
   findIndexInColumnSettings,

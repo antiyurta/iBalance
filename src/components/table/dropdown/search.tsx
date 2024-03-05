@@ -32,11 +32,19 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
   const [dates, setDates] = useState<Dayjs[]>([dayjs(new Date())]);
   const [inputValue, setInputValue] = useState<string>();
   const [inputNumberValue, setInputNumberValue] = useState<number>();
-  const [tool, setTool] = useState<ITool>({
-    logo: "/icons/tools/Equals.png",
-    title: "Equals",
-    operator: "EQUALS",
-  });
+  const [tool, setTool] = useState<ITool>(
+    type == DataIndexType.DATE
+      ? {
+          logo: "/icons/tools/Equals.png",
+          title: "Тухайн",
+          operator: "THAT",
+        }
+      : {
+          logo: "/icons/tools/Equals.png",
+          title: "Equals",
+          operator: "EQUALS",
+        }
+  );
   useEffect(() => {
     onChange?.(tool.operator, inputValue);
   }, [inputValue]);
@@ -56,7 +64,12 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
       }}
     >
       {type == DataIndexType.DATE && (
-        <IntervalDate tool={tool} setTool={setTool} dates={dates} setDates={setDates} />
+        <IntervalDate
+          tool={tool}
+          setTool={setTool}
+          dates={dates}
+          setDates={setDates}
+        />
       )}
       {type == DataIndexType.MULTI && (
         <InputSearch

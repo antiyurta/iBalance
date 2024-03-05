@@ -2,7 +2,7 @@
 import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import {
   NewInput,
@@ -71,7 +71,7 @@ import { ViewMaterialService } from "@/service/material/view-material/service";
 import { ConsumerSelect } from "@/components/consumer-select";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 import PageTitle from "@/components/page-title";
 interface IProps {
   ComponentType: ComponentType;
@@ -303,7 +303,7 @@ const InventoriesRegistration = (props: IProps) => {
   };
   const getMaterialSections = async () => {
     await MaterialSectionService.get({ materialType }).then((response) => {
-      setMaterialSections(response.response.data);
+      setMaterialSections(response.response);
     });
   };
   const getMaterialRanks = async (type: IType) => {
@@ -482,25 +482,25 @@ const InventoriesRegistration = (props: IProps) => {
   }, [isActive]);
   return (
     <div>
-      <PageTitle onClick={() => openModal(false)}/>
+      <PageTitle onClick={() => openModal(false)} />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         {isOpenTree ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
               data={materialSections}
-              extra="HALF"
-              isLeaf={false}
-              onClick={(keys, isLeaf) => {
-                onCloseFilterTag({
-                  key: "materialSectionId",
-                  state: true,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                });
-                getData();
-                if (isLeaf) {
-                  getData();
-                }
+              onClick={(sectionNames) => {
+                dispatch(
+                  changeParam({
+                    ...param,
+                    filters: [
+                      {
+                        dataIndex: ["section", "name"],
+                        operator: "IN",
+                        filter: sectionNames,
+                      },
+                    ],
+                  })
+                );
               }}
             />
           </Col>
@@ -547,24 +547,7 @@ const InventoriesRegistration = (props: IProps) => {
                                   setIsOpenPopoverLittle(state)
                                 }
                                 content={
-                                  <NewDirectoryTree
-                                    extra="HALF"
-                                    data={materialSections}
-                                    isLeaf={true}
-                                    onClick={(keys, isLeaf) => {
-                                      console.log(keys);
-                                      if (!isLeaf) {
-                                        setIsOpenPopoverLittle(false);
-                                        switchForm.setFieldsValue({
-                                          sectionId: keys![0],
-                                          materialAccountId:
-                                            materialSections.find(
-                                              (item) => item.id === keys[0]
-                                            )?.materialAccountId,
-                                        });
-                                      }
-                                    }}
-                                  />
+                                  <NewDirectoryTree data={materialSections} />
                                 }
                                 trigger={"click"}
                               >
@@ -759,16 +742,8 @@ const InventoriesRegistration = (props: IProps) => {
                       content={
                         <NewDirectoryTree
                           data={materialSections}
-                          extra="HALF"
-                          isLeaf={true}
-                          onClick={(keys, isLeaf) => {
+                          onClick={(keys) => {
                             console.log(keys);
-                            if (!isLeaf) {
-                              setIsOpenPopOver(false);
-                              form.setFieldsValue({
-                                materialSectionId: keys![0],
-                              });
-                            }
                           }}
                         />
                       }

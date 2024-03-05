@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { SignalFilled } from "@ant-design/icons";
 import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
-import NewDirectoryTree from "./directoryTree";
+import NewDirectoryTree from "./directoryTree.old";
 import { MaterialSectionService } from "@/service/material/section/service";
 import { IDataMaterialSection } from "@/service/material/section/entities";
 import { MaterialType } from "@/service/material/entities";

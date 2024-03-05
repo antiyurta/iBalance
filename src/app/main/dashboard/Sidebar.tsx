@@ -2,7 +2,7 @@
 import { Button, Menu } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { newTab } from "@/feature/store/slice/tab.slice";
 import { PermissionService } from "@/service/permission/service";
 import { IDataPermission } from "@/service/permission/entities";
@@ -130,9 +130,6 @@ const Sidebar = () => {
   useEffect(() => {
     setMenuItems(getMenuItems(resources));
   }, [resources, permissions]);
-  useEffect(() => {
-    console.log("menuItems =====>", menuItems);
-  }, [menuItems]);
   return (
     <div
       style={{

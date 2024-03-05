@@ -1,4 +1,4 @@
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/directoryTree.old";
 import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {

@@ -1,7 +1,7 @@
 "use client";
 
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/directoryTree.old";
 import Filtered from "@/components/table/filtered";
 import { DataIndexType, Meta } from "@/service/entities";
 import Image from "next/image";

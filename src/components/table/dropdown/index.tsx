@@ -38,7 +38,7 @@ const NewDropdown = (props: IProps) => {
     isFiltered,
     handleSearch,
   } = props;
-  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>([]);
+  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters);
   const [newFilters, setNewFilters] = useState<IFilter[]>([]);
   const [isClear, setIsClear] = useState<boolean>(false);
   const { activeKey, items } = useTypedSelector((state) => state.pane);
@@ -71,11 +71,14 @@ const NewDropdown = (props: IProps) => {
   const filterCheckbox = (
     type: DataIndexType,
     operator: Tool,
-    value: string | number | Dayjs[]
+    value?: string | number | Dayjs[]
   ): TypeCheck[] => {
-    if (type == DataIndexType.DATE) {
+    if (!value) {
       return filters;
     } else {
+      console.log("type", type);
+      console.log("operator", operator);
+      console.log("value", value);
       if (operator == "CONTAINS") {
         return filters.filter((item) =>
           item.toString().toLowerCase().includes(value.toString().toLowerCase())
@@ -97,8 +100,12 @@ const NewDropdown = (props: IProps) => {
     }
   };
   useEffect(() => {
-    setCheckboxes(filters);
+    console.log("filters =====>", filters);
+    // setCheckboxes(filters);
   }, [filters]);
+  useEffect(() => {
+    console.log("checkboxes =======>", checkboxes);
+  }, [checkboxes]);
   useEffect(() => {
     setNewFilters(updateFilter("IN", checkedList));
   }, [checkedList]);
@@ -138,11 +145,13 @@ const NewDropdown = (props: IProps) => {
         <DropdownSearch
           type={type}
           onChange={(operator, value) => {
-            if (value) {
-              if (type == (DataIndexType.DATE || DataIndexType.DATETIME)) {
+            setCheckboxes(filterCheckbox(type, operator, value));
+            if (
+              (value && Array.isArray(value)) ||
+              type == (DataIndexType.DATE || DataIndexType.DATETIME)
+            ) {
+              {
                 setNewFilters(updateFilter(operator, value as Dayjs[]));
-              } else {
-                setCheckboxes(filterCheckbox(type, operator, value));
               }
             }
           }}

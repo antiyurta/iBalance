@@ -308,6 +308,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 0px 12px;
   }
   > .body {
     padding: 0px;
@@ -316,6 +317,16 @@ body {
     .ant-tree {
       width: 100%;
     }
+  }
+}
+.tree-item-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  .tree-item {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
   }
 }
 .ant-tabs.ant-tabs-top.lineTop {
