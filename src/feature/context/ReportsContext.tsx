@@ -134,7 +134,7 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
   const getMaterialSection = async (params: IParamMaterialSection) => {
     await MaterialSectionService.get(params).then((response) => {
       if (response.success) {
-        setMaterialSections(response.response.data);
+        setMaterialSections(response.response);
       }
     });
   };

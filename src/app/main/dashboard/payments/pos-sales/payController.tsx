@@ -49,24 +49,6 @@ const PayController = () => {
         >
           <ExtraIndex />
           <CodeSearch />
-          <div
-            style={{
-              display: "flex",
-              gap: 12,
-              justifyContent: "space-between",
-            }}
-          >
-            <Title level={3}>Сонгосон бараа</Title>
-            <Title
-              level={4}
-              type="secondary"
-              style={{
-                margin: 0,
-              }}
-            >
-              №:2023032701001
-            </Title>
-          </div>
         </div>
         <div
           style={{
