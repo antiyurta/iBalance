@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import {
   findIndexInColumnSettings,
@@ -29,7 +29,7 @@ import { BalanceService } from "@/service/material/balance/service";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   isReload: boolean;
@@ -127,7 +127,7 @@ const Thumbnail = (props: IProps) => {
     await MaterialSectionService.get({
       materialType: MaterialType.Material,
     }).then((response) => {
-      setSections(response.response.data);
+      setSections(response.response);
     });
   };
   const onDeleteBeginingBalance = async (id: number) => {
@@ -150,20 +150,19 @@ const Thumbnail = (props: IProps) => {
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
             data={sections}
-            isLeaf={false}
-            extra="HALF"
-            onClick={(keys) => {
-              onCloseFilterTag({
-                key: "materialSectionId",
-                state: true,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-              });
-              getData({
-                page: 1,
-                limit: 10,
-                materialSectionId: keys,
-              });
+            onClick={(sectionNames) => {
+              dispatch(
+                changeParam({
+                  ...param,
+                  filters: [
+                    {
+                      dataIndex: ["section", "name"],
+                      operator: "IN",
+                      filter: sectionNames,
+                    },
+                  ],
+                })
+              );
             }}
           />
         </Col>

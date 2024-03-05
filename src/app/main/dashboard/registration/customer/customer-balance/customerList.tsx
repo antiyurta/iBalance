@@ -1,7 +1,7 @@
 "use client";
 
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import { DataIndexType, Meta } from "@/service/entities";
 import Image from "next/image";
@@ -29,7 +29,7 @@ import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
@@ -126,11 +126,20 @@ const CustomerList = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            extra="HALF"
             data={sections}
-            isLeaf={false}
-            onClick={(keys) => {
-              getData();
+            onClick={(sectionNames) => {
+              dispatch(
+                changeParam({
+                  ...param,
+                  filters: [
+                    {
+                      dataIndex: ["consumer", "section", "name"],
+                      operator: "IN",
+                      filter: sectionNames,
+                    },
+                  ],
+                })
+              );
             }}
           />
         </Col>

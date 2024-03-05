@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  getParam,
-  onCloseFilterTag,
-} from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {

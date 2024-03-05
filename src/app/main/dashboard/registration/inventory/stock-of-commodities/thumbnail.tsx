@@ -1,10 +1,10 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
-import { findIndexInColumnSettings, getParam, onCloseFilterTag } from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { DataIndexType, Meta } from "@/service/entities";
-import { Col, Input, Row, Space, Typography } from "antd";
+import { Col, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -22,7 +22,7 @@ import { MaterialSectionService } from "@/service/material/section/service";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   onEdit: (row: IDataMaterial) => void;
 }
@@ -109,7 +109,7 @@ const Thumbnail = (props: IProps) => {
     await MaterialSectionService.get({
       materialType: MaterialType.Material,
     }).then((response) => {
-      setMaterialSections(response.response.data);
+      setMaterialSections(response.response);
     });
   };
   const getData = async (params: IParamMaterial) => {
@@ -131,7 +131,7 @@ const Thumbnail = (props: IProps) => {
   const onDeleteMaterialResourceSize = (id: number) => {
     MaterialResourceSizeService.remove(id).then((response) => {
       if (response.success) {
-        getData({...param});
+        getData({ ...param });
       }
     });
   };
@@ -148,27 +148,19 @@ const Thumbnail = (props: IProps) => {
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
             data={materialSections}
-            extra="HALF"
-            isLeaf={false}
-            onClick={(keys, isLeaf) => {
-              onCloseFilterTag({
-                key: "materialSectionId",
-                state: true,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-              });
-              getData({
-                page: 1,
-                limit: 10,
-                materialSectionId: keys,
-              });
-              if (isLeaf) {
-                getData({
-                  page: 1,
-                  limit: 10,
-                  materialSectionId: keys,
-                });
-              }
+            onClick={(sectionNames) => {
+              dispatch(
+                changeParam({
+                  ...param,
+                  filters: [
+                    {
+                      dataIndex: ["section", "name"],
+                      operator: "IN",
+                      filter: sectionNames,
+                    },
+                  ],
+                })
+              );
             }}
           />
         </Col>

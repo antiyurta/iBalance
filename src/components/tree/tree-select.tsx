@@ -1,5 +1,6 @@
 import { TreeSelect } from "antd";
 import { DefaultOptionType } from "antd/es/select";
+import { TreeSelectProps } from "antd/lib";
 import { useEffect, useState } from "react";
 interface IData {
   id: number;
@@ -11,8 +12,9 @@ interface IData {
 interface IProps {
   sections: IData[];
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
-const NewTreeSelect: React.FC<IProps> = ({ sections, onChange }) => {
+const NewTreeSelect: React.FC<IProps> = ({ sections, onChange, disabled=false }) => {
   const [value, setValue] = useState<string>();
   const [data, setData] = useState<DefaultOptionType[]>([]);
   const getTreeData = (sections: IData[]): DefaultOptionType[] => {
@@ -22,7 +24,7 @@ const NewTreeSelect: React.FC<IProps> = ({ sections, onChange }) => {
         option.children = getTreeData(item.sections);
       }
       return option;
-    })
+    });
   };
   useEffect(() => {
     setData(getTreeData(sections));
@@ -42,6 +44,7 @@ const NewTreeSelect: React.FC<IProps> = ({ sections, onChange }) => {
       treeDefaultExpandAll
       onChange={setValue}
       treeData={data}
+      disabled={disabled}
     />
   );
 };

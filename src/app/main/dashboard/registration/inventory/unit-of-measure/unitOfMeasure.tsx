@@ -1,5 +1,5 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import { NewInput, NewSearch, NewSelect } from "@/components/input";
 import NewModal from "@/components/modal";
@@ -28,6 +28,7 @@ export interface IDataUnit {
   sectionId: number | null;
   name: string;
   isExpand: boolean;
+  sections: [];
 }
 
 interface IProps {
@@ -182,14 +183,7 @@ const UnitOfMeasure = (props: IProps) => {
         gutter={[12, 24]}
       >
         <Col md={24} lg={10} xl={6}>
-          <NewDirectoryTree
-            data={units}
-            extra="HALF"
-            isLeaf={true}
-            onClick={(keys) => {
-              getData();
-            }}
-          />
+          <NewDirectoryTree data={units} />
         </Col>
         <Col md={24} lg={14} xl={18}>
           <Row gutter={[0, 12]}>

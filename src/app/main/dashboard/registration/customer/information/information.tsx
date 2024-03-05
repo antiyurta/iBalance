@@ -7,7 +7,7 @@ import { SwapOutlined } from "@ant-design/icons";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import {
   NewInput,
@@ -43,13 +43,13 @@ import {
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
 import Export from "@/components/Export";
-import { TreeSectionSelect } from "@/components/tree-select";
 import { WarningOutlined } from "@ant-design/icons";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 import PageTitle from "@/components/page-title";
+import NewTreeSelect from "@/components/tree/tree-select";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -386,16 +386,19 @@ const Information = (props: IProps) => {
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
               data={sections}
-              isLeaf={false}
-              extra="HALF"
-              onClick={(keys) => {
-                onCloseFilterTag({
-                  key: "sectionId",
-                  state: true,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                });
-                getData();
+              onClick={(sectionNames) => {
+                dispatch(
+                  changeParam({
+                    ...param,
+                    filters: [
+                      {
+                        dataIndex: ["section", "name"],
+                        operator: "IN",
+                        filter: sectionNames,
+                      },
+                    ],
+                  })
+                );
               }}
             />
           </Col>
@@ -425,18 +428,19 @@ const Information = (props: IProps) => {
                       style={{
                         width: "100%",
                       }}
+                      name="sectionId"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Шинээр шилжүүлэх бүлэг заавал",
+                        },
+                      ]}
                     >
-                      <TreeSectionSelect
-                        isLeaf={false}
-                        type={TreeSectionType.Consumer}
-                        form={switchForm}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Шинээр шилжүүлэх бүлэг заавал",
-                          },
-                        ]}
-                        name="sectionId"
+                      <NewTreeSelect
+                        sections={sections}
+                        onChange={(value) =>
+                          switchForm.setFieldValue("sectionId", value)
+                        }
                       />
                     </Form.Item>
                   </Form>
@@ -772,18 +776,17 @@ const Information = (props: IProps) => {
                 style={{
                   width: "100%",
                 }}
+                name="sectionId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Харилцагчийн бүлэг заавал",
+                  },
+                ]}
               >
-                <TreeSectionSelect
-                  isLeaf={true}
-                  type={TreeSectionType.Consumer}
-                  form={form}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Харилцагчийн бүлэг заавал",
-                    },
-                  ]}
-                  name="sectionId"
+                <NewTreeSelect
+                  sections={sections}
+                  onChange={(value) => form.setFieldValue("sectionId", value)}
                 />
               </Form.Item>
             </div>

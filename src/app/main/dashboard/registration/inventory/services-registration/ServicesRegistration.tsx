@@ -4,7 +4,7 @@ import { SignalFilled, PlusOutlined } from "@ant-design/icons";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import {
   ComponentType,
@@ -73,7 +73,8 @@ import { IDataConsumer, IParamConsumer } from "@/service/consumer/entities";
 import { ConsumerService } from "@/service/consumer/service";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
+import NewTreeSelect from "@/components/tree/tree-select";
 const { Title } = Typography;
 
 interface IProps {
@@ -273,7 +274,7 @@ const ServicesRegistration = (props: IProps) => {
   };
   const getMaterialSection = async (params: IParamMaterialSection) => {
     await MaterialSectionService.get(params).then((response) => {
-      setMaterialSections(response.response.data);
+      setMaterialSections(response.response);
     });
   };
   const getMeasurements = async (params: IParamUnitOfMeasure) => {
@@ -398,28 +399,20 @@ const ServicesRegistration = (props: IProps) => {
         {isOpenTree && materialSections?.length > 0 ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
-              extra="HALF"
               data={materialSections}
-              isLeaf={true}
-              onClick={(keys, isLeaf) => {
-                if (isLeaf) {
-                  // getData({
-                  //   page: 1,
-                  //   limit: 10,
-                  //   sectionId: [`${key}`],
-                  // });
-                  onCloseFilterTag({
-                    key: "sectionId",
-                    state: true,
-                    column: columns,
-                    onColumn: (columns) => setColumns(columns),
-                  });
-                  getData({
-                    page: 1,
-                    limit: 10,
-                    materialSectionId: keys,
-                  });
-                }
+              onClick={(sectionNames) => {
+                dispatch(
+                  changeParam({
+                    ...param,
+                    filters: [
+                      {
+                        dataIndex: ["section", "name"],
+                        operator: "IN",
+                        filter: sectionNames,
+                      },
+                    ],
+                  })
+                );
               }}
             />
           </Col>
@@ -449,71 +442,20 @@ const ServicesRegistration = (props: IProps) => {
                       style={{
                         width: "100%",
                       }}
+                      name={"sectionId"}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Шинээр шилжүүлэх бүлэг заавал",
+                        },
+                      ]}
                     >
-                      <Space.Compact>
-                        <div
-                          className="extraButton"
-                          style={{
-                            display: "flex",
-                            height: 38,
-                            alignItems: "center",
-                            placeContent: "center",
-                          }}
-                        >
-                          <Popover
-                            placement="bottom"
-                            open={isOpenPopOverLittle}
-                            onOpenChange={(state) =>
-                              setIsOpenPopOverLittle(state)
-                            }
-                            content={
-                              <NewDirectoryTree
-                                extra="HALF"
-                                data={materialSections}
-                                isLeaf={false}
-                                onClick={(key, isLeaf) => {
-                                  if (isLeaf) {
-                                    setIsOpenPopOverLittle(false);
-                                    switchForm.setFieldsValue({
-                                      sectionId: key,
-                                    });
-                                  }
-                                }}
-                              />
-                            }
-                            trigger={"click"}
-                          >
-                            <SignalFilled rotate={-90} />
-                          </Popover>
-                        </div>
-                        <Form.Item
-                          name="sectionId"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Шинээр шилжүүлэх бүлэг заавал",
-                            },
-                          ]}
-                        >
-                          <NewSelect
-                            allowClear
-                            showSearch
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toString()
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={materialSections.map(
-                              (materialSection) => ({
-                                value: materialSection.id,
-                                label: materialSection.name,
-                              })
-                            )}
-                          />
-                        </Form.Item>
-                      </Space.Compact>
+                      <NewTreeSelect
+                        sections={materialSections}
+                        onChange={(value: string) =>
+                          form.setFieldValue("sectionId", value)
+                        }
+                      />
                     </Form.Item>
                   </Form>
                   {/* <Button
@@ -679,62 +621,22 @@ const ServicesRegistration = (props: IProps) => {
               >
                 <NewInput />
               </Form.Item>
-              <Form.Item label="Үйлчилгээний бүлэг">
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Popover
-                      placement="bottom"
-                      open={isOpenPopOver}
-                      onOpenChange={(state) => setIsOpenPopOver(state)}
-                      content={
-                        <NewDirectoryTree
-                          data={materialSections}
-                          extra="HALF"
-                          isLeaf={true}
-                          onClick={(key, isLeaf) => {
-                            if (isLeaf) {
-                              setIsOpenPopOver(false);
-                              form.setFieldsValue({
-                                sectionId: key,
-                              });
-                            }
-                          }}
-                        />
-                      }
-                      trigger={"click"}
-                    >
-                      <SignalFilled rotate={-90} />
-                    </Popover>
-                  </div>
-                  <Form.Item
-                    style={{
-                      width: "100%",
-                    }}
-                    name="materialSectionId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Үйлчилгээний бүлэг заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      allowClear
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.label ?? "")
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      options={materialSections.map((materialSection) => ({
-                        value: materialSection.id,
-                        label: materialSection.name,
-                      }))}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+              <Form.Item
+                label="Үйлчилгээний бүлэг"
+                name="materialSectionId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Үйлчилгээний бүлэг заавал",
+                  },
+                ]}
+              >
+                <NewTreeSelect
+                  sections={materialSections}
+                  onChange={(value: string) =>
+                    form.setFieldValue("materialSectionId", value)
+                  }
+                />
               </Form.Item>
               <Form.Item label="Хэмжих нэгж">
                 <Space.Compact>

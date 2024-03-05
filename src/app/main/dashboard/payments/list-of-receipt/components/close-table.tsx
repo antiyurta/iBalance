@@ -44,21 +44,21 @@ const RowRender: React.FC<IRowProps> = ({
     </>
   );
 };
-const CloseTable: React.FC<IProps> = ({
-  title,
-  dataSource,
-  isQty,
-}) => {
+const CloseTable: React.FC<IProps> = ({ title, dataSource, isQty }) => {
   return (
     <>
       <Divider>{title}</Divider>
-      <Table pagination={false} dataSource={dataSource}>
+      <Table
+        pagination={false}
+        dataSource={dataSource}
+      >
         <Column
           align="left"
           width={300}
           dataIndex={"state"}
           key={"state"}
           title="Төлөв"
+          render={(value) => (<span>{value}</span>)}
         />
         {isQty && (
           <Column

@@ -1,5 +1,5 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree.old";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
 import {
@@ -27,7 +27,7 @@ import NewModal from "@/components/modal";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { AppDispatch } from "@/feature/store/store";
 import { useDispatch } from "react-redux";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
@@ -191,17 +191,20 @@ const CustomerList = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            extra="HALF"
             data={sections}
-            isLeaf={false}
-            onClick={(keys) => {
-              onCloseFilterTag({
-                key: "sectionId",
-                state: true,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-              });
-              getData();
+            onClick={(sectionNames) => {
+              dispatch(
+                changeParam({
+                  ...param,
+                  filters: [
+                    {
+                      dataIndex: ["section", "name"],
+                      operator: "IN",
+                      filter: sectionNames,
+                    },
+                  ],
+                })
+              );
             }}
           />
         </Col>

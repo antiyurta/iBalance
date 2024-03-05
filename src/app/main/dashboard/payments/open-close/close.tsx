@@ -50,9 +50,9 @@ const CloseState = (props: IProps) => {
           if (response.success) {
             setOpenClose(response.response);
             form.setFieldsValue({
-              cashAmount: response.response.cashAmount,
-              nonCashAmount: response.response.nonCashAmount,
-              lendAmount: response.response.lendAmount,
+              cashAmount: Number(response.response.cashAmount),
+              nonCashAmount: Number(response.response.nonCashAmount),
+              lendAmount: Number(response.response.lendAmount),
             });
           }
         })
@@ -374,9 +374,9 @@ const CloseState = (props: IProps) => {
         form={form}
         layout="vertical"
         initialValues={{
-          cashAmount: openClose?.cashAmount || 0,
-          nonCashAmount: openClose?.nonCashAmount || 0,
-          lendAmount: openClose?.lendAmount || 0,
+          cashAmount: 0,
+          nonCashAmount: 0,
+          lendAmount: 0,
         }}
       >
         <div

@@ -1,14 +1,13 @@
 "use client";
-import { SignalFilled } from "@ant-design/icons";
 import NewDirectoryTree from "@/components/tree";
-import { NewInput, NewSelect, NewSwitch } from "@/components/input";
+import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
-import { App, Button, Col, Form, Popover, Row, Space } from "antd";
+import { App, Button, Col, Form, Row, Space } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import Information from "../information/information";
@@ -27,7 +26,6 @@ const Group = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<number>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
-  const [isOpenPopOverAdd, setIsOpenPopOverAdd] = useState<boolean>(false);
   const [isOpenChangeModal, setIsOpenChangeModal] = useState<boolean>(false);
   const onFinish = async (values: IDataTreeSection) => {
     values.type = TreeSectionType.Consumer;
