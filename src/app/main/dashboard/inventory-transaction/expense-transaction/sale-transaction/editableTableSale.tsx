@@ -14,6 +14,8 @@ import {
 import { MaterialType } from "@/service/material/entities";
 import { IDataDiscount } from "@/service/command/discount/entities";
 import { IDataTransaction } from "@/service/document/transaction/entities";
+import MaterialSearch from "@/components/material-search";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
 
 interface IProps {
   data: FormListFieldData[];
@@ -160,39 +162,31 @@ export const EditableTableSale = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <MaterialSelect
-            form={form}
-            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          <Form.Item
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex) || isEdit}
-            listName="transactions"
-            onClear={() => {
-              form.resetFields([
-                ["transactions", index, "name"],
-                ["transactions", index, "measurement"],
-                ["transactions", index, "countPackage"],
-                ["transactions", index, "lastQty"],
-                ["transactions", index, "unitAmount"],
-              ]);
-            }}
-            onSelect={(value) => {
-              form.setFieldsValue({
-                transactions: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    lastQty: value.lastQty,
-                    unitAmount: value.unitAmount,
-                    totalAmount: value.unitAmount,
-                    expenseQty: 1,
-                    discountAmount: value.discountAmount,
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          >
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              onMaterial={(material?: IDataViewMaterial) => {
+                form.setFieldsValue({
+                  transactions: {
+                    [index]: {
+                      materialId: material?.id,
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      lastQty: material?.lastQty,
+                      unitAmount: material?.unitAmount,
+                      totalAmount: material?.unitAmount,
+                      expenseQty: 1,
+                      discountAmount: material?.discountAmount,
+                    },
                   },
-                },
-              });
-            }}
-            params={{ types: [MaterialType.Material] }}
-          />
+                });
+              }}
+            />
+          </Form.Item>
         )}
       />
       <Column

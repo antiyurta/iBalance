@@ -12,6 +12,8 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import MaterialSearch from "@/components/material-search";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
 
 interface IProps {
   data: FormListFieldData[];
@@ -136,35 +138,28 @@ export const EditableTableCencus = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <MaterialSelect
-            params={{ types: [MaterialType.Material] }}
-            form={form}
-            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          <Form.Item
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex)}
-            listName={"transactions"}
-            onClear={() => {
-              form.resetFields([
-                ["transactions", index, "name"],
-                ["transactions", index, "measurement"],
-                ["transactions", index, "countPackage"],
-              ]);
-            }}
-            onSelect={(value) => {
-              form.setFieldsValue({
-                transactions: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    unitAmount: value.unitAmount | 0,
-                    lastQty: value.lastQty,
-                    quantity: 1,
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          >
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              onMaterial={(material?: IDataViewMaterial) => {
+                form.setFieldsValue({
+                  transactions: {
+                    [index]: {
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      unitAmount: material?.unitAmount,
+                      lastQty: material?.lastQty,
+                      quantity: 1,
+                    },
                   },
-                },
-              });
-            }}
-          />
+                });
+              }}
+            />
+          </Form.Item>
         )}
       />
       <Column

@@ -12,6 +12,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import MaterialSearch from "@/components/material-search";
 type mixture = "ingredients" | "exits";
 interface IProps {
   data: FormListFieldData[];
@@ -114,35 +115,28 @@ export const EditableTableMixture = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <MaterialSelect
-            params={{ types: [MaterialType.Material] }}
-            form={form}
-            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          <Form.Item
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex) || isEdit}
-            listName={listName}
-            onClear={() => {
-              form.resetFields([
-                [listName, index, "name"],
-                [listName, index, "measurement"],
-                [listName, index, "countPackage"],
-              ]);
-            }}
-            onSelect={(value) => {
-              form.setFieldsValue({
-                [listName]: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    lastQty: value.lastQty,
-                    expenseQty: 0,
-                    incomeQty: 0,
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          >
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              onMaterial={(material) => {
+                form.setFieldsValue({
+                  [listName]: {
+                    [index]: {
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      lastQty: material?.lastQty,
+                      expenseQty: 0,
+                      incomeQty: 0,
+                    },
                   },
-                },
-              });
-            }}
-          />
+                });
+              }}
+            />
+          </Form.Item>
         )}
       />
       <Column
@@ -186,10 +180,7 @@ export const EditableTableMixture = (props: IProps) => {
         title="Тоо хэмжээ"
         render={(_, __, index) => (
           <Form.Item
-            name={[
-              index,
-              listName == "exits" ? "incomeQty" : "expenseQty",
-            ]}
+            name={[index, listName == "exits" ? "incomeQty" : "expenseQty"]}
             rules={[{ required: true, message: "Тоо хэмжээ заавал" }]}
           >
             <NewInputNumber disabled={!(index === editingIndex)} />

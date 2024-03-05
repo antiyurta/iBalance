@@ -31,32 +31,12 @@ const TransactionCencus = (props: IProps) => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
-  const warehouseId: number = Form.useWatch("warehouseId", form);
 
   const getWarehouses = () => {
     WarehouseService.get().then((response) => {
       if (response.success) {
         setWarehouses(response.response.data);
       }
-    });
-  };
-  const getMaterials = async (params: IParamViewMaterial) => {
-    form.validateFields(["warehouseId"]).then(async () => {
-      await ViewMaterialService.get(params).then((response) => {
-        if (response.success) {
-          const materials = response.response.data
-            .map((response) => ({
-              materialId: response.id,
-              name: response.name,
-              measurement: response.measurementName,
-              countPackage: response.countPackage,
-              unitAmount: response.unitAmount | 0,
-              lastQty: response.lastQty,
-            }))
-            .filter((item) => item.lastQty !== 0);
-          form.setFieldsValue({ transactions: materials });
-        }
-      });
     });
   };
   const onFinish = async (values: IDataDocument) => {
@@ -168,10 +148,6 @@ const TransactionCencus = (props: IProps) => {
                       warehouses.find((warehouse) => warehouse.id === id)
                         ?.employees || [];
                     setEmployees(employees);
-                    getMaterials({
-                      warehouseId,
-                      types: [MaterialType.Material],
-                    });
                   }}
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,

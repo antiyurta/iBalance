@@ -12,6 +12,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import MaterialSearch from "@/components/material-search";
 
 interface IProps {
   data: FormListFieldData[];
@@ -111,35 +112,24 @@ export const EditableTableMove = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <MaterialSelect
-            params={{ types: [MaterialType.Material] }}
-            form={form}
-            rules={[{ required: true, message: "Дотоод код заавал" }]}
-            name={[index, "materialId"]}
-            disabled={!(index === editingIndex) || isEdit}
-            listName="transactions"
-            onClear={() => {
-              form.resetFields([
-                ["transactions", index, "name"],
-                ["transactions", index, "measurement"],
-                ["transactions", index, "countPackage"],
-                ["transactions", index, "unitAmount"],
-              ]);
-            }}
-            onSelect={(value) => {
-              form.setFieldsValue({
-                transactions: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    unitAmount: value.unitAmount | 0,
-                    expenseQty: 1,
+          <Form.Item name={[index, "materialId"]}>
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              onMaterial={(material) => {
+                form.setFieldsValue({
+                  transactions: {
+                    [index]: {
+                      materialId: material?.id,
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      section: material?.sectionName,
+                    },
                   },
-                },
-              });
-            }}
-          />
+                });
+              }}
+            />
+          </Form.Item>
         )}
       />
       <Column

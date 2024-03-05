@@ -10,13 +10,19 @@ import ExtraIndex from "./extra";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { CodeSearch } from "./component/code-search";
+import MaterialSearch from "@/components/material-search";
 import { createTemp } from "@/feature/store/slice/point-of-sale/temp.slice";
-import { emptyGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
+import {
+  emptyGoods,
+  saveGoods,
+} from "@/feature/store/slice/point-of-sale/goods.slice";
 import {
   emptyShoppingCart,
   onShoppingCart,
 } from "@/feature/store/slice/point-of-sale/shopping-cart.slice";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
+import { IGoods } from "@/service/pos/entities";
+import { MaterialType } from "@/service/material/entities";
 
 const { Title } = Typography;
 const PayController = () => {
@@ -28,6 +34,31 @@ const PayController = () => {
   const createShoppingTemps = () => {
     dispatch(createTemp(shoppingGoods));
     dispatch(emptyGoods());
+  };
+  const onMaterial = (material?: IDataViewMaterial) => {
+    if (material) {
+      const currentIndex = shoppingGoods.findIndex(
+        (item) => item.materialId == material.id
+      );
+      const currentGoods: IGoods = {
+        materialId: material.id,
+        materialName: material.name,
+        imageUrl: "/images/emptyMarket.png",
+        sectionName: material.sectionName,
+        unitAmount: material.unitAmount,
+        quantity: 1,
+        discountAmount: 0,
+        payAmount: material.unitAmount,
+        totalAmount: material.unitAmount,
+      };
+      if (currentIndex !== -1) {
+        currentGoods.quantity = shoppingGoods[currentIndex].quantity + 1;
+        currentGoods.payAmount =
+          shoppingGoods[currentIndex].unitAmount *
+          (shoppingGoods[currentIndex].quantity + 1);
+      }
+      dispatch(saveGoods(currentGoods));
+    }
   };
   return (
     <>
@@ -48,7 +79,10 @@ const PayController = () => {
           }}
         >
           <ExtraIndex />
-          <CodeSearch />
+          <MaterialSearch
+            onMaterial={onMaterial}
+            params={{ moreUnitAmount: 0, types: [MaterialType.Material] }}
+          />
         </div>
         <div
           style={{
