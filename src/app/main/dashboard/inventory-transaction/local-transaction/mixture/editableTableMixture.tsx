@@ -125,6 +125,7 @@ export const EditableTableMixture = (props: IProps) => {
                 form.setFieldsValue({
                   [listName]: {
                     [index]: {
+                      materialId: material?.id,
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,

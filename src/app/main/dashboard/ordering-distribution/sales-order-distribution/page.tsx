@@ -1,16 +1,12 @@
 "use client";
-import { Col, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Tabs } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { NewSearch } from "@/components/input";
-
-//
 import CreateOrder from "./createOrder";
 import Distribution from "./distribution";
 import { TabType } from "@/service/order-distribution/entities";
+import PageTitle from "@/components/page-title";
 
-const { Title } = Typography;
-
-const page = () => {
+const SalePage = () => {
   const items = [
     {
       label: (
@@ -42,24 +38,23 @@ const page = () => {
     },
   ];
   return (
-    <Row
-      style={{
-        paddingTop: 16,
-      }}
-      gutter={[12, 24]}
-    >
-      <Col md={24} lg={16} xl={19}>
-        <Space size={24}>
-          <Title level={3}>Захиалга, хуваарилалт / Борлуулалт</Title>
-        </Space>
-      </Col>
-      <Col md={24} lg={8} xl={5}>
-        <NewSearch />
-      </Col>
-      <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-      </Col>
-    </Row>
+    <>
+      <PageTitle />
+      <Row
+        style={{
+          paddingTop: 16,
+        }}
+        gutter={[12, 24]}
+      >
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
+    </>
   );
 };
-export default page;
+export default SalePage;
