@@ -1,41 +1,49 @@
-import Image from "next/image";
-import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
-import { Column } from "@/components/table";
 import { NewInput, NewInputNumber } from "@/components/input";
-import { FormListFieldData } from "antd/lib";
+import MaterialSearch from "@/components/material-search";
+import { Column } from "@/components/table";
+import { MaterialType } from "@/service/material/entities";
+import { App, Button, Form, Popconfirm, Table } from "antd";
+import { FormInstance, FormListFieldData } from "antd/lib";
+import Image from "next/image";
 import { Fragment, useState } from "react";
-import { MaterialSelect } from "@/components/material-select";
 import {
   SaveOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { MaterialType } from "@/service/material/entities";
-import MaterialSearch from "@/components/material-search";
+import { BookingStatus } from "@/service/booking/entities";
 
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
+  bookingStatus?: BookingStatus;
   add: () => void;
   remove: (index: number) => void;
-  isEdit: boolean;
 }
-export const EditableTableMove = (props: IProps) => {
+const EditableMateral: React.FC<IProps> = ({
+  data,
+  form,
+  bookingStatus = BookingStatus.New,
+  add,
+  remove,
+}) => {
   const { message } = App.useApp();
-  const { data, form, add, remove, isEdit } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-
   const onSave = async () => {
+    const fields = [
+      ["bookingMaterials"],
+      ["bookingMaterials", editingIndex, "materialId"],
+      ["bookingMaterials", editingIndex, "material", "name"],
+      ["bookingMaterials", editingIndex, "material", "countPackage"],
+      ["bookingMaterials", editingIndex, "quantity"],
+    ];
+    if (bookingStatus == BookingStatus.Distribute) {
+      fields.push(["bookingMaterials", editingIndex, "distributeQuantity"]);
+    }
     return form
-      .validateFields([
-        ["transactions"],
-        ["transactions", editingIndex, "materialId"],
-        ["transactions", editingIndex, "name"],
-        ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "expenseQty"],
-      ])
+      .validateFields(fields)
       .then(() => {
         setNewService(false);
         setEditingIndex(undefined);
@@ -70,41 +78,47 @@ export const EditableTableMove = (props: IProps) => {
     }
     setEditingIndex(undefined);
   };
-  const onRemove = (index: number) => {
-    remove(index);
+  const onDisabled = (index: number): boolean => {
+    if (bookingStatus !== BookingStatus.New) return true;
+    else return editingIndex !== index;
   };
   return (
     <Table
       dataSource={data}
       footer={() => {
         return (
-          <div className="button-editable-footer" onClick={() => addService()}>
+          bookingStatus == BookingStatus.New && (
             <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 8,
-                placeContent: "center",
-              }}
+              className="button-editable-footer"
+              onClick={() => addService()}
             >
-              <Image
-                src={"/images/AddIconBlack.svg"}
-                alt="addiconblack"
-                width={16}
-                height={16}
-              />
-              <span
+              <div
                 style={{
-                  fontWeight: 500,
-                  fontSize: 14,
-                  lineHeight: "13px",
-                  color: "#6C757D",
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 8,
+                  placeContent: "center",
                 }}
               >
-                Нэмэх
-              </span>
+                <Image
+                  src={"/images/AddIconBlack.svg"}
+                  alt="addiconblack"
+                  width={16}
+                  height={16}
+                />
+                <span
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 14,
+                    lineHeight: "13px",
+                    color: "#6C757D",
+                  }}
+                >
+                  Нэмэх
+                </span>
+              </div>
             </div>
-          </div>
+          )
         );
       }}
     >
@@ -112,19 +126,27 @@ export const EditableTableMove = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <Form.Item name={[index, "materialId"]}>
+          <Form.Item
+            name={[index, "materialId"]}
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          >
             <MaterialSearch
+              isDisable={onDisabled(index)}
               params={{ types: [MaterialType.Material] }}
-              isDisable={editingIndex !== index}
               onMaterial={(material) => {
                 form.setFieldsValue({
-                  transactions: {
+                  bookingMaterials: {
                     [index]: {
                       materialId: material?.id,
-                      name: material?.name,
-                      measurement: material?.measurementName,
-                      countPackage: material?.countPackage,
-                      section: material?.sectionName,
+                      material: {
+                        name: material?.name,
+                        countPackage: material?.countPackage,
+                        measurement: {
+                          name: material?.measurementName,
+                        },
+                      },
+                      lastQty: material?.lastQty,
+                      quantity: 1,
                     },
                   },
                 });
@@ -137,7 +159,7 @@ export const EditableTableMove = (props: IProps) => {
         dataIndex={"name"}
         title="Бараа материалын нэр"
         render={(_, __, index) => (
-          <Form.Item name={[index, "name"]}>
+          <Form.Item name={[index, "material", "name"]}>
             <NewInput disabled />
           </Form.Item>
         )}
@@ -146,7 +168,7 @@ export const EditableTableMove = (props: IProps) => {
         dataIndex={"measurement"}
         title="Хэмжих нэгж"
         render={(_, __, index) => (
-          <Form.Item name={[index, "measurement"]}>
+          <Form.Item name={[index, "material", "measurement", "name"]}>
             <NewInput disabled />
           </Form.Item>
         )}
@@ -155,41 +177,46 @@ export const EditableTableMove = (props: IProps) => {
         dataIndex={"countPackage"}
         title="Багц доторх тоо"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
+          <Form.Item name={[index, "material", "countPackage"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"countPackage"}
+        dataIndex={"lastQty"}
         title="Агуулахын үлдэгдэл"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
+          <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"unitAmount"}
-        title="Нэгжийн үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
-            <NewInputNumber disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"expenseQty"}
-        title="Шилжүүлэх хэмжээ"
+        dataIndex={"quantity"}
+        title="Тоо хэмжээ/захиалга/"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "expenseQty"]}
-            rules={[{ required: true, message: "Зарлагын тоо хэмжээ заавал" }]}
+            name={[index, "quantity"]}
+            rules={[{ required: true, message: "Тоо хэмжээ/захиалга/" }]}
           >
-            <NewInputNumber disabled={!(index === editingIndex)} />
+            <NewInputNumber disabled={onDisabled(index)} />
           </Form.Item>
         )}
       />
+      {bookingStatus == BookingStatus.Distribute && (
+        <Column
+          dataIndex={"distributeQuantity"}
+          title="Тоо хэмжээ/зөвшөөрсөн/"
+          render={(_, __, index) => (
+            <Form.Item
+              name={[index, "distributeQuantity"]}
+              rules={[{ required: true, message: "Тоо хэмжээ/зөвшөөрсөн/" }]}
+            >
+              <NewInputNumber disabled={editingIndex != index} />
+            </Form.Item>
+          )}
+        />
+      )}
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}
@@ -229,10 +256,10 @@ export const EditableTableMove = (props: IProps) => {
                   onClick={() => setEditingIndex(index)}
                 />
                 <Popconfirm
-                  title="Are you sure？"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={() => onRemove(index)}
+                  title="Итгэлтэй байна уу."
+                  okText="Тийм"
+                  cancelText="Үгүй"
+                  onConfirm={() => remove(index)}
                 >
                   <Button
                     danger
@@ -254,3 +281,4 @@ export const EditableTableMove = (props: IProps) => {
     </Table>
   );
 };
+export default EditableMateral;

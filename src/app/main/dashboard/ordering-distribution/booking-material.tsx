@@ -1,192 +1,123 @@
-import { useState } from "react";
-import { ITabs, Type } from "./index";
+import { useContext, useEffect, useState } from "react";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
 import { NewTable } from "@/components/table";
 import { NewInput } from "@/components/input";
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { DataIndexType } from "@/service/entities";
+import { DataIndexType, Meta } from "@/service/entities";
+import {
+  FilteredColumnsBookingMaterial,
+  IDataBookingMaterial,
+  IFilterBookingMaterial,
+} from "@/service/booking/booking-material/entities";
+import { BookingMaterialService } from "@/service/booking/booking-material/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 const { Title } = Typography;
 
-interface IProps extends ITabs {
-  type: Type;
+interface IProps {
+  type: "SALE" | "LOCAL";
 }
 
-const ListOfTransactions = (props: IProps) => {
-  const { type, grid, columns, order } = props;
+const BookingMaterial: React.FC<IProps> = ({ type }) => {
+  const blockContext: BlockView = useContext(BlockContext);
   const [isFilter, setIsFilter] = useState<boolean>(false);
-  const [salesColumns, setSalesColumns] = useState<any>({
-    orderNumber: {
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [filters, setFilters] = useState<IFilterBookingMaterial>();
+  const [data, setData] = useState<IDataBookingMaterial[]>([]);
+  const [columns, setColumns] = useState<FilteredColumnsBookingMaterial>({
+    bookingId: {
       label: "Захиалгын ID",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["booking", "id"],
       type: DataIndexType.MULTI,
     },
-    createdAt: {
-      label: "Огноо",
+    bookingAt: {
+      label: "Баримтын огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
+      dataIndex: ["booking", "bookingAt"],
+      type: DataIndexType.DATE,
     },
-    saleTarget: {
+    toWarehouseName: {
       label: "Зарлагын байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["booking", "toWarehouse", "name"],
       type: DataIndexType.MULTI,
     },
-    name: {
-      label: "Харилцагчийн нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    number: {
-      label: "Дотоод код",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    materialName: {
-      label: "Бараа материалын нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    NEGJamount: {
-      label: "Нэгж үнэ",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    quantityOrder: {
-      label: "Тоо хэмжээ /захиалга/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    quantityDis: {
-      label: "Тоо хэмжээ /хуваарилсан/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    quantityGrant: {
-      label: "Тоо хэмжээ /олгосон/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    paidAmountOrder: {
-      label: "Төлөх дүн /захиалга/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    paidAmountGrant: {
-      label: "Төлөх дүн /олгосон/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    ebarimtStatus: {
-      label: "Баримтын төлөв",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-  });
-  const [internamColumns, setInternamColumns] = useState<any>({
-    orderNumber: {
-      label: "Захиалгын ID",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    createdAt: {
-      label: "Огноо",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    saleTarget: {
-      label: "Зарлагын байршил",
-      isView: true,
-      isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
-    },
-    disTarget: {
+    fromWarehouseName: {
       label: "Орлогын байршил",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["booking", "fromWarehouse", "name"],
       type: DataIndexType.MULTI,
     },
-    number: {
+    materialCode: {
       label: "Дотоод код",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["material", "code"],
       type: DataIndexType.MULTI,
     },
     materialName: {
       label: "Бараа материалын нэр",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["material", "name"],
       type: DataIndexType.MULTI,
     },
-    quantityOrder: {
+    quantity: {
       label: "Тоо хэмжээ /захиалга/",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["quantity"],
       type: DataIndexType.MULTI,
     },
-    quantityDis: {
+    distributeQuantity: {
       label: "Тоо хэмжээ /хуваарилсан/",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["distributeQuantity"],
       type: DataIndexType.MULTI,
     },
-    quantityGrant: {
+    confirmQuantity: {
       label: "Тоо хэмжээ /олгосон/",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
+      dataIndex: ["confirmQuantity"],
       type: DataIndexType.MULTI,
     },
-    ebarimtStatus: {
+    status: {
       label: "Баримтын төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
+      dataIndex: ["booking", "status"],
+      type: DataIndexType.ENUM,
     },
-    saleDate: {
+    createdAt: {
       label: "Захиалга хийсэн огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: "ebarimt",
-      type: DataIndexType.MULTI,
+      dataIndex: ["createdAt"],
+      type: DataIndexType.DATE,
     },
   });
+  const getData = async () => {
+    blockContext.block();
+    await BookingMaterialService.get()
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -266,22 +197,11 @@ const ListOfTransactions = (props: IProps) => {
               x: undefined,
             }}
             rowKey={"id"}
-            data={[
-              {
-                id: 1,
-                test: false,
-              },
-              {
-                id: 2,
-                test: true,
-              },
-            ]}
-            columns={type === "SALES" ? salesColumns : internamColumns}
-            meta={{}}
-            onColumns={function (columns: any): void {
-              throw new Error("Function not implemented.");
-            }}
-            incomeFilters={undefined}
+            data={data}
+            columns={columns}
+            meta={meta}
+            onColumns={setColumns}
+            incomeFilters={filters}
           />
         </Col>
         <Col span={isFilter ? 4 : 0}>
@@ -347,4 +267,4 @@ const ListOfTransactions = (props: IProps) => {
     </div>
   );
 };
-export default ListOfTransactions;
+export default BookingMaterial;

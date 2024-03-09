@@ -31,7 +31,7 @@ interface IProps {
   row?: IDataBooking;
 }
 
-const CreateOrder = (props: IProps) => {
+const SaleOrder: React.FC<IProps> = (props: IProps) => {
   const { type, isEdit, isFormAdd, row } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
@@ -275,4 +275,4 @@ const CreateOrder = (props: IProps) => {
     </>
   );
 };
-export default CreateOrder;
+export default SaleOrder;

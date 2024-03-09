@@ -80,6 +80,7 @@ const PayController = () => {
         >
           <ExtraIndex />
           <MaterialSearch
+            isDisable={false}
             onMaterial={onMaterial}
             params={{ moreUnitAmount: 0, types: [MaterialType.Material] }}
           />

@@ -17,19 +17,14 @@ import {
   BarsOutlined,
 } from "@ant-design/icons";
 import { Button, Tooltip } from "antd";
-import {
-  Dispatch,
-  KeyboardEvent,
-  SetStateAction,
-  useContext,
-  useState,
-} from "react";
+import { KeyboardEvent, useContext, useState } from "react";
 type CodeType = "CODE" | "NAME" | "BARCODE";
 interface IProps {
+  isDisable: boolean;
   params: IParamViewMaterial;
   onMaterial: (value?: IDataViewMaterial) => void;
 }
-const MaterialSearch: React.FC<IProps> = ({ onMaterial, params }) => {
+const MaterialSearch: React.FC<IProps> = ({ isDisable, params, onMaterial }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [type, setType] = useState<CodeType>("BARCODE");
   const [code, setCode] = useState<string>();
@@ -89,6 +84,7 @@ const MaterialSearch: React.FC<IProps> = ({ onMaterial, params }) => {
         <Button
           type="default"
           icon={getType(type).icon}
+          disabled={isDisable}
           onClick={() =>
             setType(
               type === "BARCODE" ? "CODE" : type === "CODE" ? "NAME" : "BARCODE"
@@ -101,6 +97,7 @@ const MaterialSearch: React.FC<IProps> = ({ onMaterial, params }) => {
           style={{ width: "100%" }}
           placeholder={"Дотоод код оруулна уу."}
           value={code}
+          disabled={isDisable}
           onChange={(e) => setCode(e.target.value)}
           onPressEnter={() => getMaterial()}
         />
@@ -110,6 +107,7 @@ const MaterialSearch: React.FC<IProps> = ({ onMaterial, params }) => {
           style={{ width: "100%" }}
           placeholder={"Баркод оруулна уу."}
           value={barcode}
+          disabled={isDisable}
           onChange={(e) => setBarcode(e as string)}
           onPressEnter={() => getMaterial()}
           onKeyDown={getBlock}
@@ -128,6 +126,7 @@ const MaterialSearch: React.FC<IProps> = ({ onMaterial, params }) => {
             style={{ width: "100%" }}
             placeholder={"Нэр оруулна уу."}
             value={name}
+            disabled={isDisable}
             onChange={(e) => setName(e.target.value)}
             onPressEnter={() => getMaterial()}
           />
@@ -137,6 +136,7 @@ const MaterialSearch: React.FC<IProps> = ({ onMaterial, params }) => {
               value: item.id,
               label: item.name,
             }))}
+            disabled={isDisable}
             onSelect={onSelect}
           />
         </div>

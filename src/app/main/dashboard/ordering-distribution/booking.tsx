@@ -1,44 +1,44 @@
-import { Button, Col, Form, Row, Space, Tooltip, Typography } from "antd";
+import { Button, Col, Form, Row, Space, Typography } from "antd";
 import Image from "next/image";
-import {
-  ArrowRightOutlined,
-  DeploymentUnitOutlined,
-  DeleteOutlined,
-  ImportOutlined,
-} from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import React, { useContext, useEffect, useState } from "react";
 import { NewTable, Column } from "@/components/table";
 import { NewInput } from "@/components/input";
 import NewModal from "@/components/modal";
-import CreateOrder from "./createOrder";
-import { TabType } from "@/service/order-distribution/entities";
 import {
   BookingStatus,
   FilteredColumnsBooking,
   IDataBooking,
+  IFilterBooking,
   IParamBooking,
 } from "@/service/booking/entities";
-import { DataIndexType, Meta } from "@/service/entities";
-import Filtered from "@/components/table/filtered";
-import { findIndexInColumnSettings, onCloseFilterTag } from "@/feature/common";
+import { DataIndexType, IParam, Meta } from "@/service/entities";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { BookingService } from "@/service/booking/service";
-import ColumnSettings from "@/components/columnSettings";
+import LocalOrder from "./order-distribution/local-order";
+import SaleOrder from "./sales-order-distribution/sale-order";
+import { TabType } from "@/service/order-distribution/entities";
 
 const { Title } = Typography;
-
-const Distribution = () => {
+interface IProps {
+  type: "SALE" | "LOCAL";
+  tabType: "DISTRIBUTE" | "DOCUMENT";
+  params?: IParam;
+}
+const Booking: React.FC<IProps> = ({ type, tabType, params }) => {
+  const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isFilter, setIsFilter] = useState<boolean>(false);
-  const [params, setParams] = useState<IParamBooking>({ page: 1, limit: 10 });
   const [data, setData] = useState<IDataBooking[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
-  const [selectedRow, setSelectedRow] = useState<IDataBooking>();
+  const [filters, setFilters] = useState<IFilterBooking>();
+  const [selectedBooking, setSelectedBooking] = useState<IDataBooking>();
   const [columns, setColumns] = useState<FilteredColumnsBooking>({
-    code: {
+    id: {
       label: "Захиалгын ID",
       isView: true,
       isFiltered: false,
-      dataIndex: ["code"],
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     bookingAt: {
@@ -48,18 +48,18 @@ const Distribution = () => {
       dataIndex: ["bookingAt"],
       type: DataIndexType.DATE,
     },
-    toWarehouseId: {
+    fromWarehouseName: {
+      label: "Орлогын байршил",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["fromWarehouse", "name"],
+      type: DataIndexType.MULTI,
+    },
+    toWarehouseName: {
       label: "Зарлагын байршил",
       isView: true,
       isFiltered: false,
       dataIndex: ["toWarehouse", "name"],
-      type: DataIndexType.MULTI,
-    },
-    consumerId: {
-      label: "Харилцагчийн нэр",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumer", "name"],
       type: DataIndexType.MULTI,
     },
     materialQuantity: {
@@ -67,76 +67,52 @@ const Distribution = () => {
       isView: true,
       isFiltered: false,
       dataIndex: ["materialQuantity"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.NUMBER,
     },
     bookingQuantity: {
-      label: "Тоо хэмжээ /захиалга/",
+      label: "Тоо хэмжээ /захилга/",
       isView: true,
       isFiltered: false,
       dataIndex: ["bookingQuantity"],
-      type: DataIndexType.MULTI,
-    },
-    payAmount: {
-      label: "Төлөх дүн /захиалга/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["payAmount"],
-      type: DataIndexType.VALUE,
-    },
-    totalAmount: {
-      label: "Нийт дүн /захиалга/",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["totalAmount"],
-      type: DataIndexType.VALUE,
-    },
-    materialDiscountAmount: {
-      label: "Бараа материалын үнийн хөнгөлөлт",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["materialDiscountAmount"],
-      type: DataIndexType.VALUE,
-    },
-    consumerDiscountAmount: {
-      label: "Харилцагчийн хөнгөлөлт",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["consumerDiscountAmount"],
-      type: DataIndexType.VALUE,
+      type: DataIndexType.NUMBER,
     },
     status: {
       label: "Баримтын төлөв",
       isView: true,
       isFiltered: false,
       dataIndex: ["status"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.ENUM,
     },
     createdAt: {
-      label: "Захиалга өгсөн огноо",
+      label: "Захиалга хийсэн огноо",
       isView: true,
       isFiltered: false,
       dataIndex: ["createdAt"],
-      type: DataIndexType.DATE,
+      type: DataIndexType.DATETIME,
     },
     createdBy: {
       label: "Захиалга өгсөн хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: ["createdUser", "firstName"],
+      dataIndex: ["createdByUser", "firstName"],
       type: DataIndexType.MULTI,
     },
   });
-  const getData = async (params: IParamBooking) => {
-    await BookingService.get(params).then((response) => {
-      if (response.success) {
-        setData(response.response.data);
-        setMeta(response.response.meta);
-      }
-    });
+  const getData = async () => {
+    blockContext.block();
+    await BookingService.get(params)
+      .then((response) => {
+        if (response.success) {
+          setData(response.response.data);
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+        }
+      })
+      .finally(() => blockContext.unblock());
   };
   useEffect(() => {
-    getData(params);
-  }, []);
+    getData();
+  }, [params]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -148,7 +124,6 @@ const Distribution = () => {
             }}
             size={12}
           >
-            <Filtered columns={columns} />
             <Space
               style={{
                 width: "100%",
@@ -156,17 +131,6 @@ const Distribution = () => {
               }}
               size={12}
             >
-              <ColumnSettings
-                columns={columns}
-                columnIndexes={(arg1, arg2) =>
-                  findIndexInColumnSettings({
-                    newRowIndexes: arg1,
-                    unSelectedRow: arg2,
-                    columns: columns,
-                    onColumns: (columns) => setColumns(columns),
-                  })
-                }
-              />
               <Image
                 src={"/images/PrintIcon.svg"}
                 width={24}
@@ -202,60 +166,54 @@ const Distribution = () => {
             data={data}
             columns={columns}
             meta={meta}
-            onColumns={function (columns: any): void {
-              throw new Error("Function not implemented.");
+            onColumns={setColumns}
+            incomeFilters={filters}
+            isEdit
+            isDelete
+            onEdit={(row) => {
+              setIsOpenModal(true);
+              setSelectedBooking(row);
             }}
-            incomeFilters={undefined}
           >
-            <Column
-              title="Хуваарилалт хийх"
-              render={(row: IDataBooking) => {
-                const { status } = row;
-                if (status == BookingStatus.New) {
-                  return (
-                    <div
-                      style={{
-                        display: "grid",
-                        gap: 1,
-                        gridTemplateColumns: `repeat(2, minmax(0,1fr))`,
-                      }}
-                    >
-                      <Tooltip title="Хуваарилах">
-                        <Button
-                          type="primary"
-                          shape="circle"
-                          icon={<DeploymentUnitOutlined />}
-                          onClick={() => {
-                            setIsOpenModal(true);
-                            setSelectedRow(row);
-                          }}
-                        />
-                      </Tooltip>
-                      <Tooltip title="Цуцлах">
-                        <Button
-                          type="primary"
-                          shape="circle"
-                          icon={<DeleteOutlined />}
-                          danger
-                          onClick={() => setIsOpenModal(true)}
-                        />
-                      </Tooltip>
-                    </div>
-                  );
-                } else if (status == BookingStatus.Refund) {
-                  return (
-                    <Tooltip title="Сэргээх">
-                      <Button
-                        type="dashed"
-                        danger
-                        shape="circle"
-                        icon={<ImportOutlined />}
-                      />
-                    </Tooltip>
-                  );
-                }
-              }}
-            />
+            {tabType == "DISTRIBUTE" && (
+              <Column
+                title="Хуваарилалт хийх"
+                dataIndex={"test"}
+                render={(_, record: IDataBooking) => (
+                  <>
+                    {record.status == BookingStatus.New && (
+                      <button
+                        onClick={() => {
+                          setIsOpenModal(true);
+                          setSelectedBooking(record);
+                        }}
+                        className="app-button-regular"
+                        style={{
+                          height: 22,
+                          fontWeight: 400,
+                          width: 100,
+                        }}
+                      >
+                        {type == "SALE" && "Хуваарилах"}
+                        {type == "LOCAL" && "Зөвшөөрөх"}
+                      </button>
+                    )}
+                    {record.status == BookingStatus.DistributeIgnore && (
+                      <button
+                        className="app-button-danger"
+                        style={{
+                          height: 22,
+                          fontWeight: 400,
+                          width: 100,
+                        }}
+                      >
+                        Сэргээх
+                      </button>
+                    )}
+                  </>
+                )}
+              />
+            )}
           </NewTable>
         </Col>
         <Col span={isFilter ? 4 : 0}>
@@ -320,19 +278,27 @@ const Distribution = () => {
       </Row>
       <NewModal
         width={1400}
-        title="Борлуулалтын захиалга"
+        title="Дотоод захиалга"
         open={isOpenModal}
-        onCancel={() => setIsOpenModal(false)}
         footer={null}
+        onCancel={() => setIsOpenModal(false)}
       >
-        <CreateOrder
-          type={TabType.DISTRIBUTION}
-          isEdit={true}
-          isFormAdd={false}
-          row={selectedRow}
-        />
+        {type == "LOCAL" && (
+          <LocalOrder
+            selectedBooking={selectedBooking}
+            bookingStatus={BookingStatus.Distribute}
+            isModal={setIsOpenModal}
+          />
+        )}
+        {type == "SALE" && (
+          <SaleOrder
+            type={TabType.CREATE_ORDER}
+            isEdit={false}
+            isFormAdd={false}
+          />
+        )}
       </NewModal>
     </div>
   );
 };
-export default Distribution;
+export default Booking;

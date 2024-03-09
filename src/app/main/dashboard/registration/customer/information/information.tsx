@@ -38,7 +38,6 @@ import {
 import {
   findIndexInColumnSettings,
   getParam,
-  onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
 import { NewTable } from "@/components/table";
@@ -63,7 +62,7 @@ const Information = (props: IProps) => {
   const isIndividual = Form.useWatch("isIndividual", form);
   const isEmployee = Form.useWatch("isEmployee", form);
   const [switchForm] = Form.useForm(); // buleg solih
-  const blockContext: BlockView = useContext(BlockContext); // uildeliig blockloh
+  const blockContext: BlockView = useContext(BlockContext);
   const [filters, setFilters] = useState<IFilterConsumer>();
   const { items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, key);

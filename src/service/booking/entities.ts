@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { IDataConsumer } from "../consumer/entities";
 import { IDataConsumerMembership } from "../consumer/membership/entities";
 import { IDataDocument } from "../document/entities";
@@ -15,14 +16,12 @@ import { IDataWarehouse } from "../reference/warehouse/entities";
 import { IDataBookingMaterial } from "./booking-material/entities";
 /** Захиалгын төлвүүд */
 export enum BookingStatus {
-  /** Шинэ */
-  New = "NEW",
-  /** Хуваарилсан */
-  Distribute = "DISTRIBUTE",
-  /** Олгосон */
-  Confirm = "CONFIRM",
-  /** Цуцалсан */
-  Refund = "REFUND",
+  New = "NEW", // Шинэ
+  OrderIgnore = "ORDER_IGNORE", // Захиалга цуцалсан
+  Distribute = "DISTRIBUTE", // Хуваарилсан
+  DistributeIgnore = "DISTRIBUTE_IGNORE", // Хуваарилалт цуцалсан
+  Confirm = "CONFIRM", // Олгосон
+  ConfirmIgnore = "CONFIRM_IGNORE", // Олголт цуцалсан
 }
 export interface IDataBooking extends IData {
   id: number;
@@ -41,7 +40,7 @@ export interface IDataBooking extends IData {
   consumerMembership?: IDataConsumerMembership;
   consumerDiscountAmount: number;
   discountAmount: number;
-  bookingAt: number;
+  bookingAt: string | Dayjs;
   bookingQuantity: number;
   materialQuantity: number;
   distributeQuantity: number;
@@ -58,19 +57,20 @@ export interface IDataBooking extends IData {
 }
 
 export interface IFilterBooking extends IColumn {
-  code: string;
-  consumerId: number;
-  fromWarehouseId: number;
-  toWarehouseId: number;
+  id: string;
+  bookingAt: string;
+  fromWarehouseName: string;
+  toWarehouseName: string;
   totalAmount: number;
+  count: number;
+  materialQuantity: number;
+  bookingQuantity: number;
   payAmount: number;
+  consumerId: number;
   materialDiscountAmount: number;
   consumerMemebershipId: number;
   consumerDiscountAmount: number;
   discountAmount: number;
-  bookingAt: number;
-  bookingQuantity: number;
-  materialQuantity: number;
   distributeQuantity: number;
   distributeAmount: number;
   confirmQuantity: number;

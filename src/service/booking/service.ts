@@ -6,7 +6,7 @@ import {
   IResponseBooking,
 } from "./entities";
 
-function get(params: IParamBooking): Promise<IResponseBookings> {
+function get(params?: IParamBooking): Promise<IResponseBookings> {
   return api.get("booking", { params });
 }
 function getById(id: number): Promise<IResponseBooking> {

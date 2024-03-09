@@ -121,6 +121,7 @@ export const EditableTableMixture = (props: IProps) => {
           >
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
+              isDisable={editingIndex !== index}
               onMaterial={(material) => {
                 form.setFieldsValue({
                   [listName]: {

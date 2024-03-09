@@ -127,6 +127,7 @@ export const EditableTablePurchase = (props: IProps) => {
           >
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
+              isDisable={editingIndex !== index}
               onMaterial={(material?: IDataViewMaterial) => {
                 form.setFieldsValue({
                   transactions: {
