@@ -10,22 +10,20 @@ import {
   FilteredColumnsBooking,
   IDataBooking,
   IFilterBooking,
-  IParamBooking,
 } from "@/service/booking/entities";
 import { DataIndexType, IParam, Meta } from "@/service/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { BookingService } from "@/service/booking/service";
 import LocalOrder from "./order-distribution/local-order";
 import SaleOrder from "./sales-order-distribution/sale-order";
-import { TabType } from "@/service/order-distribution/entities";
 
 const { Title } = Typography;
 interface IProps {
   type: "SALE" | "LOCAL";
-  tabType: "DISTRIBUTE" | "DOCUMENT";
+  status: BookingStatus;
   params?: IParam;
 }
-const Booking: React.FC<IProps> = ({ type, tabType, params }) => {
+const Booking: React.FC<IProps> = ({ type, status, params }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isFilter, setIsFilter] = useState<boolean>(false);
@@ -175,13 +173,13 @@ const Booking: React.FC<IProps> = ({ type, tabType, params }) => {
               setSelectedBooking(row);
             }}
           >
-            {tabType == "DISTRIBUTE" && (
+            {status == "DISTRIBUTE" && (
               <Column
                 title="Хуваарилалт хийх"
                 dataIndex={"test"}
                 render={(_, record: IDataBooking) => (
                   <>
-                    {record.status == BookingStatus.New && (
+                    {record.status == "NEW" && (
                       <button
                         onClick={() => {
                           setIsOpenModal(true);
@@ -198,7 +196,7 @@ const Booking: React.FC<IProps> = ({ type, tabType, params }) => {
                         {type == "LOCAL" && "Зөвшөөрөх"}
                       </button>
                     )}
-                    {record.status == BookingStatus.DistributeIgnore && (
+                    {record.status == "DISTRIBUTE_IGNORE" && (
                       <button
                         className="app-button-danger"
                         style={{
@@ -286,16 +284,17 @@ const Booking: React.FC<IProps> = ({ type, tabType, params }) => {
         {type == "LOCAL" && (
           <LocalOrder
             selectedBooking={selectedBooking}
-            bookingStatus={BookingStatus.Distribute}
+            status={status}
             isModal={setIsOpenModal}
           />
         )}
         {type == "SALE" && (
-          <SaleOrder
-            type={TabType.CREATE_ORDER}
-            isEdit={false}
-            isFormAdd={false}
-          />
+          <div>борлуулалт comming soon</div>
+          // <SaleOrder
+          //   type={"Distribute"}
+          //   isEdit={false}
+          //   isFormAdd={false}
+          // />
         )}
       </NewModal>
     </div>

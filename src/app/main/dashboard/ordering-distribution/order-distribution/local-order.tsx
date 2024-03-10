@@ -14,13 +14,13 @@ import dayjs from "dayjs";
 import { enumTranslation } from "@/feature/constraint-translation";
 
 interface IProps {
-  bookingStatus?: BookingStatus;
+  status?: BookingStatus;
   selectedBooking?: IDataBooking;
   isModal?: (isValue: boolean) => void;
 }
 const LocalOrder: React.FC<IProps> = ({
   selectedBooking,
-  bookingStatus = BookingStatus.New,
+  status = "NEW",
   isModal,
 }) => {
   const [form] = Form.useForm<IDataBooking | undefined>();
@@ -35,8 +35,17 @@ const LocalOrder: React.FC<IProps> = ({
   };
   const onFinish = async (values: IDataBooking) => {
     blockContext.block();
-    if (selectedBooking) {
+    if (status == "DISTRIBUTE" && selectedBooking) {
       await BookingService.patchDistribute(selectedBooking.id, values)
+        .then((response) => {
+          if (response.success) {
+            form.resetFields();
+            isModal?.(false);
+          }
+        })
+        .finally(() => blockContext.unblock());
+    } else if (status == "CONFIRM" && selectedBooking) {
+      await BookingService.patchConfirm(selectedBooking.id, values)
         .then((response) => {
           if (response.success) {
             form.resetFields();
@@ -55,9 +64,6 @@ const LocalOrder: React.FC<IProps> = ({
   useEffect(() => {
     getWarehouse();
   }, []);
-  useEffect(() => {
-    console.log(bookingStatus);
-  }, [bookingStatus]);
   useEffect(() => {
     if (selectedBooking) {
       form.setFieldsValue({
@@ -84,7 +90,7 @@ const LocalOrder: React.FC<IProps> = ({
           </Form.Item>
           <Form.Item name={"toWarehouseId"} label={"Орлогын байршил"} required>
             <NewFilterSelect
-              disabled={bookingStatus !== BookingStatus.New}
+              disabled={status !== "NEW"}
               options={warehouses.map((item) => ({
                 label: item.name,
                 value: item.id,
@@ -99,34 +105,34 @@ const LocalOrder: React.FC<IProps> = ({
               }))}
             />
           </Form.Item>
-          {bookingStatus !== BookingStatus.New && (
+          {status !== "NEW" && (
             <Form.Item name={"status"} label={"Баримтын төлөв"}>
               <NewFilterSelect
                 disabled
                 options={[
                   {
-                    label: enumTranslation(BookingStatus.New),
-                    value: BookingStatus.New,
+                    label: enumTranslation("NEW"),
+                    value: "NEW",
                   },
                   {
-                    label: enumTranslation(BookingStatus.OrderIgnore),
-                    value: BookingStatus.OrderIgnore,
+                    label: enumTranslation("ORDER_IGNORE"),
+                    value: "ORDER_IGNORE",
                   },
                   {
-                    label: enumTranslation(BookingStatus.Distribute),
-                    value: BookingStatus.Distribute,
+                    label: enumTranslation("DISTRIBUTE"),
+                    value: "DISTRIBUTE",
                   },
                   {
-                    label: enumTranslation(BookingStatus.DistributeIgnore),
-                    value: BookingStatus.DistributeIgnore,
+                    label: enumTranslation("DISTRIBUTE_IGNORE"),
+                    value: "DISTRIBUTE_IGNORE",
                   },
                   {
-                    label: enumTranslation(BookingStatus.Confirm),
-                    value: BookingStatus.Confirm,
+                    label: enumTranslation("CONFIRM"),
+                    value: "CONFIRM",
                   },
                   {
-                    label: enumTranslation(BookingStatus.ConfirmIgnore),
-                    value: BookingStatus.ConfirmIgnore,
+                    label: enumTranslation("CONFIRM_IGNORE"),
+                    value: "CONFIRM_IGNORE",
                   },
                 ]}
               />
@@ -158,7 +164,7 @@ const LocalOrder: React.FC<IProps> = ({
               <EditableMateral
                 data={items}
                 form={form}
-                bookingStatus={bookingStatus}
+                status={status}
                 add={add}
                 remove={remove}
               />
@@ -183,8 +189,9 @@ const LocalOrder: React.FC<IProps> = ({
             })
           }
         >
-          {bookingStatus == BookingStatus.New && "Хадгалах"}
-          {bookingStatus == BookingStatus.Distribute && "Зөвшөөрөх"}
+          {status == "NEW" && "Хадгалах"}
+          {status == "DISTRIBUTE" && "Зөвшөөрөх"}
+          {status == "CONFIRM" && "Олгох"}
         </Button>
       </div>
     </NewCard>

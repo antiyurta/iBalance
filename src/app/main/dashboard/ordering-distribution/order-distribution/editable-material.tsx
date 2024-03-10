@@ -17,14 +17,14 @@ import { BookingStatus } from "@/service/booking/entities";
 interface IProps {
   data: FormListFieldData[];
   form: FormInstance;
-  bookingStatus?: BookingStatus;
+  status?: BookingStatus;
   add: () => void;
   remove: (index: number) => void;
 }
 const EditableMateral: React.FC<IProps> = ({
   data,
   form,
-  bookingStatus = BookingStatus.New,
+  status = "NEW",
   add,
   remove,
 }) => {
@@ -39,8 +39,11 @@ const EditableMateral: React.FC<IProps> = ({
       ["bookingMaterials", editingIndex, "material", "countPackage"],
       ["bookingMaterials", editingIndex, "quantity"],
     ];
-    if (bookingStatus == BookingStatus.Distribute) {
+    if (status == "DISTRIBUTE") {
       fields.push(["bookingMaterials", editingIndex, "distributeQuantity"]);
+    }
+    if (status == "CONFIRM") {
+      fields.push(["bookingMaterials", editingIndex, "confirmQuantty"]);
     }
     return form
       .validateFields(fields)
@@ -79,7 +82,7 @@ const EditableMateral: React.FC<IProps> = ({
     setEditingIndex(undefined);
   };
   const onDisabled = (index: number): boolean => {
-    if (bookingStatus !== BookingStatus.New) return true;
+    if (status !== "NEW") return true;
     else return editingIndex !== index;
   };
   return (
@@ -87,7 +90,7 @@ const EditableMateral: React.FC<IProps> = ({
       dataSource={data}
       footer={() => {
         return (
-          bookingStatus == BookingStatus.New && (
+          status == "NEW" && (
             <div
               className="button-editable-footer"
               onClick={() => addService()}
@@ -203,7 +206,7 @@ const EditableMateral: React.FC<IProps> = ({
           </Form.Item>
         )}
       />
-      {bookingStatus == BookingStatus.Distribute && (
+      {status == "DISTRIBUTE" && (
         <Column
           dataIndex={"distributeQuantity"}
           title="Тоо хэмжээ/зөвшөөрсөн/"
@@ -211,6 +214,20 @@ const EditableMateral: React.FC<IProps> = ({
             <Form.Item
               name={[index, "distributeQuantity"]}
               rules={[{ required: true, message: "Тоо хэмжээ/зөвшөөрсөн/" }]}
+            >
+              <NewInputNumber disabled={editingIndex != index} />
+            </Form.Item>
+          )}
+        />
+      )}
+      {status == "CONFIRM" && (
+        <Column
+          dataIndex={"confirmQuantity"}
+          title="Тоо хэмжээ/олгосон/"
+          render={(_, __, index) => (
+            <Form.Item
+              name={[index, "confirmQuantity"]}
+              rules={[{ required: true, message: "Тоо хэмжээ/олгосон/" }]}
             >
               <NewInputNumber disabled={editingIndex != index} />
             </Form.Item>

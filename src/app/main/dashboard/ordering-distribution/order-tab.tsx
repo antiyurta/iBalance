@@ -62,17 +62,17 @@ const OrderTab: React.FC<IProps> = ({ type, pageKey }) => {
         </div>
       ),
       key: `${pageKey}/distrbution`,
-      children: <Booking type={type} params={param} tabType="DISTRIBUTE" />,
+      children: <Booking type={type} params={param} status="DISTRIBUTE" />,
     },
     {
       label: "Баримтын жагсаалт",
       key: `${pageKey}/booking`,
-      children: <Booking type={type} params={param} tabType="DOCUMENT" />,
+      children: <Booking type={type} params={param} status="CONFIRM" />,
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: `${pageKey}/booking-material`,
-      children: <BookingMaterial type={type}/>,
+      children: <BookingMaterial type={type} />,
     },
   ];
   return (

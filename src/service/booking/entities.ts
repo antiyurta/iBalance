@@ -15,14 +15,13 @@ import { IDataReferencePaymentMethod } from "../reference/payment-method/entitie
 import { IDataWarehouse } from "../reference/warehouse/entities";
 import { IDataBookingMaterial } from "./booking-material/entities";
 /** Захиалгын төлвүүд */
-export enum BookingStatus {
-  New = "NEW", // Шинэ
-  OrderIgnore = "ORDER_IGNORE", // Захиалга цуцалсан
-  Distribute = "DISTRIBUTE", // Хуваарилсан
-  DistributeIgnore = "DISTRIBUTE_IGNORE", // Хуваарилалт цуцалсан
-  Confirm = "CONFIRM", // Олгосон
-  ConfirmIgnore = "CONFIRM_IGNORE", // Олголт цуцалсан
-}
+export type BookingStatus =
+  | "NEW"
+  | "ORDER_IGNORE"
+  | "DISTRIBUTE"
+  | "DISTRIBUTE_IGNORE"
+  | "CONFIRM"
+  | "CONFIRM_IGNORE";
 export interface IDataBooking extends IData {
   id: number;
   code: string;

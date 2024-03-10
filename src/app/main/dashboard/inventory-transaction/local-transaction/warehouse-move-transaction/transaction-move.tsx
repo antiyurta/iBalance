@@ -20,6 +20,9 @@ import { IDataEmployee } from "@/service/employee/entities";
 import { IDataWarehouseDocument } from "@/service/document/warehouse-document/entities";
 import { WarehouseDocumentService } from "@/service/document/warehouse-document/service";
 import { MovingStatus } from "@/service/document/entities";
+import NewModal from "@/components/modal";
+import Booking from "../../../ordering-distribution/booking";
+import { BookingStatus } from "@/service/booking/entities";
 interface IProps {
   selectedDocument?: IDataWarehouseDocument;
   onSave?: (state: boolean) => void;
@@ -32,6 +35,7 @@ const TransactionMove = (props: IProps) => {
   const [incomeEmployees, setIncomeEmployees] = useState<IDataEmployee[]>([]);
   const [expenseEmployees, setExpenseEmployees] = useState<IDataEmployee[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [isOrderModal, setIsOrderModal] = useState<boolean>(false);
 
   const getWarehouses = () => {
     WarehouseService.get().then((response) => {
@@ -137,6 +141,7 @@ const TransactionMove = (props: IProps) => {
                 alt="Захиалга олгох"
               />
             }
+            onClick={() => setIsOrderModal(true)}
           >
             Захиалга олгох
           </Button>
@@ -295,6 +300,23 @@ const TransactionMove = (props: IProps) => {
           </div>
         </NewCard>
       </Col>
+      <NewModal
+        title={"Зөвшөөрсөн захиалгууд"}
+        open={isOrderModal}
+        width={950}
+        onCancel={() => setIsOrderModal(false)}
+        onOk={() =>
+          form.validateFields().then((values) => {
+            onFinish(values);
+          })
+        }
+      >
+        <Booking
+          type={"LOCAL"}
+          status={"CONFIRM"}
+          params={{ page: 1, limit: 10 }}
+        />
+      </NewModal>
     </Row>
   );
 };
