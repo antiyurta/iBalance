@@ -338,16 +338,6 @@ const CloseState = (props: IProps) => {
       }}
     >
       <div className="open-close-close" ref={printRef}>
-        <Title
-          style={{
-            fontSize: 20,
-            fontWeight: 500,
-            textAlign: "center",
-            padding: 12,
-          }}
-        >
-          Хаалт хийх
-        </Title>
         <div className="close-body">
           <div className="close-content">
             <CloseTable

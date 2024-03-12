@@ -840,7 +840,7 @@ html {
 
 .open-close-close {
   width: 100%;
-  @media (min-width: 992px) and (max-width: 1199px) {
+  @media (min-width: 992px) {
     .close-body {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));

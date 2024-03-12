@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
 import * as headerJSON from "./excel/RStorage1";
@@ -9,6 +9,8 @@ import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { ReportTitle } from "../component/report-title";
 import RStorage1Filter from "../filters/RStorage1Filter";
+import { ReportService } from "@/service/report/service";
+import { IReportMaterial } from "@/service/report/entities";
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
@@ -16,6 +18,8 @@ const RStorage1: NextPage = () => {
   const values = form.getFieldsValue();
   const [reportAt, setReportAt] = useState<string>("");
   const [warehouse, setWarehouse] = useState<IDataWarehouse>();
+  const [data, setData] = useState<IReportMaterial[]>([]);
+  const textRight: CSSProperties = { textAlign: 'right' }
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
@@ -62,6 +66,11 @@ const RStorage1: NextPage = () => {
         setWarehouse(response.response)
       );
   }, [values.warehouseId]);
+  useEffect(() => {
+    ReportService.reportMaterial().then((response) => {
+      setData(response.response);
+    });
+  }, []);
   return (
     <div className="report-document">
       <Tools filter={<RStorage1Filter />} />
@@ -70,46 +79,6 @@ const RStorage1: NextPage = () => {
           organization={"Universal med"}
           title={"Бараа материалын товчоо тайлан"}
         />
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            justifyContent: "space-between",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 8,
-              fontStyle: "italic",
-            }}
-          >
-            {warehouse?.name}
-          </p>
-        </div>
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: 14,
-            fontWeight: "bold",
-          }}
-        >
-          <p>Бараа материалын товчоо тайлан</p>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            justifyContent: "space-between",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 9,
-            }}
-          >
-            Тайлант үе: {reportAt}
-          </p>
-        </div>
         <table ref={tableRef} className="report">
           <thead>
             <tr>
@@ -151,23 +120,25 @@ const RStorage1: NextPage = () => {
               <td>Бүлэг :</td>
               <td colSpan={14}>АР-ХӨН</td>
             </tr>
-            <tr>
-              <td>750023</td>
-              <td>Архөн HY150</td>
-              <td>Ширхэг</td>
-              <td>220</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>220</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>220</td>
-              <td>220</td>
-            </tr>
+            {data.map((item, index) => (
+              <tr key={index}>
+                <td>{item.code}</td>
+                <td>{item.name}</td>
+                <td>{item.shortName}</td>
+                <td style={textRight}>{item.beginingQty}</td>
+                <td style={textRight}>{item.purchaseQty}</td>
+                <td style={textRight}>{item.saleReturnQty}</td>
+                <td style={textRight}>{item.warehouseIncomeQty}</td>
+                <td style={textRight}>{item.incomeQty}</td>
+                <td style={textRight}>{item.posQty}</td>
+                <td style={textRight}>{item.operationQty}</td>
+                <td style={textRight}>{item.saleReturnQty}</td>
+                <td style={textRight}>{item.actQty}</td>
+                <td style={textRight}>{item.warehouseExpenseQty}</td>
+                <td style={textRight}>{item.expenseQty}</td>
+                <td style={textRight}>{item.lastQty}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

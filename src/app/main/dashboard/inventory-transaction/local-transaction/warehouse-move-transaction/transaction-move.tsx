@@ -1,9 +1,6 @@
 "use client";
 import { DocumentService } from "@/service/document/service";
-import {
-  IDataWarehouse,
-  IParamWarehouse,
-} from "@/service/reference/warehouse/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
 import { useContext, useEffect, useState } from "react";
@@ -22,7 +19,6 @@ import { WarehouseDocumentService } from "@/service/document/warehouse-document/
 import { MovingStatus } from "@/service/document/entities";
 import NewModal from "@/components/modal";
 import Booking from "../../../ordering-distribution/booking";
-import { BookingStatus } from "@/service/booking/entities";
 interface IProps {
   selectedDocument?: IDataWarehouseDocument;
   onSave?: (state: boolean) => void;
@@ -235,6 +231,9 @@ const TransactionMove = (props: IProps) => {
                   }))}
                 />
               </Form.Item>
+              <Form.Item label="Захиалгын ID" name="bookingId">
+                <NewInput disabled />
+              </Form.Item>
             </div>
             <Space size={12} wrap></Space>
             <div
@@ -303,18 +302,32 @@ const TransactionMove = (props: IProps) => {
       <NewModal
         title={"Зөвшөөрсөн захиалгууд"}
         open={isOrderModal}
-        width={950}
+        width={1050}
         onCancel={() => setIsOrderModal(false)}
-        onOk={() =>
-          form.validateFields().then((values) => {
-            onFinish(values);
-          })
-        }
+        footer={null}
       >
         <Booking
           type={"LOCAL"}
           status={"CONFIRM"}
           params={{ page: 1, limit: 10 }}
+          onSelectBooking={(row) => {
+            const values = form.getFieldsValue();
+            values.documentAt = dayjs();
+            values.expenseWarehouseId = row.toWarehouseId;
+            values.incomeWarehouseId = row.fromWarehouseId;
+            values.bookingId = row.id;
+            values.transactions = row.bookingMaterials?.map((item) => ({
+              materialId: item.materialId,
+              name: item.material?.name,
+              measurement: item.material?.measurement.name,
+              countPackage: item.material?.countPackage,
+              lastQty: item.lastQty,
+              unitAmount: 0,
+              expenseQty: item.distributeQuantity,
+            }));
+            setIsOrderModal(false);
+            form.setFieldsValue(values);
+          }}
         />
       </NewModal>
     </Row>

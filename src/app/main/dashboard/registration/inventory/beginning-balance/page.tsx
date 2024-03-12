@@ -17,7 +17,7 @@ import Detailed from "./detailed";
 import NewModal from "@/components/modal";
 import { BalanceService } from "@/service/material/balance/service";
 import EditableTableBalance from "./editableTable";
-import { NewInput } from "@/components/input";
+import { NewInput, NewSwitch } from "@/components/input";
 import {
   IDataWarehouse,
   IParamWarehouse,
@@ -168,6 +168,7 @@ const BeginningBalancePage = () => {
                       section: {
                         name: value.sectionName,
                       },
+                      isExpired: value.isExpired,
                     });
                   }}
                 />
@@ -189,6 +190,9 @@ const BeginningBalancePage = () => {
               </Form.Item>
               <Form.Item label="Эхний үлдэгдэл" name="balanceQty">
                 <InputNumber disabled />
+              </Form.Item>
+              <Form.Item label="Хугацаа дуусах эсэх" name="isExpired" valuePropName="checked">
+                <NewSwitch />
               </Form.Item>
             </div>
             <Form.List

@@ -119,6 +119,12 @@ export const EditableTableConverter = (props: IProps) => {
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
               isDisable={editingIndex !== index}
+              isEdit={true}
+              materialId={form.getFieldValue([
+                "transactions",
+                index,
+                "materialId",
+              ])}
               onMaterial={(material) => {
                 form.setFieldsValue({
                   transactions: {
@@ -195,6 +201,12 @@ export const EditableTableConverter = (props: IProps) => {
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
               isDisable={editingIndex !== index}
+              isEdit={true}
+              materialId={form.getFieldValue([
+                "transactions",
+                index,
+                "convertMaterialId",
+              ])}
               onMaterial={(material) => {
                 form.setFieldsValue({
                   transactions: {

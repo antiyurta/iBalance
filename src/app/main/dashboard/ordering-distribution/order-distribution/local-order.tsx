@@ -35,17 +35,9 @@ const LocalOrder: React.FC<IProps> = ({
   };
   const onFinish = async (values: IDataBooking) => {
     blockContext.block();
-    if (status == "DISTRIBUTE" && selectedBooking) {
-      await BookingService.patchDistribute(selectedBooking.id, values)
-        .then((response) => {
-          if (response.success) {
-            form.resetFields();
-            isModal?.(false);
-          }
-        })
-        .finally(() => blockContext.unblock());
-    } else if (status == "CONFIRM" && selectedBooking) {
-      await BookingService.patchConfirm(selectedBooking.id, values)
+    if (selectedBooking) {
+      values.status = status;
+      await BookingService.patch(selectedBooking.id, values)
         .then((response) => {
           if (response.success) {
             form.resetFields();

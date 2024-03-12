@@ -231,6 +231,13 @@ const InventoriesRegistration = (props: IProps) => {
       dataIndex: ["isCitizenTax"],
       type: DataIndexType.BOOLEAN,
     },
+    isExpired: {
+      label: "Хугацаа дуусах эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["isExpired"],
+      type: DataIndexType.BOOLEAN,
+    },
     description: {
       label: "Дэлгэрэнгүй мэдээлэл",
       isView: true,
@@ -971,13 +978,6 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-              <Form.Item label="Бэлтгэн нийлүүлэгчийн код, нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[]}
-                  name="consumerSupplierId"
-                />
-              </Form.Item>
               <Form.Item label="Дэлгэрэнгүй мэдээлэл" name="description">
                 <NewTextArea />
               </Form.Item>
@@ -1001,6 +1001,13 @@ const InventoriesRegistration = (props: IProps) => {
             <Form.Item
               label="Идэвхтэй эсэх"
               name="isActive"
+              valuePropName="checked"
+            >
+              <NewSwitch />
+            </Form.Item>
+            <Form.Item
+              label="Хугацаа дуусах эсэх"
+              name="isExpired"
               valuePropName="checked"
             >
               <NewSwitch />

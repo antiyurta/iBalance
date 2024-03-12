@@ -121,6 +121,8 @@ const EditableTableProduct = (props: IProps) => {
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
               isDisable={editingIndex !== index}
+              isEdit={true}
+              materialId={form.getFieldValue(["prices", index, "materialId"])}
               onMaterial={(material) => {
                 form.setFieldsValue({
                   prices: {

@@ -13,6 +13,7 @@ export interface IDataBookingMaterial extends IData {
   materialDiscount?: IDataDiscount;
   quantity: number;
   amount: number;
+  lastQty: number;
   discountAmount: number;
   distributeQuantity: number;
   confirmQuantity: number;

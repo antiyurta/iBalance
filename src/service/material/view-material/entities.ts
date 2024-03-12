@@ -21,6 +21,7 @@ export interface IDataViewMaterial {
   discountAmount: number; // барааны хөнгөлөлт
   unitAmount: number; // Нэгжийн үнэ
   lastQty: number;
+  isExpired: boolean;
   fileIds: number[];
 }
 export interface IFilterViewMaterial {

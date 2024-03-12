@@ -1,30 +1,34 @@
 import { NewFilterSelect, NewInput, NewInputNumber } from "@/components/input";
-import { getFile, openNofi } from "@/feature/common";
+import { openNofi } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { useTypedSelector } from "@/feature/store/reducer";
-import { saveGoods } from "@/feature/store/slice/point-of-sale/goods.slice";
-import { AppDispatch } from "@/feature/store/store";
-import { MaterialType } from "@/service/material/entities";
+import { MaterialService } from "@/service/material/service";
 import {
   IDataViewMaterial,
   IParamViewMaterial,
 } from "@/service/material/view-material/entities";
 import { ViewMaterialService } from "@/service/material/view-material/service";
-import { IGoods } from "@/service/pos/entities";
 import {
   BarcodeOutlined,
   QrcodeOutlined,
   BarsOutlined,
 } from "@ant-design/icons";
 import { Button, Tooltip } from "antd";
-import { KeyboardEvent, useContext, useState } from "react";
+import { KeyboardEvent, useContext, useEffect, useState } from "react";
 type CodeType = "CODE" | "NAME" | "BARCODE";
 interface IProps {
   isDisable: boolean;
   params: IParamViewMaterial;
+  materialId?: number;
+  isEdit?: boolean;
   onMaterial: (value?: IDataViewMaterial) => void;
 }
-const MaterialSearch: React.FC<IProps> = ({ isDisable, params, onMaterial }) => {
+const MaterialSearch: React.FC<IProps> = ({
+  isDisable,
+  params,
+  onMaterial,
+  materialId,
+  isEdit,
+}) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [type, setType] = useState<CodeType>("BARCODE");
   const [code, setCode] = useState<string>();
@@ -48,6 +52,10 @@ const MaterialSearch: React.FC<IProps> = ({ isDisable, params, onMaterial }) => 
     if (type == "NAME") {
       params.name = name;
     }
+    if (!isEdit) {
+      setBarcode(undefined);
+      setCode(undefined);
+    }
     await ViewMaterialService.get(params)
       .then((response) => {
         if (response.success) {
@@ -62,9 +70,12 @@ const MaterialSearch: React.FC<IProps> = ({ isDisable, params, onMaterial }) => 
           }
         }
       })
-      .finally(() => blockContext.unblock());
-    setBarcode(undefined);
-    setCode(undefined);
+      .finally(() => {
+        params.barCode = undefined;
+        params.code = undefined;
+        params.name = undefined;
+        blockContext.unblock();
+      });
   };
   const getType = (
     type: CodeType
@@ -78,6 +89,20 @@ const MaterialSearch: React.FC<IProps> = ({ isDisable, params, onMaterial }) => 
     const currentIndex = materials.findIndex((item) => item.id == id);
     if (currentIndex > -1) onMaterial(materials[currentIndex]);
   };
+  const getMaterialById = (materialId: number) => {
+    MaterialService.getById(materialId)
+      .then((response) => {
+        if (response.success) {
+          setBarcode(response.response.barCode);
+          setCode(response.response.code);
+          setName(response.response.name);
+        }
+      })
+      .finally(() => getMaterial());
+  };
+  useEffect(() => {
+    materialId && getMaterialById(materialId);
+  }, []);
   return (
     <div style={{ display: "flex" }}>
       <Tooltip title={getType(type).label}>

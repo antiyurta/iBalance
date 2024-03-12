@@ -18,11 +18,11 @@ function postSale(body: IDataBooking): Promise<IResponseBooking> {
 function postLocal(body: IDataBooking): Promise<IResponseBooking> {
   return api.post("booking/local", body);
 }
-function patchDistribute(id: number, body: IDataBooking): Promise<IResponseBooking> {
-  return api.patch(`booking/distribute/${id}`, body);
+function patch(id: number, body: IDataBooking): Promise<IResponseBooking> {
+  return api.patch(`booking/${id}`, body);
 }
-function patchConfirm(id: number, body: IDataBooking): Promise<IResponseBooking> {
-  return api.patch(`booking/confirm/${id}`, body);
+function remove(id: number): Promise<IResponseBooking> {
+  return api.patch(`booking/${id}`);
 }
 
 export const BookingService = {
@@ -30,6 +30,6 @@ export const BookingService = {
   getById,
   postSale,
   postLocal,
-  patchDistribute,
-  patchConfirm,
+  patch,
+  remove,
 };

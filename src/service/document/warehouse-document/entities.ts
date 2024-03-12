@@ -19,6 +19,7 @@ export interface IDataWarehouseDocument extends IData {
   expenseEmployeeId: number;
   incomeWarehouseId: number;
   incomeEmployeeId: number;
+  bookingId: string;
   counter: number;
   quantity: number;
   transactions?: IDataTransaction[];

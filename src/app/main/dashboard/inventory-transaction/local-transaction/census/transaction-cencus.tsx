@@ -12,15 +12,11 @@ import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { EditableTableCencus } from "./editableTableCencus";
-import { IParamViewMaterial } from "@/service/material/view-material/entities";
-import { ViewMaterialService } from "@/service/material/view-material/service";
-import { MaterialType } from "@/service/material/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
 import { IDataEmployee } from "@/service/employee/entities";
-import { EmployeeService } from "@/service/employee/service";
 interface IProps {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
@@ -200,12 +196,15 @@ const TransactionCencus = (props: IProps) => {
                     validator: async (_, transactions) => {
                       const arr = Array.isArray(transactions)
                         ? transactions.map(
-                            (trans: IDataTransaction) => trans.materialId
+                            (trans: IDataTransaction) =>
+                              `${trans.materialId}-${dayjs(
+                                trans.transactionAt
+                              ).format("DD/MM/YYYY")}`
                           )
                         : [];
                       if (!hasUniqueValues(arr)) {
                         return Promise.reject(
-                          new Error("Барааны код давхардсан байна.")
+                          new Error("Барааны код дуусах огноо давхардсан байна.")
                         );
                       }
                     },

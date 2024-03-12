@@ -73,12 +73,9 @@ const NewDropdown = (props: IProps) => {
     operator: Tool,
     value?: string | number | Dayjs[]
   ): TypeCheck[] => {
-    if (!value) {
+    if (!value || Array.isArray(value)) {
       return filters;
     } else {
-      console.log("type", type);
-      console.log("operator", operator);
-      console.log("value", value);
       if (operator == "CONTAINS") {
         return filters.filter((item) =>
           item.toString().toLowerCase().includes(value.toString().toLowerCase())

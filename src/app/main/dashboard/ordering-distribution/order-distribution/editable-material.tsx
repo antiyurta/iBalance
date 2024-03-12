@@ -136,6 +136,12 @@ const EditableMateral: React.FC<IProps> = ({
             <MaterialSearch
               isDisable={onDisabled(index)}
               params={{ types: [MaterialType.Material] }}
+              isEdit={true}
+              materialId={form.getFieldValue([
+                "bookingMaterials",
+                index,
+                "materialId",
+              ])}
               onMaterial={(material) => {
                 form.setFieldsValue({
                   bookingMaterials: {

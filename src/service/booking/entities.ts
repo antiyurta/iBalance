@@ -23,7 +23,7 @@ export type BookingStatus =
   | "CONFIRM"
   | "CONFIRM_IGNORE";
 export interface IDataBooking extends IData {
-  id: number;
+  id: string;
   code: string;
   consumerId: number;
   consumer?: IDataConsumer;

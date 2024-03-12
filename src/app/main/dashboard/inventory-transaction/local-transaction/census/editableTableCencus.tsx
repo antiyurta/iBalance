@@ -145,10 +145,13 @@ export const EditableTableCencus = (props: IProps) => {
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
               isDisable={editingIndex !== index}
+              isEdit={true}
+              materialId={form.getFieldValue(["transactions", index, "materialId"])}
               onMaterial={(material?: IDataViewMaterial) => {
                 form.setFieldsValue({
                   transactions: {
                     [index]: {
+                      materialId: material?.id,
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
@@ -213,7 +216,7 @@ export const EditableTableCencus = (props: IProps) => {
         title="Дуусах хугацаа"
         render={(_, __, index) => (
           <Form.Item name={[index, "transactionAt"]}>
-            <NewDatePicker />
+            <NewDatePicker disabled={editingIndex != index} />
           </Form.Item>
         )}
       />

@@ -85,6 +85,7 @@ export interface IFilters {
   brandId: number[];
   isCitizenTax: boolean[];
   isTax: boolean[];
+  isExpired: boolean[];
   isClose: boolean[];
   isActive: boolean[];
   limitAmount: number[];

@@ -22,8 +22,14 @@ interface IProps {
   type: "SALE" | "LOCAL";
   status: BookingStatus;
   params?: IParam;
+  onSelectBooking?: (row: IDataBooking) => void;
 }
-const Booking: React.FC<IProps> = ({ type, status, params }) => {
+const Booking: React.FC<IProps> = ({
+  type,
+  status,
+  params,
+  onSelectBooking,
+}) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isFilter, setIsFilter] = useState<boolean>(false);
@@ -166,6 +172,7 @@ const Booking: React.FC<IProps> = ({ type, status, params }) => {
             meta={meta}
             onColumns={setColumns}
             incomeFilters={filters}
+            onDClick={(row) => onSelectBooking?.(row)}
             isEdit
             isDelete
             onEdit={(row) => {
@@ -206,6 +213,31 @@ const Booking: React.FC<IProps> = ({ type, status, params }) => {
                         }}
                       >
                         Сэргээх
+                      </button>
+                    )}
+                  </>
+                )}
+              />
+            )}
+            {status == "CONFIRM" && (
+              <Column
+                title="Олголт хийх"
+                dataIndex={"confirm"}
+                render={(_, record: IDataBooking) => (
+                  <>
+                    {record.status == "DISTRIBUTE" && (
+                      <button
+                        onClick={() => {
+                          onSelectBooking?.(record);
+                        }}
+                        className="app-button-regular"
+                        style={{
+                          height: 22,
+                          fontWeight: 400,
+                          width: 100,
+                        }}
+                      >
+                        Олгох
                       </button>
                     )}
                   </>
