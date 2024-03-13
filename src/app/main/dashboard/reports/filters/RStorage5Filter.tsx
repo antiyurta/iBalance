@@ -45,6 +45,7 @@ const RStorage5Filter = () => {
         <NewInput />
       </Form.Item>
       <NewReportSelect
+        form={form}
         label={"Нярав:"}
         name={"employeeIds"}
         selectProps={{
@@ -55,6 +56,7 @@ const RStorage5Filter = () => {
         }}
       />
       <NewReportSectionSelect
+        form={form}
         sectionLabel="Байршилын бүлэг:"
         sectionName="warehouseSectionId"
         sectionSelectProps={{
@@ -73,6 +75,7 @@ const RStorage5Filter = () => {
         }}
       />
       <NewReportSectionSelect
+        form={form}
         sectionLabel={"Барааны бүлэг:"}
         sectionName={"materalSectionId"}
         sectionSelectProps={{
@@ -91,6 +94,7 @@ const RStorage5Filter = () => {
         }}
       />
       <NewReportSelect
+        form={form}
         label={"Брэнд:"}
         name={"brandId"}
         selectProps={{

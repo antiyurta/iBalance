@@ -9,37 +9,36 @@ export const ReportTitle: React.FC<IProps> = ({ organization, title }) => {
   const values = form.getFieldsValue();
   const [reportAt, setReportAt] = useState<string>("");
   useEffect(() => {
-    if (values.interval) {
-      if (
-        values.interval.interval == "between" &&
-        values.interval.dates &&
-        values.interval.dates[0] &&
-        values.interval.dates[1]
-      ) {
+    if (
+      values.dateFilter &&
+      values.dateFilter.dates &&
+      values.dateFilter.dates.length > 0
+    ) {
+      if (values.dateFilter.operator == "BETWEEN") {
         setReportAt(
-          `${values.interval.dates[0].format(
+          `${values.dateFilter.dates[0].format(
             "YYYY/MM/DD"
-          )} - ${values.interval.dates[1].format("YYYY/MM/DD")}`
+          )} - ${values.dateFilter.dates[1].format("YYYY/MM/DD")}`
         );
-      } else if (values.interval.interval == "that" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}`);
-      } else if (values.interval.interval == "until" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}-хүртэл`);
-      } else if (values.interval.interval == "late" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM/DD")}-с хойшхи`);
-      } else if (
-        values.interval.interval == "selection" &&
-        values.interval.dates &&
-        values.interval.dates?.length > 0
-      ) {
-        setReportAt(values.interval.dates.toString());
-      } else if (values.interval.interval == "year" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY")}-он`);
-      } else if (values.interval.interval == "month" && values.interval.date) {
-        setReportAt(`${values.interval.date.format("YYYY/MM")}-сар`);
+      } else if (values.dateFilter.operator == "THAT") {
+        setReportAt(`${values.dateFilter.dates[0].format("YYYY/MM/DD")}`);
+      } else if (values.dateFilter.operator == "IS_LESS") {
+        setReportAt(
+          `${values.dateFilter.dates[0].format("YYYY/MM/DD")}-хүртэл`
+        );
+      } else if (values.dateFilter.operator == "IS_GREATER") {
+        setReportAt(
+          `${values.dateFilter.dates[0].format("YYYY/MM/DD")}-с хойшхи`
+        );
+      } else if (values.dateFilter.operator == "SELECTION") {
+        setReportAt(values.dateFilter.dates.toString());
+      } else if (values.dateFilter.operator == "YEAR") {
+        setReportAt(`${values.dateFilter.dates[0].format("YYYY")}-он`);
+      } else if (values.dateFilter.operator == "MONTH") {
+        setReportAt(`${values.dateFilter.dates[0].format("YYYY/MM")}-сар`);
       }
     }
-  }, [values.interval]);
+  }, [values.dateFilter]);
   return (
     <>
       <div

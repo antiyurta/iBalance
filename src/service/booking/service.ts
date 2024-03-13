@@ -18,7 +18,7 @@ function postSale(body: IDataBooking): Promise<IResponseBooking> {
 function postLocal(body: IDataBooking): Promise<IResponseBooking> {
   return api.post("booking/local", body);
 }
-function patch(id: number, body: IDataBooking): Promise<IResponseBooking> {
+function patch(id: string, body: IDataBooking): Promise<IResponseBooking> {
   return api.patch(`booking/${id}`, body);
 }
 function remove(id: number): Promise<IResponseBooking> {
