@@ -1,12 +1,13 @@
 import "dayjs/locale/mn";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useReportContext } from "@/feature/context/ReportsContext";
-import DateIntervalForm from "@/components/dateIntervalForm";
 import { NewReportSectionSelect } from "../component/report-section-select";
 import { NewReportSelect } from "../component/report-select";
 import { Form } from "antd";
-import { NewSwitch } from "@/components/input";
 import { NewReportSwitch } from "../component/report-switch";
+import { IntervalDate } from "@/components/table/dropdown/interval-date";
+import { ITool } from "@/service/entities";
+import dayjs, { Dayjs } from "dayjs";
 
 const RStorage1Filter = () => {
   const {
@@ -21,37 +22,48 @@ const RStorage1Filter = () => {
     setFormStyle,
   } = useReportContext();
   const employeeIds = Form.useWatch("employeeIds", form);
+  const [tool, setTool] = useState<ITool>({
+    logo: "/icons/tools/Equals.png",
+    title: "Тухайн",
+    operator: "THAT",
+  });
+  const [dates, setDates] = useState<Dayjs[]>([]);
   useEffect(() => {
     employeeIds && setEmployeeIds(employeeIds);
   }, [employeeIds]);
   useEffect(() => {
     setFormStyle({ width: 600, margin: "auto" });
   }, []);
+  useEffect(() => {
+    form.setFieldValue("dateFilter", {
+      operator: tool.operator,
+      dates,
+    });
+  }, [dates]);
   return (
     <>
-      <DateIntervalForm
-        form={form}
-        intervalStyle={{
-          minWidth: 100,
-        }}
-        dateStyle={{
-          width: "100%",
-        }}
-        label=""
-        labelForDate="Огноо"
-        itemname={"interval"}
-      />
-      <NewReportSelect
-        label={"Нярав:"}
-        name={"employeeIds"}
-        selectProps={{
-          options: employees.map((item) => ({
-            value: item.id,
-            label: `${item.lastName}-${item.firstName}`,
-          })),
-        }}
-      />
+      <Form.Item
+        name={"dateFilter"}
+        label={"Хайх огноо"}
+        rules={[
+          {
+            validator: async (_, value) => {
+              if (Array.isArray(value.dates) && value.dates.length == 0) {
+                return Promise.reject(new Error("Хайх огноо оруулна уу."));
+              }
+            },
+          },
+        ]}
+      >
+        <IntervalDate
+          tool={tool}
+          setTool={setTool}
+          dates={dates}
+          setDates={setDates}
+        />
+      </Form.Item>
       <NewReportSectionSelect
+        form={form}
         sectionLabel="Байршилын бүлэг:"
         sectionName="warehouseSectionId"
         sectionSelectProps={{
@@ -61,7 +73,7 @@ const RStorage1Filter = () => {
           })),
         }}
         label="Байршил:"
-        name="warehouseId"
+        name="warehouseIds"
         selectProps={{
           options: warehouses.map((item) => ({
             value: item.id,
@@ -70,6 +82,7 @@ const RStorage1Filter = () => {
         }}
       />
       <NewReportSectionSelect
+        form={form}
         sectionLabel={"Барааны бүлэг:"}
         sectionName={"materalSectionId"}
         sectionSelectProps={{
@@ -79,7 +92,7 @@ const RStorage1Filter = () => {
           })),
         }}
         label={"Бараа:"}
-        name={"materialId"}
+        name={"materialIds"}
         selectProps={{
           options: materials.map((item) => ({
             value: item.id,
@@ -88,8 +101,9 @@ const RStorage1Filter = () => {
         }}
       />
       <NewReportSelect
-        label={"Брэнд:"}
-        name={"brandId"}
+        form={form}
+        label={"Брэнд"}
+        name={"brandIds"}
         selectProps={{
           options: brands.map((item) => ({
             value: item.id,
@@ -98,7 +112,10 @@ const RStorage1Filter = () => {
         }}
       />
       <NewReportSwitch name="isLock" label="Зөвхөн түгжсэн гүйлгээг харуулах" />
-      <NewReportSwitch name="isActive" label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах" />
+      <NewReportSwitch
+        name="isNotTransaction"
+        label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах"
+      />
     </>
   );
 };

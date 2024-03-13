@@ -1,4 +1,5 @@
-import { GenericResponse } from "../entities";
+import { Dayjs } from "dayjs";
+import { GenericResponse, Tool } from "../entities";
 
 export interface IReportMaterial {
   code: string;
@@ -17,6 +18,20 @@ export interface IReportMaterial {
   incomeQty: number;
   expenseQty: number;
   lastQty: number;
+}
+export interface IParamReportMaterial {
+  dateFilter: {
+    operator: Tool,
+    dates: Dayjs[],
+  };
+  isNotTransaction: boolean;
+  isLock: boolean;
+  employeeIds: number[];
+  warehouseSectionId: number;
+  warehouseIds: number[];
+  materialSectionId: number;
+  materialIds: number[];
+  brandIds: number[];
 }
 export interface IResponseReportMaterial extends GenericResponse {
   response: IReportMaterial[];

@@ -60,14 +60,14 @@ const RStorage1: NextPage = () => {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "filename.xlsx");
   };
+  // useEffect(() => {
+  //   if (values.warehouseId)
+  //     WarehouseService.getById(values.warehouseId).then((response) =>
+  //       setWarehouse(response.response)
+  //     );
+  // }, [values.warehouseId]);
   useEffect(() => {
-    if (values.warehouseId)
-      WarehouseService.getById(values.warehouseId).then((response) =>
-        setWarehouse(response.response)
-      );
-  }, [values.warehouseId]);
-  useEffect(() => {
-    ReportService.reportMaterial().then((response) => {
+    ReportService.reportMaterial(values).then((response) => {
       setData(response.response);
     });
   }, []);

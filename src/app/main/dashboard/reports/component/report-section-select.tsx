@@ -1,8 +1,9 @@
 import { NewFilterSelect, NewSelect } from "@/components/input";
 import { ISelectValueType } from "@/service/entities";
-import { Col, Form, Row, SelectProps } from "antd";
-import React, { useState } from "react";
+import { Col, Form, FormInstance, Row, SelectProps } from "antd";
+import React, { useEffect, useState } from "react";
 interface IProps {
+  form: FormInstance;
   sectionLabel: string;
   sectionName: string;
   sectionSelectProps: SelectProps;
@@ -11,6 +12,7 @@ interface IProps {
   selectProps: SelectProps;
 }
 export const NewReportSectionSelect: React.FC<IProps> = ({
+  form,
   sectionLabel,
   sectionName,
   sectionSelectProps,
@@ -37,6 +39,11 @@ export const NewReportSectionSelect: React.FC<IProps> = ({
       value: "selection",
     },
   ];
+  useEffect(() => {
+    if (type == "all") {
+      form.setFieldValue(name, undefined);
+    }
+  }, [type]);
   return (
     <Row>
       <Col span={4}>{type === "section" ? sectionLabel : label}</Col>

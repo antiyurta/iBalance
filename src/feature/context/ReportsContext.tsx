@@ -39,6 +39,7 @@ import { MaterialService } from "@/service/material/service";
 import { IDataBrand } from "@/service/reference/brand/entities";
 import { BrandService } from "@/service/reference/brand/service";
 import { Operator } from "@/service/entities";
+import { IParamReportMaterial } from "@/service/report/entities";
 
 interface Tab {
   label: ReactNode;
@@ -51,7 +52,7 @@ interface ReportContextProps {
   setTabs: Dispatch<SetStateAction<Tab[]>>;
   tabKey: string;
   setTabKey: Dispatch<SetStateAction<string>>;
-  form: FormInstance<IParamDocument>;
+  form: FormInstance<IParamReportMaterial>;
   formStyle: CSSProperties;
   setFormStyle: Dispatch<SetStateAction<CSSProperties>>;
   employees: IDataEmployee[];
@@ -95,7 +96,7 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
     },
   ]);
   const [tabKey, setTabKey] = useState<string>("item-1");
-  const [form] = Form.useForm<IParamDocument>();
+  const [form] = Form.useForm<IParamReportMaterial>();
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [materialSections, setMaterialSections] = useState<
