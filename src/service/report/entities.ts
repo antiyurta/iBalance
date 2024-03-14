@@ -6,6 +6,7 @@ export interface IReportMaterial {
   isActive: boolean;
   name: string;
   shortName: string;
+  materialSectionName: string;
   saleReturnQty: number;
   purchaseQty: number;
   warehouseIncomeQty: number;
