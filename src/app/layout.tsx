@@ -64,6 +64,10 @@ export default function RootLayout({
                   Card: {
                     borderRadius: 12,
                   },
+                  Segmented: {
+                    itemSelectedBg: "#198754",
+                    itemSelectedColor: "white",
+                  }
                 },
                 algorithm: theme.compactAlgorithm,
                 token: {

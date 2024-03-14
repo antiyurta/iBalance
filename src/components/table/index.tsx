@@ -190,6 +190,25 @@ function NewTable(props: ITable) {
               );
             },
           }}
+          summary={(pageData) => {
+            return (
+              <Table.Summary.Row>
+                {Object.entries(columns)?.map(([key, col], index) => {
+                  if (col.isView) {
+                    return (
+                      <Table.Summary.Cell key={index} index={index}>
+                        {col.isSummary &&
+                          pageData.reduce(
+                            (total, item) => total + Number(item[key]),
+                            0
+                          )}
+                      </Table.Summary.Cell>
+                    );
+                  }
+                })}
+              </Table.Summary.Row>
+            );
+          }}
         >
           {Object.entries(columns)?.map(([key, value]: [any, ColumnType]) => {
             if (value.isView) {

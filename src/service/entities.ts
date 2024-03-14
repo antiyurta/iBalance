@@ -118,6 +118,7 @@ export type ColumnType = {
   dataIndex: string[]; // dataIndex
   type: DataIndexType; // torol baina torloes hamarch filter utga hamaarna
   key?: string; // amaraa nemew array object oos ali negin render hiih
+  isSummary?: boolean;
 };
 
 export type FilteredColumns = { [T in keyof IFilters]?: ColumnType };

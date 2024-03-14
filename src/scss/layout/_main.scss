@@ -930,6 +930,25 @@ i.rmdp-arrow {
   }
 }
 
+@media print {
+  .report-body {
+    width: 100%;
+    padding: 12px;
+    table.report {
+      width: 100%;
+      th,
+      td {
+        font-size: 11pt;
+        border: 1px solid gray;
+        padding: 8px;
+      }
+      th {
+        background: #d9d9d9;
+      }
+    }
+  }
+}
+
 .report-document {
   display: flex;
   align-items: flex-start;

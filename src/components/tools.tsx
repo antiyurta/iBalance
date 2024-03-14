@@ -1,17 +1,24 @@
 import { Card } from "antd";
 import Image from "next/image";
-import React, { CSSProperties, ReactNode, useState } from "react";
+import React, {
+  CSSProperties,
+  MutableRefObject,
+  ReactNode,
+  useState,
+} from "react";
 import NewModal from "./modal";
 import { FilterOutlined } from "@ant-design/icons";
 import RStorage1 from "@/app/main/dashboard/reports/document/RStorage1";
 import RStorage1Filter from "@/app/main/dashboard/reports/filters/RStorage1Filter";
 import { useReportContext } from "@/feature/context/ReportsContext";
 import { IParamDocument } from "@/service/document/entities";
+import { useReactToPrint } from "react-to-print";
 
 interface IProps {
   filter: ReactNode;
+  printRef: MutableRefObject<null>;
 }
-export const Tools: React.FC<IProps> = ({ filter }) => {
+export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
   const style: CSSProperties & { "&:hover"?: CSSProperties } = {
     gap: 12,
     cursor: "pointer",
@@ -27,7 +34,10 @@ export const Tools: React.FC<IProps> = ({ filter }) => {
   const [isMail, setIsMail] = useState<boolean>(false);
   const onFilter = (values: IParamDocument) => {
     console.log(values);
-  }
+  };
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
   return (
     <>
       <Card title="Хэрэгслүүд" style={{ width: 250 }}>
@@ -76,7 +86,7 @@ export const Tools: React.FC<IProps> = ({ filter }) => {
           />
           Системийн загвар
         </p>
-        <p style={style} onClick={() => setIsPrint(true)}>
+        <p style={style} onClick={() => handlePrint()}>
           <Image
             src={"/images/PrintIcon.svg"}
             width={16}

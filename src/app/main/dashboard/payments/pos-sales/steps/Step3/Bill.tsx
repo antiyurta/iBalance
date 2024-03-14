@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { QRCode } from "antd";
 import { IDataPosDocument } from "@/service/document/pos-document/entites";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import NewModal from "@/components/modal";
 import { PrinterOutlined } from "@ant-design/icons";

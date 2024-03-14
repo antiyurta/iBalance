@@ -11,15 +11,17 @@ import { ReportTitle } from "../component/report-title";
 import RStorage1Filter from "../filters/RStorage1Filter";
 import { ReportService } from "@/service/report/service";
 import { IReportMaterial } from "@/service/report/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
   const { form } = useReportContext();
   const values = form.getFieldsValue();
+  const { employee, hospital } = useTypedSelector((state) => state.user);
   const [reportAt, setReportAt] = useState<string>("");
   const [warehouse, setWarehouse] = useState<IDataWarehouse>();
   const [data, setData] = useState<IReportMaterial[]>([]);
-  const textRight: CSSProperties = { textAlign: 'right' }
+  const textRight: CSSProperties = { textAlign: "right" };
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
@@ -73,13 +75,13 @@ const RStorage1: NextPage = () => {
   }, []);
   return (
     <div className="report-document">
-      <Tools filter={<RStorage1Filter />} />
-      <div ref={targetRef} className="report-body">
+      <Tools filter={<RStorage1Filter />} printRef={tableRef} />
+      <div ref={tableRef} className="report-body">
         <ReportTitle
-          organization={"Universal med"}
+          organization={hospital?.name || ""}
           title={"Бараа материалын товчоо тайлан"}
         />
-        <table ref={tableRef} className="report">
+        <table className="report">
           <thead>
             <tr>
               <th rowSpan={2}>Дотоод код</th>
@@ -106,7 +108,7 @@ const RStorage1: NextPage = () => {
           <tbody>
             <tr>
               <td>Нярав :</td>
-              <td colSpan={14}>Бат</td>
+              <td colSpan={14}>{employee?.firstName}</td>
             </tr>
             <tr>
               <td>Байршил :</td>
@@ -114,11 +116,11 @@ const RStorage1: NextPage = () => {
             </tr>
             <tr>
               <td>Барааны төрөл :</td>
-              <td colSpan={14}>Бэлэн бүтээгдэхүүн- Төв агуулах</td>
+              <td colSpan={14}></td>
             </tr>
             <tr>
               <td>Бүлэг :</td>
-              <td colSpan={14}>АР-ХӨН</td>
+              <td colSpan={14}></td>
             </tr>
             {data.map((item, index) => (
               <tr key={index}>

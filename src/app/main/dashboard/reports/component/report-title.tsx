@@ -50,7 +50,7 @@ export const ReportTitle: React.FC<IProps> = ({ organization, title }) => {
       >
         <p
           style={{
-            fontSize: 8,
+            fontSize: 12,
             fontStyle: "italic",
           }}
         >
@@ -75,7 +75,7 @@ export const ReportTitle: React.FC<IProps> = ({ organization, title }) => {
       >
         <p
           style={{
-            fontSize: 9,
+            fontSize: 12,
           }}
         >
           Тайлант үе: {reportAt}

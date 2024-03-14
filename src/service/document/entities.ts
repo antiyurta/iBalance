@@ -170,6 +170,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["incomeCount"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   incomeQuantity: {
     label: "Орлогын тоо хэмжээ",
@@ -177,6 +178,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["incomeQuantity"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   expenseCount: {
     label: "Зарлагын тоо",
@@ -184,6 +186,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["expenseCount"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   expenseQuantity: {
     label: "Зарлагын тоо хэмжээ",
@@ -191,6 +194,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["expenseQuantity"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   movingStatus: {
     label: "Гүйлгээний цонх",
