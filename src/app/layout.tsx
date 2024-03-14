@@ -66,7 +66,7 @@ export default function RootLayout({
                   },
                   Segmented: {
                     itemSelectedBg: "#198754",
-                    itemSelectedColor: "#fff",
+                    itemSelectedColor: "#ffffff"
                   }
                 },
                 algorithm: theme.compactAlgorithm,
