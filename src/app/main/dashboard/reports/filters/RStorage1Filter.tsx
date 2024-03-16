@@ -8,11 +8,12 @@ import { NewReportSwitch } from "../component/report-switch";
 import { IntervalDate } from "@/components/table/dropdown/interval-date";
 import { ITool } from "@/service/entities";
 import dayjs, { Dayjs } from "dayjs";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { FilterToolData } from "@/feature/data";
 
 const RStorage1Filter = () => {
   const {
     form,
-    employees,
     sections,
     materialSections,
     warehouses,
@@ -22,6 +23,8 @@ const RStorage1Filter = () => {
     setFormStyle,
   } = useReportContext();
   const employeeIds = Form.useWatch("employeeIds", form);
+  const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
+  const currentItem = items.find((item) => item.key == activeKey);
   const [tool, setTool] = useState<ITool>({
     logo: "/icons/tools/Equals.png",
     title: "Тухайн",
@@ -40,6 +43,18 @@ const RStorage1Filter = () => {
       dates,
     });
   }, [dates]);
+  useEffect(() => {
+    if (currentItem && currentItem.param) {
+      const { param } = currentItem;
+      const toolIndex = FilterToolData.findIndex(
+        (item) => item.operator == param.dateFilter.operator
+      );
+      if (toolIndex > -1) {
+        setTool(FilterToolData[toolIndex]);
+      }
+      setDates(currentItem.param.dateFilter.dates.map((item) => dayjs(item)));
+    }
+  }, [currentItem]);
   return (
     <>
       <Form.Item

@@ -1,41 +1,67 @@
 "use client";
-
-import { Col, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Tabs } from "antd";
 import { useReportContext } from "@/feature/context/ReportsContext";
 import PageTitle from "@/components/page-title";
-
-const { Title } = Typography;
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { removePanel, savePanel } from "@/feature/store/slice/report.slice";
+import Report, { reportList } from "./report";
+import Image from "next/image";
+import { useEffect } from "react";
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
-
+interface Tab {
+  label: React.ReactNode;
+  key: string;
+  children: React.ReactNode;
+  closable?: boolean;
+}
 const Reports = () => {
-  const { tabs, setTabs, tabKey, setTabKey } = useReportContext();
-  const remove = (targetKey: TargetKey) => {
-    let newActiveKey = tabKey;
-    let lastIndex = -1;
-
-    tabs?.forEach((item, i) => {
-      if (item?.key === targetKey) {
-        lastIndex = i - 1;
-      }
-    });
-
-    const newPanes = tabs?.filter((item) => item?.key !== targetKey);
-
-    if (newPanes?.length && newActiveKey === targetKey) {
-      if (lastIndex >= 0) {
-        newActiveKey = newPanes[lastIndex]?.key ?? newPanes[0]?.key ?? "";
-      } else {
-        newActiveKey = newPanes[0]?.key ?? "";
-      }
-    }
-    setTabs(newPanes);
-    setTabKey(newActiveKey);
-  };
+  const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
+  const tabs: Tab[] = [
+    {
+      key: "item-0",
+      label: (
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+          }}
+        >
+          <Image
+            src={"/icons/tools/report.svg"}
+            width={16}
+            height={16}
+            alt="Тайлан"
+          />
+          Тайлан харах
+        </div>
+      ),
+      children: <Report />,
+      closable: false,
+    },
+    ...reportList
+      .filter((report) => items.map((item) => item.key).includes(report.key))
+      .map((item) => ({
+        key: item.key,
+        label: item.title,
+        children: item.children,
+        closeable: true,
+      })),
+  ];
+  const dispatch = useDispatch<AppDispatch>();
   const onEdit = (targetKey: TargetKey, action: "add" | "remove") => {
     if (action === "remove") {
-      remove(targetKey);
+      dispatch(removePanel(targetKey.toString()));
     }
   };
+  const onChange = (key: string) => {
+    const currentIndex = items.findIndex((item) => item.key == key);
+    dispatch(savePanel({ key, param: items[currentIndex].param }));
+  };
+  useEffect(() => {
+    console.log("items ======>", items);
+  }, [items]);
   return (
     <div>
       <PageTitle />
@@ -48,9 +74,9 @@ const Reports = () => {
         <Col span={24}>
           <Tabs
             className="lineTop"
-            activeKey={tabKey}
+            activeKey={activeKey}
             items={tabs}
-            onChange={(key) => setTabKey(key)}
+            onChange={onChange}
             destroyInactiveTabPane={true}
             onEdit={onEdit}
             hideAdd={true}

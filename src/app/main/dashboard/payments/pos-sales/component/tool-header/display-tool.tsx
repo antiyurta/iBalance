@@ -12,6 +12,7 @@ const DisplayTool: React.FC<IProps> = ({ display = "grid", setDisplay }) => {
     <>
       <Segmented
         size="large"
+        value={display}
         onChange={(value) => setDisplay(value as DisplayType)}
         options={[
           { value: "list", icon: <BarsOutlined /> },

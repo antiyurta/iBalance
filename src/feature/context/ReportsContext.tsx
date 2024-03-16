@@ -9,7 +9,7 @@ import {
   CSSProperties,
 } from "react";
 import Image from "next/image";
-import ReportList from "@/app/main/dashboard/reports/reportList";
+import ReportList from "@/app/main/dashboard/reports/report";
 import { Form, FormInstance } from "antd";
 import { IParamDocument } from "@/service/document/entities";
 import { IDataEmployee } from "@/service/employee/entities";
@@ -41,17 +41,7 @@ import { BrandService } from "@/service/reference/brand/service";
 import { Operator } from "@/service/entities";
 import { IParamReportMaterial } from "@/service/report/entities";
 
-interface Tab {
-  label: ReactNode;
-  key: string;
-  children: ReactNode;
-  closable?: boolean;
-}
 interface ReportContextProps {
-  tabs: Tab[];
-  setTabs: Dispatch<SetStateAction<Tab[]>>;
-  tabKey: string;
-  setTabKey: Dispatch<SetStateAction<string>>;
   form: FormInstance<IParamReportMaterial>;
   formStyle: CSSProperties;
   setFormStyle: Dispatch<SetStateAction<CSSProperties>>;
@@ -72,30 +62,6 @@ interface IProps {
 }
 
 const ProviderReport: React.FC<IProps> = ({ children }) => {
-  const [tabs, setTabs] = useState<Tab[]>([
-    {
-      key: "item-1",
-      label: (
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-          }}
-        >
-          <Image
-            src={"/icons/tools/report.svg"}
-            width={16}
-            height={16}
-            alt="Тайлан"
-          />
-          Тайлан харах
-        </div>
-      ),
-      children: <ReportList />,
-      closable: false,
-    },
-  ]);
-  const [tabKey, setTabKey] = useState<string>("item-1");
   const [form] = Form.useForm<IParamReportMaterial>();
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
@@ -177,10 +143,6 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
   }, [employeeIds]);
 
   const value: ReportContextProps = {
-    tabs,
-    setTabs,
-    tabKey,
-    setTabKey,
     form,
     formStyle,
     setFormStyle,

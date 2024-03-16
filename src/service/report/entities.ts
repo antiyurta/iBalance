@@ -6,6 +6,7 @@ export interface IReportMaterial {
   isActive: boolean;
   name: string;
   shortName: string;
+  warehouseName: string;
   materialSectionName: string;
   saleReturnQty: number;
   purchaseQty: number;
@@ -28,11 +29,13 @@ export interface IParamReportMaterial {
   isNotTransaction: boolean;
   isLock: boolean;
   employeeIds: number[];
-  warehouseSectionId: number;
+  warehouseSectionId?: number;
   warehouseIds: number[];
-  materialSectionId: number;
+  materialSectionId?: number;
   materialIds: number[];
   brandIds: number[];
+  isWarehouse: boolean;
+  isSection: boolean;
 }
 export interface IResponseReportMaterial extends GenericResponse {
   response: IReportMaterial[];

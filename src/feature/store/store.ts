@@ -45,7 +45,6 @@ const persistConfig = {
   whitelist: [
     "core",
     "user",
-    "report",
     "tabs",
     "pane",
     "warehouse",
@@ -53,6 +52,7 @@ const persistConfig = {
     "shoppingCart",
     "shoppingGoods",
     "shoppingTemp",
+    "reportPanel",
   ],
   blacklist: [],
   transforms: [encryptedTransForm],

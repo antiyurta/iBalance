@@ -1,4 +1,4 @@
-import { Tools } from "@/components/tools";
+import { Tools } from "@/app/main/dashboard/reports/component/tools";
 import { ReportTitle } from "../component/report-title";
 import RStorage1Filter from "../filters/RStorage1Filter";
 import { useRef } from "react";

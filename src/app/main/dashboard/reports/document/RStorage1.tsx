@@ -3,25 +3,32 @@ import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
 import * as headerJSON from "./excel/RStorage1";
 import { NextPage } from "next";
-import { Tools } from "@/components/tools";
+import { Tools } from "@/app/main/dashboard/reports/component/tools";
 import { useReportContext } from "@/feature/context/ReportsContext";
-import { IDataWarehouse } from "@/service/reference/warehouse/entities";
-import { WarehouseService } from "@/service/reference/warehouse/service";
 import { ReportTitle } from "../component/report-title";
 import RStorage1Filter from "../filters/RStorage1Filter";
 import { ReportService } from "@/service/report/service";
 import { IReportMaterial } from "@/service/report/entities";
 import { useTypedSelector } from "@/feature/store/reducer";
+import { Divider } from "antd";
+import { getUniqueValues } from "@/feature/common";
+interface IWarehouse {
+  warehouseName: string;
+  sections: ISection[];
+}
+interface ISection {
+  materialSectionName: string;
+  materials: IReportMaterial[];
+}
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
   const { form } = useReportContext();
   const values = form.getFieldsValue();
-  const { employee, hospital } = useTypedSelector((state) => state.user);
-  const [reportAt, setReportAt] = useState<string>("");
-  const [warehouse, setWarehouse] = useState<IDataWarehouse>();
-  const [data, setData] = useState<IReportMaterial[]>([]);
+  const { hospital } = useTypedSelector((state) => state.user);
   const textRight: CSSProperties = { textAlign: "right" };
+  const [data, setData] = useState<IReportMaterial[]>([]);
+  const [warehouses, setWarehouses] = useState<IWarehouse[]>([]);
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
@@ -62,17 +69,42 @@ const RStorage1: NextPage = () => {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "filename.xlsx");
   };
-  // useEffect(() => {
-  //   if (values.warehouseId)
-  //     WarehouseService.getById(values.warehouseId).then((response) =>
-  //       setWarehouse(response.response)
-  //     );
-  // }, [values.warehouseId]);
+  const getWarehouseMaterials = (warehouse: IWarehouse): IReportMaterial[] => {
+    const repMaterials: IReportMaterial[] = [];
+    warehouse.sections.map((item) => repMaterials.push(...item.materials));
+    return repMaterials;
+  };
   useEffect(() => {
     ReportService.reportMaterial(values).then((response) => {
       setData(response.response);
     });
   }, []);
+  useEffect(() => {
+    const groupedData: IWarehouse[] = [];
+    data.forEach((material) => {
+      let warehouse = groupedData.find(
+        (wh) => wh.warehouseName === material.warehouseName
+      );
+      if (!warehouse) {
+        warehouse = { warehouseName: material.warehouseName, sections: [] };
+        groupedData.push(warehouse);
+      }
+
+      let section = warehouse.sections.find(
+        (sec) => sec.materialSectionName === material.materialSectionName
+      );
+      if (!section) {
+        section = {
+          materialSectionName: material.materialSectionName,
+          materials: [],
+        };
+        warehouse.sections.push(section);
+      }
+
+      section.materials.push(material);
+      setWarehouses(groupedData);
+    });
+  }, [data]);
   return (
     <div className="report-document">
       <Tools filter={<RStorage1Filter />} printRef={tableRef} />
@@ -106,43 +138,275 @@ const RStorage1: NextPage = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Нярав :</td>
-              <td colSpan={14}>{employee?.firstName}</td>
-            </tr>
-            <tr>
-              <td>Байршил :</td>
-              <td colSpan={14}>{warehouse?.name}</td>
-            </tr>
-            <tr>
-              <td>Барааны төрөл :</td>
-              <td colSpan={14}></td>
-            </tr>
-            <tr>
-              <td>Бүлэг :</td>
-              <td colSpan={14}></td>
-            </tr>
-            {data.map((item, index) => (
-              <tr key={index}>
-                <td>{item.code}</td>
-                <td>{item.name}</td>
-                <td>{item.shortName}</td>
-                <td style={textRight}>{item.beginingQty}</td>
-                <td style={textRight}>{item.purchaseQty}</td>
-                <td style={textRight}>{item.saleReturnQty}</td>
-                <td style={textRight}>{item.warehouseIncomeQty}</td>
-                <td style={textRight}>{item.incomeQty}</td>
-                <td style={textRight}>{item.posQty}</td>
-                <td style={textRight}>{item.operationQty}</td>
-                <td style={textRight}>{item.saleReturnQty}</td>
-                <td style={textRight}>{item.actQty}</td>
-                <td style={textRight}>{item.warehouseExpenseQty}</td>
-                <td style={textRight}>{item.expenseQty}</td>
-                <td style={textRight}>{item.lastQty}</td>
-              </tr>
+            {warehouses.map((warehouse, windex) => (
+              <>
+                <tr key={windex}>
+                  <td>Байршил : </td>
+                  <td colSpan={14}>{warehouse.warehouseName}</td>
+                </tr>
+                {warehouse.sections.map((section, sindex) => (
+                  <>
+                    <tr key={`${windex}-${sindex}`}>
+                      <td>Бүлэг :</td>
+                      <td colSpan={14}>{section.materialSectionName}</td>
+                    </tr>
+                    {section.materials.map((item, index) => (
+                      <tr key={`${windex}-${sindex}-${index}`}>
+                        <td>{item.code}</td>
+                        <td>{item.name}</td>
+                        <td>{item.shortName}</td>
+                        <td style={textRight}>{item.beginingQty}</td>
+                        <td style={textRight}>{item.purchaseQty}</td>
+                        <td style={textRight}>{item.saleReturnQty}</td>
+                        <td style={textRight}>{item.warehouseIncomeQty}</td>
+                        <td style={textRight}>{item.incomeQty}</td>
+                        <td style={textRight}>{item.posQty}</td>
+                        <td style={textRight}>{item.operationQty}</td>
+                        <td style={textRight}>{item.saleReturnQty}</td>
+                        <td style={textRight}>{item.actQty}</td>
+                        <td style={textRight}>{item.warehouseExpenseQty}</td>
+                        <td style={textRight}>{item.expenseQty}</td>
+                        <td style={textRight}>{item.lastQty}</td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td colSpan={3}>Бүлгийн тоо хэмжээ</td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.beginingQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.purchaseQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.saleReturnQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) =>
+                            total + Number(item.warehouseIncomeQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.incomeQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.posQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.operationQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.saleReturnQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.actQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) =>
+                            total + Number(item.warehouseExpenseQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.expenseQty),
+                          0
+                        )}
+                      </td>
+                      <td style={textRight}>
+                        {section.materials.reduce(
+                          (total, item) => total + Number(item.lastQty),
+                          0
+                        )}
+                      </td>
+                    </tr>
+                  </>
+                ))}
+                <tr>
+                  <td colSpan={3}>Байршлын тоо хэмжээ</td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.beginingQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.purchaseQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.saleReturnQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.warehouseIncomeQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.incomeQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.posQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.operationQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.saleReturnQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.actQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.warehouseExpenseQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.expenseQty),
+                      0
+                    )}
+                  </td>
+                  <td style={textRight}>
+                    {getWarehouseMaterials(warehouse).reduce(
+                      (total, item) => total + Number(item.lastQty),
+                      0
+                    )}
+                  </td>
+                </tr>
+              </>
             ))}
+            <tr>
+              <td colSpan={3}>НИЙТ ТОО ХЭМЖЭЭ</td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.beginingQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.purchaseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.saleReturnQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.warehouseIncomeQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.incomeQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce((total, item) => total + Number(item.posQty), 0)}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.operationQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.saleReturnQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce((total, item) => total + Number(item.actQty), 0)}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.warehouseExpenseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.expenseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce((total, item) => total + Number(item.lastQty), 0)}
+              </td>
+            </tr>
           </tbody>
         </table>
+        <Divider />
+        <div
+          style={{
+            display: "grid",
+            gap: 20,
+          }}
+        >
+          <span style={textRight}>
+            Агуулах хариуцсан нярав:............../.............../
+          </span>
+          <span style={textRight}>
+            Хянасан нягтлан бодогч:.............../.............../
+          </span>
+        </div>
       </div>
     </div>
   );
