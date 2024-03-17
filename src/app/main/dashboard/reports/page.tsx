@@ -6,9 +6,10 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { removePanel, savePanel } from "@/feature/store/slice/report.slice";
-import Report, { reportList } from "./report";
+import Report from "./report";
 import Image from "next/image";
 import { useEffect } from "react";
+import { reportList } from "./data";
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 interface Tab {
   label: React.ReactNode;
