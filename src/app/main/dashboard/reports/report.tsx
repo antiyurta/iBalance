@@ -2,18 +2,23 @@ import { NewInput } from "@/components/input";
 import { Button, Col, Form, Row, Space, Typography } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import { useState } from "react";
-const { Title } = Typography;
 import { useReportContext } from "@/feature/context/ReportsContext";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { savePanel } from "@/feature/store/slice/report.slice";
-import { useTypedSelector } from "@/feature/store/reducer";
 import { IReport, reportList } from "./data";
+import RStorage1Filter from "./filters/RStorage1Filter";
+import RStorage1 from "./document/RStorage1";
+const { Title } = Typography;
 
 const Report: React.FC = () => {
   const { form, formStyle } = useReportContext();
-  const { items } = useTypedSelector((state) => state.reportPanel);
-  const [selectedItem, setSelectedItem] = useState<IReport>();
+  const [selectedItem, setSelectedItem] = useState<IReport>({
+    key: "item-1",
+    title: "Бараа материалын товчоо тайлан",
+    filter: <RStorage1Filter reportKey="item-1" />,
+    children: <RStorage1 />,
+  });
   const dispatch = useDispatch<AppDispatch>();
   const [searchField, setSearchField] = useState<string>("");
   const filteredItems = reportList?.filter((name) =>
@@ -51,7 +56,7 @@ const Report: React.FC = () => {
                 <div
                   key={index}
                   className={
-                    selectedItem?.key === item.key ? "name-active" : "name"
+                    selectedItem.key === item.key ? "name-active" : "name"
                   }
                   onClick={() => {
                     setSelectedItem(item);
@@ -77,7 +82,7 @@ const Report: React.FC = () => {
                 textAlign: "center",
               }}
             >
-              {selectedItem?.title}
+              {selectedItem.title}
             </Title>
             <Form
               form={form}
@@ -86,7 +91,6 @@ const Report: React.FC = () => {
               labelWrap
               wrapperCol={{ span: 20 }}
               onFinish={(values) => {
-                selectedItem &&
                 dispatch(
                   savePanel({
                     key: selectedItem.key,

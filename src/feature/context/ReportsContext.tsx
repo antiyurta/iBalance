@@ -91,10 +91,23 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
       }
     });
   };
-  const getWarehouseSection = async (params: IParamTreeSection) => {
-    await TreeSectionService.getByFilter(params).then((response) => {
+  const getAllSections = (sections: IDataTreeSection[]): IDataTreeSection[] => {
+    const allSections: IDataTreeSection[] = [];
+    sections.forEach((item) => {
+      allSections.push(item);
+      if (item.sections && item.sections.length > 0) {
+        allSections.push(...getAllSections(item.sections));
+      }
+    });
+    return allSections;
+  };
+  const getWarehouseSection = async () => {
+    await TreeSectionService.get(TreeSectionType.Warehouse).then((response) => {
       if (response.success) {
-        setSections(response.response);
+        const child = getAllSections(response.response).filter(
+          (item) => !item.isExpand
+        );
+        setSections(child);
       }
     });
   };
@@ -123,7 +136,7 @@ const ProviderReport: React.FC<IProps> = ({ children }) => {
     getEmployee();
     getBrand();
     getMaterial({ types: [MaterialType.Material] });
-    getWarehouseSection({ type: TreeSectionType.Warehouse, isExpand: false });
+    getWarehouseSection();
     getMaterialSection({
       materialType: MaterialType.Material,
       isExpand: false,

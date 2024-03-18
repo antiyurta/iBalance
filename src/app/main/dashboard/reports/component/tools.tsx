@@ -1,4 +1,4 @@
-import { Button, Card, Form, List, Table, Typography } from "antd";
+import { Card, Form } from "antd";
 import Image from "next/image";
 import React, {
   CSSProperties,
@@ -9,25 +9,13 @@ import React, {
 import NewModal from "../../../../../components/modal";
 import { FilterOutlined } from "@ant-design/icons";
 import { useReportContext } from "@/feature/context/ReportsContext";
-import { IParamDocument } from "@/service/document/entities";
 import { useReactToPrint } from "react-to-print";
-import {
-  NewRadio,
-  NewRadioGroup,
-  NewSelect,
-  NewSwitch,
-} from "@/components/input";
+import { NewRadio, NewRadioGroup, NewSwitch } from "@/components/input";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { IParamReportMaterial } from "@/service/report/entities";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { savePanel } from "@/feature/store/slice/report.slice";
-const { Column } = Table;
-interface IGroup {
-  name: "WAREHOUSE" | "SECTION";
-  sorter: "ASC" | "DESC";
-  isGroupBy: boolean;
-}
 interface IProps {
   filter: ReactNode;
   printRef: MutableRefObject<null>;
@@ -41,43 +29,35 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
   const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
   const currentItem = items.find((item) => item.key == activeKey);
   const { form } = useReportContext();
-  const [groupForm] = Form.useForm<{ groups: IGroup[] }>();
   const [isFilter, setIsFilter] = useState<boolean>(false);
   const [isGroup, setIsGroup] = useState<boolean>(false);
   const onFilter = (params: IParamReportMaterial) => {
     if (currentItem) {
-      currentItem.param = { ...currentItem.param, ...params };
-      dispatch(savePanel(currentItem));
+      let newItem = { ...currentItem };
+      newItem.param = { ...params };
+      dispatch(savePanel(newItem));
     }
     setIsFilter(false);
   };
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
   });
-  const onGroupBy = (groups: IGroup[]) => {
+  const onGroupBy = (type: "WAREHOUSE" | "SECTION", value: boolean) => {
     if (currentItem && currentItem.param) {
-      for (const item of groups) {
-        currentItem.param.isWarehouse =
-          item.name == "WAREHOUSE" && item.isGroupBy;
-        currentItem.param.isWarehouse =
-          item.name == "SECTION" && item.isGroupBy;
+      const { key, param } = currentItem;
+      const newParam = { ...param };
+      if (type == "WAREHOUSE") {
+        newParam.isWarehouse = value;
       }
-      dispatch(savePanel(currentItem));
+      if (type == "SECTION") {
+        newParam.isSection = value;
+      }
+      dispatch(savePanel({ key, param: newParam }));
     }
-    setIsGroup(false);
   };
   return (
     <>
       <Card title="Хэрэгслүүд" style={{ width: 250 }}>
-        <p style={style}>
-          <Image
-            src={"/icons/tools/Search.png"}
-            width={16}
-            height={16}
-            alt="Хайх"
-          />
-          Хайх
-        </p>
         <p style={style} onClick={() => setIsFilter(true)}>
           <Image
             src={"/images/filterFalse.svg"}
@@ -166,77 +146,61 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
         }
         onCancel={() => setIsFilter(false)}
       >
-        {filter}
+        <Form
+          form={form}
+          labelCol={{ span: 4 }}
+          labelAlign="left"
+          labelWrap
+          wrapperCol={{ span: 20 }}
+        >
+          {filter}
+        </Form>
       </NewModal>
       <NewModal
         open={isGroup}
         title={"Бүлэглэлтийн мэдээлэл"}
-        onOk={() =>
-          groupForm.validateFields().then((values) => {
-            onGroupBy(values.groups);
-          })
-        }
+        footer={null}
         onCancel={() => setIsGroup(false)}
       >
-        <Form
-          form={groupForm}
-          layout="vertical"
-          initialValues={{
-            groups: [
-              { name: "WAREHOUSE", sorter: "ASC", isGroupBy: true },
-              { name: "SECTION", sorter: "ASC", isGroupBy: true },
-            ],
-          }}
-        >
-          <Form.List name={"groups"}>
-            {(groups, _, { errors }) => (
-              <>
-                <Table dataSource={groups} pagination={false}>
-                  <Column
-                    dataIndex="name"
-                    title="Нэр"
-                    render={(_, __, index) => (
-                      <Form.Item name={[index, "name"]}>
-                        <NewSelect
-                          disabled
-                          options={[
-                            { value: "WAREHOUSE", label: "Байршил" },
-                            { value: "SECTION", label: "Бүлэг" },
-                          ]}
-                        />
-                      </Form.Item>
-                    )}
-                  ></Column>
-                  <Column
-                    dataIndex="sorter"
-                    title="Эрэмбэлэлт"
-                    render={(_, __, index) => (
-                      <Form.Item name={[index, "sorter"]}>
-                        <NewRadioGroup>
-                          <NewRadio value={"ASC"}>А-Я</NewRadio>
-                          <NewRadio value={"DESC"}>Я-А</NewRadio>
-                        </NewRadioGroup>
-                      </Form.Item>
-                    )}
-                  ></Column>
-                  <Column
-                    dataIndex="isGroupBy"
-                    title="Бүлэглэх эсэх"
-                    render={(_, __, index) => (
-                      <Form.Item
-                        name={[index, "isGroupBy"]}
-                        valuePropName="checked"
-                      >
-                        <NewSwitch />
-                      </Form.Item>
-                    )}
-                  ></Column>
-                </Table>
-                <div style={{ color: "#ff4d4f" }}>{errors}</div>
-              </>
-            )}
-          </Form.List>
-        </Form>
+        <table className="my-table">
+          <thead>
+            <th>Нэр</th>
+            <th>Эрэмбэлэлт</th>
+            <th>Бүлэглэлт эсэх</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Байршил</td>
+              <td>
+                <NewRadioGroup>
+                  <NewRadio value={"ASC"}>А-Я</NewRadio>
+                  <NewRadio value={"DESC"}>Я-А</NewRadio>
+                </NewRadioGroup>
+              </td>
+              <td>
+                <NewSwitch
+                  value={currentItem?.param?.isWarehouse}
+                  onChange={(checked) => onGroupBy("WAREHOUSE", checked)}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Бүлэг</td>
+              <td>
+                <NewRadioGroup>
+                  <NewRadio value={"ASC"}>А-Я</NewRadio>
+                  <NewRadio value={"DESC"}>Я-А</NewRadio>
+                </NewRadioGroup>
+              </td>
+              <td>
+                <NewSwitch
+                  value={currentItem?.param?.isSection}
+                  onChange={(checked) => onGroupBy("SECTION", checked)}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </NewModal>
     </>
   );

@@ -23,8 +23,8 @@ interface ISection {
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
-  const { form } = useReportContext();
-  const values = form.getFieldsValue();
+  const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
+  const currentItem = items.find((item) => item.key == activeKey);
   const { hospital } = useTypedSelector((state) => state.user);
   const textRight: CSSProperties = { textAlign: "right" };
   const [data, setData] = useState<IReportMaterial[]>([]);
@@ -75,10 +75,13 @@ const RStorage1: NextPage = () => {
     return repMaterials;
   };
   useEffect(() => {
-    ReportService.reportMaterial(values).then((response) => {
-      setData(response.response);
-    });
-  }, []);
+    if (currentItem) {
+      console.log(currentItem.param);
+      ReportService.reportMaterial(currentItem.param).then((response) => {
+        setData(response.response);
+      });
+    }
+  }, [currentItem?.param]);
   useEffect(() => {
     const groupedData: IWarehouse[] = [];
     data.forEach((material) => {
@@ -107,7 +110,10 @@ const RStorage1: NextPage = () => {
   }, [data]);
   return (
     <div className="report-document">
-      <Tools filter={<RStorage1Filter />} printRef={tableRef} />
+      <Tools
+        filter={<RStorage1Filter reportKey="item-1" />}
+        printRef={tableRef}
+      />
       <div ref={tableRef} className="report-body">
         <ReportTitle
           organization={hospital?.name || ""}
@@ -140,16 +146,20 @@ const RStorage1: NextPage = () => {
           <tbody>
             {warehouses.map((warehouse, windex) => (
               <>
-                <tr key={windex}>
-                  <td>Байршил : </td>
-                  <td colSpan={14}>{warehouse.warehouseName}</td>
-                </tr>
+                {currentItem?.param?.isWarehouse && (
+                  <tr key={windex}>
+                    <td>Байршил : </td>
+                    <td colSpan={14}>{warehouse.warehouseName}</td>
+                  </tr>
+                )}
                 {warehouse.sections.map((section, sindex) => (
                   <>
-                    <tr key={`${windex}-${sindex}`}>
-                      <td>Бүлэг :</td>
-                      <td colSpan={14}>{section.materialSectionName}</td>
-                    </tr>
+                    {currentItem?.param?.isSection && (
+                      <tr key={`${windex}-${sindex}`}>
+                        <td>Бүлэг :</td>
+                        <td colSpan={14}>{section.materialSectionName}</td>
+                      </tr>
+                    )}
                     {section.materials.map((item, index) => (
                       <tr key={`${windex}-${sindex}-${index}`}>
                         <td>{item.code}</td>
@@ -169,160 +179,166 @@ const RStorage1: NextPage = () => {
                         <td style={textRight}>{item.lastQty}</td>
                       </tr>
                     ))}
-                    <tr>
-                      <td colSpan={3}>Бүлгийн тоо хэмжээ</td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.beginingQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.purchaseQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.saleReturnQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) =>
-                            total + Number(item.warehouseIncomeQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.incomeQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.posQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.operationQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.saleReturnQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.actQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) =>
-                            total + Number(item.warehouseExpenseQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.expenseQty),
-                          0
-                        )}
-                      </td>
-                      <td style={textRight}>
-                        {section.materials.reduce(
-                          (total, item) => total + Number(item.lastQty),
-                          0
-                        )}
-                      </td>
-                    </tr>
+                    {currentItem?.param?.isSection && (
+                      <tr>
+                        <td colSpan={3}>Бүлгийн тоо хэмжээ</td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.beginingQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.purchaseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.saleReturnQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.warehouseIncomeQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.incomeQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.posQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.operationQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.saleReturnQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.actQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.warehouseExpenseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.expenseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.lastQty),
+                            0
+                          )}
+                        </td>
+                      </tr>
+                    )}
                   </>
                 ))}
-                <tr>
-                  <td colSpan={3}>Байршлын тоо хэмжээ</td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.beginingQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.purchaseQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.saleReturnQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.warehouseIncomeQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.incomeQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.posQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.operationQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.saleReturnQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.actQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.warehouseExpenseQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.expenseQty),
-                      0
-                    )}
-                  </td>
-                  <td style={textRight}>
-                    {getWarehouseMaterials(warehouse).reduce(
-                      (total, item) => total + Number(item.lastQty),
-                      0
-                    )}
-                  </td>
-                </tr>
+                {currentItem?.param?.isWarehouse && (
+                  <tr>
+                    <td colSpan={3}>Байршлын тоо хэмжээ</td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.beginingQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.purchaseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.saleReturnQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) =>
+                          total + Number(item.warehouseIncomeQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.incomeQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.posQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.operationQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.saleReturnQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.actQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) =>
+                          total + Number(item.warehouseExpenseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.expenseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.lastQty),
+                        0
+                      )}
+                    </td>
+                  </tr>
+                )}
               </>
             ))}
             <tr>

@@ -60,9 +60,6 @@ const Reports = () => {
     const currentIndex = items.findIndex((item) => item.key == key);
     dispatch(savePanel({ key, param: items[currentIndex].param }));
   };
-  useEffect(() => {
-    console.log("items ======>", items);
-  }, [items]);
   return (
     <div>
       <PageTitle />

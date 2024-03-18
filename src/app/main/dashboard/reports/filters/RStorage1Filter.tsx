@@ -10,8 +10,10 @@ import { ITool } from "@/service/entities";
 import dayjs, { Dayjs } from "dayjs";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { FilterToolData } from "@/feature/data";
-
-const RStorage1Filter = () => {
+interface IProps {
+  reportKey: string;
+}
+const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
   const {
     form,
     sections,
@@ -23,8 +25,8 @@ const RStorage1Filter = () => {
     setFormStyle,
   } = useReportContext();
   const employeeIds = Form.useWatch("employeeIds", form);
-  const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
-  const currentItem = items.find((item) => item.key == activeKey);
+  const { items } = useTypedSelector((state) => state.reportPanel);
+  const currentItem = items.find((item) => item.key == reportKey);
   const [tool, setTool] = useState<ITool>({
     logo: "/icons/tools/Equals.png",
     title: "Тухайн",
@@ -53,6 +55,7 @@ const RStorage1Filter = () => {
         setTool(FilterToolData[toolIndex]);
       }
       setDates(currentItem.param.dateFilter.dates.map((item) => dayjs(item)));
+      form.setFieldValue("warehouseIds", param.warehouseIds);
     }
   }, [currentItem]);
   return (
@@ -78,7 +81,6 @@ const RStorage1Filter = () => {
         />
       </Form.Item>
       <NewReportSectionSelect
-        form={form}
         sectionLabel="Байршилын бүлэг:"
         sectionName="warehouseSectionId"
         sectionSelectProps={{
@@ -97,9 +99,8 @@ const RStorage1Filter = () => {
         }}
       />
       <NewReportSectionSelect
-        form={form}
         sectionLabel={"Барааны бүлэг:"}
-        sectionName={"materalSectionId"}
+        sectionName={"materialSectionId"}
         sectionSelectProps={{
           options: materialSections.map((item) => ({
             value: item.id,

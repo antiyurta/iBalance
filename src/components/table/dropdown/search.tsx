@@ -76,12 +76,7 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           addonBefore={
-            <PopoverTool
-              dataIndexType={type}
-              operator={(tool) => {
-                setTool(tool);
-              }}
-            />
+            <PopoverTool dataIndexType={type} tool={tool} setTool={setTool} />
           }
         />
       )}
@@ -90,12 +85,7 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
           value={inputNumberValue}
           onChange={(value) => setInputNumberValue(Number(value))}
           addonBefore={
-            <PopoverTool
-              dataIndexType={type}
-              operator={(tool) => {
-                setTool(tool);
-              }}
-            />
+            <PopoverTool dataIndexType={type} tool={tool} setTool={setTool} />
           }
         />
       )}

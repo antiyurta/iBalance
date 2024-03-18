@@ -1,9 +1,9 @@
 import { NewFilterSelect, NewSelect } from "@/components/input";
+import { useReportContext } from "@/feature/context/ReportsContext";
 import { ISelectValueType } from "@/service/entities";
 import { Col, Form, FormInstance, Row, SelectProps } from "antd";
 import React, { useEffect, useState } from "react";
 interface IProps {
-  form: FormInstance;
   sectionLabel: string;
   sectionName: string;
   sectionSelectProps: SelectProps;
@@ -12,7 +12,6 @@ interface IProps {
   selectProps: SelectProps;
 }
 export const NewReportSectionSelect: React.FC<IProps> = ({
-  form,
   sectionLabel,
   sectionName,
   sectionSelectProps,
@@ -20,7 +19,8 @@ export const NewReportSectionSelect: React.FC<IProps> = ({
   name,
   selectProps,
 }) => {
-  const [type, setType] = useState<ISelectValueType>("all");
+  const { form } = useReportContext();
+  const [type, setType] = useState<ISelectValueType>();
   const typeOptions = [
     {
       label: "Бүгд",
@@ -41,9 +41,17 @@ export const NewReportSectionSelect: React.FC<IProps> = ({
   ];
   useEffect(() => {
     if (type == "all") {
-      form.setFieldValue(name, undefined);
+      form.setFieldsValue({ [name]: undefined, [sectionName]: undefined });
     }
   }, [type]);
+  useEffect(() => {
+    const value = form.getFieldValue(name);
+    const sectionValue = form.getFieldValue(sectionName);
+    !value && setType("all");
+    sectionValue && setType("section");
+    value && setType("that");
+    Array.isArray(value) && setType("selection");
+  }, [form]);
   return (
     <Row>
       <Col span={4}>{type === "section" ? sectionLabel : label}</Col>

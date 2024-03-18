@@ -8,7 +8,7 @@ const RStorage2 = () => {
   const tableRef = useRef(null);
   return (
     <div className="report-document">
-      <Tools filter={<RStorage1Filter/>} printRef={tableRef}/>
+      <Tools filter={<RStorage1Filter reportKey={"RStorage2"}/>} printRef={tableRef}/>
       <div className="report-body" ref={tableRef}>
         <ReportTitle organization={"Universal med"} title={"Бараа материалын товчоо тайлан (хураангуй)"} />
         <table className="report">

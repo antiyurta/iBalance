@@ -42,7 +42,6 @@ const RStorage3Filter = () => {
         }}
       />
       <NewReportSectionSelect
-        form={form}
         sectionLabel={"Байршилын бүлэг:"}
         sectionName={"warehouseSectionId"}
         sectionSelectProps={{
@@ -61,7 +60,6 @@ const RStorage3Filter = () => {
         }}
       />
       <NewReportSectionSelect
-        form={form}
         sectionLabel={"Барааны бүлэг:"}
         sectionName={"materalSectionId"}
         sectionSelectProps={{

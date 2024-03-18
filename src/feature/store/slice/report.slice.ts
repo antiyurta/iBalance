@@ -27,6 +27,8 @@ const reportPanel = createSlice({
       state.activeKey = action.payload.key;
       if (existingIndex == -1) {
         state.items.push(action.payload);
+      } else {
+        state.items[existingIndex].param = action.payload.param;
       }
       return state;
     },

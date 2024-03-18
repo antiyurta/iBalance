@@ -48,7 +48,6 @@ import RStorage21 from "../document/RStorage21";
 import RStorage22 from "../document/RStorage22";
 // Бараа материалын үлдэгдэл тайлан /дуусах хугацаагаар/
 import RStorage23 from "../document/RStorage23";
-
 export interface IReport {
   key: string;
   title: string;
@@ -59,13 +58,13 @@ export const reportList: IReport[] = [
     {
       key: "item-1",
       title: "Бараа материалын товчоо тайлан",
-      filter: <RStorage1Filter />,
+      filter: <RStorage1Filter reportKey="item-1"/>,
       children: <RStorage1 />,
     },
     {
       key: "item-2",
       title: "Бараа материалын товчоо тайлан (хураангуй)",
-      filter: <RStorage1Filter />,
+      filter: <RStorage1Filter reportKey="item-2" />,
       children: <RStorage2 />,
     },
     {
@@ -101,7 +100,7 @@ export const reportList: IReport[] = [
     {
       key: "item-8",
       title: "Агуулах хоорондын хөдөлгөөний хураангуй тайлан",
-      filter: <RStorage1Filter />,
+      filter: <RStorage1Filter reportKey="item-8" />,
       children: <RStorage8 />,
     },
     {
@@ -137,7 +136,7 @@ export const reportList: IReport[] = [
     {
       key: "item-14",
       title: "Акт, хорогдол, устгалын товчоо тайлан",
-      filter: <RStorage1Filter />,
+      filter: <RStorage1Filter reportKey="item-14" />,
       children: <RStorage14 />,
     },
     {

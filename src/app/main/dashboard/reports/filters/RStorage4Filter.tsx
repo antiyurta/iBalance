@@ -67,7 +67,6 @@ const RStorage4Filter = () => {
             }}
           />
           <NewReportSectionSelect
-            form={form}
             sectionLabel={"Байршилын бүлэг:"}
             sectionName={"warehouseSectionId"}
             sectionSelectProps={{
@@ -86,7 +85,6 @@ const RStorage4Filter = () => {
             }}
           />
           <NewReportSectionSelect
-            form={form}
             sectionLabel={"Барааны бүлэг:"}
             sectionName={"materalSectionId"}
             sectionSelectProps={{
@@ -129,7 +127,6 @@ const RStorage4Filter = () => {
             }}
           />
           <NewReportSectionSelect
-            form={form}
             sectionLabel={"Байршилын бүлэг:"}
             sectionName={"warehouseSectionId"}
             sectionSelectProps={{
@@ -148,7 +145,6 @@ const RStorage4Filter = () => {
             }}
           />
           <NewReportSectionSelect
-            form={form}
             sectionLabel={"Барааны бүлэг:"}
             sectionName={"materalSectionId"}
             sectionSelectProps={{

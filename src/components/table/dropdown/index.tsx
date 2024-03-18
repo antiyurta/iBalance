@@ -97,13 +97,6 @@ const NewDropdown = (props: IProps) => {
     }
   };
   useEffect(() => {
-    console.log("filters =====>", filters);
-    // setCheckboxes(filters);
-  }, [filters]);
-  useEffect(() => {
-    console.log("checkboxes =======>", checkboxes);
-  }, [checkboxes]);
-  useEffect(() => {
     setNewFilters(updateFilter("IN", checkedList));
   }, [checkedList]);
   return (
