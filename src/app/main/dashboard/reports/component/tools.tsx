@@ -194,7 +194,7 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
               </td>
               <td>
                 <NewSwitch
-                  checked={currentItem?.param?.isWarehouse}
+                  checked={currentItem?.param?.isSection}
                   onChange={(checked) => onGroupBy("SECTION", checked)}
                 />
               </td>
