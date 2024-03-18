@@ -179,7 +179,7 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
               </td>
               <td>
                 <NewSwitch
-                  value={currentItem?.param?.isWarehouse}
+                  value={Boolean(currentItem?.param?.isWarehouse)}
                   onChange={(checked) => onGroupBy("WAREHOUSE", checked)}
                 />
               </td>
@@ -194,7 +194,7 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
               </td>
               <td>
                 <NewSwitch
-                  value={currentItem?.param?.isSection}
+                  value={Boolean(currentItem?.param?.isSection)}
                   onChange={(checked) => onGroupBy("SECTION", checked)}
                 />
               </td>
