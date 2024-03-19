@@ -17,7 +17,6 @@ import {
   findIndexInColumnSettings,
   getFile,
   getParam,
-  onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
 import {
@@ -73,6 +72,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 import PageTitle from "@/components/page-title";
+import NewTreeSelect from "@/components/tree/tree-select";
 interface IProps {
   ComponentType: ComponentType;
   materialType: MaterialType;
@@ -710,9 +710,6 @@ const InventoriesRegistration = (props: IProps) => {
             onFinish(values);
           })
         }
-        bodyStyle={{
-          paddingTop: 10,
-        }}
       >
         <Form form={form} layout="vertical">
           <div className="form-grid-3">
@@ -736,55 +733,14 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Бараа материалын бүлэг"
-                style={{
-                  width: "100%",
-                }}
+                name="materialSectionId"
               >
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Popover
-                      placement="bottom"
-                      open={isOpenPopOver}
-                      onOpenChange={(state) => setIsOpenPopOver(state)}
-                      content={
-                        <NewDirectoryTree
-                          data={materialSections}
-                          onClick={(keys) => {
-                            console.log(keys);
-                          }}
-                        />
-                      }
-                      trigger={"click"}
-                    >
-                      <SignalFilled rotate={-90} />
-                    </Popover>
-                  </div>
-                  <Form.Item
-                    style={{
-                      width: "100%",
-                    }}
-                    name="materialSectionId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Бараа материалын бүлэг заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      disabled={true}
-                      style={{
-                        width: "100%",
-                      }}
-                      options={materialSections?.map(
-                        (section: IDataMaterialSection) => ({
-                          label: section.name,
-                          value: section.id,
-                        })
-                      )}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <NewTreeSelect
+                  sections={materialSections}
+                  onChange={(value) =>
+                    form.setFieldValue("materialSectionId", value)
+                  }
+                />
               </Form.Item>
               <Form.Item label="Хэмжих нэгж">
                 <Space.Compact>

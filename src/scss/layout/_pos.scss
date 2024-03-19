@@ -191,8 +191,8 @@
         line-height: normal;
       }
       > .bottom {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
         > p {
           font-size: 12px;

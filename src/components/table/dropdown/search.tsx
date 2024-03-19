@@ -29,22 +29,31 @@ interface IProps {
   onChange?: (operator: Tool, value?: string | number | Dayjs[]) => void;
 }
 const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
+  const getDefaultTool = (): ITool => {
+    if (type == DataIndexType.DATE || type == DataIndexType.DATETIME) {
+      return {
+        logo: "/icons/tools/Equals.png",
+        title: "Тухайн",
+        operator: "THAT",
+      };
+    } else if (type == DataIndexType.MULTI) {
+      return {
+        logo: "/icons/tools/Contains.png",
+        title: "Агуулсан",
+        operator: "CONTAINS",
+      };
+    } else {
+      return {
+        logo: "/icons/tools/Equals.png",
+        title: "Equals",
+        operator: "EQUALS",
+      };
+    }
+  };
   const [dates, setDates] = useState<Dayjs[]>([dayjs(new Date())]);
   const [inputValue, setInputValue] = useState<string>();
   const [inputNumberValue, setInputNumberValue] = useState<number>();
-  const [tool, setTool] = useState<ITool>(
-    type == DataIndexType.DATE
-      ? {
-          logo: "/icons/tools/Equals.png",
-          title: "Тухайн",
-          operator: "THAT",
-        }
-      : {
-          logo: "/icons/tools/Equals.png",
-          title: "Equals",
-          operator: "EQUALS",
-        }
-  );
+  const [tool, setTool] = useState<ITool>(getDefaultTool());
   useEffect(() => {
     onChange?.(tool.operator, inputValue);
   }, [inputValue]);

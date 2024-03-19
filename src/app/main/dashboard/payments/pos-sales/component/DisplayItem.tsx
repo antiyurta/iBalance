@@ -223,6 +223,7 @@ const DisplayItem = (props: IProps) => {
                         ? "text-line-through"
                         : ""
                     }
+                    style={{ gap: 100 }}
                   >
                     <NumericFormat
                       value={item.unitAmount}
@@ -232,6 +233,13 @@ const DisplayItem = (props: IProps) => {
                       suffix="₮"
                     />
                   </p>
+                  <NumericFormat
+                    value={item.lastQty}
+                    thousandSeparator=","
+                    fixedDecimalScale
+                    displayType="text"
+                    prefix="Тоо:"
+                  />
                   <GetNewAmount item={item} />
                 </div>
               </div>
