@@ -196,6 +196,7 @@ const TransactionAction = (props: IProps) => {
               rules={[
                 {
                   validator: async (_, transactions) => {
+                    console.log("transactions ====>", transactions);
                     const arr = Array.isArray(transactions)
                       ? transactions.map(
                           (item: IDataTransaction) => item.materialId

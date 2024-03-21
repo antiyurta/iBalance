@@ -80,6 +80,7 @@ export const EditableTableSaleReturn = (props: IProps) => {
   return (
     <Table
       dataSource={data}
+      pagination={false}
       footer={() => {
         return (
           <div

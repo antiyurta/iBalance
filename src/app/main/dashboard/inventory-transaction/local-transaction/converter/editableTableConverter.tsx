@@ -76,6 +76,7 @@ export const EditableTableConverter = (props: IProps) => {
   return (
     <Table
       dataSource={data}
+      pagination={false}
       footer={() => {
         return (
           <div className="button-editable-footer" onClick={() => addService()}>

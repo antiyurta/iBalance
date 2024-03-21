@@ -125,6 +125,7 @@ export const EditableTableSale = (props: IProps) => {
   };
   return (
     <Table
+      pagination={false}
       dataSource={data}
       footer={() => {
         return (
