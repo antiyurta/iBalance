@@ -90,19 +90,18 @@ const MaterialSearch: React.FC<IProps> = ({
     if (currentIndex > -1) onMaterial(materials[currentIndex]);
   };
   const getMaterialById = (materialId: number) => {
-    MaterialService.getById(materialId)
+    ViewMaterialService.getById(materialId)
       .then((response) => {
         if (response.success) {
           setBarcode(response.response.barCode);
-          setCode(response.response.code);
-          setName(response.response.name);
+          onMaterial(response.response);
         }
       })
-      .finally(() => getMaterial());
+      .finally();
   };
   useEffect(() => {
     materialId && getMaterialById(materialId);
-  }, []);
+  }, [materialId]);
   return (
     <div style={{ display: "flex" }}>
       <Tooltip title={getType(type).label}>
