@@ -132,7 +132,6 @@ export const EditableTableAction = (props: IProps) => {
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
                       unitAmount: material?.unitAmount,
-                      expenseQty: 1,
                     },
                   },
                 });

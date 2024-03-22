@@ -100,7 +100,8 @@ const CommandList = (props: IProps) => {
       isView: true,
       isFiltered: false,
       dataIndex: ["quantity"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.NUMBER,
+      isSummary: true,
     },
     createdAt: {
       label: "Үүсгэсэн огноо",

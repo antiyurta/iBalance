@@ -151,6 +151,7 @@ const columns: FilteredColumnsTransaction = {
     isFiltered: false,
     dataIndex: ["incomeQty"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   consumerCode: {
     label: "Харилцагчийн код",
@@ -207,6 +208,7 @@ const columns: FilteredColumnsTransaction = {
     isFiltered: false,
     dataIndex: ["expenseQty"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   convertMaterialName: {
     label: "Хөрвүүлсэн барааны нэр",
@@ -241,7 +243,8 @@ const columns: FilteredColumnsTransaction = {
     isView: true,
     isFiltered: true,
     dataIndex: ["convertQuantity"],
-    type: DataIndexType.MULTI,
+    type: DataIndexType.NUMBER,
+    isSummary: true,
   },
   createdBy: {
     label: "Бүртгэсэн хэрэглэгч",

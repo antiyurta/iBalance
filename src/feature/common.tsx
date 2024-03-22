@@ -383,6 +383,17 @@ function getParam(items: IItem[], activeKey: string): IParam | undefined {
     return currentPane.param;
   }
 }
+function getValue(index: string[], data: any): any {
+  let value = data;
+  for (const part of index) {
+      if (value && typeof value === 'object' && part in value) {
+          value = value[part];
+      } else {
+          return undefined;
+      }
+  }
+  return value;
+}
 export {
   parseNumber,
   isChecked,
@@ -398,4 +409,5 @@ export {
   fieldValue,
   getUniqueValues,
   getParam,
+  getValue,
 };

@@ -66,6 +66,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["openerAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     closerEmployeeName: {
       label: "Хаасан хэрэглэгч",
@@ -94,6 +95,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["balanceAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     cashAmount: {
       label: "Хаасан бэлэн мөнгө",
@@ -101,6 +103,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["cashAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     nonCashAmount: {
       label: "Хаасан бэлэн бус мөнгө",
@@ -108,6 +111,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["nonCashAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     updatedAt: {
       label: "Зассан огноо",
