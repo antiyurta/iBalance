@@ -10,6 +10,7 @@ export interface IDataConfigCode extends IData {
   id: number;
   type: DateType;
   counter: number;
+  openerAt: Date;
 }
 export interface IResponseConfigCode extends GenericResponse {
   response: IDataConfigCode;

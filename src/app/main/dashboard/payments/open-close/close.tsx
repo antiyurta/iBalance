@@ -99,7 +99,13 @@ const CloseState = (props: IProps) => {
   const getSaleAmount = (type: PaymentType): number => {
     return invoices
       .filter((item) => item.type == type)
-      .reduce((total, item) => total + (Number(item.incomeAmount) || 0), 0);
+      .reduce(
+        (total, item) =>
+          total +
+          (Number(item.incomeAmount) || 0) -
+          (Number(item.expenseAmount) || 0),
+        0
+      );
   };
   const getStatisticSale = (): ICloseColumn[] => {
     const refundDocuments = posDocuments.filter(

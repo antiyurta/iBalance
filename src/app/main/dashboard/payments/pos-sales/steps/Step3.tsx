@@ -70,7 +70,8 @@ const Step3: React.FC = () => {
       invoices: invoices.map((item) => ({
         type: item.type,
         paymentMethodName: item.methodName,
-        incomeAmount: item.payAmount,
+        incomeAmount: item.incomeAmount,
+        expenseAmount: item.expenseAmount,
       })),
       transactions: goods.map((item) => ({
         materialId: item.materialId,

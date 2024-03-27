@@ -346,7 +346,7 @@ const getFile = async (id: number) => {
     const fileUrl = URL.createObjectURL(file);
     return fileUrl;
   } catch (error) {
-    console.error('Error fetching file:', error);
+    console.error("Error fetching file:", error);
     return "/images/emptyMarket.png";
   }
 };
@@ -386,13 +386,24 @@ function getParam(items: IItem[], activeKey: string): IParam | undefined {
 function getValue(index: string[], data: any): any {
   let value = data;
   for (const part of index) {
-      if (value && typeof value === 'object' && part in value) {
-          value = value[part];
-      } else {
-          return undefined;
-      }
+    if (value && typeof value === "object" && part in value) {
+      value = value[part];
+    } else {
+      return undefined;
+    }
   }
   return value;
+}
+function getQuarter(month: number): number {
+  if (month >= 0 && month <= 2) {
+    return 1; // 1-р улирал: January 1 to March 31
+  } else if (month >= 3 && month <= 5) {
+    return 2; // 2-р улирал: April 1 to June 30
+  } else if (month >= 6 && month <= 8) {
+    return 3; // 3-р улирал: July 1 to September 30
+  } else {
+    return 4; // 4-р улирал: October 1 to December 31
+  }
 }
 export {
   parseNumber,
@@ -410,4 +421,5 @@ export {
   getUniqueValues,
   getParam,
   getValue,
+  getQuarter,
 };

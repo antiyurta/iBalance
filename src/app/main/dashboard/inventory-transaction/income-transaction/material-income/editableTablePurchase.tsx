@@ -143,6 +143,7 @@ export const EditableTablePurchase = (props: IProps) => {
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
+                      isExpired: material?.isExpired,
                     },
                   },
                 });
@@ -202,17 +203,19 @@ export const EditableTablePurchase = (props: IProps) => {
       <Column
         dataIndex={"transactionAt"}
         title="Дуусах хугацаа"
-        render={(_, __, index) => (
-          <Form.Item
-            name={[index, "transactionAt"]}
-            rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
-          >
-            <NewDatePicker
-              disabled={!(index === editingIndex)}
-              format={"YYYY-MM-DD"}
-            />
-          </Form.Item>
-        )}
+        render={(_, __, index) =>
+          form.getFieldValue(["transactions", index, "isExpired"]) && (
+            <Form.Item
+              name={[index, "transactionAt"]}
+              rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
+            >
+              <NewDatePicker
+                disabled={!(index === editingIndex)}
+                format={"YYYY-MM-DD"}
+              />
+            </Form.Item>
+          )
+        }
       />
       {/* Засах устгах хэсэг */}
       <Column
