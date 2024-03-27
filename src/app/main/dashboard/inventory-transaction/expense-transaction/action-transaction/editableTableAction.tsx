@@ -131,7 +131,7 @@ export const EditableTableAction = (props: IProps) => {
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
-                      unitAmount: material?.unitAmount,
+                      lastQty: material?.lastQty,
                     },
                   },
                 });
@@ -168,19 +168,10 @@ export const EditableTableAction = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"countPackage"}
+        dataIndex={"lastQty"}
         title="Агуулахын үлдэгдэл"
         render={(_, __, index) => (
-          <Form.Item name={[index, "countPackage"]}>
-            <NewInputNumber disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
-        dataIndex={"unitAmount"}
-        title="Нэгжийн үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
+          <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

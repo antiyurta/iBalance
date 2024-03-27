@@ -86,7 +86,6 @@ const TransactionAction = (props: IProps) => {
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
           lastQty: transaction.lastQty,
-          unitAmount: Number(transaction.unitAmount),
           expenseQty: transaction.expenseQty,
         })),
       });
