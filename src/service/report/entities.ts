@@ -24,7 +24,8 @@ export interface IReportMaterial {
 export interface IParamReportMaterial {
   dateFilter: {
     operator: Tool,
-    dates: Dayjs[],
+    startAt: Dayjs,
+    endAt: Dayjs
   };
   isNotTransaction: boolean;
   isLock: boolean;

@@ -1,15 +1,15 @@
 import "dayjs/locale/mn";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useReportContext } from "@/feature/context/ReportsContext";
 import { NewReportSectionSelect } from "../component/report-section-select";
 import { NewReportSelect } from "../component/report-select";
 import { Form } from "antd";
 import { NewReportSwitch } from "../component/report-switch";
-import { IntervalDate } from "@/components/table/dropdown/interval-date";
-import { ITool } from "@/service/entities";
+import { ITool, Tool } from "@/service/entities";
 import dayjs, { Dayjs } from "dayjs";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { FilterToolData } from "@/feature/data";
+import ReportDateFilter from "../component/date-filter";
 interface IProps {
   reportKey: string;
 }
@@ -27,12 +27,9 @@ const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
   const employeeIds = Form.useWatch("employeeIds", form);
   const { items } = useTypedSelector((state) => state.reportPanel);
   const currentItem = items.find((item) => item.key == reportKey);
-  const [tool, setTool] = useState<ITool>({
-    logo: "/icons/tools/Equals.png",
-    title: "Тухайн",
-    operator: "THAT",
-  });
-  const [dates, setDates] = useState<Dayjs[]>([]);
+  const [operator, setOperator] = useState<Tool>("BETWEEN");
+  const [startAt, setStartAt] = useState<Dayjs | null>(dayjs());
+  const [endAt, setEndAt] = useState<Dayjs | null>(dayjs());
   useEffect(() => {
     employeeIds && setEmployeeIds(employeeIds);
   }, [employeeIds]);
@@ -41,21 +38,18 @@ const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
   }, []);
   useEffect(() => {
     form.setFieldValue("dateFilter", {
-      operator: tool.operator,
-      dates,
+      operator,
+      startAt,
+      endAt,
     });
-  }, [dates]);
+  }, [operator, startAt, endAt]);
   useEffect(() => {
     if (currentItem && currentItem.param) {
       const { param } = currentItem;
-      const toolIndex = FilterToolData.findIndex(
-        (item) => item.operator == param.dateFilter.operator
-      );
-      if (toolIndex > -1) {
-        setTool(FilterToolData[toolIndex]);
-      }
-      setDates(currentItem.param.dateFilter.dates.map((item) => dayjs(item)));
-      form.setFieldValue("warehouseIds", param.warehouseIds);
+      setOperator(param.dateFilter.operator);
+      setStartAt(param.dateFilter.startAt);
+      setEndAt(param.dateFilter.endAt);
+      form.setFieldsValue(param);
     }
   }, [currentItem]);
   return (
@@ -73,11 +67,13 @@ const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
           },
         ]}
       >
-        <IntervalDate
-          tool={tool}
-          setTool={setTool}
-          dates={dates}
-          setDates={setDates}
+        <ReportDateFilter
+          operator={operator}
+          setOperator={setOperator}
+          startAt={startAt}
+          setStartAt={setStartAt}
+          endAt={endAt}
+          setEndAt={setEndAt}
         />
       </Form.Item>
       <NewReportSectionSelect

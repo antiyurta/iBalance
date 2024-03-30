@@ -75,8 +75,7 @@ const RStorage1: NextPage = () => {
     return repMaterials;
   };
   useEffect(() => {
-    if (currentItem) {
-      console.log(currentItem.param);
+    if (currentItem && currentItem.param?.dateFilter) {
       ReportService.reportMaterial(currentItem.param).then((response) => {
         setData(response.response);
       });
