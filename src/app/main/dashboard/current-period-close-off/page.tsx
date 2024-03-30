@@ -85,6 +85,13 @@ const CurrentPeriodCloseOff = () => {
       dataIndex: ["month"],
       type: DataIndexType.MULTI,
     },
+    currentAt: {
+      label: "Тайлант үе",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["currentAt"],
+      type: DataIndexType.DATE,
+    },
     isClose: {
       label: "Хаалтын төлөв",
       isView: true,
@@ -140,7 +147,7 @@ const CurrentPeriodCloseOff = () => {
           period: values.period,
           year: values.date.year(),
           quarter: getQuarter(values.date.month()),
-          month: values.date.month() + 1,
+          month: values.period == DateType.Season ? null : values.date.month() + 1,
           isClose: true,
         })
           .then((response) => {
@@ -440,15 +447,23 @@ const CurrentPeriodCloseOff = () => {
         title={"Тохиргоо"}
         open={isConfigModal}
         onCancel={() => setIsConfigModal(false)}
-        onOk={() =>
-          form.validateFields().then((values) => {
-            onFinish(values);
-          })
+        footer={
+          <Button
+            type="primary"
+            disabled={form.getFieldValue("openerAt")}
+            onClick={() =>
+              form.validateFields().then((values) => {
+                onFinish(values);
+              })
+            }
+          >
+            Хадгалах
+          </Button>
         }
       >
         <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
           <Form.Item label="Нээлтийн огноо" name={"openerAt"}>
-            <NewDatePicker />
+            <NewDatePicker disabled={form.getFieldValue("openerAt")} />
           </Form.Item>
         </Form>
       </NewModal>

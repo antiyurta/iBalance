@@ -13,8 +13,9 @@ export interface IDataReportClosure extends IData {
   period: DateType;
   year?: number;
   quarter?: number;
-  month?: number;
+  month?: number | null;
   isClose?: boolean;
+  currentAt?: Date;
 }
 
 export interface IColumnReportClosure extends IColumn {
@@ -24,6 +25,7 @@ export interface IColumnReportClosure extends IColumn {
   quarter: number[];
   month: number[];
   isClose: boolean[];
+  currentAt: string[];
 }
 
 export type FilteredColumnsReportClosure = {
