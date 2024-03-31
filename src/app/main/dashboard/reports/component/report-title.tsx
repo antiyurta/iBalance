@@ -9,34 +9,31 @@ export const ReportTitle: React.FC<IProps> = ({ organization, title }) => {
   const values = form.getFieldsValue();
   const [reportAt, setReportAt] = useState<string>("");
   useEffect(() => {
-    if (
-      values.dateFilter &&
-      values.dateFilter.dates &&
-      values.dateFilter.dates.length > 0
-    ) {
+    if (values.dateFilter) {
       if (values.dateFilter.operator == "BETWEEN") {
         setReportAt(
-          `${values.dateFilter.dates[0].format(
+          `${values.dateFilter.startAt.format(
             "YYYY/MM/DD"
-          )} - ${values.dateFilter.dates[1].format("YYYY/MM/DD")}`
+          )} - ${values.dateFilter.endAt.format("YYYY/MM/DD")}`
         );
       } else if (values.dateFilter.operator == "THAT") {
-        setReportAt(`${values.dateFilter.dates[0].format("YYYY/MM/DD")}`);
+        setReportAt(`${values.dateFilter.startAt.format("YYYY/MM/DD")}`);
       } else if (values.dateFilter.operator == "IS_LESS") {
         setReportAt(
-          `${values.dateFilter.dates[0].format("YYYY/MM/DD")}-хүртэл`
+          `${values.dateFilter.startAt.format("YYYY/MM/DD")}-хүртэл`
         );
       } else if (values.dateFilter.operator == "IS_GREATER") {
         setReportAt(
-          `${values.dateFilter.dates[0].format("YYYY/MM/DD")}-с хойшхи`
+          `${values.dateFilter.startAt.format("YYYY/MM/DD")}-с хойшхи`
         );
-      } else if (values.dateFilter.operator == "SELECTION") {
-        setReportAt(values.dateFilter.dates.toString());
-      } else if (values.dateFilter.operator == "YEAR") {
-        setReportAt(`${values.dateFilter.dates[0].format("YYYY")}-он`);
-      } else if (values.dateFilter.operator == "MONTH") {
-        setReportAt(`${values.dateFilter.dates[0].format("YYYY/MM")}-сар`);
       }
+      //  else if (values.dateFilter.operator == "SELECTION") {
+      //   setReportAt(values.dateFilter.startAt.toString());
+      // } else if (values.dateFilter.operator == "YEAR") {
+      //   setReportAt(`${values.dateFilter.dates[0].format("YYYY")}-он`);
+      // } else if (values.dateFilter.operator == "MONTH") {
+      //   setReportAt(`${values.dateFilter.dates[0].format("YYYY/MM")}-сар`);
+      // }
     }
   }, [values.dateFilter]);
   return (
