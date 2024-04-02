@@ -177,15 +177,6 @@ export const EditableTableMove = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"unitAmount"}
-        title="Нэгжийн үнэ"
-        render={(_, __, index) => (
-          <Form.Item name={[index, "unitAmount"]}>
-            <NewInputNumber disabled />
-          </Form.Item>
-        )}
-      />
-      <Column
         dataIndex={"expenseQty"}
         title="Шилжүүлэх хэмжээ"
         render={(_, __, index) => (
