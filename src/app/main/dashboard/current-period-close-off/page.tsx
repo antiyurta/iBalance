@@ -197,7 +197,7 @@ const CurrentPeriodCloseOff = () => {
         const { openerAt } = response.response;
         form.setFieldsValue({
           ...response.response,
-          openerAt: openerAt !== null ? dayjs(openerAt) : dayjs(new Date()),
+          openerAt: openerAt !== null && dayjs(openerAt),
         });
       }
     });

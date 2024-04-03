@@ -2,30 +2,32 @@ import { Dayjs } from "dayjs";
 import { GenericResponse, Tool } from "../entities";
 
 export interface IReportMaterial {
-  code: string;
-  isActive: boolean;
-  name: string;
-  shortName: string;
-  warehouseName: string;
-  materialSectionName: string;
-  saleReturnQty: number;
-  purchaseQty: number;
-  warehouseIncomeQty: number;
-  posQty: number;
-  operationQty: number;
-  purchaseReturnQty: number;
-  actQty: number;
-  warehouseExpenseQty: number;
-  beginingQty: number;
-  incomeQty: number;
-  expenseQty: number;
-  lastQty: number;
+  warehouseName?: string;
+  code?: string;
+  name?: string;
+  sectionName?: string;
+  isActive?: boolean;
+  shortName?: string;
+  refundQty?: number; // SALE_RETURN
+  purchaseQty?: number; // PURCHASE
+  warehouseIncomeQty?: number; // WAREHOUSE, CONVERSION, MIXTURE
+  cencusIncomeQty?: number; // CENCUS
+  saleQty?: number; // SALE POS
+  operationQty?: number; // OPERATION
+  purchaseReturnQty?: number; // PURCHASE_RETURN
+  actQty?: number; // ACT
+  warehouseExpenseQty?: number; // WAREHOUSE, CONVERSION, MIXTURE
+  cencusExpenseQty?: number; // CENCUS
+  beginingQty?: number;
+  incomeQty?: number;
+  expenseQty?: number;
+  lastQty?: number;
 }
 export interface IParamReportMaterial {
   dateFilter: {
-    operator: Tool,
-    startAt: Dayjs,
-    endAt: Dayjs
+    operator: Tool;
+    startAt: Dayjs;
+    endAt: Dayjs;
   };
   isNotTransaction: boolean;
   isLock: boolean;

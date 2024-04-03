@@ -11,22 +11,43 @@ import { ReportService } from "@/service/report/service";
 import { IReportMaterial } from "@/service/report/entities";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { Divider } from "antd";
-import { getUniqueValues } from "@/feature/common";
+const textRight: CSSProperties = { textAlign: "right" };
 interface IWarehouse {
-  warehouseName: string;
+  warehouseName?: string;
   sections: ISection[];
 }
 interface ISection {
-  materialSectionName: string;
+  sectionName?: string;
   materials: IReportMaterial[];
 }
+type MaterialProps = {
+  material: IReportMaterial;
+};
+const RowMaterial: React.FC<MaterialProps> = ({ material }) => (
+  <tr>
+    <td>{material.code}</td>
+    <td>{material.name}</td>
+    <td>{material.shortName}</td>
+    <td style={textRight}>{material.beginingQty}</td>
+    <td style={textRight}>{material.purchaseQty}</td>
+    <td style={textRight}>{material.refundQty}</td>
+    <td style={textRight}>{material.warehouseIncomeQty}</td>
+    <td style={textRight}>{material.incomeQty}</td>
+    <td style={textRight}>{material.saleQty}</td>
+    <td style={textRight}>{material.operationQty}</td>
+    <td style={textRight}>{material.purchaseReturnQty}</td>
+    <td style={textRight}>{material.actQty}</td>
+    <td style={textRight}>{material.warehouseExpenseQty}</td>
+    <td style={textRight}>{material.expenseQty}</td>
+    <td style={textRight}>{material.lastQty}</td>
+  </tr>
+);
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
   const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
   const currentItem = items.find((item) => item.key == activeKey);
   const { hospital } = useTypedSelector((state) => state.user);
-  const textRight: CSSProperties = { textAlign: "right" };
   const [data, setData] = useState<IReportMaterial[]>([]);
   const [warehouses, setWarehouses] = useState<IWarehouse[]>([]);
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
@@ -93,11 +114,11 @@ const RStorage1: NextPage = () => {
       }
 
       let section = warehouse.sections.find(
-        (sec) => sec.materialSectionName === material.materialSectionName
+        (sec) => sec.sectionName === material.sectionName
       );
       if (!section) {
         section = {
-          materialSectionName: material.materialSectionName,
+          sectionName: material.sectionName,
           materials: [],
         };
         warehouse.sections.push(section);
@@ -125,21 +146,23 @@ const RStorage1: NextPage = () => {
               <th rowSpan={2}>Бараа материалын нэр</th>
               <th rowSpan={2}>Хэмжих нэгж</th>
               <th rowSpan={2}>Эхний үлдэгдэл</th>
-              <th colSpan={3}>Орлого</th>
+              <th colSpan={4}>Орлого</th>
               <th rowSpan={2}>Нийт орлого</th>
-              <th colSpan={5}>Зарлага</th>
+              <th colSpan={6}>Зарлага</th>
               <th rowSpan={2}>Нийт зарлага</th>
               <th rowSpan={2}>Эцсийн үлдэгдэл</th>
             </tr>
             <tr>
               <th>Бараа материалын орлого</th>
               <th>Борлуулалтын буцаалт</th>
-              <th>Дотоод хөдөлгөөн</th>
+              <th>Дотоод гүйлгээ</th>
+              <th>Тооллого</th>
               <th>Борлуулалт</th>
               <th>Үйл ажиллагаанд</th>
               <th>Худалдан авалтын буцаалт</th>
               <th>Акт, хорогдол</th>
-              <th>Дотоод хөдөлгөөн</th>
+              <th>Дотоод гүйлгээ</th>
+              <th>Тооллого</th>
             </tr>
           </thead>
           <tbody>
@@ -148,7 +171,7 @@ const RStorage1: NextPage = () => {
                 {currentItem?.param?.isWarehouse && (
                   <tr key={windex}>
                     <td>Байршил : </td>
-                    <td colSpan={14}>{warehouse.warehouseName}</td>
+                    <td colSpan={16}>{warehouse.warehouseName}</td>
                   </tr>
                 )}
                 {warehouse.sections.map((section, sindex) => (
@@ -156,7 +179,7 @@ const RStorage1: NextPage = () => {
                     {currentItem?.param?.isSection && (
                       <tr key={`${windex}-${sindex}`}>
                         <td>Бүлэг :</td>
-                        <td colSpan={14}>{section.materialSectionName}</td>
+                        <td colSpan={16}>{section.sectionName}</td>
                       </tr>
                     )}
                     {section.materials.map((item, index) => (
@@ -166,20 +189,22 @@ const RStorage1: NextPage = () => {
                         <td>{item.shortName}</td>
                         <td style={textRight}>{item.beginingQty}</td>
                         <td style={textRight}>{item.purchaseQty}</td>
-                        <td style={textRight}>{item.saleReturnQty}</td>
+                        <td style={textRight}>{item.refundQty}</td>
                         <td style={textRight}>{item.warehouseIncomeQty}</td>
+                        <td style={textRight}>{item.cencusIncomeQty}</td>
                         <td style={textRight}>{item.incomeQty}</td>
-                        <td style={textRight}>{item.posQty}</td>
+                        <td style={textRight}>{item.saleQty}</td>
                         <td style={textRight}>{item.operationQty}</td>
-                        <td style={textRight}>{item.saleReturnQty}</td>
+                        <td style={textRight}>{item.purchaseReturnQty}</td>
                         <td style={textRight}>{item.actQty}</td>
                         <td style={textRight}>{item.warehouseExpenseQty}</td>
+                        <td style={textRight}>{item.cencusExpenseQty}</td>
                         <td style={textRight}>{item.expenseQty}</td>
                         <td style={textRight}>{item.lastQty}</td>
                       </tr>
                     ))}
                     {currentItem?.param?.isSection && (
-                      <tr>
+                      <tr style={{ fontWeight: "bold" }}>
                         <td colSpan={3}>Бүлгийн тоо хэмжээ</td>
                         <td style={textRight}>
                           {section.materials.reduce(
@@ -195,7 +220,7 @@ const RStorage1: NextPage = () => {
                         </td>
                         <td style={textRight}>
                           {section.materials.reduce(
-                            (total, item) => total + Number(item.saleReturnQty),
+                            (total, item) => total + Number(item.refundQty),
                             0
                           )}
                         </td>
@@ -214,7 +239,7 @@ const RStorage1: NextPage = () => {
                         </td>
                         <td style={textRight}>
                           {section.materials.reduce(
-                            (total, item) => total + Number(item.posQty),
+                            (total, item) => total + Number(item.saleQty),
                             0
                           )}
                         </td>
@@ -226,7 +251,8 @@ const RStorage1: NextPage = () => {
                         </td>
                         <td style={textRight}>
                           {section.materials.reduce(
-                            (total, item) => total + Number(item.saleReturnQty),
+                            (total, item) =>
+                              total + Number(item.purchaseReturnQty),
                             0
                           )}
                         </td>
@@ -260,7 +286,7 @@ const RStorage1: NextPage = () => {
                   </>
                 ))}
                 {currentItem?.param?.isWarehouse && (
-                  <tr>
+                  <tr style={{ fontWeight: "bold" }}>
                     <td colSpan={3}>Байршлын тоо хэмжээ</td>
                     <td style={textRight}>
                       {getWarehouseMaterials(warehouse).reduce(
@@ -276,7 +302,7 @@ const RStorage1: NextPage = () => {
                     </td>
                     <td style={textRight}>
                       {getWarehouseMaterials(warehouse).reduce(
-                        (total, item) => total + Number(item.saleReturnQty),
+                        (total, item) => total + Number(item.refundQty),
                         0
                       )}
                     </td>
@@ -295,7 +321,7 @@ const RStorage1: NextPage = () => {
                     </td>
                     <td style={textRight}>
                       {getWarehouseMaterials(warehouse).reduce(
-                        (total, item) => total + Number(item.posQty),
+                        (total, item) => total + Number(item.saleQty),
                         0
                       )}
                     </td>
@@ -307,7 +333,7 @@ const RStorage1: NextPage = () => {
                     </td>
                     <td style={textRight}>
                       {getWarehouseMaterials(warehouse).reduce(
-                        (total, item) => total + Number(item.saleReturnQty),
+                        (total, item) => total + Number(item.purchaseReturnQty),
                         0
                       )}
                     </td>
@@ -340,7 +366,7 @@ const RStorage1: NextPage = () => {
                 )}
               </>
             ))}
-            <tr>
+            <tr style={{ fontWeight: "bold" }}>
               <td colSpan={3}>НИЙТ ТОО ХЭМЖЭЭ</td>
               <td style={textRight}>
                 {data.reduce(
@@ -356,7 +382,7 @@ const RStorage1: NextPage = () => {
               </td>
               <td style={textRight}>
                 {data.reduce(
-                  (total, item) => total + Number(item.saleReturnQty),
+                  (total, item) => total + Number(item.refundQty),
                   0
                 )}
               </td>
@@ -373,7 +399,7 @@ const RStorage1: NextPage = () => {
                 )}
               </td>
               <td style={textRight}>
-                {data.reduce((total, item) => total + Number(item.posQty), 0)}
+                {data.reduce((total, item) => total + Number(item.saleQty), 0)}
               </td>
               <td style={textRight}>
                 {data.reduce(
@@ -383,7 +409,7 @@ const RStorage1: NextPage = () => {
               </td>
               <td style={textRight}>
                 {data.reduce(
-                  (total, item) => total + Number(item.saleReturnQty),
+                  (total, item) => total + Number(item.purchaseReturnQty),
                   0
                 )}
               </td>
