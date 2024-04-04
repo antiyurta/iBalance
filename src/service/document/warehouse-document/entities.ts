@@ -29,8 +29,8 @@ export interface IFilterWarehouseDocument extends IColumn {
   id?: number;
   code?: string;
   documentAt?: string | Dayjs;
-  expenseWarehouseId?: number[];
-  expenseEmployeeId?: number;
+  expenseWarehouseName?: string[];
+  expenseEmployeeFirstName?: string;
   incomeWarehouseId?: number[];
   incomeEmployeeId?: number;
   description?: string; // гүйлгээний утга

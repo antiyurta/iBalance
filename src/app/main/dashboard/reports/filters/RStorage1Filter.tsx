@@ -5,10 +5,9 @@ import { NewReportSectionSelect } from "../component/report-section-select";
 import { NewReportSelect } from "../component/report-select";
 import { Form } from "antd";
 import { NewReportSwitch } from "../component/report-switch";
-import { ITool, Tool } from "@/service/entities";
+import { Tool } from "@/service/entities";
 import dayjs, { Dayjs } from "dayjs";
 import { useTypedSelector } from "@/feature/store/reducer";
-import { FilterToolData } from "@/feature/data";
 import ReportDateFilter from "../component/date-filter";
 interface IProps {
   reportKey: string;
@@ -47,8 +46,8 @@ const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
     if (currentItem && currentItem.param) {
       const { param } = currentItem;
       setOperator(param.dateFilter.operator);
-      setStartAt(param.dateFilter.startAt);
-      setEndAt(param.dateFilter.endAt);
+      param.dateFilter.startAt ?? setStartAt(param.dateFilter.startAt);
+      param.dateFilter.endAt ?? setEndAt(param.dateFilter.endAt);
       form.setFieldsValue(param);
     }
   }, [currentItem]);

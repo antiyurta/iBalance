@@ -10,7 +10,7 @@ import { useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { changeParam, newPane } from "@/feature/store/slice/param.slice";
+import { newPane } from "@/feature/store/slice/param.slice";
 import {
   DocumentStatus,
   FilteredColumnsPosDocument,

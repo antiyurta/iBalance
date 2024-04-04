@@ -13,6 +13,7 @@ import {
   BarsOutlined,
 } from "@ant-design/icons";
 import { Button, Tooltip } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 import { KeyboardEvent, useContext, useEffect, useState } from "react";
 type CodeType = "CODE" | "NAME" | "BARCODE";
 interface IProps {
@@ -21,6 +22,8 @@ interface IProps {
   materialId?: number;
   isEdit?: boolean;
   onMaterial: (value?: IDataViewMaterial) => void;
+  warehouseId?: number;
+  documentAt?: Dayjs;
 }
 const MaterialSearch: React.FC<IProps> = ({
   isDisable,
@@ -28,6 +31,8 @@ const MaterialSearch: React.FC<IProps> = ({
   onMaterial,
   materialId,
   isEdit,
+  warehouseId,
+  documentAt = dayjs(),
 }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [type, setType] = useState<CodeType>("BARCODE");
@@ -52,6 +57,10 @@ const MaterialSearch: React.FC<IProps> = ({
     if (type == "NAME") {
       params.name = name;
     }
+    if (warehouseId) {
+      params.warehouseId = warehouseId;
+    }
+    params.documentAt = documentAt;
     if (!isEdit) {
       setBarcode(undefined);
       setCode(undefined);

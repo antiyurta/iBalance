@@ -188,42 +188,47 @@ const TransactionCencus = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <div style={{ overflow: "auto", maxHeight: "500px" }}>
-              <Form.List
-                name="transactions"
-                rules={[
-                  {
-                    validator: async (_, transactions) => {
-                      const arr = Array.isArray(transactions)
-                        ? transactions.map(
-                            (trans: IDataTransaction) =>
-                              `${trans.materialId}-${dayjs(
-                                trans.transactionAt
-                              ).format("DD/MM/YYYY")}`
-                          )
-                        : [];
-                      if (!hasUniqueValues(arr)) {
-                        return Promise.reject(
-                          new Error("Барааны код дуусах огноо давхардсан байна.")
-                        );
-                      }
-                    },
-                  },
-                ]}
-              >
-                {(items, { add, remove }, { errors }) => (
-                  <>
-                    <EditableTableCencus
-                      data={items}
-                      form={form}
-                      add={add}
-                      remove={remove}
-                    />
-                    <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                  </>
-                )}
-              </Form.List>
-            </div>
+            {form.getFieldValue("documentAt") &&
+              form.getFieldValue("warehouseId") && (
+                <div style={{ overflow: "auto", maxHeight: "500px" }}>
+                  <Form.List
+                    name="transactions"
+                    rules={[
+                      {
+                        validator: async (_, transactions) => {
+                          const arr = Array.isArray(transactions)
+                            ? transactions.map(
+                                (trans: IDataTransaction) =>
+                                  `${trans.materialId}-${dayjs(
+                                    trans.transactionAt
+                                  ).format("DD/MM/YYYY")}`
+                              )
+                            : [];
+                          if (!hasUniqueValues(arr)) {
+                            return Promise.reject(
+                              new Error(
+                                "Барааны код дуусах огноо давхардсан байна."
+                              )
+                            );
+                          }
+                        },
+                      },
+                    ]}
+                  >
+                    {(items, { add, remove }, { errors }) => (
+                      <>
+                        <EditableTableCencus
+                          data={items}
+                          form={form}
+                          add={add}
+                          remove={remove}
+                        />
+                        <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                      </>
+                    )}
+                  </Form.List>
+                </div>
+              )}
           </Form>
           <div
             style={{

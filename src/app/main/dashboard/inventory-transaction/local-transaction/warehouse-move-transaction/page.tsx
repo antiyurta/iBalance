@@ -5,6 +5,7 @@ import TransactionMove from "./transaction-move";
 import { MovingStatus } from "@/service/document/entities";
 import { WarehouseDocumentList } from "./document-list";
 import { TransactionWarehouseList } from "./transaction-list";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 
@@ -28,22 +29,26 @@ const TransactionMovePage = () => {
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
-      children: <TransactionWarehouseList movingStatus={MovingStatus.MovementInWarehouse} />,
+      children: (
+        <TransactionWarehouseList
+          movingStatus={MovingStatus.MovementInWarehouse}
+        />
+      ),
     },
   ];
   return (
-    <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-      <Col md={24} lg={16} xl={19}>
-        <Space size={24}>
-          <Title level={3}>
-            Бараа материал / Зарлагын гүйлгээ/ Байршлын хөдөлгөөн
-          </Title>
-        </Space>
-      </Col>
-      <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-      </Col>
-    </Row>
+    <>
+      <PageTitle />
+      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
+    </>
   );
 };
 export default TransactionMovePage;

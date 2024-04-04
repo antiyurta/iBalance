@@ -169,7 +169,7 @@ const RStorage1: NextPage = () => {
             {warehouses.map((warehouse, windex) => (
               <>
                 {currentItem?.param?.isWarehouse && (
-                  <tr key={windex}>
+                  <tr key={windex} style={{ fontWeight: "bold" }}>
                     <td>Байршил : </td>
                     <td colSpan={16}>{warehouse.warehouseName}</td>
                   </tr>
@@ -177,7 +177,10 @@ const RStorage1: NextPage = () => {
                 {warehouse.sections.map((section, sindex) => (
                   <>
                     {currentItem?.param?.isSection && (
-                      <tr key={`${windex}-${sindex}`}>
+                      <tr
+                        key={`${windex}-${sindex}`}
+                        style={{ fontWeight: "bold" }}
+                      >
                         <td>Бүлэг :</td>
                         <td colSpan={16}>{section.sectionName}</td>
                       </tr>
@@ -233,6 +236,13 @@ const RStorage1: NextPage = () => {
                         </td>
                         <td style={textRight}>
                           {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.cencusIncomeQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
                             (total, item) => total + Number(item.incomeQty),
                             0
                           )}
@@ -266,6 +276,13 @@ const RStorage1: NextPage = () => {
                           {section.materials.reduce(
                             (total, item) =>
                               total + Number(item.warehouseExpenseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.cencusExpenseQty),
                             0
                           )}
                         </td>
@@ -315,6 +332,12 @@ const RStorage1: NextPage = () => {
                     </td>
                     <td style={textRight}>
                       {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.cencusIncomeQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
                         (total, item) => total + Number(item.incomeQty),
                         0
                       )}
@@ -347,6 +370,12 @@ const RStorage1: NextPage = () => {
                       {getWarehouseMaterials(warehouse).reduce(
                         (total, item) =>
                           total + Number(item.warehouseExpenseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.cencusExpenseQty),
                         0
                       )}
                     </td>
@@ -394,6 +423,12 @@ const RStorage1: NextPage = () => {
               </td>
               <td style={textRight}>
                 {data.reduce(
+                  (total, item) => total + Number(item.cencusIncomeQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
                   (total, item) => total + Number(item.incomeQty),
                   0
                 )}
@@ -419,6 +454,12 @@ const RStorage1: NextPage = () => {
               <td style={textRight}>
                 {data.reduce(
                   (total, item) => total + Number(item.warehouseExpenseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.cencusExpenseQty),
                   0
                 )}
               </td>

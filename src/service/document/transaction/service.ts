@@ -6,7 +6,7 @@ import {
   IResponseTransactions,
 } from "./entities";
 
-function get(params: IParamTransaction): Promise<IResponseTransactions> {
+function get(params?: IParamTransaction): Promise<IResponseTransactions> {
   return api.get("transaction", { params });
 }
 

@@ -146,7 +146,13 @@ export const EditableTableCencus = (props: IProps) => {
               params={{ types: [MaterialType.Material] }}
               isDisable={editingIndex !== index}
               isEdit={true}
-              materialId={form.getFieldValue(["transactions", index, "materialId"])}
+              warehouseId={form.getFieldValue("warehouseId")}
+              documentAt={form.getFieldValue("documentAt")}
+              materialId={form.getFieldValue([
+                "transactions",
+                index,
+                "materialId",
+              ])}
               onMaterial={(material?: IDataViewMaterial) => {
                 form.setFieldsValue({
                   transactions: {

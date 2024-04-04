@@ -2,6 +2,7 @@ import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -10,7 +11,6 @@ import {
   FilteredColumnsWarehouseDocument,
   IDataWarehouseDocument,
   IFilterWarehouseDocument,
-  IParamWarehouseDocument,
 } from "@/service/document/warehouse-document/entities";
 import { WarehouseDocumentService } from "@/service/document/warehouse-document/service";
 import { DataIndexType, Meta } from "@/service/entities";
@@ -22,9 +22,16 @@ import { MovingStatus } from "@/service/document/entities";
 import { NewTable } from "@/components/table";
 import NewModal from "@/components/modal";
 import TransactionMove from "./transaction-move";
-
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+const key = "local-transaction/warehouse-move-document";
 export const WarehouseDocumentList = () => {
   const blockContext: BlockView = useContext(BlockContext);
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const [data, setData] = useState<IDataWarehouseDocument[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterWarehouseDocument>();
@@ -54,14 +61,14 @@ export const WarehouseDocumentList = () => {
       dataIndex: ["description"],
       type: DataIndexType.MULTI,
     },
-    expenseWarehouseId: {
+    expenseWarehouseName: {
       label: "Зарлага гаргах байршил",
       isView: true,
       isFiltered: false,
       dataIndex: ["expenseWarehouse", "name"],
       type: DataIndexType.MULTI,
     },
-    expenseEmployeeId: {
+    expenseEmployeeFirstName: {
       label: "Зарлага гаргах нярав",
       isView: true,
       isFiltered: false,
@@ -83,14 +90,14 @@ export const WarehouseDocumentList = () => {
       type: DataIndexType.MULTI,
     },
     counter: {
-      label: "Шилжүүлсэн тоо",
+      label: "Зарлагын тоо",
       isView: true,
       isFiltered: false,
       dataIndex: ["counter"],
       type: DataIndexType.NUMBER,
     },
     quantity: {
-      label: "Шилжүүлсэн тоо ширхэг",
+      label: "Зарлагын тоо ширхэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["quantity"],
@@ -114,7 +121,7 @@ export const WarehouseDocumentList = () => {
 
   const getData = async () => {
     blockContext.block();
-    await WarehouseDocumentService.get()
+    await WarehouseDocumentService.get(param)
       .then((response) => {
         if (response.success) {
           setData(response.response.data);
@@ -143,8 +150,16 @@ export const WarehouseDocumentList = () => {
       .finally(() => blockContext.unblock());
   };
   useEffect(() => {
+    dispatch(
+      newPane({
+        key,
+        param: {},
+      })
+    );
+  });
+  useEffect(() => {
     getData();
-  }, []);
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>
@@ -206,8 +221,7 @@ export const WarehouseDocumentList = () => {
             />
           </div>
         </Col>
-        <Col span={isFilterToggle ? 4 : 0}>
-        </Col>
+        <Col span={isFilterToggle ? 4 : 0}></Col>
       </Row>
       <NewModal
         width={1500}

@@ -178,7 +178,7 @@ export const EditableTableMove = (props: IProps) => {
       />
       <Column
         dataIndex={"expenseQty"}
-        title="Шилжүүлэх хэмжээ"
+        title="Зарлагын хэмжээ"
         render={(_, __, index) => (
           <Form.Item
             name={[index, "expenseQty"]}

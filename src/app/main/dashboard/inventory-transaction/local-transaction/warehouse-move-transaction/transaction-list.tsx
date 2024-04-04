@@ -3,6 +3,7 @@ import Filtered from "@/components/table/filtered";
 import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
+  getParam,
   onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
@@ -24,19 +25,23 @@ import { IDataWarehouseDocument } from "@/service/document/warehouse-document/en
 import { WarehouseDocumentService } from "@/service/document/warehouse-document/service";
 import NewModal from "@/components/modal";
 import TransactionMove from "./transaction-move";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 interface IProps {
   movingStatus?: MovingStatus;
 }
+const key = "local-transaction/warehouse-move-transaction";
 export const TransactionWarehouseList = (props: IProps) => {
   const { movingStatus } = props;
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
   const blockContext: BlockView = useContext(BlockContext);
   const [data, setData] = useState<IDataTransaction[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterTransaction>();
-  const [params, setParams] = useState<IParamTransaction>({
-    page: 1,
-    limit: 10,
-  });
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] =
     useState<IDataWarehouseDocument>();
@@ -44,9 +49,11 @@ export const TransactionWarehouseList = (props: IProps) => {
   const [columns, setColumns] = useState<FilteredColumnsTransaction>(
     getTransactionColumns(movingStatus)
   );
-  const getData = async (params: IParamTransaction) => {
+  const getData = async () => {
+    const params: IParamTransaction = {
+      ...param,
+    };
     blockContext.block();
-    if (movingStatus) params.movingStatus = movingStatus;
     await TransactionService.get(params)
       .then((response) => {
         if (response.success) {
@@ -73,8 +80,27 @@ export const TransactionWarehouseList = (props: IProps) => {
     }
   };
   useEffect(() => {
-    getData(params);
+    getData();
   }, [isOpenModal]);
+  useEffect(() => {
+    dispatch(
+      newPane({
+        key,
+        param: {
+          filters: movingStatus && [
+            {
+              dataIndex: ["document", "movingStatus"],
+              operator: "EQUALS",
+              filter: movingStatus,
+            },
+          ],
+        },
+      })
+    );
+  });
+  useEffect(() => {
+    getData();
+  }, [param]);
   return (
     <div>
       <Row gutter={[12, 24]}>
