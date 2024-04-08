@@ -28,7 +28,7 @@ export const enumTranslation = (value: string) => {
     return <div style={{ ...style, color: "green" }}>Үйл ажиллагаанд</div>;
   else if (value == "MOVEMENT_IN_WAREHOUSE")
     return (
-      <div style={{ ...style, color: "green" }}>Агуулах доторх хөдөлгөөн</div>
+      <div style={{ ...style, color: "green" }}>Байршлын хөдөлгөөн</div>
     );
   else if (value == "ITEM_CONVERSION")
     return <div style={{ ...style, color: "green" }}>Барааны хөрвүүлэг</div>;

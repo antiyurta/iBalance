@@ -44,7 +44,7 @@ const TransactionSale = (props: IProps) => {
     blockContext.block();
     values.movingStatus = MovingStatus.Sales;
     values.consumerDiscountAmount = Number(values.consumerDiscountAmount);
-    values.amount = Number(values.amount);
+    // values.amount = Number(values.amount);
     values.payAmount = Number(values.payAmount);
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, values)

@@ -10,90 +10,97 @@ import { TransactionPurchase } from "./income-transaction/material-income/transa
 import TransactionRefundPurchase from "./expense-transaction/refund-purchase/transaction-refund-purchase";
 import { TransactionSaleReturn } from "./income-transaction/sale-return/transaction-sale-return";
 import TransactionSale from "./expense-transaction/sale-transaction/transaction-sale";
-interface IProps {
+import TransactionMove from "./local-transaction/warehouse-move-transaction/transaction-move";
+type Props = {
   movingStatus?: MovingStatus;
-  selectedDocument?: IDataDocument;
+  selectedDocuments: IDataDocument[];
   isReload: boolean;
   setIsReload: (isReload: boolean) => void;
-}
-export const DocumentEdit = (props: IProps) => {
-  const { movingStatus, selectedDocument, isReload, setIsReload } = props;
+};
+const DocumentEdit: React.FC<Props> = ({
+  movingStatus,
+  selectedDocuments = [],
+  isReload,
+  setIsReload,
+}) => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const getElement = (): JSX.Element => {
     switch (movingStatus) {
       case MovingStatus.ActAmortization:
         return (
           <TransactionAct
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.Cencus:
         return (
           <TransactionCencus
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.InOperation:
         return (
           <TransactionAction
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.ItemConversion:
         return (
           <TransactionConverter
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.Mixture:
         return (
           <TransactionMixture
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.Purchase:
         return (
           <TransactionPurchase
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.PurchaseReturn:
         return (
           <TransactionRefundPurchase
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.SaleReturn:
         return (
           <TransactionSaleReturn
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={setIsOpenModal}
           />
         );
       case MovingStatus.Sales:
         return (
           <TransactionSale
-            selectedDocument={selectedDocument}
+            selectedDocument={selectedDocuments[0]}
             onSave={(value) => {
               setIsOpenModal(value);
               setIsReload(!isReload);
             }}
           />
         );
+      case MovingStatus.MovementInWarehouse:
+        return <TransactionMove selectedDocuments={selectedDocuments} />;
       default:
         return <></>;
     }
   };
   useEffect(() => {
-    setIsOpenModal(selectedDocument ? true : false);
-  }, [selectedDocument]);
+    setIsOpenModal(selectedDocuments.length > 0 ? true : false);
+  }, [selectedDocuments]);
   return (
     <NewModal
       width={1500}
@@ -106,3 +113,4 @@ export const DocumentEdit = (props: IProps) => {
     </NewModal>
   );
 };
+export default DocumentEdit;

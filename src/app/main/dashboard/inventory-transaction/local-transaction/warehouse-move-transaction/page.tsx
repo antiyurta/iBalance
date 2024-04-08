@@ -1,13 +1,11 @@
 "use client";
-import { Col, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Tabs } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import TransactionMove from "./transaction-move";
 import { MovingStatus } from "@/service/document/entities";
-import { WarehouseDocumentList } from "./document-list";
-import { TransactionWarehouseList } from "./transaction-list";
 import PageTitle from "@/components/page-title";
-
-const { Title } = Typography;
+import { DocumentList } from "../../document-list";
+import { TransactionList } from "../../transaction-list";
 
 const TransactionMovePage = () => {
   const items = [
@@ -24,15 +22,15 @@ const TransactionMovePage = () => {
     {
       label: "Баримтын жагсаалт",
       key: "item-2",
-      children: <WarehouseDocumentList />,
+      children: (
+        <DocumentList movingStatus={MovingStatus.MovementInWarehouse} />
+      ),
     },
     {
       label: "Гүйлгээний жагсаалт",
       key: "item-3",
       children: (
-        <TransactionWarehouseList
-          movingStatus={MovingStatus.MovementInWarehouse}
-        />
+        <TransactionList movingStatus={MovingStatus.MovementInWarehouse} />
       ),
     },
   ];

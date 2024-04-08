@@ -17,12 +17,11 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
-interface IProps {
+type Props = {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
 }
-const TransactionAct = (props: IProps) => {
-  const { selectedDocument, onSave } = props;
+const TransactionAct: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);

@@ -21,17 +21,16 @@ import { Meta } from "@/service/entities";
 import { Col, Row } from "antd";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
-import { DocumentEdit } from "./document-edit";
+import DocumentEdit from "./document-edit";
 import LockDocument from "./lock-document";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
-interface IProps {
+type Props = {
   movingStatus?: MovingStatus;
 }
-export const DocumentList = (props: IProps) => {
-  const { movingStatus } = props;
+export const DocumentList: React.FC<Props> = ({ movingStatus }) => {
   const key = `document/${movingStatus}`;
   const blockContext: BlockView = useContext(BlockContext);
   const { items } = useTypedSelector((state) => state.pane);
@@ -41,7 +40,7 @@ export const DocumentList = (props: IProps) => {
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
+  const [selectedDocuments, setSelectedDocuments] = useState<IDataDocument[]>([]);
   const [columns, setColumns] = useState<FilteredColumnsDocument>(
     getDocumentColumns(movingStatus)
   );
@@ -51,7 +50,6 @@ export const DocumentList = (props: IProps) => {
       ...param,
     };
     if (movingStatus) params.movingStatus = movingStatus;
-    // else params.hideMovingStatuses = [MovingStatus.PosSaleReturn];
     blockContext.block();
     await DocumentService.get(params)
       .then((response) => {
@@ -66,12 +64,12 @@ export const DocumentList = (props: IProps) => {
   const editDocument = async (row: IDataDocument) => {
     if (row.isLock) {
       openNofi("warning", "Баримт түгжигдсэн байна.");
-    } else {
+    } else if (row.code) {
       blockContext.block();
-      await DocumentService.getById(row.id)
+      await DocumentService.getByCode(row.code)
         .then((response) => {
           if (response.success) {
-            setSelectedDocument(response.response);
+            setSelectedDocuments(response.response);
           }
         })
         .finally(() => blockContext.unblock());
@@ -162,8 +160,8 @@ export const DocumentList = (props: IProps) => {
         </Col>
       </Row>
       <DocumentEdit
-        selectedDocument={selectedDocument}
-        movingStatus={selectedDocument?.movingStatus}
+        selectedDocuments={selectedDocuments}
+        movingStatus={movingStatus}
         isReload={isReload}
         setIsReload={setIsReload}
       />

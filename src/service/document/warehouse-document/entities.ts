@@ -3,7 +3,6 @@ import {
   GenericResponse,
   IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -11,7 +10,6 @@ import { Dayjs } from "dayjs";
 import { IDataTransaction } from "../transaction/entities";
 
 export interface IDataWarehouseDocument extends IData {
-  id: number;
   code: string;
   documentAt: string | Dayjs;
   description: string; // гүйлгээний утга

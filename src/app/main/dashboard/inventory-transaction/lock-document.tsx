@@ -219,7 +219,7 @@ const LockDocument = (props: IProps) => {
                 { value: "ACT_AMORTIZATION", label: "Акт хорогдол" },
                 {
                   value: "MOVEMENT_IN_WAREHOUSE",
-                  label: "Агуулах доторх хөдөлгөөн",
+                  label: "Байршлын хөдөлгөөн",
                 },
                 { value: "ITEM_CONVERSION", label: "Барааны хөрвүүлэг" },
                 { value: "MIXTURE", label: "Хольц" },

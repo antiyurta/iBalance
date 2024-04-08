@@ -52,7 +52,7 @@ export interface IDataBooking extends IData {
   confirmBy: number;
   confirmAt: string;
   document?: IDataDocument;
-  bookingMaterials?: IDataBookingMaterial[];
+  bookingMaterials: IDataBookingMaterial[];
 }
 
 export interface IFilterBooking extends IColumn {
