@@ -51,7 +51,7 @@ const TransactionMove: React.FC<Props> = ({
       blockContext.block();
       if (isEdit) {
         if (incomeDocument && expenseDocument) {
-          await DocumentService.patch(incomeDocument.id, {
+          const inres = await DocumentService.patch(incomeDocument.id, {
             id: incomeDocument.id,
             movingStatus: MovingStatus.MovementInWarehouse,
             warehouseId: values.incomeWarehouseId,
@@ -63,7 +63,7 @@ const TransactionMove: React.FC<Props> = ({
               incomeQty: item.expenseQty,
             })),
           });
-          await DocumentService.patch(expenseDocument.id, {
+          const expres = await DocumentService.patch(expenseDocument.id, {
             id: expenseDocument.id,
             movingStatus: MovingStatus.MovementInWarehouse,
             code: expenseDocument.code,
@@ -76,9 +76,12 @@ const TransactionMove: React.FC<Props> = ({
               incomeQty: item.expenseQty,
             })),
           });
+          if (inres.success && expres.success) {
+            form.resetFields();
+          }
         }
       } else {
-        await DocumentService.post({
+        const inres = await DocumentService.post({
           id: 1,
           code: values.code,
           warehouseId: values.incomeWarehouseId,
@@ -91,7 +94,7 @@ const TransactionMove: React.FC<Props> = ({
             incomeQty: item.expenseQty,
           })),
         });
-        await DocumentService.post({
+        const expres = await DocumentService.post({
           id: 1,
           code: values.code,
           warehouseId: values.expenseWarehouseId,
@@ -104,6 +107,9 @@ const TransactionMove: React.FC<Props> = ({
             expenseQty: item.expenseQty,
           })),
         });
+        if (inres.success && expres.success) {
+          form.resetFields();
+        }
       }
       blockContext.unblock();
     } catch (error) {
