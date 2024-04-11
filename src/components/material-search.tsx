@@ -99,7 +99,7 @@ const MaterialSearch: React.FC<IProps> = ({
     if (currentIndex > -1) onMaterial(materials[currentIndex]);
   };
   const getMaterialById = (materialId: number) => {
-    ViewMaterialService.getById(materialId)
+    ViewMaterialService.getById(materialId, warehouseId)
       .then((response) => {
         if (response.success) {
           setBarcode(response.response.barCode);

@@ -124,8 +124,8 @@ const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
       />
       <NewReportSwitch name="isLock" label="Зөвхөн түгжсэн гүйлгээг харуулах" />
       <NewReportSwitch
-        name="isNotTransaction"
-        label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах"
+        name="isTransaction"
+        label="Зөвхөн гүйлгээ гарсан бараа материалын гүйлгээ, үлдэгдэл харуулах"
       />
     </>
   );

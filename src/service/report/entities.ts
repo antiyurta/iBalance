@@ -29,7 +29,7 @@ export interface IParamReportMaterial {
     startAt: Dayjs;
     endAt: Dayjs;
   };
-  isNotTransaction: boolean;
+  isTransaction: boolean;
   isLock: boolean;
   employeeIds: number[];
   warehouseSectionId?: number;

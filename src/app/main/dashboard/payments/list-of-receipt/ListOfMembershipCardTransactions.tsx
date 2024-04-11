@@ -156,16 +156,6 @@ const ListOfMembershipCardTransactions = () => {
       ),
     },
   ];
-  const getDocument = async (id: number) => {
-    blockContext.block();
-    DocumentService.getById(id)
-      .then((response) => {
-        if (response.success) {
-          setPosDocument(response.response);
-        }
-      })
-      .finally(() => blockContext.unblock());
-  };
   const itemClick = async (key: string, id: string): Promise<void> => {};
   useEffect(() => {
     dispatch(newPane({ key, param: {} }));

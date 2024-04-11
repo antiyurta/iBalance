@@ -23,8 +23,9 @@ export interface IDataTransaction extends IData {
   documentId?: number;
   document?: IDataDocument;
   lastQty?: number;
-  incomeQty?: number;
-  expenseQty?: number;
+  incomeQty: number;
+  expenseQty: number;
+  censusQty?: number;
   unitAmount?: number;
   totalAmount?: number;
   amount?: number;

@@ -123,6 +123,7 @@ export const EditableTableAction = (props: IProps) => {
                 index,
                 "materialId",
               ])}
+              warehouseId={form.getFieldValue("warehouseId")}
               onMaterial={(material) => {
                 form.setFieldsValue({
                   transactions: {

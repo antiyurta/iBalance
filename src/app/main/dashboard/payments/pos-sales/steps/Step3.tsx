@@ -77,6 +77,7 @@ const Step3: React.FC = () => {
         materialId: item.materialId,
         unitAmount: item.unitAmount,
         discountAmount: item.discountAmount,
+        incomeQty: 0,
         expenseQty: item.quantity,
         amount: item.payAmount,
         totalAmount: item.payAmount,

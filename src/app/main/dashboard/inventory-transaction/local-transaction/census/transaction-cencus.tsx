@@ -17,17 +17,20 @@ import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
 import { IDataEmployee } from "@/service/employee/entities";
-interface IProps {
+import { FormCensusDocument } from "@/types/form";
+type Props = {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
-}
-const TransactionCencus = (props: IProps) => {
-  const { selectedDocument, onSave } = props;
+};
+const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormCensusDocument>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
 
+  const negativeNumber = (value: number): number => {
+    return -value;
+  };
   const getWarehouses = () => {
     WarehouseService.get().then((response) => {
       if (response.success) {
@@ -35,11 +38,34 @@ const TransactionCencus = (props: IProps) => {
       }
     });
   };
-  const onFinish = async (values: IDataDocument) => {
+  const onFinish = async (values: FormCensusDocument) => {
     blockContext.block();
-    values.movingStatus = MovingStatus.Cencus;
+    // values.movingStatus = MovingStatus.Cencus;
     if (selectedDocument) {
-      await DocumentService.patch(selectedDocument.id, values)
+      await DocumentService.patch(selectedDocument.id, {
+        id: selectedDocument.id,
+        warehouseId: values.warehouseId,
+        documentAt: values.documentAt,
+        description: values.description,
+        movingStatus: MovingStatus.Cencus,
+        transactions: values.transactions.map((item) => ({
+          materialId: item.materialId,
+          unitAmount: item.unitAmount,
+          lastQty: item.lastQty,
+          transactionAt: item.transactionAt.toString(),
+          censusQty: item.censusQty,
+          incomeQty:
+            item.censusQty - item.lastQty > 0
+              ? item.censusQty - item.lastQty
+              : 0,
+          expenseQty:
+            item.censusQty - item.lastQty < 0
+              ? negativeNumber(item.censusQty - item.lastQty)
+              : 0,
+          totalAmount: item.censusQty * item.unitAmount,
+          description: item.description,
+        })),
+      })
         .then((response) => {
           if (response.success) {
             form.resetFields();
@@ -48,9 +74,35 @@ const TransactionCencus = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.post(values)
-        .then((response) => {
-          if (response.success) form.resetFields();
+      DocumentService.post({
+        id: 0,
+        code: values.code,
+        warehouseId: values.warehouseId,
+        documentAt: values.documentAt,
+        description: values.description,
+        movingStatus: MovingStatus.Cencus,
+        transactions: values.transactions.map((item) => ({
+          materialId: item.materialId,
+          unitAmount: item.unitAmount,
+          lastQty: item.lastQty,
+          transactionAt: item.transactionAt.toString(),
+          censusQty: item.censusQty,
+          incomeQty:
+            item.censusQty - item.lastQty > 0
+              ? item.censusQty - item.lastQty
+              : 0,
+          expenseQty:
+            item.censusQty - item.lastQty < 0
+              ? negativeNumber(item.censusQty - item.lastQty)
+              : 0,
+          totalAmount: item.censusQty * item.unitAmount,
+          description: item.description,
+        })),
+      })
+        .then((res) => {
+          if (res.success) {
+            form.resetFields();
+          }
         })
         .finally(() => blockContext.unblock());
     }
@@ -74,20 +126,23 @@ const TransactionCencus = (props: IProps) => {
   useEffect(() => {
     if (selectedDocument) {
       form.setFieldsValue({
-        ...selectedDocument,
-        documentAt: dayjs(selectedDocument.documentAt),
-        transactions: selectedDocument.transactions?.map((transaction) => ({
-          materialId: transaction.materialId,
-          name: transaction.material?.name,
-          measurement: transaction.material?.measurement.name,
-          countPackage: transaction.material?.countPackage,
-          unitAmount: transaction.unitAmount || 0,
-          lastQty: transaction.lastQty,
-          quantity:
-            transaction.lastQty || 0 + (transaction.excessOrDeficiency || 0),
-          excessOrDeficiency: transaction.excessOrDeficiency,
-          totalAmount: transaction.amount,
-          description: transaction.description,
+        code: selectedDocument?.code,
+        warehouseId: selectedDocument?.warehouseId,
+        documentAt: dayjs(selectedDocument?.documentAt),
+        description: selectedDocument?.description,
+        employeeId: selectedDocument?.employeeId,
+        transactions: selectedDocument.transactions.map((item) => ({
+          materialId: item.materialId,
+          name: item.material?.name,
+          measurement: item.material?.measurement.shortName,
+          countPackage: item.material?.countPackage,
+          unitAmount: item.unitAmount,
+          lastQty: item.lastQty,
+          transactionAt: dayjs(item.transactionAt),
+          censusQty: item.incomeQty > 0 ? item.incomeQty : item.expenseQty,
+          diffQty: (item.censusQty || 0) - (item.lastQty || 0),
+          totalAmount: item.totalAmount,
+          description: item.description,
         })),
       });
     }

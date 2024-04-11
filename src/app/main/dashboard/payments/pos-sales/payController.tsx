@@ -28,6 +28,7 @@ const { Title } = Typography;
 const PayController = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { payAmount } = usePaymentContext();
+  const warehouse = useTypedSelector((state) => state.warehouse);
   const shoppingGoods = useTypedSelector((state) => state.shoppingGoods);
   const { isModal } = useTypedSelector((state) => state.shoppingCart);
 
@@ -81,6 +82,7 @@ const PayController = () => {
           <ExtraIndex />
           <MaterialSearch
             isDisable={false}
+            warehouseId={warehouse.id}
             onMaterial={onMaterial}
             params={{ moreUnitAmount: 0, types: [MaterialType.Material] }}
           />

@@ -137,6 +137,7 @@ const EditableMateral: React.FC<IProps> = ({
               isDisable={onDisabled(index)}
               params={{ types: [MaterialType.Material] }}
               isEdit={true}
+              warehouseId={form.getFieldValue("warehouseId")}
               materialId={form.getFieldValue([
                 "bookingMaterials",
                 index,

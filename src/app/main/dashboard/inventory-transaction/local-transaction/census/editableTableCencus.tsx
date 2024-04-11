@@ -1,7 +1,12 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
+import {
+  NewDatePicker,
+  NewInput,
+  NewInputNumber,
+  NewSwitch,
+} from "@/components/input";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
@@ -29,10 +34,10 @@ export const EditableTableCencus = (props: IProps) => {
 
   const onSave = async () => {
     if (editingIndex !== undefined) {
-      const quantity = form.getFieldValue([
+      const censusQty = form.getFieldValue([
         "transactions",
         editingIndex,
-        "quantity",
+        "censusQty",
       ]);
       const lastQty = form.getFieldValue([
         "transactions",
@@ -47,8 +52,8 @@ export const EditableTableCencus = (props: IProps) => {
       form.setFieldsValue({
         transactions: {
           [editingIndex]: {
-            excessOrDeficiency: quantity - lastQty,
-            totalAmount: (quantity - lastQty) * unitAmount,
+            diffQty: censusQty - lastQty,
+            totalAmount: (censusQty - lastQty) * unitAmount,
           },
         },
       });
@@ -59,7 +64,8 @@ export const EditableTableCencus = (props: IProps) => {
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "censusQty"],
+        ["transactions", editingIndex, "transactionAt"],
       ])
       .then(() => {
         setNewService(false);
@@ -161,9 +167,9 @@ export const EditableTableCencus = (props: IProps) => {
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
-                      unitAmount: material?.unitAmount,
+                      unitAmount: material?.unitAmount || 0,
                       lastQty: material?.lastQty,
-                      quantity: 1,
+                      isExpired: material?.isExpired,
                     },
                   },
                 });
@@ -218,20 +224,37 @@ export const EditableTableCencus = (props: IProps) => {
         )}
       />
       <Column
+        dataIndex={"isExpired"}
+        title="Хугацаа дуусах эсэх"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "isExpired"]} valuePropName="checked">
+            <NewSwitch disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
         dataIndex={"transactionAt"}
         title="Дуусах хугацаа"
         render={(_, __, index) => (
-          <Form.Item name={[index, "transactionAt"]}>
+          <Form.Item
+            name={[index, "transactionAt"]}
+            rules={[
+              {
+                required: form.getFieldValue(["transactions", index, "isExpired"]),
+                message: "Дуусах хугацаа заавал",
+              },
+            ]}
+          >
             <NewDatePicker disabled={editingIndex != index} />
           </Form.Item>
         )}
       />
       <Column
-        dataIndex={"quantity"}
+        dataIndex={"censusQty"}
         title="Тооллогоор"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
+            name={[index, "censusQty"]}
             rules={[{ required: true, message: "Тооллогоор заавал" }]}
           >
             <NewInputNumber onFocus={() => setEditingIndex(index)} />
@@ -239,10 +262,10 @@ export const EditableTableCencus = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"excessOrDeficiency"}
+        dataIndex={"diffQty"}
         title="Илүүдэл (дутагдал)"
         render={(_, __, index) => (
-          <Form.Item name={[index, "excessOrDeficiency"]}>
+          <Form.Item name={[index, "diffQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

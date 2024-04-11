@@ -11,11 +11,8 @@ import {
 function get(params: IParamDocument): Promise<IResponseAllDocument> {
   return api.get("transaction-document", { params });
 }
-function getById(id: number): Promise<IResponseDocument> {
-  return api.get(`transaction-document/${id}`);
-}
 function getByCode(code: string): Promise<IResponseDocuments> {
-  return api.get(`transaction-document/show/${code}`);
+  return api.get(`transaction-document/${code}`);
 }
 function generateCode(params?: IParamDocument): Promise<IResponseDocumentCode> {
   return api.get("transaction-document/generate/code", { params });
@@ -38,8 +35,8 @@ function patch(id: number, body: IDataDocument): Promise<IResponseAllDocument> {
 function lock(ids: number[], isLock: boolean): Promise<IResponseDocument> {
   return api.put("transaction-document", { ids, isLock });
 }
-function remove(id: number): Promise<IResponseDocument> {
-  return api.delete(`transaction-document/${id}`);
+function remove(code: string): Promise<IResponseDocument> {
+  return api.delete(`transaction-document/${code}`);
 }
 function removePosDocument(
   id: number,
@@ -49,7 +46,6 @@ function removePosDocument(
 }
 export const DocumentService = {
   get,
-  getById,
   getByCode,
   generateCode,
   post,

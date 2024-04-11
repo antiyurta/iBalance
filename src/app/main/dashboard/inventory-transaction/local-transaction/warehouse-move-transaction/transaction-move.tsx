@@ -60,7 +60,8 @@ const TransactionMove: React.FC<Props> = ({
             employeeId: values.incomeEmployeeId,
             transactions: values.transactions.map((item) => ({
               materialId: item.materialId,
-              incomeQty: item.expenseQty,
+              incomeQty: item.expenseQty ?? 0,
+              expenseQty: 0,
             })),
           });
           const expres = await DocumentService.patch(expenseDocument.id, {
@@ -73,7 +74,8 @@ const TransactionMove: React.FC<Props> = ({
             employeeId: values.expenseEmployeeId,
             transactions: values.transactions.map((item) => ({
               materialId: item.materialId,
-              incomeQty: item.expenseQty,
+              incomeQty: item.expenseQty ?? 0,
+              expenseQty: 0,
             })),
           });
           if (inres.success && expres.success) {
@@ -91,7 +93,8 @@ const TransactionMove: React.FC<Props> = ({
           movingStatus: MovingStatus.MovementInWarehouse,
           transactions: values.transactions.map((item) => ({
             materialId: item.materialId,
-            incomeQty: item.expenseQty,
+            incomeQty: item.expenseQty ?? 0,
+            expenseQty: 0,
           })),
         });
         const expres = await DocumentService.post({
@@ -104,11 +107,13 @@ const TransactionMove: React.FC<Props> = ({
           movingStatus: MovingStatus.MovementInWarehouse,
           transactions: values.transactions.map((item) => ({
             materialId: item.materialId,
-            expenseQty: item.expenseQty,
+            expenseQty: item.expenseQty ?? 0,
+            incomeQty: 0,
           })),
         });
         if (inres.success && expres.success) {
           form.resetFields();
+          generateCode();
         }
       }
       blockContext.unblock();
@@ -175,12 +180,14 @@ const TransactionMove: React.FC<Props> = ({
       setIsEdit(false);
     } else {
       onEdit();
-      incomeDocument && getEmployee(incomeDocument.warehouseId).then((response) => {
-        setIncomeEmployees(response);
-      });
-      expenseDocument && getEmployee(expenseDocument.warehouseId).then((response) => {
-        setExpenseEmployees(response);
-      });
+      incomeDocument &&
+        getEmployee(incomeDocument.warehouseId).then((response) => {
+          setIncomeEmployees(response);
+        });
+      expenseDocument &&
+        getEmployee(expenseDocument.warehouseId).then((response) => {
+          setExpenseEmployees(response);
+        });
     }
   }, [selectedDocuments]);
   return (

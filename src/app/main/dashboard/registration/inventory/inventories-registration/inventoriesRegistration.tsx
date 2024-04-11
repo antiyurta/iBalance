@@ -67,7 +67,6 @@ import InventoriesType from "../inventories-type/inventoriesType";
 import type { UploadFile } from "antd/es/upload/interface";
 import type { UploadProps } from "antd";
 import { ViewMaterialService } from "@/service/material/view-material/service";
-import { ConsumerSelect } from "@/components/consumer-select";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { changeParam, newPane } from "@/feature/store/slice/param.slice";

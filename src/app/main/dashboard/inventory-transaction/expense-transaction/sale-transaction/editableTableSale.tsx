@@ -171,6 +171,7 @@ export const EditableTableSale = (props: IProps) => {
               params={{ types: [MaterialType.Material] }}
               isDisable={editingIndex !== index}
               isEdit={true}
+              warehouseId={form.getFieldValue("warehouseId")}
               materialId={form.getFieldValue([
                 "transactions",
                 index,

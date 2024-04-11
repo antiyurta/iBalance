@@ -29,7 +29,7 @@ import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
 type Props = {
   movingStatus?: MovingStatus;
-}
+};
 export const DocumentList: React.FC<Props> = ({ movingStatus }) => {
   const key = `document/${movingStatus}`;
   const blockContext: BlockView = useContext(BlockContext);
@@ -40,7 +40,9 @@ export const DocumentList: React.FC<Props> = ({ movingStatus }) => {
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterDocument>();
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [selectedDocuments, setSelectedDocuments] = useState<IDataDocument[]>([]);
+  const [selectedDocuments, setSelectedDocuments] = useState<IDataDocument[]>(
+    []
+  );
   const [columns, setColumns] = useState<FilteredColumnsDocument>(
     getDocumentColumns(movingStatus)
   );
@@ -77,13 +79,19 @@ export const DocumentList: React.FC<Props> = ({ movingStatus }) => {
   };
   const onDelete = async (id: number) => {
     blockContext.block();
-    await DocumentService.remove(id)
-      .then((response) => {
-        if (response.success) {
-          getData();
-        }
-      })
-      .finally(() => blockContext.unblock());
+    const deleteDocument = data.find((item) => item.id == id);
+    if (!deleteDocument) {
+      openNofi("warning", "Устгах боломжгүй баримт байна!");
+    } else {
+      deleteDocument.code &&
+        (await DocumentService.remove(deleteDocument.code)
+          .then((response) => {
+            if (response.success) {
+              getData();
+            }
+          })
+          .finally(() => blockContext.unblock()));
+    }
   };
   useEffect(() => {
     dispatch(newPane({ key, param: {} }));
