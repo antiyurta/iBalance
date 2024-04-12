@@ -7,7 +7,7 @@ import {
 } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
@@ -26,7 +26,6 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<FormCensusDocument>();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [employees, setEmployees] = useState<IDataEmployee[]>([]);
 
   const negativeNumber = (value: number): number => {
     return -value;
@@ -46,6 +45,7 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
         id: selectedDocument.id,
         warehouseId: values.warehouseId,
         documentAt: values.documentAt,
+        employeeId: values.employeeId,
         description: values.description,
         movingStatus: MovingStatus.Cencus,
         transactions: values.transactions.map((item) => ({
@@ -79,6 +79,7 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
         code: values.code,
         warehouseId: values.warehouseId,
         documentAt: values.documentAt,
+        employeeId: values.employeeId,
         description: values.description,
         movingStatus: MovingStatus.Cencus,
         transactions: values.transactions.map((item) => ({
@@ -119,12 +120,20 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
       })
       .finally(() => blockContext.unblock());
   };
+  const employees = useMemo(() => {
+    return (
+      warehouses.find(
+        (warehouse) => warehouse.id === form.getFieldValue("warehouseId")
+      )?.employees || []
+    );
+  }, form.getFieldValue("warehouseId"));
   useEffect(() => {
     getWarehouses();
     generateCode();
   }, []);
   useEffect(() => {
     if (selectedDocument) {
+      console.log("selected document =========>", selectedDocument);
       form.setFieldsValue({
         code: selectedDocument?.code,
         warehouseId: selectedDocument?.warehouseId,
@@ -139,7 +148,7 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
           unitAmount: item.unitAmount,
           lastQty: item.lastQty,
           transactionAt: dayjs(item.transactionAt),
-          censusQty: item.incomeQty > 0 ? item.incomeQty : item.expenseQty,
+          censusQty: item.censusQty,
           diffQty: (item.censusQty || 0) - (item.lastQty || 0),
           totalAmount: item.totalAmount,
           description: item.description,
@@ -193,13 +202,6 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
                 rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
                 <NewFilterSelect
-                  onChange={(id) => {
-                    form.resetFields(["employeeId"]);
-                    const employees =
-                      warehouses.find((warehouse) => warehouse.id === id)
-                        ?.employees || [];
-                    setEmployees(employees);
-                  }}
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
                     label: warehouse.name,
@@ -275,6 +277,7 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
                         <EditableTableCencus
                           data={items}
                           form={form}
+                          isEditing={Boolean(selectedDocument)}
                           add={add}
                           remove={remove}
                         />

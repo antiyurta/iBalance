@@ -20,15 +20,21 @@ import { MaterialType } from "@/service/material/entities";
 import MaterialSearch from "@/components/material-search";
 import { IDataViewMaterial } from "@/service/material/view-material/entities";
 
-interface IProps {
+type Props = {
   data: FormListFieldData[];
   form: FormInstance;
+  isEditing: boolean;
   add: () => void;
   remove: (index: number) => void;
-}
-export const EditableTableCencus = (props: IProps) => {
+};
+export const EditableTableCencus: React.FC<Props> = ({
+  data,
+  form,
+  isEditing,
+  add,
+  remove,
+}) => {
   const { message } = App.useApp();
-  const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
 
@@ -109,7 +115,7 @@ export const EditableTableCencus = (props: IProps) => {
       pagination={false}
       dataSource={data}
       footer={() => {
-        return (
+        return !isEditing && (
           <div className="button-editable-footer" onClick={() => addService()}>
             <div
               style={{
@@ -150,7 +156,7 @@ export const EditableTableCencus = (props: IProps) => {
           >
             <MaterialSearch
               params={{ types: [MaterialType.Material] }}
-              isDisable={editingIndex !== index}
+              isDisable={isEditing || editingIndex !== index}
               isEdit={true}
               warehouseId={form.getFieldValue("warehouseId")}
               documentAt={form.getFieldValue("documentAt")}
@@ -168,7 +174,7 @@ export const EditableTableCencus = (props: IProps) => {
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
                       unitAmount: material?.unitAmount || 0,
-                      lastQty: material?.lastQty,
+                      lastQty: isEditing && material?.lastQty,
                       isExpired: material?.isExpired,
                     },
                   },
@@ -240,7 +246,11 @@ export const EditableTableCencus = (props: IProps) => {
             name={[index, "transactionAt"]}
             rules={[
               {
-                required: form.getFieldValue(["transactions", index, "isExpired"]),
+                required: form.getFieldValue([
+                  "transactions",
+                  index,
+                  "isExpired",
+                ]),
                 message: "Дуусах хугацаа заавал",
               },
             ]}
