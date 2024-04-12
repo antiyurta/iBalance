@@ -115,34 +115,39 @@ export const EditableTableCencus: React.FC<Props> = ({
       pagination={false}
       dataSource={data}
       footer={() => {
-        return !isEditing && (
-          <div className="button-editable-footer" onClick={() => addService()}>
+        return (
+          !isEditing && (
             <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 8,
-                placeContent: "center",
-              }}
+              className="button-editable-footer"
+              onClick={() => addService()}
             >
-              <Image
-                src={"/images/AddIconBlack.svg"}
-                alt="addiconblack"
-                width={16}
-                height={16}
-              />
-              <span
+              <div
                 style={{
-                  fontWeight: 500,
-                  fontSize: 14,
-                  lineHeight: "13px",
-                  color: "#6C757D",
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 8,
+                  placeContent: "center",
                 }}
               >
-                Нэмэх
-              </span>
+                <Image
+                  src={"/images/AddIconBlack.svg"}
+                  alt="addiconblack"
+                  width={16}
+                  height={16}
+                />
+                <span
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 14,
+                    lineHeight: "13px",
+                    color: "#6C757D",
+                  }}
+                >
+                  Нэмэх
+                </span>
+              </div>
             </div>
-          </div>
+          )
         );
       }}
     >
@@ -174,11 +179,16 @@ export const EditableTableCencus: React.FC<Props> = ({
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
                       unitAmount: material?.unitAmount || 0,
-                      lastQty: isEditing && material?.lastQty,
                       isExpired: material?.isExpired,
                     },
                   },
                 });
+                if (!isEditing) {
+                  form.setFieldValue(
+                    ["transactions", index, "lastQty"],
+                    material?.lastQty
+                  );
+                }
               }}
             />
           </Form.Item>

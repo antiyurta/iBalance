@@ -36,7 +36,6 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
   };
   const onFinish = async (values: FormCensusDocument) => {
     blockContext.block();
-    // values.movingStatus = MovingStatus.Cencus;
     if (selectedDocument) {
       await DocumentService.patch(selectedDocument.id, {
         id: selectedDocument.id,
@@ -118,11 +117,10 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
       .finally(() => blockContext.unblock());
   };
   const employees = useMemo(() => {
-    console.log('warehouseId', warehouseId);
+    console.log("warehouseId", warehouseId);
     return (
-      warehouses.find(
-        (warehouse) => warehouse.id === warehouseId
-      )?.employees || []
+      warehouses.find((warehouse) => warehouse.id === warehouseId)?.employees ||
+      []
     );
   }, [warehouseId]);
   useEffect(() => {
@@ -252,17 +250,12 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
                         validator: async (_, transactions) => {
                           const arr = Array.isArray(transactions)
                             ? transactions.map(
-                                (trans: IDataTransaction) =>
-                                  `${trans.materialId}-${dayjs(
-                                    trans.transactionAt
-                                  ).format("DD/MM/YYYY")}`
+                                (trans: IDataTransaction) => trans.materialId
                               )
                             : [];
                           if (!hasUniqueValues(arr)) {
                             return Promise.reject(
-                              new Error(
-                                "Барааны код дуусах огноо давхардсан байна."
-                              )
+                              new Error("Барааны код давхардсан байна.")
                             );
                           }
                         },
