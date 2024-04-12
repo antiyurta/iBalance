@@ -1,10 +1,7 @@
 "use client";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
-import {
-  IDataWarehouse,
-  IParamWarehouse,
-} from "@/service/reference/warehouse/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -16,7 +13,6 @@ import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
-import { IDataEmployee } from "@/service/employee/entities";
 import { FormCensusDocument } from "@/types/form";
 type Props = {
   selectedDocument?: IDataDocument;
@@ -25,6 +21,7 @@ type Props = {
 const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<FormCensusDocument>();
+  const warehouseId = Form.useWatch("warehouseId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
 
   const negativeNumber = (value: number): number => {
@@ -121,19 +118,19 @@ const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
       .finally(() => blockContext.unblock());
   };
   const employees = useMemo(() => {
+    console.log('warehouseId', warehouseId);
     return (
       warehouses.find(
-        (warehouse) => warehouse.id === form.getFieldValue("warehouseId")
+        (warehouse) => warehouse.id === warehouseId
       )?.employees || []
     );
-  }, form.getFieldValue("warehouseId"));
+  }, [warehouseId]);
   useEffect(() => {
     getWarehouses();
     generateCode();
   }, []);
   useEffect(() => {
     if (selectedDocument) {
-      console.log("selected document =========>", selectedDocument);
       form.setFieldsValue({
         code: selectedDocument?.code,
         warehouseId: selectedDocument?.warehouseId,
