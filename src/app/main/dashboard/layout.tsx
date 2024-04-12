@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import withAuth from "@/feature/hoc/withAuth";
-import { Button, Row, Tabs, TabsProps, Tooltip } from "antd";
+import { Button, Layout, Row, Tabs, TabsProps, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 import { RootState, useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +24,8 @@ import {
   removeTab,
 } from "@/feature/store/slice/tab.slice";
 
+const { Sider, Content } = Layout;
+
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -37,6 +39,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   );
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>([]);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
+  const [isChildrenCollapse, setChildrenCollapse] = useState<boolean>(false);
   const user = useTypedSelector((state) => state.user);
   const warehouse = useTypedSelector((state) => state.warehouse);
 
@@ -102,95 +105,109 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     getWarehouses();
   }, []);
   return (
-    <div
-      style={{
-        display: "flex",
-        width: "100%",
-      }}
-    >
-      <Sidebar />
-      <div
-        style={{
-          padding: "0px 24px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          overflow: "auto",
-          width: "100%",
-        }}
+    <Layout>
+      <Sider
+        collapsedWidth={80}
+        collapsed={isChildrenCollapse}
+        width={240}
+        theme="light"
+        className="second"
       >
-        <div className="navbar">
-          <div className="left">
-            <p>{currentTab?.breadcrumb[0]}</p>
-          </div>
-          <div className="right">
-            <div className="date">
-              <p>Тайлант үе:</p>
-              <NewDatePicker placeholder="YYYY-MM" />
-            </div>
-            <div className="nav-profile">
-              <NewAvatar size={24} src={"/images/navbar/Image.png"} />
-              <p>{user?.firstName}</p>
-            </div>
-            <div className="dep">
-              <NewSelect
-                value={warehouse.id}
-                options={warehouses.map((warehouse) => ({
-                  label: (
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "12px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <NewAvatar size={32} />
-                      <p
-                        style={{
-                          margin: "0px",
-                        }}
-                      >
-                        {warehouse.name}
-                      </p>
-                    </div>
-                  ),
-                  value: warehouse.id,
-                }))}
-                onSelect={selectWarehouse}
-              ></NewSelect>
-            </div>
-          </div>
-        </div>
-        <main
+        <Sidebar isCollapsed={setChildrenCollapse} />
+      </Sider>
+      <Content>
+        <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            minHeight: "850px",
+            width: "100%",
+            height: "100vh",
           }}
         >
-          <Tabs
-            activeKey={activeKey}
-            hideAdd={true}
-            onChange={onChange}
-            type="editable-card"
-            onEdit={onEdit}
-            items={tabsItems}
-            tabBarExtraContent={{
-              right: (
-                <Tooltip placement="bottomLeft" title="Нийт табуудыг гаргах">
-                  <Button type="link" onClick={() => dispatch(emptyTabs())}>
-                    Таб гаргах
-                  </Button>
-                </Tooltip>
-              ),
+          <div
+            style={{
+              padding: "0px 24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              width: "100%",
             }}
-          />
-          {children}
-        </main>
-      </div>
-    </div>
+          >
+            <div className="navbar">
+              <div className="left">
+                <p>{currentTab?.breadcrumb[0]}</p>
+              </div>
+              <div className="right">
+                <div className="date">
+                  <p>Тайлант үе:</p>
+                  <NewDatePicker placeholder="YYYY-MM" />
+                </div>
+                <div className="nav-profile">
+                  <NewAvatar size={24} src={"/images/navbar/Image.png"} />
+                  <p>{user?.firstName}</p>
+                </div>
+                <div className="dep">
+                  <NewSelect
+                    value={warehouse.id}
+                    options={warehouses.map((warehouse) => ({
+                      label: (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            gap: "12px",
+                            alignItems: "center",
+                          }}
+                        >
+                          <NewAvatar size={32} />
+                          <p
+                            style={{
+                              margin: "0px",
+                            }}
+                          >
+                            {warehouse.name}
+                          </p>
+                        </div>
+                      ),
+                      value: warehouse.id,
+                    }))}
+                    onSelect={selectWarehouse}
+                  ></NewSelect>
+                </div>
+              </div>
+            </div>
+            <main
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "calc(100vh - 64px)",
+              }}
+            >
+              <Tabs
+                activeKey={activeKey}
+                hideAdd={true}
+                onChange={onChange}
+                type="editable-card"
+                onEdit={onEdit}
+                items={tabsItems}
+                tabBarExtraContent={{
+                  right: (
+                    <Tooltip
+                      placement="bottomLeft"
+                      title="Нийт табуудыг гаргах"
+                    >
+                      <Button type="link" onClick={() => dispatch(emptyTabs())}>
+                        Таб гаргах
+                      </Button>
+                    </Tooltip>
+                  ),
+                }}
+              />
+              {children}
+            </main>
+          </div>
+        </div>
+      </Content>
+    </Layout>
   );
 };
 export default withAuth(DashboardLayout);

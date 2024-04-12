@@ -584,7 +584,9 @@ const Information = (props: IProps) => {
             <Col span={24}>
               <NewTable
                 componentType={ComponentType}
-                scroll={{ x: ComponentType === "FULL" ? 1700 : 400 }}
+                scroll={{
+                  x: ComponentType === "FULL" ? 1700 : 400,
+                }}
                 rowKey="id"
                 rowSelection={ComponentType === "LITTLE" ? rowSelection : null}
                 doubleClick={true}

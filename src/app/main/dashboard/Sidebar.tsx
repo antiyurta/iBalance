@@ -15,7 +15,10 @@ interface MenuItem {
   icon: React.ReactNode;
   children?: MenuItem[];
 }
-const Sidebar = () => {
+interface IProps {
+  isCollapsed: (state: boolean) => void;
+}
+const Sidebar = (props: IProps) => {
   const dispatch = useDispatch();
   const { resources } = useResourceContext();
   const [permissions, setPermissions] = useState<IDataPermission[]>([]);
@@ -116,6 +119,7 @@ const Sidebar = () => {
   };
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
+    props.isCollapsed(!collapsed);
   };
   const getPermission = () => {
     PermissionService.myPermissions().then((response) => {
@@ -134,6 +138,7 @@ const Sidebar = () => {
     <div
       style={{
         backgroundColor: "white",
+        maxWidth: collapsed ? "" : 240,
       }}
     >
       <div
@@ -158,14 +163,13 @@ const Sidebar = () => {
           background: "transparent",
           border: "none",
           overflow: "auto",
-          height: "calc(100%, -50px)",
+          height: "calc(100vh - 59px)",
           minWidth: collapsed ? "" : 240,
         }}
         onClick={(e) => menuClick(e.keyPath)}
         mode={"inline"}
         theme={"light"}
         items={menuItems}
-        inlineCollapsed={collapsed}
       />
     </div>
   );

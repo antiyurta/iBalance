@@ -518,6 +518,10 @@ html {
 //   background-color: #f8f9fa !important;
 // }
 
+.ant-upload-list-item.ant-upload-list-item-done {
+  border: none !important;
+}
+
 .numberValue-to-right {
   .ant-input-number-input-wrap {
     input {
@@ -548,7 +552,7 @@ html {
 }
 
 // end shine layout
-.ant-layout-sider.ant-layout-sider-light {
+.ant-layout-sider.ant-layout-sider-light.first {
   width: 96px !important;
   min-width: 96px !important;
   max-width: 96px !important;

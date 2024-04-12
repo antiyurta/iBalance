@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
 import * as headerJSON from "./excel/RStorage1";
@@ -167,7 +167,7 @@ const RStorage1: NextPage = () => {
           </thead>
           <tbody>
             {warehouses.map((warehouse, windex) => (
-              <>
+              <React.Fragment key={windex}>
                 {currentItem?.param?.isWarehouse && (
                   <tr key={windex} style={{ fontWeight: "bold" }}>
                     <td>Байршил : </td>
@@ -175,7 +175,7 @@ const RStorage1: NextPage = () => {
                   </tr>
                 )}
                 {warehouse.sections.map((section, sindex) => (
-                  <>
+                  <React.Fragment key={sindex}>
                     {currentItem?.param?.isSection && (
                       <tr
                         key={`${windex}-${sindex}`}
@@ -300,7 +300,7 @@ const RStorage1: NextPage = () => {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
                 {currentItem?.param?.isWarehouse && (
                   <tr style={{ fontWeight: "bold" }}>
@@ -393,7 +393,7 @@ const RStorage1: NextPage = () => {
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
             <tr style={{ fontWeight: "bold" }}>
               <td colSpan={3}>НИЙТ ТОО ХЭМЖЭЭ</td>

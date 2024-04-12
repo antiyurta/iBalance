@@ -11,7 +11,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     <Layout>
       <AuthContextProvider>
         <ProviderResource>
-          <Sider theme="light">
+          <Sider theme="light" className="first">
             <Sidebar />
           </Sider>
           <Layout>

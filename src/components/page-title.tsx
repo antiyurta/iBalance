@@ -13,11 +13,13 @@ const PageTitle: React.FC<IProps> = ({ onClick, children }) => {
   const currentTab = tab.tabItems.find((item) => item.key == tab.activeKey);
   return (
     <div className="page-title-container">
-      <Breadcrumb style={{ fontSize: 16 }}>
-        {currentTab?.breadcrumb.map((item, index) => (
-          <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>
-        ))}
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ fontSize: 16 }}
+        items={currentTab?.breadcrumb.map((item, index) => ({
+          key: index,
+          title: item,
+        }))}
+      />
       {onClick !== undefined && (
         <AddButton hidden={!currentTab?.isAdd} onClick={() => onClick()} />
       )}
