@@ -235,12 +235,15 @@ const EditableTableDiscount = (props: IProps) => {
           <Form.Item name={[index, "isPercent"]} valuePropName="checked">
             <Switch
               disabled={!(index === editingIndex)}
-              onChange={(value) =>
+              onChange={(value) => {
                 setIsPercent((prevValues) => ({
                   ...prevValues,
                   [index]: value,
-                }))
-              }
+                }));
+                form.resetFields([
+                  ["discounts", index, value ? "amount" : "percent"],
+                ]);
+              }}
             />
           </Form.Item>
         )}
