@@ -3,6 +3,7 @@ import {
   Button,
   Form,
   FormInstance,
+  Input,
   Popconfirm,
   Switch,
   Table,
@@ -28,11 +29,15 @@ interface IProps {
   remove: (index: number) => void;
 }
 
+interface IPercent {
+  [k: number]: boolean;
+}
+
 const EditableTableDiscount = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [isPercent, setIsPercent] = useState<boolean>(false);
+  const [isPercent, setIsPercent] = useState<IPercent>({});
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -61,6 +66,10 @@ const EditableTableDiscount = (props: IProps) => {
       });
   };
   const onRemove = (index: number) => {
+    setIsPercent((prevValues) => ({
+      ...prevValues,
+      [index]: false,
+    }));
     const amount = form.getFieldValue(["accounts", index, "amount"]);
     const limitAmount = form.getFieldValue("amount");
     form.setFieldValue("amount", limitAmount - amount);
@@ -68,6 +77,10 @@ const EditableTableDiscount = (props: IProps) => {
   };
   const onCancel = (index: number) => {
     if (isNewService) {
+      setIsPercent((prevValues) => ({
+        ...prevValues,
+        [index]: false,
+      }));
       remove(index);
     } else {
       onSave().then((state) => {
@@ -222,43 +235,45 @@ const EditableTableDiscount = (props: IProps) => {
           <Form.Item name={[index, "isPercent"]} valuePropName="checked">
             <Switch
               disabled={!(index === editingIndex)}
-              onChange={(value) => setIsPercent(value)}
+              onChange={(value) =>
+                setIsPercent((prevValues) => ({
+                  ...prevValues,
+                  [index]: value,
+                }))
+              }
             />
           </Form.Item>
         )}
       />
-      {isPercent ? (
-        <Column
-          dataIndex={"percent"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "percent"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"%"}
-                formatter={(value: any) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      ) : (
-        <Column
-          dataIndex={"amount"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "amount"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"₮"}
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      )}
+      <Column
+        title="Хөнгөлөлт"
+        render={(_, _row, index) => {
+          if (isPercent[index]) {
+            return (
+              <Form.Item name={[index, "percent"]}>
+                <NewInputNumber
+                  disabled={!(index === editingIndex)}
+                  suffix={"%"}
+                  formatter={(value: any) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                />
+              </Form.Item>
+            );
+          } else {
+            return (
+              <Form.Item name={[index, "amount"]}>
+                <NewInputNumber
+                  disabled={!(index === editingIndex)}
+                  suffix={"₮"}
+                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                />
+              </Form.Item>
+            );
+          }
+        }}
+      />
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}
