@@ -132,6 +132,7 @@ export const EditableTableMove = (props: IProps) => {
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
+                      lastQty: material?.lastQty,
                       section: material?.sectionName,
                     },
                   },

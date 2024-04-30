@@ -843,6 +843,15 @@ html {
 }
 
 .open-close-close {
+  .title {
+    display: none;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .close-date {
+    display: none;
+    font-size: 12px;
+  }
   width: 100%;
   @media (min-width: 992px) {
     .close-body {
@@ -935,6 +944,15 @@ i.rmdp-arrow {
 }
 
 @media print {
+  .open-close-close {
+    .title {
+      display: block;
+      text-align: center;
+    }
+    .close-date {
+      display: block;
+    }
+  }
   .report-body {
     width: 100%;
     padding: 12px;

@@ -22,14 +22,16 @@ import {
   IDataPosDocument,
 } from "@/service/document/pos-document/entites";
 import { useReactToPrint } from "react-to-print";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 interface IProps {
+  closeDate?: string;
   openCloseId?: number;
   setIsClose: (value: boolean) => void;
 }
 const CloseState = (props: IProps) => {
-  const { openCloseId, setIsClose } = props;
+  const { closeDate, openCloseId, setIsClose } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<ICloseDto>();
   const [openClose, setOpenClose] = useState<IDataPosOpenClose>();
@@ -344,6 +346,11 @@ const CloseState = (props: IProps) => {
       }}
     >
       <div className="open-close-close" ref={printRef}>
+        <p className="title">Хаалтын тайлан</p>
+        <p className="close-date">
+          Хаалтын огноо:
+          {closeDate ? dayjs(closeDate).format("YYYY/MM/DD HH:mm") : null}
+        </p>
         <div className="close-body">
           <div className="close-content">
             <CloseTable
@@ -404,6 +411,7 @@ const CloseState = (props: IProps) => {
           style={{
             minWidth: 140,
           }}
+          defaultValue={closeDate ? dayjs(closeDate) : undefined}
           disabled={openClose?.isClose}
         />
         <Button

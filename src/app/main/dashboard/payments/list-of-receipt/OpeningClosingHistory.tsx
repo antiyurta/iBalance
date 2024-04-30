@@ -174,6 +174,7 @@ const OpeningClosingHistory = () => {
     await OpenCloseService.getById(id)
       .then((response) => {
         if (response.success) {
+          console.log("end", id, response.response);
           setOpenClose(response.response);
           setIsClose(true);
         }
@@ -255,6 +256,7 @@ const OpeningClosingHistory = () => {
         destroyOnClose
       >
         <CloseState
+          closeDate={openClose?.closerAt}
           openCloseId={openClose?.id}
           setIsClose={(value) => setIsClose(!value)}
         />
