@@ -168,12 +168,17 @@ const PayController = () => {
               }}
             >
               <NumericFormat
-                value={shoppingGoods.reduce(
-                  (total, item) =>
-                    total +
-                    (item.unitAmount - item.discountAmount) * item.quantity,
-                  0
-                )}
+                value={
+                  shoppingGoods?.length > 0
+                    ? shoppingGoods.reduce(
+                        (total, item) =>
+                          total +
+                          (item.unitAmount - item.discountAmount) *
+                            item.quantity,
+                        0
+                      )
+                    : 0
+                }
                 thousandSeparator=","
                 decimalScale={2}
                 fixedDecimalScale
