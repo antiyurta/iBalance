@@ -1,7 +1,7 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import { NewDatePicker, NewInputNumber } from "@/components/input";
 import { Button, Divider, Form, Typography } from "antd";
 import { PrinterOutlined } from "@ant-design/icons";
-import { useContext, useEffect, useRef, useState } from "react";
 import {
   ICloseDto,
   IDataPosOpenClose,
@@ -32,6 +32,9 @@ interface IProps {
 }
 const CloseState = (props: IProps) => {
   const { closeDate, openCloseId, setIsClose } = props;
+  const [currentCloseDate, setCurrentCloseDate] = useState<string>(
+    dayjs(closeDate).toString()
+  );
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<ICloseDto>();
   const [openClose, setOpenClose] = useState<IDataPosOpenClose>();
@@ -349,7 +352,9 @@ const CloseState = (props: IProps) => {
         <p className="title">Хаалтын тайлан</p>
         <p className="close-date">
           Хаалтын огноо:
-          {closeDate ? dayjs(closeDate).format("YYYY/MM/DD HH:mm") : null}
+          {currentCloseDate
+            ? dayjs(currentCloseDate).format("YYYY/MM/DD HH:mm")
+            : null}
         </p>
         <div className="close-body">
           <div className="close-content">
@@ -411,7 +416,16 @@ const CloseState = (props: IProps) => {
           style={{
             minWidth: 140,
           }}
-          defaultValue={closeDate ? dayjs(closeDate) : undefined}
+          showTime
+          disabledDate={(current) =>
+            current && current < dayjs().startOf("day")
+          }
+          onChange={(date) => {
+            setCurrentCloseDate(
+              dayjs(date).format("YYYY/MM/DD HH:mm").toString()
+            );
+          }}
+          defaultValue={closeDate ? dayjs(currentCloseDate) : undefined}
           disabled={openClose?.isClose}
         />
         <Button
