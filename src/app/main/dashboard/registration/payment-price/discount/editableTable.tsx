@@ -94,6 +94,10 @@ const EditableTableDiscount = (props: IProps) => {
   };
   return (
     <Table
+      scroll={{
+        y: 500,
+      }}
+      pagination={false}
       dataSource={data}
       footer={() => {
         return (
@@ -127,9 +131,11 @@ const EditableTableDiscount = (props: IProps) => {
         );
       }}
     >
+      <Column title="№" width={50} render={(_, _row, index) => index + 1} />
       <Column
         dataIndex={"materialId"}
         title="Дотоод код"
+        width={250}
         render={(_, __, index) => (
           <MaterialSelect
             params={{

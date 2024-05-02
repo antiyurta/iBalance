@@ -125,6 +125,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         >
           <div
             style={{
+              overflow: "auto",
               padding: "0px 24px",
               display: "flex",
               flexDirection: "column",
