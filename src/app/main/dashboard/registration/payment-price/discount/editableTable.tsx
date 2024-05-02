@@ -1,5 +1,6 @@
 import Image from "next/image";
 import {
+  App,
   Button,
   Form,
   FormInstance,
@@ -34,6 +35,7 @@ interface IPercent {
 }
 
 const EditableTableDiscount = (props: IProps) => {
+  const { notification } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
@@ -160,17 +162,37 @@ const EditableTableDiscount = (props: IProps) => {
               ]);
             }}
             onSelect={(value) => {
-              form.setFieldsValue({
-                discounts: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    section: value.sectionName,
-                    unitAmount: value.unitAmount,
-                  },
-                },
-              });
+              const oldDiscounts = form.getFieldValue("discounts");
+              if (typeof oldDiscounts === "object") {
+                const currentMaterials = oldDiscounts?.filter(
+                  (oldDiscount: any) => oldDiscount.materialId === value.id
+                );
+                if (currentMaterials.length >= 2) {
+                  notification.error({
+                    message: "Бараа сонгогдсон байна",
+                  });
+                  form.resetFields([
+                    ["discounts", index, "materialId"],
+                    ["discounts", index, "name"],
+                    ["discounts", index, "measurement"],
+                    ["discounts", index, "countPackage"],
+                    ["discounts", index, "section"],
+                    ["discounts", index, "unitAmount"],
+                  ]);
+                } else {
+                  form.setFieldsValue({
+                    discounts: {
+                      [index]: {
+                        name: value.name,
+                        measurement: value.measurementName,
+                        countPackage: value.countPackage,
+                        section: value.sectionName,
+                        unitAmount: value.unitAmount,
+                      },
+                    },
+                  });
+                }
+              }
             }}
           />
         )}
