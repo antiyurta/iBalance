@@ -152,6 +152,11 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
           labelAlign="left"
           labelWrap
           wrapperCol={{ span: 20 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
         >
           {filter}
         </Form>

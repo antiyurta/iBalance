@@ -1,4 +1,5 @@
 import { useReportContext } from "@/feature/context/ReportsContext";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 interface IProps {
   organization: string;
@@ -11,21 +12,32 @@ export const ReportTitle: React.FC<IProps> = ({ organization, title }) => {
   useEffect(() => {
     if (values.dateFilter) {
       if (values.dateFilter.operator == "BETWEEN") {
+        console.log(values);
         setReportAt(
-          `${values.dateFilter.startAt.format(
-            "YYYY/MM/DD"
-          )} - ${values.dateFilter.endAt.format("YYYY/MM/DD")}`
+          `${dayjs(values.dateFilter.startAt).format("YYYY/MM/DD")}-${dayjs(
+            values.dateFilter.endAt
+          ).format("YYYY/MM/DD")}`
         );
+        // setReportAt(
+        //   `${values.dateFilter.startAt.format(
+        //     "YYYY/MM/DD"
+        //   )} - ${values.dateFilter.endAt.format("YYYY/MM/DD")}`
+        // );
       } else if (values.dateFilter.operator == "THAT") {
-        setReportAt(`${values.dateFilter.startAt.format("YYYY/MM/DD")}`);
+        setReportAt(dayjs(values.dateFilter.startAt).format("YYYY/MM/DD"));
+        // setReportAt(`${values.dateFilter.startAt.format("YYYY/MM/DD")}`);
       } else if (values.dateFilter.operator == "IS_LESS") {
         setReportAt(
-          `${values.dateFilter.startAt.format("YYYY/MM/DD")}-хүртэл`
+          dayjs(values.dateFilter.startAt).format("YYYY/MM/DD-хүртэл")
         );
+        // setReportAt(`${values.dateFilter.startAt.format("YYYY/MM/DD")}-хүртэл`);
       } else if (values.dateFilter.operator == "IS_GREATER") {
         setReportAt(
-          `${values.dateFilter.startAt.format("YYYY/MM/DD")}-с хойшхи`
+          dayjs(values.dateFilter.startAt).format("YYYY/MM/DD-с хойшхи")
         );
+        // setReportAt(
+        //   `${values.dateFilter.startAt.format("YYYY/MM/DD")}-с хойшхи`
+        // );
       }
       //  else if (values.dateFilter.operator == "SELECTION") {
       //   setReportAt(values.dateFilter.startAt.toString());
