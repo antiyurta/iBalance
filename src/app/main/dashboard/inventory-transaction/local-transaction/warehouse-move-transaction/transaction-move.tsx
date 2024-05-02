@@ -33,6 +33,7 @@ const TransactionMove: React.FC<Props> = ({
   const [expenseEmployees, setExpenseEmployees] = useState<IDataEmployee[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isOrderModal, setIsOrderModal] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const incomeDocument = selectedDocuments.find(
     (item) => (item.incomeCount || 0) > 0
   );
@@ -49,6 +50,7 @@ const TransactionMove: React.FC<Props> = ({
   const onFinish = async (values: FormMoveWarehouseDocument) => {
     try {
       blockContext.block();
+      setIsLoading(true);
       if (isEdit) {
         if (incomeDocument && expenseDocument) {
           const inres = await DocumentService.patch(incomeDocument.id, {
@@ -117,9 +119,11 @@ const TransactionMove: React.FC<Props> = ({
         }
       }
       blockContext.unblock();
+      setIsLoading(false);
     } catch (error) {
       openNofi("error", String(error));
       blockContext.unblock();
+      setIsLoading(false);
     }
   };
   const generateCode = async () => {
@@ -360,6 +364,7 @@ const TransactionMove: React.FC<Props> = ({
           >
             <Button
               type="primary"
+              loading={isLoading}
               onClick={() =>
                 form.validateFields().then((values) => {
                   onFinish(values);
