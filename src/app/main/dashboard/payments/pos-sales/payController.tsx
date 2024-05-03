@@ -1,4 +1,3 @@
-import { useContext, useEffect, useState } from "react";
 import NewModal from "@/components/modal";
 import Item from "./component/Item";
 import { Button, Typography } from "antd";
@@ -31,7 +30,6 @@ const PayController = () => {
   const warehouse = useTypedSelector((state) => state.warehouse);
   const shoppingGoods = useTypedSelector((state) => state.shoppingGoods);
   const { isModal } = useTypedSelector((state) => state.shoppingCart);
-
   const createShoppingTemps = () => {
     dispatch(createTemp(shoppingGoods));
     dispatch(emptyGoods());
@@ -172,9 +170,7 @@ const PayController = () => {
                   shoppingGoods?.length > 0
                     ? shoppingGoods.reduce(
                         (total, item) =>
-                          total +
-                          (item.unitAmount - item.discountAmount) *
-                            item.quantity,
+                          total + item.quantity * item.discountAmount,
                         0
                       )
                     : 0

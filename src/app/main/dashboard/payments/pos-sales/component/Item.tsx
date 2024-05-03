@@ -25,9 +25,11 @@ const Item = (props: IProps) => {
   };
   const manual = (value: 1 | -1) => {
     const quantity = data.quantity + value;
-    dispatch(
-      saveGoods({ ...data, quantity, payAmount: quantity * data.unitAmount })
-    );
+    var newUnitAmount = quantity * data.unitAmount;
+    if (data.discountAmount > 0) {
+      newUnitAmount = quantity * (data.unitAmount - data.discountAmount);
+    }
+    dispatch(saveGoods({ ...data, quantity, payAmount: newUnitAmount }));
   };
   const remove = async () => {
     dispatch(removeGoods(data.materialId));
@@ -138,26 +140,55 @@ const Item = (props: IProps) => {
             {data.materialName}
           </p>
           <div>{data.sectionName}</div>
-
           <div
             style={{
-              margin: 0,
-              color: "#142A38",
-              textAlign: "start",
-              fontSize: 12,
-              fontWeight: 500,
+              display: "flex",
+              flexDirection: "row",
+              gap: 4,
             }}
           >
-            {/* className nemeh coupon?.conditionValue < quantity */}
-            Үндсэн үнэ :{" "}
-            <NumericFormat
-              value={data.unitAmount}
-              thousandSeparator=","
-              decimalScale={2}
-              fixedDecimalScale
-              displayType="text"
-              suffix="₮"
-            />
+            <div
+              className={data.discountAmount > 0 ? "text-line-through" : ""}
+              style={{
+                margin: 0,
+                color: "#142A38",
+                textAlign: "start",
+                fontSize: 12,
+                fontWeight: 500,
+              }}
+            >
+              {/* className nemeh coupon?.conditionValue < quantity */}
+              Үндсэн үнэ :{" "}
+              <NumericFormat
+                value={data.unitAmount}
+                thousandSeparator=","
+                decimalScale={2}
+                fixedDecimalScale
+                displayType="text"
+                suffix="₮"
+              />
+            </div>
+            {data.discountAmount > 0 ? (
+              <div
+                style={{
+                  margin: 0,
+                  color: "red",
+                  textAlign: "start",
+                  fontSize: 12,
+                  fontWeight: 500,
+                }}
+              >
+                Хямдарсан үнэ :{" "}
+                <NumericFormat
+                  value={data.unitAmount - data.discountAmount}
+                  thousandSeparator=","
+                  decimalScale={2}
+                  fixedDecimalScale
+                  displayType="text"
+                  suffix="₮"
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

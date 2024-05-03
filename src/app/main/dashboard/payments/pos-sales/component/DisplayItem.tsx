@@ -82,7 +82,7 @@ const DisplayItem = (props: IProps) => {
       sectionName: data.sectionName,
       unitAmount: data.unitAmount,
       quantity: 1,
-      discountAmount: 0,
+      discountAmount: data.discountAmount,
       payAmount: data.unitAmount,
       totalAmount: data.unitAmount,
     };
