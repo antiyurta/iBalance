@@ -76,8 +76,8 @@ const TransactionMove: React.FC<Props> = ({
             employeeId: values.expenseEmployeeId,
             transactions: values.transactions.map((item) => ({
               materialId: item.materialId,
-              incomeQty: item.expenseQty ?? 0,
-              expenseQty: 0,
+              incomeQty: 0,
+              expenseQty: item.expenseQty ?? 0,
             })),
           });
           if (inres.success && expres.success) {

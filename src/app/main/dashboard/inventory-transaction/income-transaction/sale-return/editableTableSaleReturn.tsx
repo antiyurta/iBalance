@@ -139,6 +139,7 @@ export const EditableTableSaleReturn = (props: IProps) => {
                       name: material?.name,
                       measurement: material?.measurementName,
                       countPackage: material?.countPackage,
+                      lastQty: material?.lastQty,
                       isExpired: material?.isExpired,
                     },
                   },
@@ -180,6 +181,15 @@ export const EditableTableSaleReturn = (props: IProps) => {
             name={[index, "countPackage"]}
             rules={[{ required: true, message: "Багц доторх тоо заавал" }]}
           >
+            <NewInputNumber disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
+        dataIndex={"lastQty"}
+        title="Агуулахын үлдэгдэл"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "lastQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}
