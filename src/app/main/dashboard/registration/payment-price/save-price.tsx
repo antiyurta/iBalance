@@ -144,6 +144,7 @@ const SavePrice = (props: IProps) => {
           name: discount.material.name,
           measurement: discount.material?.measurement?.name,
           section: discount.material.section?.name,
+          unitAmount: discount.unitAmount,
           endAt: dayjs(discount.endAt),
           isPercent: discount.isPercent,
           percent: discount.percent,

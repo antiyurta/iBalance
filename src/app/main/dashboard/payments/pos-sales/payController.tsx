@@ -46,7 +46,7 @@ const PayController = () => {
         sectionName: material.sectionName,
         unitAmount: material.unitAmount,
         quantity: 1,
-        discountAmount: 0,
+        discountAmount: material.discountAmount,
         payAmount: material.unitAmount,
         totalAmount: material.unitAmount,
       };
@@ -60,196 +60,194 @@ const PayController = () => {
     }
   };
   return (
-    <>
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          height: 86,
+        }}
+      >
+        <ExtraIndex />
+        <MaterialSearch
+          isDisable={false}
+          warehouseId={warehouse.id}
+          onMaterial={onMaterial}
+          params={{ moreUnitAmount: 0, types: [MaterialType.Material] }}
+        />
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: 110,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          paddingLeft: 4,
+          paddingRight: 14,
+          width: "100%",
+          height: "calc(100% - 280px)",
+          overflowY: "auto",
+        }}
+      >
+        {shoppingGoods?.map((goods) => (
+          <Item key={goods.materialId} data={goods} />
+        ))}
+      </div>
       <div
         style={{
           width: "100%",
+          position: "absolute",
+          bottom: 20,
           display: "flex",
           flexDirection: "column",
-          gap: 20,
+          gap: 10,
         }}
       >
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            height: 86,
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
-          <ExtraIndex />
-          <MaterialSearch
-            isDisable={false}
-            warehouseId={warehouse.id}
-            onMaterial={onMaterial}
-            params={{ moreUnitAmount: 0, types: [MaterialType.Material] }}
-          />
+          <Title
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+              color: "#6C757D",
+            }}
+          >
+            Барааны тоо ширхэг:
+          </Title>
+          <Title
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+              color: "#6C757D",
+              margin: 0,
+            }}
+          >
+            {shoppingGoods?.length}
+          </Title>
         </div>
         <div
           style={{
-            position: "absolute",
-            top: 110,
             display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            paddingLeft: 4,
-            paddingRight: 14,
-            width: "100%",
-            height: "calc(100% - 280px)",
-            overflowY: "auto",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
-          {shoppingGoods?.map((goods) => (
-            <Item key={goods.materialId} data={goods} />
-          ))}
+          <Title
+            level={3}
+            style={{
+              fontWeight: 600,
+              color: "#6C757D",
+              margin: 0,
+            }}
+          >
+            Хөнгөлөлт, урамшууллын дүн:
+          </Title>
+          <Title
+            level={3}
+            style={{
+              fontWeight: 600,
+              color: "#6C757D",
+              margin: 0,
+            }}
+          >
+            <NumericFormat
+              value={
+                shoppingGoods?.length > 0
+                  ? shoppingGoods.reduce(
+                      (total, item) =>
+                        total + item.quantity * item.discountAmount,
+                      0
+                    )
+                  : 0
+              }
+              thousandSeparator=","
+              decimalScale={2}
+              fixedDecimalScale
+              displayType="text"
+              suffix="₮"
+            />
+          </Title>
         </div>
         <div
           style={{
-            width: "100%",
-            position: "absolute",
-            bottom: 20,
             display: "flex",
-            flexDirection: "column",
-            gap: 10,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderTop: "1px dashed #ccc",
+            borderBottom: "1px dashed #ccc",
+            paddingTop: 8,
+            paddingBottom: 8,
           }}
         >
-          <div
+          <Title
             style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
+              fontSize: 16,
+              fontWeight: 500,
+              color: "black",
             }}
           >
-            <Title
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-                color: "#6C757D",
-              }}
-            >
-              Барааны тоо ширхэг:
-            </Title>
-            <Title
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-                color: "#6C757D",
-                margin: 0,
-              }}
-            >
-              {shoppingGoods?.length}
-            </Title>
-          </div>
-          <div
+            Төлөх дүн:
+          </Title>
+          <Title
             style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
+              fontSize: 16,
+              fontWeight: 500,
+              color: "black",
+              margin: 0,
             }}
           >
-            <Title
-              level={3}
-              style={{
-                fontWeight: 600,
-                color: "#6C757D",
-                margin: 0,
-              }}
-            >
-              Хөнгөлөлт, урамшууллын дүн:
-            </Title>
-            <Title
-              level={3}
-              style={{
-                fontWeight: 600,
-                color: "#6C757D",
-                margin: 0,
-              }}
-            >
-              <NumericFormat
-                value={
-                  shoppingGoods?.length > 0
-                    ? shoppingGoods.reduce(
-                        (total, item) =>
-                          total + item.quantity * item.discountAmount,
-                        0
-                      )
-                    : 0
-                }
-                thousandSeparator=","
-                decimalScale={2}
-                fixedDecimalScale
-                displayType="text"
-                suffix="₮"
-              />
-            </Title>
-          </div>
-          <div
+            <NumericFormat
+              value={payAmount}
+              thousandSeparator=","
+              decimalScale={2}
+              fixedDecimalScale
+              displayType="text"
+              suffix="₮"
+            />
+          </Title>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 8,
+          }}
+        >
+          <ShoppingTemp />
+          <button
+            className="app-button-regular"
             style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: "1px dashed #ccc",
-              borderBottom: "1px dashed #ccc",
-              paddingTop: 8,
-              paddingBottom: 8,
+              height: 38,
+              minWidth: 120,
             }}
+            onClick={createShoppingTemps}
           >
-            <Title
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-                color: "black",
-              }}
-            >
-              Төлөх дүн:
-            </Title>
-            <Title
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-                color: "black",
-                margin: 0,
-              }}
-            >
-              <NumericFormat
-                value={payAmount}
-                thousandSeparator=","
-                decimalScale={2}
-                fixedDecimalScale
-                displayType="text"
-                suffix="₮"
-              />
-            </Title>
-          </div>
-          <div
+            Түр хадгалах
+          </button>
+          <Button
             style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: 8,
+              width: "100%",
             }}
+            type="primary"
+            disabled={shoppingGoods.length > 0 ? false : true}
+            onClick={() => dispatch(onShoppingCart())}
           >
-            <ShoppingTemp />
-            <button
-              className="app-button-regular"
-              style={{
-                height: 38,
-                minWidth: 120,
-              }}
-              onClick={createShoppingTemps}
-            >
-              Түр хадгалах
-            </button>
-            <Button
-              style={{
-                width: "100%",
-              }}
-              type="primary"
-              disabled={shoppingGoods.length > 0 ? false : true}
-              onClick={() => dispatch(onShoppingCart())}
-            >
-              Үргэлжлүүлэх
-            </Button>
-          </div>
+            Үргэлжлүүлэх
+          </Button>
         </div>
       </div>
       <NewModal
@@ -262,7 +260,7 @@ const PayController = () => {
       >
         <StepIndex />
       </NewModal>
-    </>
+    </div>
   );
 };
 export default PayController;

@@ -83,13 +83,14 @@ const DisplayItem = (props: IProps) => {
       unitAmount: data.unitAmount,
       quantity: 1,
       discountAmount: data.discountAmount,
-      payAmount: data.unitAmount,
+      payAmount: data.unitAmount - data.discountAmount,
       totalAmount: data.unitAmount,
     };
     if (currentIndex !== -1) {
       currentGoods.quantity = goods[currentIndex].quantity + 1;
       currentGoods.payAmount =
-        goods[currentIndex].unitAmount * (goods[currentIndex].quantity + 1);
+        (goods[currentIndex].quantity + 1) *
+        (goods[currentIndex].unitAmount - goods[currentIndex].discountAmount);
     }
     dispatch(saveGoods(currentGoods));
   };

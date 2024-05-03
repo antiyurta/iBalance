@@ -39,7 +39,7 @@ const EditableTableDiscount = (props: IProps) => {
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [isPercent, setIsPercent] = useState<IPercent>({});
+  const discounts = Form.useWatch("discounts", form);
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -68,10 +68,6 @@ const EditableTableDiscount = (props: IProps) => {
       });
   };
   const onRemove = (index: number) => {
-    setIsPercent((prevValues) => ({
-      ...prevValues,
-      [index]: false,
-    }));
     const amount = form.getFieldValue(["accounts", index, "amount"]);
     const limitAmount = form.getFieldValue("amount");
     form.setFieldValue("amount", limitAmount - amount);
@@ -79,10 +75,6 @@ const EditableTableDiscount = (props: IProps) => {
   };
   const onCancel = (index: number) => {
     if (isNewService) {
-      setIsPercent((prevValues) => ({
-        ...prevValues,
-        [index]: false,
-      }));
       remove(index);
     } else {
       onSave().then((state) => {
@@ -264,10 +256,6 @@ const EditableTableDiscount = (props: IProps) => {
             <Switch
               disabled={!(index === editingIndex)}
               onChange={(value) => {
-                setIsPercent((prevValues) => ({
-                  ...prevValues,
-                  [index]: value,
-                }));
                 form.resetFields([
                   ["discounts", index, value ? "amount" : "percent"],
                 ]);
@@ -279,7 +267,7 @@ const EditableTableDiscount = (props: IProps) => {
       <Column
         title="Хөнгөлөлт"
         render={(_, _row, index) => {
-          if (isPercent[index]) {
+          if (discounts[index]?.isPercent) {
             return (
               <Form.Item name={[index, "percent"]}>
                 <NewInputNumber
