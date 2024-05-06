@@ -47,14 +47,15 @@ const PayController = () => {
         unitAmount: material.unitAmount,
         quantity: 1,
         discountAmount: material.discountAmount,
-        payAmount: material.unitAmount,
+        payAmount: material.unitAmount - material.discountAmount,
         totalAmount: material.unitAmount,
       };
       if (currentIndex !== -1) {
         currentGoods.quantity = shoppingGoods[currentIndex].quantity + 1;
         currentGoods.payAmount =
-          shoppingGoods[currentIndex].unitAmount *
-          (shoppingGoods[currentIndex].quantity + 1);
+          (shoppingGoods[currentIndex].quantity + 1) *
+          (shoppingGoods[currentIndex].unitAmount -
+            shoppingGoods[currentIndex].discountAmount);
       }
       dispatch(saveGoods(currentGoods));
     }
