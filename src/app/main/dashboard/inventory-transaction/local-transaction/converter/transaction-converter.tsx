@@ -1,5 +1,5 @@
 "use client";
-import { IDataDocument } from "@/service/document/entities";
+import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
 import {
   IDataWarehouse,
@@ -34,6 +34,18 @@ const TransactionConverter = (props: IProps) => {
       }
     });
   };
+  const generateCode = async () => {
+    blockContext.block();
+    await DocumentService.generateCode({
+      movingStatus: MovingStatus.ItemConversion,
+    })
+      .then((response) => {
+        if (response.success) {
+          form.setFieldValue("code", response.response);
+        }
+      })
+      .finally(() => blockContext.unblock());
+  };
   const onFinish = async (values: IDataDocument) => {
     blockContext.block();
     if (selectedDocument) {
@@ -55,6 +67,7 @@ const TransactionConverter = (props: IProps) => {
   };
   useEffect(() => {
     getWarehouses();
+    generateCode();
   }, []);
   useEffect(() => {
     if (!selectedDocument) {
@@ -107,7 +120,6 @@ const TransactionConverter = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",
@@ -115,7 +127,7 @@ const TransactionConverter = (props: IProps) => {
                 gap: 12,
               }}
             >
-              <Form.Item label="Баримтын дугаар" name="id">
+              <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
               <Form.Item label="Огноо" name="documentAt">

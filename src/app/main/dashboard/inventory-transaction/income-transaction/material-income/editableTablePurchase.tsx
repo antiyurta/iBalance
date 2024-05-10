@@ -12,6 +12,8 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import MaterialSearch from "@/components/material-search";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
 
 interface IProps {
   data: FormListFieldData[];
@@ -77,12 +79,13 @@ export const EditableTablePurchase = (props: IProps) => {
   return (
     <Table
       dataSource={data}
+      pagination={false}
       footer={() => {
         return (
           <div
             className="button-editable-footer"
             onClick={async () => {
-              await validationFields() && add();
+              (await validationFields()) && add();
               setEditingIndex(data.length);
             }}
           >
@@ -119,32 +122,36 @@ export const EditableTablePurchase = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <MaterialSelect
-            params={{ types: [MaterialType.Material] }}
-            form={form}
-            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          <Form.Item
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex) || isEdit}
-            listName="transactions"
-            onClear={() => {
-              form.resetFields([
-                ["transactions", index, "name"],
-                ["transactions", index, "measurement"],
-                ["transactions", index, "countPackage"],
-              ]);
-            }}
-            onSelect={(value) => {
-              form.setFieldsValue({
-                transactions: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
+            rules={[{ required: true, message: "Бараа материалын код заавал" }]}
+          >
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              isDisable={editingIndex !== index}
+              isEdit={true}
+              warehouseId={form.getFieldValue("warehouseId")}
+              materialId={form.getFieldValue([
+                "transactions",
+                index,
+                "materialId",
+              ])}
+              onMaterial={(material?: IDataViewMaterial) => {
+                form.setFieldsValue({
+                  transactions: {
+                    [index]: {
+                      materialId: material?.id,
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      lastQty: material?.lastQty,
+                      isExpired: material?.isExpired,
+                    },
                   },
-                },
-              });
-            }}
-          />
+                });
+              }}
+            />
+          </Form.Item>
         )}
       />
       <Column
@@ -184,6 +191,15 @@ export const EditableTablePurchase = (props: IProps) => {
         )}
       />
       <Column
+        dataIndex={"lastQty"}
+        title="Агуулахын үлдэгдэл"
+        render={(_, __, index) => (
+          <Form.Item name={[index, "lastQty"]}>
+            <NewInputNumber disabled />
+          </Form.Item>
+        )}
+      />
+      <Column
         dataIndex={"incomeQty"}
         title="Орлогын тоо хэмжээ"
         render={(_, __, index) => (
@@ -198,17 +214,19 @@ export const EditableTablePurchase = (props: IProps) => {
       <Column
         dataIndex={"transactionAt"}
         title="Дуусах хугацаа"
-        render={(_, __, index) => (
-          <Form.Item
-            name={[index, "transactionAt"]}
-            rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
-          >
-            <NewDatePicker
-              disabled={!(index === editingIndex)}
-              format={"YYYY-MM-DD"}
-            />
-          </Form.Item>
-        )}
+        render={(_, __, index) =>
+          form.getFieldValue(["transactions", index, "isExpired"]) && (
+            <Form.Item
+              name={[index, "transactionAt"]}
+              rules={[{ required: true, message: "Дуусах хугацаа заавал" }]}
+            >
+              <NewDatePicker
+                disabled={!(index === editingIndex)}
+                format={"YYYY-MM-DD"}
+              />
+            </Form.Item>
+          )
+        }
       />
       {/* Засах устгах хэсэг */}
       <Column

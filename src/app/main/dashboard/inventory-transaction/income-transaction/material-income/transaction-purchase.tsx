@@ -51,7 +51,10 @@ export const TransactionPurchase = (props: IProps) => {
         .then((response) => {
           if (response.success) form.resetFields();
         })
-        .finally(() => blockContext.unblock());
+        .finally(() => {
+          generateCode();
+          blockContext.unblock();
+        });
     }
   };
   const generateCode = async () => {

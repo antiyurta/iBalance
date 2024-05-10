@@ -20,7 +20,7 @@ import { hasUniqueValues } from "@/feature/common";
 type Props = {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
-};
+}
 const TransactionAct: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();

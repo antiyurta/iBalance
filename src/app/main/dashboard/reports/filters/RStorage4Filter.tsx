@@ -56,6 +56,7 @@ const RStorage4Filter = () => {
       <Row>
         <Col span={12} style={colStyle}>
           <NewReportSelect
+            form={form}
             label={"Нярав:"}
             name={"employeeId"}
             selectProps={{
@@ -102,6 +103,7 @@ const RStorage4Filter = () => {
             }}
           />
           <NewReportSelect
+            form={form}
             label={"Брэнд"}
             name={"brandId"}
             selectProps={{
@@ -114,6 +116,7 @@ const RStorage4Filter = () => {
         </Col>
         <Col span={12} style={colStyle}>
           <NewReportSelect
+            form={form}
             label={"Нярав:"}
             name={"employeeId"}
             selectProps={{
@@ -160,6 +163,7 @@ const RStorage4Filter = () => {
             }}
           />
           <NewReportSelect
+            form={form}
             label={"Брэнд"}
             name={"brandId"}
             selectProps={{

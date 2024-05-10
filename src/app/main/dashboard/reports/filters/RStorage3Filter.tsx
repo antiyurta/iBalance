@@ -31,6 +31,7 @@ const RStorage3Filter = () => {
         <NewDatePicker />
       </Form.Item>
       <NewReportSelect
+        form={form}
         label={"Нярав:"}
         name={"employeeId"}
         selectProps={{
@@ -77,6 +78,7 @@ const RStorage3Filter = () => {
         }}
       />
       <NewReportSelect
+        form={form}
         label={"Брэнд"}
         name={"brandId"}
         selectProps={{
@@ -84,7 +86,10 @@ const RStorage3Filter = () => {
         }}
       />
       <NewReportSwitch name="isLock" label="Зөвхөн түгжсэн гүйлгээг харуулах" />
-      <NewReportSwitch name="isActive" label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах" />
+      <NewReportSwitch
+        name="isActive"
+        label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах"
+      />
     </>
   );
 };

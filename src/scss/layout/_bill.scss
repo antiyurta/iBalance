@@ -1,5 +1,6 @@
 .bill {
   display: flex;
+  padding: 0px 20px 0px 20px;
   flex-direction: column;
   gap: 12px;
   p {
@@ -105,5 +106,27 @@
       flex-direction: column;
       gap: 5px;
     }
+  }
+}
+.my-table {
+  border-collapse: collapse;
+  width: 100%;
+  td,
+  th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  tr:hover {
+    background-color: #ddd;
+  }
+  th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #198754;
+    color: white;
   }
 }

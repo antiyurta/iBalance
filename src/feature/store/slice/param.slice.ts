@@ -28,7 +28,7 @@ const pane = createSlice({
         action.payload.param = {
           page: 1,
           limit: 10,
-          filters: [],
+          filters: action.payload.param.filters,
           order: "DESC",
           orderParam: ["createdAt"],
         };
@@ -76,6 +76,5 @@ const pane = createSlice({
     },
   },
 });
-export const { emptyPane, newPane, removePane, changeParam } =
-  pane.actions;
+export const { emptyPane, newPane, removePane, changeParam } = pane.actions;
 export default pane.reducer;

@@ -1,27 +1,17 @@
 import { api } from "@/feature/interceptor/interceptor";
-import {
-  IDataWarehouseDocument,
-  IParamWarehouseDocument,
-  IResponseDocument,
-  IResponseDocuments,
-} from "./entities";
+import { IResponseDocument, IResponseDocuments } from "./entities";
+import { FormMoveWarehouseDocument } from "@/types/form";
 
-function get(params?: IParamWarehouseDocument): Promise<IResponseDocuments> {
-  return api.get("transaction-warehouse-document", { params });
-}
-function getById(id: number): Promise<IResponseDocument> {
-  return api.get(`transaction-warehouse-document/${id}`);
-}
-function post(body: IDataWarehouseDocument): Promise<IResponseDocument> {
+function post(body: FormMoveWarehouseDocument): Promise<IResponseDocument> {
   return api.post("transaction-warehouse-document", body);
 }
 function patch(
   id: number,
-  body: IDataWarehouseDocument
+  body: FormMoveWarehouseDocument
 ): Promise<IResponseDocuments> {
   return api.patch(`transaction-warehouse-document/${id}`, body);
 }
 function remove(id: number): Promise<IResponseDocument> {
   return api.delete(`transaction-warehouse-document/${id}`);
 }
-export const WarehouseDocumentService = { get, getById, post, patch, remove };
+export const WarehouseDocumentService = { post, patch, remove };

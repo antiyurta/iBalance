@@ -28,8 +28,6 @@ export const TransactionSaleReturn = (props: IProps) => {
   const { selectedDocument, onSave } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
-  const warehouseId = Form.useWatch("warehouseId", form);
-  const consumerId = Form.useWatch("consumerId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
@@ -124,7 +122,6 @@ export const TransactionSaleReturn = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",

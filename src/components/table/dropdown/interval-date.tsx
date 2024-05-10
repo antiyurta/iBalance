@@ -4,6 +4,7 @@ import { Space } from "antd";
 import { Dispatch, SetStateAction, useState } from "react";
 import PopoverTool from "./popover-tool";
 import { Dayjs } from "dayjs";
+import DatePicker from "react-multi-date-picker";
 const datePickers: Tool[] = ["THAT", "IS_GREATOR_OR_EQUAL", "IS_LESS_OR_EQUAL"];
 const groupPickers: Tool[] = ["MONTH", "QUARTER", "YEAR"];
 interface IProps {
@@ -21,7 +22,11 @@ export const IntervalDate: React.FC<IProps> = ({
   return (
     <Space.Compact>
       <div className="extraButton">
-        <PopoverTool dataIndexType={DataIndexType.DATE} operator={setTool} />
+        <PopoverTool
+          dataIndexType={DataIndexType.DATE}
+          tool={tool}
+          setTool={setTool}
+        />
       </div>
       {datePickers.includes(tool.operator) && (
         <NewDatePicker
@@ -30,7 +35,10 @@ export const IntervalDate: React.FC<IProps> = ({
         />
       )}
       {tool.operator == "BETWEEN" && (
-        <NewRangePicker onChange={(date: any) => setDates(date)} />
+        <NewRangePicker
+          value={dates && [dates[0], dates[1]]}
+          onChange={(date: any) => setDates(date)}
+        />
       )}
       {groupPickers.includes(tool.operator) && (
         <NewDatePicker
@@ -40,7 +48,7 @@ export const IntervalDate: React.FC<IProps> = ({
         />
       )}
       {tool.operator == "SELECTION" && (
-        <NewDatePicker multiple onChange={(date: any) => setDates(date)} />
+        <DatePicker multiple onChange={(date: any) => setDates(date)} />
       )}
     </Space.Compact>
   );

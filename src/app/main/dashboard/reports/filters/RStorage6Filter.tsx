@@ -84,6 +84,7 @@ const RStorage6Filter = () => {
         <NewInput />
       </Form.Item>
       <NewReportSelect
+        form={form}
         label={"Орлогын нярав:"}
         name={"incomeEmployeeIds"}
         selectProps={{
@@ -112,6 +113,7 @@ const RStorage6Filter = () => {
         }}
       />
       <NewReportSelect
+        form={form}
         label={"Зарлагын нярав:"}
         name={"expenseEmployeeIds"}
         selectProps={{
@@ -158,6 +160,7 @@ const RStorage6Filter = () => {
         }}
       />
       <NewReportSelect
+        form={form}
         label={"Брэнд:"}
         name={"brandId"}
         selectProps={{

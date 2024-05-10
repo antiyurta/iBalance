@@ -48,15 +48,15 @@ const RStorage2Filter = () => {
       if (response.success) {
         setConsumers(response.response.data);
       }
-    })
-  }
+    });
+  };
   useEffect(() => {
     employeeIds && setEmployeeIds(employeeIds);
   }, [employeeIds]);
   useEffect(() => {
     getSection();
     getConsumer();
-  }, [])
+  }, []);
   return (
     <>
       <DateIntervalForm
@@ -75,6 +75,7 @@ const RStorage2Filter = () => {
         <NewInput />
       </Form.Item>
       <NewReportSelect
+        form={form}
         label={"Нярав:"}
         name={"employeeIds"}
         selectProps={{
@@ -121,6 +122,7 @@ const RStorage2Filter = () => {
         }}
       />
       <NewReportSelect
+        form={form}
         label={"Брэнд"}
         name={"brandId"}
         selectProps={{

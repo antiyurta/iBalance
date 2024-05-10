@@ -1,7 +1,7 @@
 import { IDataMaterial } from "@/service/material/entities";
 import { IDataBooking } from "../entities";
 import { IDataDiscount } from "@/service/command/discount/entities";
-import { ColumnType, GenericResponse, IData, IFilter, IParam, Meta } from "@/service/entities";
+import { ColumnType, GenericResponse, IColumn, IData, IParam, Meta } from "@/service/entities";
 
 export interface IDataBookingMaterial extends IData {
   id: number;
@@ -13,20 +13,21 @@ export interface IDataBookingMaterial extends IData {
   materialDiscount?: IDataDiscount;
   quantity: number;
   amount: number;
+  lastQty: number;
   discountAmount: number;
   distributeQuantity: number;
   confirmQuantity: number;
   confirmAmount: number;
 }
 
-export interface IFilterBookingMaterial extends IFilter {
-  id: number;
-  bookingId: number;
-  booking?: IDataBooking;
-  materialId: number;
-  material?: IDataMaterial;
-  materialDiscountId: number;
-  materialDiscount?: IDataDiscount;
+export interface IFilterBookingMaterial extends IColumn {
+  bookingId: string;
+  bookingAt: string;
+  toWarehouseName: string;
+  fromWarehouseName: string;
+  status: string;
+  materialCode: string;
+  materialName: string;
   quantity: number;
   amount: number;
   discountAmount: number;

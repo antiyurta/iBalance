@@ -51,7 +51,7 @@ const Groups = () => {
       materialType: MaterialType.Material,
     }).then(async (response) => {
       const result: IGroup[] = await Promise.all(
-        response.response.data.map(async (section) => {
+        response.response.map(async (section) => {
           return {
             name: section.name,
             src:

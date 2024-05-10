@@ -45,6 +45,7 @@ const RStorage5Filter = () => {
         <NewInput />
       </Form.Item>
       <NewReportSelect
+        form={form}
         label={"Нярав:"}
         name={"employeeIds"}
         selectProps={{
@@ -91,6 +92,7 @@ const RStorage5Filter = () => {
         }}
       />
       <NewReportSelect
+        form={form}
         label={"Брэнд:"}
         name={"brandId"}
         selectProps={{

@@ -10,7 +10,7 @@ import { useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { changeParam, newPane } from "@/feature/store/slice/param.slice";
+import { newPane } from "@/feature/store/slice/param.slice";
 import {
   DocumentStatus,
   FilteredColumnsPosDocument,
@@ -63,14 +63,16 @@ const ReturnList: React.FC = () => {
       isView: true,
       isFiltered: false,
       dataIndex: ["document", "incomeCount"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.NUMBER,
+      isSummary: true,
     },
     incomeQuantity: {
       label: "Борлуулалтын ширхэг",
       isView: true,
       isFiltered: false,
       dataIndex: ["document", "incomeQuantity"],
-      type: DataIndexType.MULTI,
+      type: DataIndexType.NUMBER,
+      isSummary: true,
     },
     totalAmount: {
       label: "Нийт дүн",
@@ -78,6 +80,7 @@ const ReturnList: React.FC = () => {
       isFiltered: false,
       dataIndex: ["totalAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     payAmount: {
       label: "Төлөх дүн",
@@ -85,6 +88,7 @@ const ReturnList: React.FC = () => {
       isFiltered: false,
       dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     paidAmount: {
       label: "Төлсөн дүн",
@@ -92,6 +96,7 @@ const ReturnList: React.FC = () => {
       isFiltered: false,
       dataIndex: ["paidAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     goodsDiscountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
@@ -99,6 +104,7 @@ const ReturnList: React.FC = () => {
       isFiltered: false,
       dataIndex: ["goodsDiscountAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     membershipPoint: {
       label: "Ашигласан оноо",
@@ -106,6 +112,7 @@ const ReturnList: React.FC = () => {
       isFiltered: false,
       dataIndex: ["membershipPoint"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     giftCartPoint: {
       label: "Бэлгийн карт",
@@ -113,6 +120,7 @@ const ReturnList: React.FC = () => {
       isFiltered: false,
       dataIndex: ["giftCartPoint"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
   });
   const [data, setData] = useState<IDataPosDocument[]>([]);

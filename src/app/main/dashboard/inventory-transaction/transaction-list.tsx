@@ -8,7 +8,7 @@ import {
   openNofi,
 } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
-import { Meta } from "@/service/entities";
+import { IFilter, Meta } from "@/service/entities";
 import {
   FilteredColumnsTransaction,
   IDataTransaction,
@@ -22,7 +22,7 @@ import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
-import { DocumentEdit } from "./document-edit";
+import DocumentEdit from "./document-edit";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
@@ -41,7 +41,9 @@ export const TransactionList = (props: IProps) => {
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
   const [filters, setFilters] = useState<IFilterTransaction>();
   const [isFilterToggle, setIsFilterToggle] = useState<boolean>(false);
-  const [selectedDocument, setSelectedDocument] = useState<IDataDocument>();
+  const [selectedDocuments, setSelectedDocuments] = useState<IDataDocument[]>(
+    []
+  );
   const [isReload, setIsReload] = useState<boolean>(false);
   const [columns, setColumns] = useState<FilteredColumnsTransaction>(
     getTransactionColumns(movingStatus)
@@ -64,19 +66,34 @@ export const TransactionList = (props: IProps) => {
   const editDocument = async (transaction: IDataTransaction) => {
     if (transaction.document?.isLock) {
       openNofi("warning", "Баримт түгжигдсэн байна.");
-    } else if (transaction.documentId) {
+    } else if (transaction.document?.code) {
       blockContext.block();
-      await DocumentService.getById(transaction.documentId)
+      await DocumentService.getByCode(transaction.document.code)
         .then((response) => {
           if (response.success) {
-            setSelectedDocument(response.response);
+            setSelectedDocuments(response.response);
           }
         })
         .finally(() => blockContext.unblock());
     }
   };
   useEffect(() => {
-    dispatch(newPane({ key, param: {} }));
+    const filters: IFilter[] = [];
+    if (movingStatus) {
+      filters.push({
+        dataIndex: ["document", "movingStatus"],
+        operator: "EQUALS",
+        filter: movingStatus,
+      });
+    }
+    dispatch(
+      newPane({
+        key,
+        param: {
+          filters,
+        },
+      })
+    );
   }, []);
   useEffect(() => {
     getData();
@@ -139,15 +156,10 @@ export const TransactionList = (props: IProps) => {
             />
           </div>
         </Col>
-        <Col span={isFilterToggle ? 4 : 0}>
-          {/* <CommandFilterForm
-            onToggle={() => setIsFilterToggle(!isFilterToggle)}
-            getData={getData}
-          /> */}
-        </Col>
+        <Col span={isFilterToggle ? 4 : 0}></Col>
       </Row>
       <DocumentEdit
-        selectedDocument={selectedDocument}
+        selectedDocuments={selectedDocuments}
         movingStatus={movingStatus}
         isReload={isReload}
         setIsReload={setIsReload}

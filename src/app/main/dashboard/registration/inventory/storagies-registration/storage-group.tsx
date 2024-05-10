@@ -1,4 +1,4 @@
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
@@ -12,7 +12,7 @@ import { useContext, useEffect, useState } from "react";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import StoragiesRegistration from "./StoragiesRegistration";
-import { TreeSectionSelect } from "@/components/tree-select";
+import NewTreeSelect from "@/components/tree/tree-select";
 const { Title } = Typography;
 export const StoragiesGroup = () => {
   const [form] = Form.useForm();
@@ -230,9 +230,7 @@ export const StoragiesGroup = () => {
         </Col>
         <Col span={24}>
           <NewDirectoryTree
-            extra="FULL"
             data={sections}
-            isLeaf={true}
             onEdit={checkEdit}
             onDelete={onDelete}
           />
@@ -277,16 +275,14 @@ export const StoragiesGroup = () => {
             </Form.Item>
             <Form.Item
               label="Харъяалах бүлэг"
-              style={{
-                width: "100%",
-              }}
+              rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}
+              name="sectionId"
             >
-              <TreeSectionSelect
-                isLeaf={false}
-                type={TreeSectionType.Warehouse}
-                form={form}
-                rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}
-                name="sectionId"
+              <NewTreeSelect
+                sections={sections}
+                onChange={(value: string) =>
+                  form.setFieldValue("sectionId", value)
+                }
               />
             </Form.Item>
             <div className="switches-col">

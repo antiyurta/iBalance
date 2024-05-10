@@ -308,6 +308,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 0px 12px;
   }
   > .body {
     padding: 0px;
@@ -316,6 +317,16 @@ body {
     .ant-tree {
       width: 100%;
     }
+  }
+}
+.tree-item-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  .tree-item {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
   }
 }
 .ant-tabs.ant-tabs-top.lineTop {
@@ -507,6 +518,10 @@ html {
 //   background-color: #f8f9fa !important;
 // }
 
+.ant-upload-list-item.ant-upload-list-item-done {
+  border: none !important;
+}
+
 .numberValue-to-right {
   .ant-input-number-input-wrap {
     input {
@@ -537,7 +552,7 @@ html {
 }
 
 // end shine layout
-.ant-layout-sider.ant-layout-sider-light {
+.ant-layout-sider.ant-layout-sider-light.first {
   width: 96px !important;
   min-width: 96px !important;
   max-width: 96px !important;
@@ -828,11 +843,28 @@ html {
 }
 
 .open-close-close {
+  .title {
+    display: none;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .close-date {
+    display: none;
+    font-size: 12px;
+  }
   width: 100%;
-  .close-body {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+  @media (min-width: 992px) {
+    .close-body {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+  @media (max-width: 991px) {
+    .close-body {
+      display: block;
+      gap: 1px;
+    }
   }
   .close-content {
     display: flex;
@@ -908,6 +940,34 @@ i.rmdp-arrow {
   border-width: 0 2px 2px 0;
   &:hover {
     background: $color-primary;
+  }
+}
+
+@media print {
+  .open-close-close {
+    .title {
+      display: block;
+      text-align: center;
+    }
+    .close-date {
+      display: block;
+    }
+  }
+  .report-body {
+    width: 100%;
+    padding: 12px;
+    table.report {
+      width: 100%;
+      th,
+      td {
+        font-size: 11pt;
+        border: 1px solid gray;
+        padding: 8px;
+      }
+      th {
+        background: #d9d9d9;
+      }
+    }
   }
 }
 
@@ -1088,4 +1148,12 @@ i.rmdp-arrow {
 
 .text-line-through {
   text-decoration: line-through;
+}
+.ant-table table td {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 13px;
+  color: #000;
+  padding: 4px 4px !important;
 }

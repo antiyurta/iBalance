@@ -30,11 +30,12 @@ const MaterialDetail = () => {
   const params = useParams();
   const dispatch = useDispatch<AppDispatch>();
   const goods = useTypedSelector((state) => state.shoppingGoods);
+  const warehouse = useTypedSelector((state) => state.warehouse);
   const [material, setMaterial] = useState<IDataViewMaterial>();
   const [images, setImages] = useState<string[]>([]);
   const [qty, setQty] = useState<number>(0);
   const getMaterial = async (id: number) => {
-    const response = await ViewMaterialService.getById(id);
+    const response = await ViewMaterialService.getById(id, warehouse.id);
     if (response.success) {
       setMaterial(response.response);
     }

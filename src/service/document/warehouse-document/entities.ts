@@ -3,7 +3,6 @@ import {
   GenericResponse,
   IColumn,
   IData,
-  IFilter,
   IParam,
   Meta,
 } from "@/service/entities";
@@ -11,7 +10,6 @@ import { Dayjs } from "dayjs";
 import { IDataTransaction } from "../transaction/entities";
 
 export interface IDataWarehouseDocument extends IData {
-  id: number;
   code: string;
   documentAt: string | Dayjs;
   description: string; // гүйлгээний утга
@@ -19,6 +17,7 @@ export interface IDataWarehouseDocument extends IData {
   expenseEmployeeId: number;
   incomeWarehouseId: number;
   incomeEmployeeId: number;
+  bookingId: string;
   counter: number;
   quantity: number;
   transactions?: IDataTransaction[];
@@ -28,8 +27,8 @@ export interface IFilterWarehouseDocument extends IColumn {
   id?: number;
   code?: string;
   documentAt?: string | Dayjs;
-  expenseWarehouseId?: number[];
-  expenseEmployeeId?: number;
+  expenseWarehouseName?: string[];
+  expenseEmployeeFirstName?: string;
   incomeWarehouseId?: number[];
   incomeEmployeeId?: number;
   description?: string; // гүйлгээний утга

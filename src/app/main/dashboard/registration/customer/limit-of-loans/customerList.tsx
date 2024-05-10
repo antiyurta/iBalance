@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from "react";
 // components
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import {
   findIndexInColumnSettings,
@@ -32,7 +32,7 @@ import { TreeSectionService } from "@/service/reference/tree-section/service";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 
 interface IProps {
   onReload: boolean;
@@ -148,17 +148,20 @@ const CustomerList = (props: IProps) => {
       <Row gutter={[12, 24]}>
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
-            extra="HALF"
             data={sections}
-            isLeaf={false}
-            onClick={(keys) => {
-              onCloseFilterTag({
-                key: "sectionId",
-                state: true,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-              });
-              getData();
+            onClick={(sectionNames) => {
+              dispatch(
+                changeParam({
+                  ...param,
+                  filters: [
+                    {
+                      dataIndex: ["consumer", "section", "name"],
+                      operator: "IN",
+                      filter: sectionNames,
+                    },
+                  ],
+                })
+              );
             }}
           />
         </Col>

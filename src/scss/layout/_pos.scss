@@ -13,15 +13,21 @@
     gap: 20px;
     .tool-extra {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 10px;
+      > .ant-segmented {
+        > .ant-segmented-group {
+          flex-direction: row;
+          gap: 6px;
+        }
+      }
     }
   }
   .goods-container {
     display: flex;
     flex-wrap: wrap;
     gap: 8px 16px;
-    height: calc(100vh - 350px);
+    height: calc(100vh - 290px);
     overflow: scroll;
     .material-list {
       width: 100%;
@@ -107,7 +113,7 @@
               font-size: 16px;
             }
             padding: 2px 5px 2px 5px !important;
-            height: 20px !important;
+            height: 28px !important;
           }
         }
       }
@@ -191,8 +197,8 @@
         line-height: normal;
       }
       > .bottom {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
         > p {
           font-size: 12px;

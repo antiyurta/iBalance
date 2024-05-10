@@ -1,24 +1,23 @@
-import { Form, Popover, Space } from "antd";
-import { NewSelect } from "./input";
+import { Form, Space } from "antd";
 import { useEffect, useState } from "react";
-import { SignalFilled } from "@ant-design/icons";
 import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
-import NewDirectoryTree from "./directoryTree";
 import {
   IDataTreeSection,
   TreeSectionType,
 } from "@/service/reference/tree-section/entities";
 import { TreeSectionService } from "@/service/reference/tree-section/service";
+import NewTreeSelect from "./tree/tree-select";
 interface IProps {
   form: FormInstance;
   rules: Rule[];
-  /** default => sectionId */
   name?: string;
 }
-export const ConsumerSectionSelect = (props: IProps) => {
-  const { form, rules, name } = props;
-  const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
+export const ConsumerSectionSelect: React.FC<IProps> = ({
+  form,
+  rules,
+  name = "sectionId",
+}) => {
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
 
   const getConsumerSection = async (type: TreeSectionType) => {
@@ -31,47 +30,16 @@ export const ConsumerSectionSelect = (props: IProps) => {
   }, []);
   return (
     <Space.Compact>
-      <div className="extraButton">
-        <Popover
-          placement="bottom"
-          open={isOpenPopOver}
-          onOpenChange={(state) => setIsOpenPopOver(state)}
-          content={
-            <NewDirectoryTree
-              data={sections}
-              isLeaf={true}
-              extra="HALF"
-              onClick={(keys, isLeaf) => {
-                if (!isLeaf) {
-                  setIsOpenPopOver(false);
-                  form.setFieldsValue({
-                    [name ? `${name}` : "sectionId"]: keys![0],
-                  });
-                }
-              }}
-            />
-          }
-          trigger={"click"}
-        >
-          <SignalFilled rotate={-90} />
-        </Popover>
-      </div>
       <Form.Item
         style={{
           width: "100%",
         }}
-        name={name ? name : "sectionId"}
+        name={name}
         rules={rules}
       >
-        <NewSelect
-          disabled={true}
-          style={{
-            width: "100%",
-          }}
-          options={sections?.map((section: IDataTreeSection) => ({
-            label: section.name,
-            value: section.id,
-          }))}
+        <NewTreeSelect
+          sections={sections}
+          onChange={(value) => form.setFieldValue(name, value)}
         />
       </Form.Item>
     </Space.Compact>

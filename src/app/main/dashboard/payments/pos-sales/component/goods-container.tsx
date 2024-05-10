@@ -42,6 +42,7 @@ const GoodsContainer: React.FC<IProps> = ({ display, searchValue }) => {
       types: [MaterialType.Material],
       name: searchValue,
       sectionId,
+      moreUnitAmount: 0,
       page: 1,
       limit: 12,
     };

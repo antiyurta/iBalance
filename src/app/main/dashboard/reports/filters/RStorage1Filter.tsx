@@ -1,17 +1,20 @@
 import "dayjs/locale/mn";
-import { useEffect } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useReportContext } from "@/feature/context/ReportsContext";
-import DateIntervalForm from "@/components/dateIntervalForm";
 import { NewReportSectionSelect } from "../component/report-section-select";
 import { NewReportSelect } from "../component/report-select";
 import { Form } from "antd";
-import { NewSwitch } from "@/components/input";
 import { NewReportSwitch } from "../component/report-switch";
-
-const RStorage1Filter = () => {
+import { Tool } from "@/service/entities";
+import dayjs, { Dayjs } from "dayjs";
+import { useTypedSelector } from "@/feature/store/reducer";
+import ReportDateFilter from "../component/date-filter";
+interface IProps {
+  reportKey: string;
+}
+const RStorage1Filter: React.FC<IProps> = ({ reportKey }) => {
   const {
     form,
-    employees,
     sections,
     materialSections,
     warehouses,
@@ -21,36 +24,57 @@ const RStorage1Filter = () => {
     setFormStyle,
   } = useReportContext();
   const employeeIds = Form.useWatch("employeeIds", form);
+  const { items } = useTypedSelector((state) => state.reportPanel);
+  const currentItem = items.find((item) => item.key == reportKey);
+  const [operator, setOperator] = useState<Tool>("BETWEEN");
+  const [startAt, setStartAt] = useState<Dayjs | null>(dayjs());
+  const [endAt, setEndAt] = useState<Dayjs | null>(dayjs());
   useEffect(() => {
     employeeIds && setEmployeeIds(employeeIds);
   }, [employeeIds]);
   useEffect(() => {
     setFormStyle({ width: 600, margin: "auto" });
   }, []);
+  useEffect(() => {
+    form.setFieldValue("dateFilter", {
+      operator,
+      startAt,
+      endAt,
+    });
+  }, [operator, startAt, endAt]);
+  useEffect(() => {
+    if (currentItem && currentItem.param) {
+      const { param } = currentItem;
+      setOperator(param.dateFilter.operator);
+      param.dateFilter.startAt ?? setStartAt(param.dateFilter.startAt);
+      param.dateFilter.endAt ?? setEndAt(param.dateFilter.endAt);
+      form.setFieldsValue(param);
+    }
+  }, [currentItem]);
   return (
     <>
-      <DateIntervalForm
-        form={form}
-        intervalStyle={{
-          minWidth: 100,
-        }}
-        dateStyle={{
-          width: "100%",
-        }}
-        label=""
-        labelForDate="Огноо"
-        itemname={"interval"}
-      />
-      <NewReportSelect
-        label={"Нярав:"}
-        name={"employeeIds"}
-        selectProps={{
-          options: employees.map((item) => ({
-            value: item.id,
-            label: `${item.lastName}-${item.firstName}`,
-          })),
-        }}
-      />
+      <Form.Item
+        name={"dateFilter"}
+        label={"Хайх огноо"}
+        rules={[
+          {
+            validator: async (_, value) => {
+              if (Array.isArray(value.dates) && value.dates.length == 0) {
+                return Promise.reject(new Error("Хайх огноо оруулна уу."));
+              }
+            },
+          },
+        ]}
+      >
+        <ReportDateFilter
+          operator={operator}
+          setOperator={setOperator}
+          startAt={startAt}
+          setStartAt={setStartAt}
+          endAt={endAt}
+          setEndAt={setEndAt}
+        />
+      </Form.Item>
       <NewReportSectionSelect
         sectionLabel="Байршилын бүлэг:"
         sectionName="warehouseSectionId"
@@ -61,7 +85,7 @@ const RStorage1Filter = () => {
           })),
         }}
         label="Байршил:"
-        name="warehouseId"
+        name="warehouseIds"
         selectProps={{
           options: warehouses.map((item) => ({
             value: item.id,
@@ -71,7 +95,7 @@ const RStorage1Filter = () => {
       />
       <NewReportSectionSelect
         sectionLabel={"Барааны бүлэг:"}
-        sectionName={"materalSectionId"}
+        sectionName={"materialSectionId"}
         sectionSelectProps={{
           options: materialSections.map((item) => ({
             value: item.id,
@@ -79,7 +103,7 @@ const RStorage1Filter = () => {
           })),
         }}
         label={"Бараа:"}
-        name={"materialId"}
+        name={"materialIds"}
         selectProps={{
           options: materials.map((item) => ({
             value: item.id,
@@ -88,8 +112,9 @@ const RStorage1Filter = () => {
         }}
       />
       <NewReportSelect
-        label={"Брэнд:"}
-        name={"brandId"}
+        form={form}
+        label={"Брэнд"}
+        name={"brandIds"}
         selectProps={{
           options: brands.map((item) => ({
             value: item.id,
@@ -98,7 +123,10 @@ const RStorage1Filter = () => {
         }}
       />
       <NewReportSwitch name="isLock" label="Зөвхөн түгжсэн гүйлгээг харуулах" />
-      <NewReportSwitch name="isActive" label="Гүйлгээ гараагүй (идэвхтэй) барааны үлдэгдэл харуулах" />
+      <NewReportSwitch
+        name="isTransaction"
+        label="Зөвхөн гүйлгээ гарсан бараа материалын гүйлгээ, үлдэгдэл харуулах"
+      />
     </>
   );
 };

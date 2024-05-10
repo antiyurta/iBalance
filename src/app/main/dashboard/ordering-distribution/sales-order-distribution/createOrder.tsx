@@ -71,7 +71,7 @@ const CreateOrder = (props: IProps) => {
           gridTemplateColumns: `repeat(4, minmax(0,1fr))`,
         }}
       >
-        <Form.Item label="Захиалгын ID" name="code">
+        <Form.Item label="Захиалгын ID" name="id">
           <NewInput disabled />
         </Form.Item>
         <Form.Item

@@ -51,7 +51,8 @@ const Step2: React.FC = () => {
         dispatch(
           onPaid({
             payMethodId: method.id,
-            payAmount: values.amount,
+            incomeAmount: values.amount,
+            expenseAmount:  values.amount - payAmount,
             methodName: method.name || "",
             type: method.type,
             logo: method.logo,
@@ -110,7 +111,8 @@ const Step2: React.FC = () => {
                     dispatch(
                       onPaid({
                         payMethodId: method.id,
-                        payAmount: 0,
+                        incomeAmount: 0,
+                        expenseAmount: 0,
                         methodName: method.name || "",
                         logo: method.logo || "",
                         type: method.type,
@@ -121,7 +123,7 @@ const Step2: React.FC = () => {
                   }}
                   className={
                     invoices
-                      .filter((item) => item.payAmount > 0)
+                      .filter((item) => item.incomeAmount > 0)
                       .map((item) => item.payMethodId)
                       .includes(method.id)
                       ? "payment-type-box-disabled"

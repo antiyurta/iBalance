@@ -29,14 +29,31 @@ interface IProps {
   onChange?: (operator: Tool, value?: string | number | Dayjs[]) => void;
 }
 const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
+  const getDefaultTool = (): ITool => {
+    if (type == DataIndexType.DATE || type == DataIndexType.DATETIME) {
+      return {
+        logo: "/icons/tools/Equals.png",
+        title: "Тухайн",
+        operator: "THAT",
+      };
+    } else if (type == DataIndexType.MULTI) {
+      return {
+        logo: "/icons/tools/Contains.png",
+        title: "Агуулсан",
+        operator: "CONTAINS",
+      };
+    } else {
+      return {
+        logo: "/icons/tools/Equals.png",
+        title: "Equals",
+        operator: "EQUALS",
+      };
+    }
+  };
   const [dates, setDates] = useState<Dayjs[]>([dayjs(new Date())]);
   const [inputValue, setInputValue] = useState<string>();
   const [inputNumberValue, setInputNumberValue] = useState<number>();
-  const [tool, setTool] = useState<ITool>({
-    logo: "/icons/tools/Equals.png",
-    title: "Equals",
-    operator: "EQUALS",
-  });
+  const [tool, setTool] = useState<ITool>(getDefaultTool());
   useEffect(() => {
     onChange?.(tool.operator, inputValue);
   }, [inputValue]);
@@ -56,19 +73,19 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
       }}
     >
       {type == DataIndexType.DATE && (
-        <IntervalDate tool={tool} setTool={setTool} dates={dates} setDates={setDates} />
+        <IntervalDate
+          tool={tool}
+          setTool={setTool}
+          dates={dates}
+          setDates={setDates}
+        />
       )}
       {type == DataIndexType.MULTI && (
         <InputSearch
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           addonBefore={
-            <PopoverTool
-              dataIndexType={type}
-              operator={(tool) => {
-                setTool(tool);
-              }}
-            />
+            <PopoverTool dataIndexType={type} tool={tool} setTool={setTool} />
           }
         />
       )}
@@ -77,12 +94,7 @@ const DropdownSearch: React.FC<IProps> = ({ type, onChange }) => {
           value={inputNumberValue}
           onChange={(value) => setInputNumberValue(Number(value))}
           addonBefore={
-            <PopoverTool
-              dataIndexType={type}
-              operator={(tool) => {
-                setTool(tool);
-              }}
-            />
+            <PopoverTool dataIndexType={type} tool={tool} setTool={setTool} />
           }
         />
       )}

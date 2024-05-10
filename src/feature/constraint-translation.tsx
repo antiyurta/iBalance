@@ -28,7 +28,7 @@ export const enumTranslation = (value: string) => {
     return <div style={{ ...style, color: "green" }}>Үйл ажиллагаанд</div>;
   else if (value == "MOVEMENT_IN_WAREHOUSE")
     return (
-      <div style={{ ...style, color: "green" }}>Агуулах доторх хөдөлгөөн</div>
+      <div style={{ ...style, color: "green" }}>Байршлын хөдөлгөөн</div>
     );
   else if (value == "ITEM_CONVERSION")
     return <div style={{ ...style, color: "green" }}>Барааны хөрвүүлэг</div>;
@@ -47,7 +47,9 @@ export const enumTranslation = (value: string) => {
   else if (value == "Quantity")
     return <div style={{ ...style, color: "green" }}>Тооны хэмжих нэгж</div>;
   else if (value == "TIME")
-    return <div style={{ ...style, color: "green" }}>Цаг хугацааны хэмжих нэгж</div>;
+    return (
+      <div style={{ ...style, color: "green" }}>Цаг хугацааны хэмжих нэгж</div>
+    );
   else if (value == "VOLUME")
     return <div style={{ ...style, color: "green" }}>Эзлэхүүн хэмжих нэгж</div>;
   else if (value == "WEIGTH")
@@ -60,6 +62,17 @@ export const enumTranslation = (value: string) => {
     return <div style={{ ...style, color: "green" }}>Нягтлан</div>;
   else if (value == "CASHIER")
     return <div style={{ ...style, color: "green" }}>Кассчин</div>;
-  else
-    return <div style={{ ...style, color: "green" }}>{value}</div>;
+  else if (value == "NEW")
+    return <div style={{ ...style, color: "#0DCAF0" }}>Захиалга</div>;
+  else if (value == "ORDER_IGNORE")
+    return <div style={{ ...style, color: "#DC3545" }}>Захиалга цуцалсан</div>;
+  else if (value == "DISTRIBUTE")
+    return <div style={{ ...style, color: "#FFC107" }}>Зөвшөөрсөн</div>;
+  else if (value == "DISTRIBUTE_IGNORE")
+    return <div style={{ ...style, color: "#DC3545" }}>Зөвшөөрөл цуцалсан</div>;
+  else if (value == "CONFIRM")
+    return <div style={{ ...style, color: "green" }}>Олгосон</div>;
+  else if (value == "CONFIRM_IGNORE")
+    return <div style={{ ...style, color: "#DC3545" }}>Олголт цуцалсан</div>;
+  else return <div style={{ ...style, color: "green" }}>{value}</div>;
 };

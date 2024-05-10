@@ -2,7 +2,7 @@ import { api } from "@/feature/interceptor/interceptor";
 import { IParamBookingMaterial, IResponseBookingMaterials } from "./entities";
 
 function get(
-  params: IParamBookingMaterial
+  params?: IParamBookingMaterial
 ): Promise<IResponseBookingMaterials> {
   return api.get("booking-material", { params });
 }

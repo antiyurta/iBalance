@@ -1,38 +1,32 @@
 "use client";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { DocumentService } from "@/service/document/service";
-import {
-  IDataWarehouse,
-  IParamWarehouse,
-} from "@/service/reference/warehouse/entities";
+import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { Button, Col, Form, Row, Space } from "antd";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import NewCard from "@/components/Card";
 import { NewDatePicker, NewFilterSelect, NewInput } from "@/components/input";
 import { EditableTableCencus } from "./editableTableCencus";
-import { IParamViewMaterial } from "@/service/material/view-material/entities";
-import { ViewMaterialService } from "@/service/material/view-material/service";
-import { MaterialType } from "@/service/material/entities";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import dayjs from "dayjs";
 import { IDataTransaction } from "@/service/document/transaction/entities";
 import { hasUniqueValues } from "@/feature/common";
-import { IDataEmployee } from "@/service/employee/entities";
-import { EmployeeService } from "@/service/employee/service";
-interface IProps {
+import { FormCensusDocument } from "@/types/form";
+type Props = {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
-}
-const TransactionCencus = (props: IProps) => {
-  const { selectedDocument, onSave } = props;
+};
+const TransactionCencus: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormCensusDocument>();
+  const warehouseId = Form.useWatch("warehouseId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
-  const [employees, setEmployees] = useState<IDataEmployee[]>([]);
-  const warehouseId: number = Form.useWatch("warehouseId", form);
 
+  const negativeNumber = (value: number): number => {
+    return -value;
+  };
   const getWarehouses = () => {
     WarehouseService.get().then((response) => {
       if (response.success) {
@@ -40,30 +34,34 @@ const TransactionCencus = (props: IProps) => {
       }
     });
   };
-  const getMaterials = async (params: IParamViewMaterial) => {
-    form.validateFields(["warehouseId"]).then(async () => {
-      await ViewMaterialService.get(params).then((response) => {
-        if (response.success) {
-          const materials = response.response.data
-            .map((response) => ({
-              materialId: response.id,
-              name: response.name,
-              measurement: response.measurementName,
-              countPackage: response.countPackage,
-              unitAmount: response.unitAmount | 0,
-              lastQty: response.lastQty,
-            }))
-            .filter((item) => item.lastQty !== 0);
-          form.setFieldsValue({ transactions: materials });
-        }
-      });
-    });
-  };
-  const onFinish = async (values: IDataDocument) => {
+  const onFinish = async (values: FormCensusDocument) => {
     blockContext.block();
-    values.movingStatus = MovingStatus.Cencus;
     if (selectedDocument) {
-      await DocumentService.patch(selectedDocument.id, values)
+      await DocumentService.patch(selectedDocument.id, {
+        id: selectedDocument.id,
+        warehouseId: values.warehouseId,
+        documentAt: values.documentAt,
+        employeeId: values.employeeId,
+        description: values.description,
+        movingStatus: MovingStatus.Cencus,
+        transactions: values.transactions.map((item) => ({
+          materialId: item.materialId,
+          unitAmount: item.unitAmount,
+          lastQty: item.lastQty,
+          transactionAt: item.transactionAt.toString(),
+          censusQty: item.censusQty,
+          incomeQty:
+            item.censusQty - item.lastQty > 0
+              ? item.censusQty - item.lastQty
+              : 0,
+          expenseQty:
+            item.censusQty - item.lastQty < 0
+              ? negativeNumber(item.censusQty - item.lastQty)
+              : 0,
+          totalAmount: item.censusQty * item.unitAmount,
+          description: item.description,
+        })),
+      })
         .then((response) => {
           if (response.success) {
             form.resetFields();
@@ -72,9 +70,36 @@ const TransactionCencus = (props: IProps) => {
         })
         .finally(() => blockContext.unblock());
     } else {
-      await DocumentService.post(values)
-        .then((response) => {
-          if (response.success) form.resetFields();
+      DocumentService.post({
+        id: 0,
+        code: values.code,
+        warehouseId: values.warehouseId,
+        documentAt: values.documentAt,
+        employeeId: values.employeeId,
+        description: values.description,
+        movingStatus: MovingStatus.Cencus,
+        transactions: values.transactions.map((item) => ({
+          materialId: item.materialId,
+          unitAmount: item.unitAmount,
+          lastQty: item.lastQty,
+          transactionAt: item.transactionAt.toString(),
+          censusQty: item.censusQty,
+          incomeQty:
+            item.censusQty - item.lastQty > 0
+              ? item.censusQty - item.lastQty
+              : 0,
+          expenseQty:
+            item.censusQty - item.lastQty < 0
+              ? negativeNumber(item.censusQty - item.lastQty)
+              : 0,
+          totalAmount: item.censusQty * item.unitAmount,
+          description: item.description,
+        })),
+      })
+        .then((res) => {
+          if (res.success) {
+            form.resetFields();
+          }
         })
         .finally(() => blockContext.unblock());
     }
@@ -91,6 +116,13 @@ const TransactionCencus = (props: IProps) => {
       })
       .finally(() => blockContext.unblock());
   };
+  const employees = useMemo(() => {
+    console.log("warehouseId", warehouseId);
+    return (
+      warehouses.find((warehouse) => warehouse.id === warehouseId)?.employees ||
+      []
+    );
+  }, [warehouseId]);
   useEffect(() => {
     getWarehouses();
     generateCode();
@@ -98,20 +130,23 @@ const TransactionCencus = (props: IProps) => {
   useEffect(() => {
     if (selectedDocument) {
       form.setFieldsValue({
-        ...selectedDocument,
-        documentAt: dayjs(selectedDocument.documentAt),
-        transactions: selectedDocument.transactions?.map((transaction) => ({
-          materialId: transaction.materialId,
-          name: transaction.material?.name,
-          measurement: transaction.material?.measurement.name,
-          countPackage: transaction.material?.countPackage,
-          unitAmount: transaction.unitAmount || 0,
-          lastQty: transaction.lastQty,
-          quantity:
-            transaction.lastQty || 0 + (transaction.excessOrDeficiency || 0),
-          excessOrDeficiency: transaction.excessOrDeficiency,
-          totalAmount: transaction.amount,
-          description: transaction.description,
+        code: selectedDocument?.code,
+        warehouseId: selectedDocument?.warehouseId,
+        documentAt: dayjs(selectedDocument?.documentAt),
+        description: selectedDocument?.description,
+        employeeId: selectedDocument?.employeeId,
+        transactions: selectedDocument.transactions.map((item) => ({
+          materialId: item.materialId,
+          name: item.material?.name,
+          measurement: item.material?.measurement.shortName,
+          countPackage: item.material?.countPackage,
+          unitAmount: item.unitAmount,
+          lastQty: item.lastQty,
+          transactionAt: dayjs(item.transactionAt),
+          censusQty: item.censusQty,
+          diffQty: (item.censusQty || 0) - (item.lastQty || 0),
+          totalAmount: item.totalAmount,
+          description: item.description,
         })),
       });
     }
@@ -162,17 +197,6 @@ const TransactionCencus = (props: IProps) => {
                 rules={[{ required: true, message: "Байршил оруулна уу" }]}
               >
                 <NewFilterSelect
-                  onChange={(id) => {
-                    form.resetFields(["employeeId"]);
-                    const employees =
-                      warehouses.find((warehouse) => warehouse.id === id)
-                        ?.employees || [];
-                    setEmployees(employees);
-                    getMaterials({
-                      warehouseId,
-                      types: [MaterialType.Material],
-                    });
-                  }}
                   options={warehouses.map((warehouse) => ({
                     value: warehouse.id,
                     label: warehouse.name,
@@ -216,39 +240,43 @@ const TransactionCencus = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            <div style={{ overflow: "auto", maxHeight: "500px" }}>
-              <Form.List
-                name="transactions"
-                rules={[
-                  {
-                    validator: async (_, transactions) => {
-                      const arr = Array.isArray(transactions)
-                        ? transactions.map(
-                            (trans: IDataTransaction) => trans.materialId
-                          )
-                        : [];
-                      if (!hasUniqueValues(arr)) {
-                        return Promise.reject(
-                          new Error("Барааны код давхардсан байна.")
-                        );
-                      }
-                    },
-                  },
-                ]}
-              >
-                {(items, { add, remove }, { errors }) => (
-                  <>
-                    <EditableTableCencus
-                      data={items}
-                      form={form}
-                      add={add}
-                      remove={remove}
-                    />
-                    <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                  </>
-                )}
-              </Form.List>
-            </div>
+            {form.getFieldValue("documentAt") &&
+              form.getFieldValue("warehouseId") && (
+                <div style={{ overflow: "auto", maxHeight: "500px" }}>
+                  <Form.List
+                    name="transactions"
+                    rules={[
+                      {
+                        validator: async (_, transactions) => {
+                          const arr = Array.isArray(transactions)
+                            ? transactions.map(
+                                (trans: IDataTransaction) => trans.materialId
+                              )
+                            : [];
+                          if (!hasUniqueValues(arr)) {
+                            return Promise.reject(
+                              new Error("Барааны код давхардсан байна.")
+                            );
+                          }
+                        },
+                      },
+                    ]}
+                  >
+                    {(items, { add, remove }, { errors }) => (
+                      <>
+                        <EditableTableCencus
+                          data={items}
+                          form={form}
+                          isEditing={Boolean(selectedDocument)}
+                          add={add}
+                          remove={remove}
+                        />
+                        <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                      </>
+                    )}
+                  </Form.List>
+                </div>
+              )}
           </Form>
           <div
             style={{

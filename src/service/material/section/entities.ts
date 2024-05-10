@@ -29,8 +29,5 @@ export interface IMaterialSectionOneResponse extends GenericResponse {
 }
 
 export interface IMaterialSectionResponse extends GenericResponse {
-  response: {
-    data: IDataMaterialSection[];
-    meta: Meta;
-  };
+  response: IDataMaterialSection[];
 }

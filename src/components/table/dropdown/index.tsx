@@ -38,7 +38,7 @@ const NewDropdown = (props: IProps) => {
     isFiltered,
     handleSearch,
   } = props;
-  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>([]);
+  const [checkboxes, setCheckboxes] = useState<TypeCheck[]>(filters);
   const [newFilters, setNewFilters] = useState<IFilter[]>([]);
   const [isClear, setIsClear] = useState<boolean>(false);
   const { activeKey, items } = useTypedSelector((state) => state.pane);
@@ -71,9 +71,9 @@ const NewDropdown = (props: IProps) => {
   const filterCheckbox = (
     type: DataIndexType,
     operator: Tool,
-    value: string | number | Dayjs[]
+    value?: string | number | Dayjs[]
   ): TypeCheck[] => {
-    if (type == DataIndexType.DATE) {
+    if (!value || Array.isArray(value)) {
       return filters;
     } else {
       if (operator == "CONTAINS") {
@@ -96,9 +96,6 @@ const NewDropdown = (props: IProps) => {
       } else return filters;
     }
   };
-  useEffect(() => {
-    setCheckboxes(filters);
-  }, [filters]);
   useEffect(() => {
     setNewFilters(updateFilter("IN", checkedList));
   }, [checkedList]);
@@ -138,11 +135,13 @@ const NewDropdown = (props: IProps) => {
         <DropdownSearch
           type={type}
           onChange={(operator, value) => {
-            if (value) {
-              if (type == (DataIndexType.DATE || DataIndexType.DATETIME)) {
+            setCheckboxes(filterCheckbox(type, operator, value));
+            if (
+              (value && Array.isArray(value)) ||
+              type == (DataIndexType.DATE || DataIndexType.DATETIME)
+            ) {
+              {
                 setNewFilters(updateFilter(operator, value as Dayjs[]));
-              } else {
-                setCheckboxes(filterCheckbox(type, operator, value));
               }
             }
           }}

@@ -5,6 +5,7 @@ import { DocumentList } from "../../document-list";
 import { TransactionList } from "../../transaction-list";
 import { MovingStatus } from "@/service/document/entities";
 import TransactionMixture from "./transaction-mixture";
+import PageTitle from "@/components/page-title";
 
 const { Title } = Typography;
 
@@ -32,18 +33,18 @@ const TransactionCensusPage = () => {
     },
   ];
   return (
-    <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-      <Col md={24} lg={16} xl={19}>
-        <Space size={24}>
-          <Title level={3}>
-            Бараа материал / Бусад гүйлгээ / Хольц
-          </Title>
-        </Space>
-      </Col>
-      <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-      </Col>
-    </Row>
+    <>
+      <PageTitle />
+      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
+    </>
   );
 };
 export default TransactionCensusPage;

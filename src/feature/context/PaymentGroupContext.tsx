@@ -26,8 +26,11 @@ const ProviderPaymentGroup: React.FC<IProps> = ({ children }) => {
   const [sectionId, setSectionId] = useState<number>();
   const goods = useTypedSelector((state) => state.shoppingGoods);
   const { invoices } = useTypedSelector((state) => state.shoppingCart);
-  const payAmount = goods.reduce((total, item) => total + item.payAmount, 0);
-  const paidAmount = invoices.reduce((total, item) => total + item.payAmount, 0);
+  const payAmount = goods?.reduce((total, item) => total + item.payAmount, 0);
+  const paidAmount = invoices?.reduce(
+    (total, item) => total + item.incomeAmount,
+    0
+  );
   const value: IPaymentContextProps = {
     payAmount,
     paidAmount,

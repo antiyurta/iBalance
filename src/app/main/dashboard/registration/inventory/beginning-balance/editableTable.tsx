@@ -158,18 +158,22 @@ const EditableTableBalance: React.FC<IProps> = (props) => {
           </Form.Item>
         )}
       />
-      <Column
-        dataIndex="expirationAt"
-        title="Хугацаа дуусах огноо"
-        render={(_, __, index) => (
-          <Form.Item
-            name={[index, "expirationAt"]}
-            rules={[{ required: true, message: "Хугацаа дуусах огноо заавал" }]}
-          >
-            <NewDatePicker disabled={editingIndex !== index} />
-          </Form.Item>
-        )}
-      />
+      {form.getFieldValue("isExpired") == true && (
+        <Column
+          dataIndex="expirationAt"
+          title="Хугацаа дуусах огноо"
+          render={(_, __, index) => (
+            <Form.Item
+              name={[index, "expirationAt"]}
+              rules={[
+                { required: true, message: "Хугацаа дуусах огноо заавал" },
+              ]}
+            >
+              <NewDatePicker disabled={editingIndex !== index} />
+            </Form.Item>
+          )}
+        />
+      )}
       <Column
         dataIndex="quantity"
         title="Эхний үлдэгдэл"

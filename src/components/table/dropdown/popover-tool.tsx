@@ -2,7 +2,7 @@ import { FilterToolData } from "@/feature/data";
 import { DataIndexType, ITool, Operator, Tool } from "@/service/entities";
 import { Popover } from "antd";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const stringSearch: Tool[] = [
   "EQUALS",
@@ -30,24 +30,12 @@ const dateSearch: Tool[] = [
 ];
 interface IProps {
   dataIndexType: DataIndexType;
-  operator: (tool: ITool) => void;
+  tool: ITool;
+  setTool: Dispatch<SetStateAction<ITool>>;
 }
-const PopoverTool: React.FC<IProps> = ({ dataIndexType, operator }) => {
+const PopoverTool: React.FC<IProps> = ({ dataIndexType, tool, setTool }) => {
   const [newTools, setNewTools] = useState<ITool[]>([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [tool, setTool] = useState<ITool>(
-    dataIndexType == DataIndexType.DATE
-      ? {
-          logo: "/icons/tools/Equals.png",
-          title: "Тухайн",
-          operator: "THAT",
-        }
-      : {
-          logo: "/icons/tools/Equals.png",
-          title: "Equals",
-          operator: "EQUALS",
-        }
-  );
   useEffect(() => {
     if (dataIndexType == DataIndexType.MULTI) {
       setNewTools(
@@ -64,7 +52,6 @@ const PopoverTool: React.FC<IProps> = ({ dataIndexType, operator }) => {
     }
   }, [dataIndexType]);
   useEffect(() => {
-    operator(tool);
     setIsOpen(false);
   }, [tool]);
   return (

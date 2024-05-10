@@ -17,7 +17,7 @@ import Detailed from "./detailed";
 import NewModal from "@/components/modal";
 import { BalanceService } from "@/service/material/balance/service";
 import EditableTableBalance from "./editableTable";
-import { NewInput } from "@/components/input";
+import { NewInput, NewSwitch } from "@/components/input";
 import {
   IDataWarehouse,
   IParamWarehouse,
@@ -25,9 +25,11 @@ import {
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import { MaterialSelect } from "@/components/material-select";
 import { IDataMaterial, MaterialType } from "@/service/material/entities";
-import { hasUniqueValues } from "@/feature/common";
+import { hasUniqueValues, openNofi } from "@/feature/common";
 import dayjs from "dayjs";
 import PageTitle from "@/components/page-title";
+import { ConfigCodeService } from "@/service/config-code/service";
+import { IDataConfigCode } from "@/service/config-code/entities";
 
 const { Title } = Typography;
 const BeginningBalancePage = () => {
@@ -37,6 +39,7 @@ const BeginningBalancePage = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [selectedRow, setSelectedRow] = useState<IDataMaterial>();
+  const [configCode, setConfigCode] = useState<IDataConfigCode>();
   const items = [
     {
       label: "Бараа материалын жагсаалт",
@@ -84,6 +87,10 @@ const BeginningBalancePage = () => {
     setIsOpenModal(true);
   };
   const onFinish = async (values: IDataBalance) => {
+    if (configCode?.openerAt == null) {
+      openNofi("warning", "Нээлтийн огноо оруулна уу.");
+      return;
+    }
     if (editMode && selectedRow) {
       await BalanceService.patch(selectedRow.id, values).then((response) => {
         if (response.success) {
@@ -100,6 +107,13 @@ const BeginningBalancePage = () => {
       });
     }
   };
+  useEffect(() => {
+    ConfigCodeService.get().then((response) => {
+      if (response.success) {
+        setConfigCode(response.response);
+      }
+    });
+  }, []);
   return (
     <div>
       <PageTitle onClick={() => openModal(false)} />
@@ -168,6 +182,7 @@ const BeginningBalancePage = () => {
                       section: {
                         name: value.sectionName,
                       },
+                      isExpired: value.isExpired,
                     });
                   }}
                 />
@@ -189,6 +204,13 @@ const BeginningBalancePage = () => {
               </Form.Item>
               <Form.Item label="Эхний үлдэгдэл" name="balanceQty">
                 <InputNumber disabled />
+              </Form.Item>
+              <Form.Item
+                label="Хугацаа дуусах эсэх"
+                name="isExpired"
+                valuePropName="checked"
+              >
+                <NewSwitch disabled />
               </Form.Item>
             </div>
             <Form.List

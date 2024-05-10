@@ -1,6 +1,7 @@
 import { IDataCoupon } from "@/service/command/coupon/entities";
 import { MaterialType } from "../entities";
 import { ColumnType, GenericResponse, IParam, Meta } from "@/service/entities";
+import { Dayjs } from "dayjs";
 
 export interface IDataViewMaterial {
   id: number;
@@ -21,6 +22,7 @@ export interface IDataViewMaterial {
   discountAmount: number; // барааны хөнгөлөлт
   unitAmount: number; // Нэгжийн үнэ
   lastQty: number;
+  isExpired: boolean;
   fileIds: number[];
 }
 export interface IFilterViewMaterial {
@@ -48,6 +50,7 @@ export interface IParamViewMaterial extends IParam, IFilterViewMaterial {
   sectionId?: number;
   consumerId?: number; // Харилцагчийн id
   warehouseId?: number; // Байршлийн id
+  documentAt?: Dayjs;
   isSale?: boolean; // Борлуулах эсэх
 }
 

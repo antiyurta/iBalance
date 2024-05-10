@@ -42,10 +42,11 @@ const Login = () => {
           notification.success({
             message: "Амжилттай нэвтэрлээ",
           });
+          router.push("/main/profile/general");
         }
       })
       .finally(() => {
-        setTimeout(() => router.push("/main/profile/general"), 1000);
+        // setTimeout(() => router.push("/main/profile/general"), 1000);
         blockContext.unblock();
       });
   };

@@ -1,79 +1,117 @@
 "use client";
 
-import {
-  NewDatePicker,
-  NewInput,
-  NewSearch,
-  NewSelect,
-} from "@/components/input";
+import { NewDatePicker, NewInput, NewSelect } from "@/components/input";
 import { SettingOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { App, Button, Col, Form, Row, Space, Typography } from "antd";
-import React, { useState } from "react";
-
-import locale from "antd/es/date-picker/locale/mn_MN";
+import React, { useContext, useEffect, useState } from "react";
 import "dayjs/locale/mn";
 import Image from "next/image";
 import { NewTable } from "@/components/table";
 import {
-  FilteredColumnsCurrentPeriodCloseOff,
-  PeriodType,
-} from "@/service/current-period-close-off/entities";
-import { DataIndexType } from "@/service/entities";
+  FilteredColumnsReportClosure,
+  IColumnReportClosure,
+  IDataReportClosure,
+} from "@/service/report/report-closure/entities";
+import { DataIndexType, Meta } from "@/service/entities";
 import Column from "antd/es/table/Column";
+import { DateType, IDataConfigCode } from "@/service/config-code/entities";
+import { getParam, getQuarter } from "@/feature/common";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/feature/store/store";
+import { newPane } from "@/feature/store/slice/param.slice";
+import { ReportClosureService } from "@/service/report/report-closure/service";
+import { BlockContext, BlockView } from "@/feature/context/BlockContext";
+import PageTitle from "@/components/page-title";
+import NewModal from "@/components/modal";
+import { ConfigCodeService } from "@/service/config-code/service";
+import dayjs, { Dayjs } from "dayjs";
+import { RangePickerProps } from "antd/es/date-picker";
 
 const { Title } = Typography;
-
 interface IFormPeriod {
-  periodType: PeriodType;
-  periodYear: string;
+  period: DateType;
+  date: Dayjs;
 }
 
+const key = "current-period-close-off";
 const CurrentPeriodCloseOff = () => {
   const { modal } = App.useApp();
-  const [dateType, setDateType] = useState<PeriodType>("month");
+  const blockContext: BlockView = useContext(BlockContext);
+  const [dateType, setDateType] = useState<DateType>(DateType.Month);
   const [isFilter, setIsFilter] = useState<boolean>(false);
-  const [columns, setColumns] = useState<FilteredColumnsCurrentPeriodCloseOff>({
-    barimtNo: {
+  const { items } = useTypedSelector((state) => state.pane);
+  const param = getParam(items, key);
+  const dispatch = useDispatch<AppDispatch>();
+  const [data, setData] = useState<IDataReportClosure[]>([]);
+  const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10 });
+  const [filters, setFilters] = useState<IColumnReportClosure>();
+  const [isConfigModal, setIsConfigModal] = useState<boolean>(false);
+  const [closeForm] = Form.useForm<IFormPeriod>();
+  const [form] = Form.useForm<IDataConfigCode>();
+  const [columns, setColumns] = useState<FilteredColumnsReportClosure>({
+    id: {
       label: "Баримтын дугаар",
       isView: true,
       isFiltered: false,
-      dataIndex: ["ebarimt"],
+      dataIndex: ["id"],
       type: DataIndexType.MULTI,
     },
     period: {
       label: "Хаалтын үе",
       isView: true,
       isFiltered: false,
-      dataIndex: ["ebarimt"],
+      dataIndex: ["period"],
       type: DataIndexType.MULTI,
     },
-    reportPeriod: {
+    year: {
+      label: "Тайлант жил",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["year"],
+      type: DataIndexType.MULTI,
+    },
+    quarter: {
+      label: "Тайлант улирал",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["quarter"],
+      type: DataIndexType.MULTI,
+    },
+    month: {
+      label: "Тайлант сар",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["month"],
+      type: DataIndexType.MULTI,
+    },
+    currentAt: {
       label: "Тайлант үе",
       isView: true,
       isFiltered: false,
-      dataIndex: ["ebarimt"],
-      type: DataIndexType.MULTI,
+      dataIndex: ["currentAt"],
+      type: DataIndexType.DATE,
     },
-    closingStatus: {
+    isClose: {
       label: "Хаалтын төлөв",
       isView: true,
       isFiltered: false,
-      dataIndex: ["ebarimt"],
-      type: DataIndexType.MULTI,
+      dataIndex: ["isClose"],
+      type: DataIndexType.BOOLEAN,
     },
     updatedBy: {
       label: "Өөрчлөлт оруулсан хэрэглэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: ["ebarimt"],
+      dataIndex: ["employee", "firstName"],
       type: DataIndexType.MULTI,
     },
     updatedAt: {
       label: "Өөрчлөлт оруулсан огноо",
       isView: true,
       isFiltered: false,
-      dataIndex: ["ebarimt"],
-      type: DataIndexType.MULTI,
+      dataIndex: ["updatedAt"],
+      type: DataIndexType.DATE,
     },
   });
   //
@@ -103,25 +141,76 @@ const CurrentPeriodCloseOff = () => {
         </>
       ),
       onOk: () => {
-        console.log("donee");
+        blockContext.block();
+        values.date.month();
+        ReportClosureService.post({
+          period: values.period,
+          year: values.date.year(),
+          quarter: getQuarter(values.date.month()),
+          month: values.period == DateType.Season ? null : values.date.month() + 1,
+          isClose: true,
+        })
+          .then((response) => {
+            if (response.success) {
+              getData();
+            }
+          })
+          .finally(() => blockContext.unblock());
       },
     });
   };
-  //
+  const getData = () => {
+    blockContext.block();
+    ReportClosureService.get(param)
+      .then((response) => {
+        if (response.success) {
+          setMeta(response.response.meta);
+          setFilters(response.response.filter);
+          setData(response.response.data);
+        }
+      })
+      .finally(() => {
+        blockContext.unblock();
+      });
+  };
+  const onFinish = (value: IDataConfigCode) => {
+    blockContext.block();
+    ConfigCodeService.post(value).finally(() => blockContext.unblock());
+  };
+  const disabledDate: RangePickerProps["disabledDate"] = (current) => {
+    return current && current <= form.getFieldValue("openerAt").endOf("day");
+  };
+  const getDateType = (dateType: DateType): "year" | "quarter" | "month" => {
+    if (dateType == DateType.Year) return "year";
+    if (dateType == DateType.Season) return "quarter";
+    return "month";
+  };
+  useEffect(() => {
+    dispatch(newPane({ key, param: {} }));
+  }, []);
+  useEffect(() => {
+    getData();
+  }, [param]);
+  useEffect(() => {
+    ConfigCodeService.get().then((response) => {
+      if (response.success) {
+        const { openerAt } = response.response;
+        form.setFieldsValue({
+          ...response.response,
+          openerAt: openerAt !== null && dayjs(openerAt),
+        });
+      }
+    });
+  }, [isConfigModal]);
   return (
     <div>
+      <PageTitle />
       <Row
         style={{
           paddingTop: 16,
         }}
         gutter={[0, 12]}
       >
-        <Col md={24} lg={16} xl={19}>
-          <Title level={3}>Тайлан үеийн хаалт</Title>
-        </Col>
-        <Col md={24} lg={8} xl={5}>
-          <NewSearch />
-        </Col>
         <Col span={24}>
           <div
             style={{
@@ -133,14 +222,12 @@ const CurrentPeriodCloseOff = () => {
           >
             <Form
               onFinish={onClosePeriod}
+              form={closeForm}
               layout="vertical"
-              initialValues={{
-                periodType: "month",
-                interval: "that",
-              }}
+              initialValues={{ period: DateType.Month }}
             >
               <Space size={12} align="end">
-                <Form.Item label="Хаалтын төрөлт" name="periodType">
+                <Form.Item label="Хаалтын төрөл" name="period">
                   <NewSelect
                     style={{
                       width: 130,
@@ -148,25 +235,24 @@ const CurrentPeriodCloseOff = () => {
                     onChange={(value) => setDateType(value)}
                     options={[
                       {
-                        value: "year",
+                        value: DateType.Year,
                         label: "Жил",
                       },
                       {
-                        value: "month",
-                        label: "Сар",
+                        value: DateType.Season,
+                        label: "Улирал",
                       },
                       {
-                        value: "quarter",
-                        label: "Улирал",
+                        value: DateType.Month,
+                        label: "Сар",
                       },
                     ]}
                   />
                 </Form.Item>
-                <Form.Item label="Тайлант үе" name="periedYear">
+                <Form.Item label="Тайлант үе жил" name="date">
                   <NewDatePicker
-                    locale={locale}
-                    picker={dateType}
-                    onChange={undefined}
+                    picker={getDateType(closeForm.getFieldValue("period"))}
+                    disabledDate={disabledDate}
                   />
                 </Form.Item>
                 <Form.Item>
@@ -176,16 +262,12 @@ const CurrentPeriodCloseOff = () => {
                 </Form.Item>
               </Space>
             </Form>
-            <button
-              className="app-button-regular"
-              style={{
-                height: 39,
-                fontWeight: 400,
-              }}
+            <Button
+              icon={<SettingOutlined />}
+              onClick={() => setIsConfigModal(true)}
             >
-              <SettingOutlined />
-              Автомат тохиргоо
-            </button>
+              Тохиргоо
+            </Button>
           </div>
         </Col>
         <Col span={24}>
@@ -264,22 +346,11 @@ const CurrentPeriodCloseOff = () => {
               x: undefined,
             }}
             rowKey={"id"}
-            data={[
-              {
-                id: 1,
-                test: false,
-              },
-              {
-                id: 2,
-                test: true,
-              },
-            ]}
+            data={data}
             columns={columns}
-            meta={{}}
-            onColumns={function (columns: any): void {
-              throw new Error("Function not implemented.");
-            }}
-            incomeFilters={undefined}
+            meta={meta}
+            onColumns={setColumns}
+            incomeFilters={filters}
           >
             <Column
               title=" "
@@ -372,6 +443,30 @@ const CurrentPeriodCloseOff = () => {
           </div>
         </Col>
       </Row>
+      <NewModal
+        title={"Тохиргоо"}
+        open={isConfigModal}
+        onCancel={() => setIsConfigModal(false)}
+        footer={
+          <Button
+            type="primary"
+            disabled={form.getFieldValue("openerAt")}
+            onClick={() =>
+              form.validateFields().then((values) => {
+                onFinish(values);
+              })
+            }
+          >
+            Хадгалах
+          </Button>
+        }
+      >
+        <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
+          <Form.Item label="Нээлтийн огноо" name={"openerAt"}>
+            <NewDatePicker disabled={form.getFieldValue("openerAt")} />
+          </Form.Item>
+        </Form>
+      </NewModal>
     </div>
   );
 };

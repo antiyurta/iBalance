@@ -1,5 +1,5 @@
 import ColumnSettings from "@/components/columnSettings";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import { NewInput, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
@@ -29,13 +29,13 @@ import {
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { WarehouseService } from "@/service/reference/warehouse/service";
 import TextArea from "antd/es/input/TextArea";
-import { TreeSectionSelect } from "@/components/tree-select";
 import { UploadImage } from "@/components/upload-image";
 import { EmployeeSelect } from "@/components/employee-select";
 import { useTypedSelector } from "@/feature/store/reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
+import NewTreeSelect from "@/components/tree/tree-select";
 
 interface IProps {
   ComponentType: ComponentType;
@@ -286,20 +286,19 @@ const StoragiesRegistration = (props: IProps) => {
         <Col md={24} lg={10} xl={6}>
           <NewDirectoryTree
             data={sections}
-            isLeaf={false}
-            extra="HALF"
-            onClick={(keys) => {
-              onCloseFilterTag({
-                key: "sectionId",
-                state: true,
-                column: columns,
-                onColumn: (columns) => setColumns(columns),
-              });
-              getData({
-                page: 1,
-                limit: 10,
-                // sectionIds: keys,
-              });
+            onClick={(sectionNames) => {
+              dispatch(
+                changeParam({
+                  ...param,
+                  filters: [
+                    {
+                      dataIndex: ["section", "name"],
+                      operator: "IN",
+                      filter: sectionNames,
+                    },
+                  ],
+                })
+              );
             }}
           />
         </Col>
@@ -328,18 +327,19 @@ const StoragiesRegistration = (props: IProps) => {
                       style={{
                         width: "100%",
                       }}
+                      name="sectionId"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Шинээр шилжүүлэх бүлэг заавал",
+                        },
+                      ]}
                     >
-                      <TreeSectionSelect
-                        isLeaf={true}
-                        type={TreeSectionType.Warehouse}
-                        form={switchForm}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Шинээр шилжүүлэх бүлэг заавал",
-                          },
-                        ]}
-                        name="sectionId"
+                      <NewTreeSelect
+                        sections={sections}
+                        onChange={(value) =>
+                          switchForm.setFieldValue("sectionId", value)
+                        }
                       />
                     </Form.Item>
                   </Form>
@@ -459,13 +459,10 @@ const StoragiesRegistration = (props: IProps) => {
             <Form.Item label="Байршлын нэр" name="name">
               <NewInput />
             </Form.Item>
-            <Form.Item label="Байршлын бүлэг">
-              <TreeSectionSelect
-                isLeaf={true}
-                type={TreeSectionType.Warehouse}
-                form={form}
-                rules={[]}
-                name="sectionId"
+            <Form.Item label="Байршлын бүлэг" name="sectionId">
+              <NewTreeSelect
+                sections={sections}
+                onChange={(value) => form.setFieldValue("sectionId", value)}
               />
             </Form.Item>
             <Form.Item label="Хариуцсан нярав">

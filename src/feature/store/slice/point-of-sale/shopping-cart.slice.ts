@@ -22,7 +22,8 @@ export interface IInvoice {
   methodName: string;
   logo: string;
   type: PaymentType;
-  payAmount: number;
+  incomeAmount: number;
+  expenseAmount: number;
 }
 interface IStepReport {
   tax: TaxType;
@@ -58,7 +59,8 @@ const shoppingCart = createSlice({
       if (currentIndex == -1) {
         state.invoices.push(invoice);
       } else {
-        state.invoices[currentIndex].payAmount = invoice.payAmount;
+        state.invoices[currentIndex].incomeAmount = invoice.incomeAmount;
+        state.invoices[currentIndex].expenseAmount = invoice.expenseAmount;
       }
       return state;
     },

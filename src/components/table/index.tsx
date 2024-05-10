@@ -10,7 +10,12 @@ import {
   DataIndexType,
 } from "@/service/entities";
 import NewDropdown from "./dropdown";
-import { getParam, onCloseFilterTag, renderCheck } from "@/feature/common";
+import {
+  getParam,
+  getValue,
+  onCloseFilterTag,
+  renderCheck,
+} from "@/feature/common";
 import Image from "next/image";
 import type { TableProps } from "antd/lib";
 import { useTypedSelector } from "@/feature/store/reducer";
@@ -189,6 +194,26 @@ function NewTable(props: ITable) {
                 })
               );
             },
+          }}
+          summary={(pageData) => {
+            return (
+              <Table.Summary.Row>
+                {Object.entries(columns)?.map(([_, col], index) => {
+                  if (col.isView) {
+                    return (
+                      <Table.Summary.Cell key={index} index={index}>
+                        {col.isSummary &&
+                          pageData.reduce(
+                            (total, item) =>
+                              total + Number(getValue(col.dataIndex, item)),
+                            0
+                          )}
+                      </Table.Summary.Cell>
+                    );
+                  }
+                })}
+              </Table.Summary.Row>
+            );
           }}
         >
           {Object.entries(columns)?.map(([key, value]: [any, ColumnType]) => {

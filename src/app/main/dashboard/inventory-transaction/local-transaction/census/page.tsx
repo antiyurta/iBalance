@@ -1,12 +1,11 @@
 "use client";
-import { Col, Row, Space, Tabs, Typography } from "antd";
+import { Col, Row, Tabs } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-// import TransactionMove from "./transaction-move";
 import { DocumentList } from "../../document-list";
 import { MovingStatus } from "@/service/document/entities";
 import TransactionCencus from "./transaction-cencus";
-
-const { Title } = Typography;
+import { TransactionList } from "../../transaction-list";
+import PageTitle from "@/components/page-title";
 
 const TransactionCensusPage = () => {
   const items = [
@@ -25,20 +24,25 @@ const TransactionCensusPage = () => {
       key: "item-2",
       children: <DocumentList movingStatus={MovingStatus.Cencus} />,
     },
+    {
+      label: "Гүйлгээний жагсаалт",
+      key: "item-3",
+      children: <TransactionList movingStatus={MovingStatus.Cencus} />,
+    },
   ];
   return (
-    <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
-      <Col md={24} lg={16} xl={19}>
-        <Space size={24}>
-          <Title level={3}>
-            Бараа материал / Бусад гүйлгээ / Тооллого
-          </Title>
-        </Space>
-      </Col>
-      <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-      </Col>
-    </Row>
+    <>
+      <PageTitle />
+      <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
+        <Col span={24}>
+          <Tabs
+            className="lineTop"
+            items={items}
+            destroyInactiveTabPane={true}
+          />
+        </Col>
+      </Row>
+    </>
   );
 };
 export default TransactionCensusPage;

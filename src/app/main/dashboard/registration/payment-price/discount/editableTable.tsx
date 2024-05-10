@@ -1,8 +1,10 @@
 import Image from "next/image";
 import {
+  App,
   Button,
   Form,
   FormInstance,
+  Input,
   Popconfirm,
   Switch,
   Table,
@@ -28,11 +30,16 @@ interface IProps {
   remove: (index: number) => void;
 }
 
+interface IPercent {
+  [k: number]: boolean;
+}
+
 const EditableTableDiscount = (props: IProps) => {
+  const { notification } = App.useApp();
   const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
-  const [isPercent, setIsPercent] = useState<boolean>(false);
+  const discounts = Form.useWatch("discounts", form);
   const addService = () => {
     onSave().then((state) => {
       if (state) {
@@ -81,6 +88,10 @@ const EditableTableDiscount = (props: IProps) => {
   };
   return (
     <Table
+      scroll={{
+        y: 500,
+      }}
+      pagination={false}
       dataSource={data}
       footer={() => {
         return (
@@ -114,9 +125,11 @@ const EditableTableDiscount = (props: IProps) => {
         );
       }}
     >
+      <Column title="№" width={50} render={(_, _row, index) => index + 1} />
       <Column
         dataIndex={"materialId"}
         title="Дотоод код"
+        width={250}
         render={(_, __, index) => (
           <MaterialSelect
             params={{
@@ -141,17 +154,37 @@ const EditableTableDiscount = (props: IProps) => {
               ]);
             }}
             onSelect={(value) => {
-              form.setFieldsValue({
-                discounts: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    section: value.sectionName,
-                    unitAmount: value.unitAmount,
-                  },
-                },
-              });
+              const oldDiscounts = form.getFieldValue("discounts");
+              if (typeof oldDiscounts === "object") {
+                const currentMaterials = oldDiscounts?.filter(
+                  (oldDiscount: any) => oldDiscount.materialId === value.id
+                );
+                if (currentMaterials.length >= 2) {
+                  notification.error({
+                    message: "Бараа сонгогдсон байна",
+                  });
+                  form.resetFields([
+                    ["discounts", index, "materialId"],
+                    ["discounts", index, "name"],
+                    ["discounts", index, "measurement"],
+                    ["discounts", index, "countPackage"],
+                    ["discounts", index, "section"],
+                    ["discounts", index, "unitAmount"],
+                  ]);
+                } else {
+                  form.setFieldsValue({
+                    discounts: {
+                      [index]: {
+                        name: value.name,
+                        measurement: value.measurementName,
+                        countPackage: value.countPackage,
+                        section: value.sectionName,
+                        unitAmount: value.unitAmount,
+                      },
+                    },
+                  });
+                }
+              }
             }}
           />
         )}
@@ -222,43 +255,44 @@ const EditableTableDiscount = (props: IProps) => {
           <Form.Item name={[index, "isPercent"]} valuePropName="checked">
             <Switch
               disabled={!(index === editingIndex)}
-              onChange={(value) => setIsPercent(value)}
+              onChange={(value) => {
+                form.resetFields([
+                  ["discounts", index, value ? "amount" : "percent"],
+                ]);
+              }}
             />
           </Form.Item>
         )}
       />
-      {isPercent ? (
-        <Column
-          dataIndex={"percent"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "percent"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"%"}
-                formatter={(value: any) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      ) : (
-        <Column
-          dataIndex={"amount"}
-          title="Хөнгөлөлт"
-          render={(_, __, index) => (
-            <Form.Item name={[index, "amount"]}>
-              <NewInputNumber
-                disabled={!(index === editingIndex)}
-                suffix={"₮"}
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-          )}
-        />
-      )}
+      <Column
+        title="Хөнгөлөлт"
+        render={(_, _row, index) => {
+          if (discounts[index]?.isPercent) {
+            return (
+              <Form.Item name={[index, "percent"]}>
+                <NewInputNumber
+                  disabled={!(index === editingIndex)}
+                  suffix={"%"}
+                  formatter={(value: any) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                />
+              </Form.Item>
+            );
+          } else {
+            return (
+              <Form.Item name={[index, "amount"]}>
+                <NewInputNumber
+                  disabled={!(index === editingIndex)}
+                  suffix={"₮"}
+                  parser={(value: any) => value.replace(/\$\s?|(,*)/g, "")}
+                />
+              </Form.Item>
+            );
+          }
+        }}
+      />
       {/* Засах устгах хэсэг */}
       <Column
         title={" "}

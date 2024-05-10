@@ -82,14 +82,15 @@ const DisplayItem = (props: IProps) => {
       sectionName: data.sectionName,
       unitAmount: data.unitAmount,
       quantity: 1,
-      discountAmount: 0,
-      payAmount: data.unitAmount,
+      discountAmount: data.discountAmount,
+      payAmount: data.unitAmount - data.discountAmount,
       totalAmount: data.unitAmount,
     };
     if (currentIndex !== -1) {
       currentGoods.quantity = goods[currentIndex].quantity + 1;
       currentGoods.payAmount =
-        goods[currentIndex].unitAmount * (goods[currentIndex].quantity + 1);
+        (goods[currentIndex].quantity + 1) *
+        (goods[currentIndex].unitAmount - goods[currentIndex].discountAmount);
     }
     dispatch(saveGoods(currentGoods));
   };
@@ -223,6 +224,7 @@ const DisplayItem = (props: IProps) => {
                         ? "text-line-through"
                         : ""
                     }
+                    style={{ gap: 100 }}
                   >
                     <NumericFormat
                       value={item.unitAmount}
@@ -232,6 +234,13 @@ const DisplayItem = (props: IProps) => {
                       suffix="₮"
                     />
                   </p>
+                  <NumericFormat
+                    value={item.lastQty}
+                    thousandSeparator=","
+                    fixedDecimalScale
+                    displayType="text"
+                    prefix="Тоо:"
+                  />
                   <GetNewAmount item={item} />
                 </div>
               </div>

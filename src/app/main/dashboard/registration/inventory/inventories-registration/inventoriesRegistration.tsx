@@ -2,7 +2,7 @@
 import { SignalFilled, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import {
   NewInput,
@@ -17,7 +17,6 @@ import {
   findIndexInColumnSettings,
   getFile,
   getParam,
-  onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
 import {
@@ -68,11 +67,11 @@ import InventoriesType from "../inventories-type/inventoriesType";
 import type { UploadFile } from "antd/es/upload/interface";
 import type { UploadProps } from "antd";
 import { ViewMaterialService } from "@/service/material/view-material/service";
-import { ConsumerSelect } from "@/components/consumer-select";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { newPane } from "@/feature/store/slice/param.slice";
+import { changeParam, newPane } from "@/feature/store/slice/param.slice";
 import PageTitle from "@/components/page-title";
+import NewTreeSelect from "@/components/tree/tree-select";
 interface IProps {
   ComponentType: ComponentType;
   materialType: MaterialType;
@@ -231,6 +230,13 @@ const InventoriesRegistration = (props: IProps) => {
       dataIndex: ["isCitizenTax"],
       type: DataIndexType.BOOLEAN,
     },
+    isExpired: {
+      label: "Хугацаа дуусах эсэх",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["isExpired"],
+      type: DataIndexType.BOOLEAN,
+    },
     description: {
       label: "Дэлгэрэнгүй мэдээлэл",
       isView: true,
@@ -303,7 +309,7 @@ const InventoriesRegistration = (props: IProps) => {
   };
   const getMaterialSections = async () => {
     await MaterialSectionService.get({ materialType }).then((response) => {
-      setMaterialSections(response.response.data);
+      setMaterialSections(response.response);
     });
   };
   const getMaterialRanks = async (type: IType) => {
@@ -482,25 +488,25 @@ const InventoriesRegistration = (props: IProps) => {
   }, [isActive]);
   return (
     <div>
-      <PageTitle onClick={() => openModal(false)}/>
+      <PageTitle onClick={() => openModal(false)} />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         {isOpenTree ? (
           <Col md={24} lg={10} xl={6}>
             <NewDirectoryTree
               data={materialSections}
-              extra="HALF"
-              isLeaf={false}
-              onClick={(keys, isLeaf) => {
-                onCloseFilterTag({
-                  key: "materialSectionId",
-                  state: true,
-                  column: columns,
-                  onColumn: (columns) => setColumns(columns),
-                });
-                getData();
-                if (isLeaf) {
-                  getData();
-                }
+              onClick={(sectionNames) => {
+                dispatch(
+                  changeParam({
+                    ...param,
+                    filters: [
+                      {
+                        dataIndex: ["section", "name"],
+                        operator: "IN",
+                        filter: sectionNames,
+                      },
+                    ],
+                  })
+                );
               }}
             />
           </Col>
@@ -547,24 +553,7 @@ const InventoriesRegistration = (props: IProps) => {
                                   setIsOpenPopoverLittle(state)
                                 }
                                 content={
-                                  <NewDirectoryTree
-                                    extra="HALF"
-                                    data={materialSections}
-                                    isLeaf={true}
-                                    onClick={(keys, isLeaf) => {
-                                      console.log(keys);
-                                      if (!isLeaf) {
-                                        setIsOpenPopoverLittle(false);
-                                        switchForm.setFieldsValue({
-                                          sectionId: keys![0],
-                                          materialAccountId:
-                                            materialSections.find(
-                                              (item) => item.id === keys[0]
-                                            )?.materialAccountId,
-                                        });
-                                      }
-                                    }}
-                                  />
+                                  <NewDirectoryTree data={materialSections} />
                                 }
                                 trigger={"click"}
                               >
@@ -720,9 +709,6 @@ const InventoriesRegistration = (props: IProps) => {
             onFinish(values);
           })
         }
-        bodyStyle={{
-          paddingTop: 10,
-        }}
       >
         <Form form={form} layout="vertical">
           <div className="form-grid-3">
@@ -746,63 +732,14 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Бараа материалын бүлэг"
-                style={{
-                  width: "100%",
-                }}
+                name="materialSectionId"
               >
-                <Space.Compact>
-                  <div className="extraButton">
-                    <Popover
-                      placement="bottom"
-                      open={isOpenPopOver}
-                      onOpenChange={(state) => setIsOpenPopOver(state)}
-                      content={
-                        <NewDirectoryTree
-                          data={materialSections}
-                          extra="HALF"
-                          isLeaf={true}
-                          onClick={(keys, isLeaf) => {
-                            console.log(keys);
-                            if (!isLeaf) {
-                              setIsOpenPopOver(false);
-                              form.setFieldsValue({
-                                materialSectionId: keys![0],
-                              });
-                            }
-                          }}
-                        />
-                      }
-                      trigger={"click"}
-                    >
-                      <SignalFilled rotate={-90} />
-                    </Popover>
-                  </div>
-                  <Form.Item
-                    style={{
-                      width: "100%",
-                    }}
-                    name="materialSectionId"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Бараа материалын бүлэг заавал",
-                      },
-                    ]}
-                  >
-                    <NewSelect
-                      disabled={true}
-                      style={{
-                        width: "100%",
-                      }}
-                      options={materialSections?.map(
-                        (section: IDataMaterialSection) => ({
-                          label: section.name,
-                          value: section.id,
-                        })
-                      )}
-                    />
-                  </Form.Item>
-                </Space.Compact>
+                <NewTreeSelect
+                  sections={materialSections}
+                  onChange={(value) =>
+                    form.setFieldValue("materialSectionId", value)
+                  }
+                />
               </Form.Item>
               <Form.Item label="Хэмжих нэгж">
                 <Space.Compact>
@@ -996,13 +933,6 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-              <Form.Item label="Бэлтгэн нийлүүлэгчийн код, нэр">
-                <ConsumerSelect
-                  form={form}
-                  rules={[]}
-                  name="consumerSupplierId"
-                />
-              </Form.Item>
               <Form.Item label="Дэлгэрэнгүй мэдээлэл" name="description">
                 <NewTextArea />
               </Form.Item>
@@ -1026,6 +956,13 @@ const InventoriesRegistration = (props: IProps) => {
             <Form.Item
               label="Идэвхтэй эсэх"
               name="isActive"
+              valuePropName="checked"
+            >
+              <NewSwitch />
+            </Form.Item>
+            <Form.Item
+              label="Хугацаа дуусах эсэх"
+              name="isExpired"
               valuePropName="checked"
             >
               <NewSwitch />

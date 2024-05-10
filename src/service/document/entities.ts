@@ -13,7 +13,20 @@ import { IDataWarehouse } from "@/service/reference/warehouse/entities";
 import { IDataTransaction } from "./transaction/entities";
 import { IDataReferencePaymentMethod } from "../reference/payment-method/entities";
 import { Dayjs } from "dayjs";
-
+import { IDataBooking } from "../booking/entities";
+export interface IFormWarehouseDocument {
+  code: string;
+  documentAt: string | Dayjs;
+  description: string; // гүйлгээний утга
+  expenseWarehouseId: number;
+  expenseEmployeeId: number;
+  incomeWarehouseId: number;
+  incomeEmployeeId: number;
+  bookingId: string;
+  counter: number;
+  quantity: number;
+  transactions?: IDataTransaction[];
+}
 /** Гүйлгээний төлвүүд */
 export enum MovingStatus {
   /** Татан авалт/Худалдан авалт */
@@ -28,7 +41,7 @@ export enum MovingStatus {
   InOperation = "IN_OPERATION",
   /** Акт хорогдол */
   ActAmortization = "ACT_AMORTIZATION",
-  /** Агуулах доторх хөдөлгөөн */
+  /** Байршлын хөдөлгөөн */
   MovementInWarehouse = "MOVEMENT_IN_WAREHOUSE",
   /** Барааны хөрвүүлэг */
   ItemConversion = "ITEM_CONVERSION",
@@ -47,31 +60,31 @@ export enum MovingStatus {
 }
 export interface IDataDocument extends IData {
   id: number;
-  code: string;
-  refundAt: string;
-  relDocumentId: number;
-  relDocument: IDataDocument;
-  bookingId: number;
-  booking?: any; // TODO datag hiih
+  code?: string;
+  refundAt?: string;
+  relDocumentId?: number;
+  relDocument?: IDataDocument;
+  bookingId?: string;
+  booking?: IDataBooking;
   warehouseId: number;
   warehouse?: IDataWarehouse;
-  isLock: boolean;
-  incomeCount: number;
-  incomeQuantity: number;
-  expenseCount: number;
-  expenseQuantity: number;
-  consumerId: number;
+  isLock?: boolean;
+  incomeCount?: number;
+  incomeQuantity?: number;
+  expenseCount?: number;
+  expenseQuantity?: number;
+  consumerId?: number;
   consumer?: IDataConsumer;
   documentAt: string | Dayjs;
   description: string; // гүйлгээний утга
-  paymentMethodIds: number[];
+  paymentMethodIds?: number[];
   paymentMethods?: IDataReferencePaymentMethod[]; // Төлбөрийн хэлбэрүүд
-  amount: number; // нийт үнэ
-  discountAmount: number; // бараа материалын үнийн хөнгөлөлт
-  consumerDiscountAmount: number; // харилцагчийн үнийн хөнгөлөлт
-  payAmount: number; // төлөх дүн
+  discountAmount?: number; // бараа материалын үнийн хөнгөлөлт
+  consumerDiscountAmount?: number; // харилцагчийн үнийн хөнгөлөлт
+  payAmount?: number; // төлөх дүн
   movingStatus: MovingStatus;
-  transactions?: IDataTransaction[];
+  employeeId?: number;
+  transactions: IDataTransaction[];
 }
 
 export interface IFilterDocument extends IColumn {
@@ -109,14 +122,16 @@ export interface IParamDocument extends IParam {
   isLock?: boolean;
 }
 
-export interface IResponseDocuments extends GenericResponse {
+export interface IResponseAllDocument extends GenericResponse {
   response: {
     data: IDataDocument[];
     meta: Meta;
     filter: IFilterDocument;
   };
 }
-
+export interface IResponseDocuments extends GenericResponse {
+  response: IDataDocument[];
+}
 export interface IResponseDocument extends GenericResponse {
   response: IDataDocument;
 }
@@ -172,6 +187,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["incomeCount"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   incomeQuantity: {
     label: "Орлогын тоо хэмжээ",
@@ -179,6 +195,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["incomeQuantity"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   expenseCount: {
     label: "Зарлагын тоо",
@@ -186,6 +203,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["expenseCount"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   expenseQuantity: {
     label: "Зарлагын тоо хэмжээ",
@@ -193,6 +211,7 @@ const columns: FilteredColumnsDocument = {
     isFiltered: false,
     dataIndex: ["expenseQuantity"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   movingStatus: {
     label: "Гүйлгээний цонх",
@@ -330,10 +349,10 @@ export const getDocumentColumns = (
     [MovingStatus.PurchaseReturn]: expenseDocument,
     [MovingStatus.InOperation]: expenseDocument,
     [MovingStatus.ActAmortization]: expenseDocument,
-    [MovingStatus.MovementInWarehouse]: [],
+    [MovingStatus.MovementInWarehouse]: localDocument,
     [MovingStatus.ItemConversion]: localDocument,
     [MovingStatus.Mixture]: localDocument,
-    [MovingStatus.Cencus]: localDocument, // TODO тооллогын нярав
+    [MovingStatus.Cencus]: localDocument,
     [MovingStatus.Pos]: [],
     [MovingStatus.PosSaleReturn]: [],
     [MovingStatus.BookingSale]: [],

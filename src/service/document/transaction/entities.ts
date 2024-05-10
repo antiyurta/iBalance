@@ -23,8 +23,9 @@ export interface IDataTransaction extends IData {
   documentId?: number;
   document?: IDataDocument;
   lastQty?: number;
-  incomeQty?: number;
-  expenseQty?: number;
+  incomeQty: number;
+  expenseQty: number;
+  censusQty?: number;
   unitAmount?: number;
   totalAmount?: number;
   amount?: number;
@@ -151,6 +152,7 @@ const columns: FilteredColumnsTransaction = {
     isFiltered: false,
     dataIndex: ["incomeQty"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   consumerCode: {
     label: "Харилцагчийн код",
@@ -207,6 +209,7 @@ const columns: FilteredColumnsTransaction = {
     isFiltered: false,
     dataIndex: ["expenseQty"],
     type: DataIndexType.MULTI,
+    isSummary: true,
   },
   convertMaterialName: {
     label: "Хөрвүүлсэн барааны нэр",
@@ -241,7 +244,8 @@ const columns: FilteredColumnsTransaction = {
     isView: true,
     isFiltered: true,
     dataIndex: ["convertQuantity"],
-    type: DataIndexType.MULTI,
+    type: DataIndexType.NUMBER,
+    isSummary: true,
   },
   createdBy: {
     label: "Бүртгэсэн хэрэглэгч",
@@ -321,8 +325,6 @@ export const getTransactionColumns = (
     "code",
     "documentAt",
     "warehouseName",
-    "consumerCode",
-    "consumerName",
     "materialCode",
     "materialName",
     "materialMeasurementName",
@@ -384,23 +386,7 @@ export const getTransactionColumns = (
     ],
     [MovingStatus.InOperation]: expenseTransaction,
     [MovingStatus.ActAmortization]: expenseTransaction,
-    [MovingStatus.MovementInWarehouse]: [
-      "code",
-      "documentAt",
-      "warehouseName",
-      "employeeName",
-      "materialCode",
-      "materialMeasurementName",
-      "materialCountPackage",
-      "incomeQty",
-      "expenseQty",
-      "isLock",
-      "description",
-      "createdBy",
-      "createdAt",
-      "lockedBy",
-      "lockedAt",
-    ],
+    [MovingStatus.MovementInWarehouse]: localTransaction,
     [MovingStatus.ItemConversion]: localTransaction,
     [MovingStatus.Mixture]: localTransaction,
     [MovingStatus.Cencus]: localTransaction,

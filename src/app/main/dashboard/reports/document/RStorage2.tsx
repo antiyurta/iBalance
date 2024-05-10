@@ -1,13 +1,15 @@
-import { Tools } from "@/components/tools";
+import { Tools } from "@/app/main/dashboard/reports/component/tools";
 import { ReportTitle } from "../component/report-title";
 import RStorage1Filter from "../filters/RStorage1Filter";
+import { useRef } from "react";
 
 /** Бараа материалын товчоо тайлан (хураангуй) */
 const RStorage2 = () => {
+  const tableRef = useRef(null);
   return (
     <div className="report-document">
-      <Tools filter={<RStorage1Filter/>} />
-      <div className="report-body">
+      <Tools filter={<RStorage1Filter reportKey={"RStorage2"}/>} printRef={tableRef}/>
+      <div className="report-body" ref={tableRef}>
         <ReportTitle organization={"Universal med"} title={"Бараа материалын товчоо тайлан (хураангуй)"} />
         <table className="report">
           <thead>

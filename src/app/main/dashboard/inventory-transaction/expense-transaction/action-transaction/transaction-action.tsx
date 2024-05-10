@@ -86,7 +86,6 @@ const TransactionAction = (props: IProps) => {
           measurement: transaction.material?.measurement.name,
           countPackage: transaction.material?.countPackage,
           lastQty: transaction.lastQty,
-          unitAmount: Number(transaction.unitAmount),
           expenseQty: transaction.expenseQty,
         })),
       });
@@ -102,6 +101,18 @@ const TransactionAction = (props: IProps) => {
           }}
           size={12}
         >
+          <Button
+            icon={
+              <Image
+                src={"/images/settingsGreen.svg"}
+                width={24}
+                height={24}
+                alt="Захиалга олгох"
+              />
+            }
+          >
+            Захиалга олгох
+          </Button>
           <Image
             src={"/images/PrintIcon.svg"}
             width={24}
@@ -119,7 +130,6 @@ const TransactionAction = (props: IProps) => {
       <Col span={24}>
         <NewCard>
           <Form form={form} layout="vertical">
-            {/* TODO xl md sm style хийх @Amarbat */}
             <div
               style={{
                 display: "grid",

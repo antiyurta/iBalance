@@ -1,11 +1,7 @@
 import ColumnSettings from "@/components/columnSettings";
 import Filtered from "@/components/table/filtered";
 import { NewTable, TableItemType } from "@/components/table";
-import {
-  findIndexInColumnSettings,
-  getParam,
-  onCloseFilterTag,
-} from "@/feature/common";
+import { findIndexInColumnSettings, getParam } from "@/feature/common";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import { DataIndexType, Meta } from "@/service/entities";
 import {
@@ -70,6 +66,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["openerAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     closerEmployeeName: {
       label: "Хаасан хэрэглэгч",
@@ -98,6 +95,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["balanceAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     cashAmount: {
       label: "Хаасан бэлэн мөнгө",
@@ -105,6 +103,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["cashAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     nonCashAmount: {
       label: "Хаасан бэлэн бус мөнгө",
@@ -112,6 +111,7 @@ const OpeningClosingHistory = () => {
       isFiltered: false,
       dataIndex: ["nonCashAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     updatedAt: {
       label: "Зассан огноо",
@@ -174,6 +174,7 @@ const OpeningClosingHistory = () => {
     await OpenCloseService.getById(id)
       .then((response) => {
         if (response.success) {
+          console.log("end", id, response.response);
           setOpenClose(response.response);
           setIsClose(true);
         }
@@ -255,6 +256,7 @@ const OpeningClosingHistory = () => {
         destroyOnClose
       >
         <CloseState
+          closeDate={openClose?.closerAt}
           openCloseId={openClose?.id}
           setIsClose={(value) => setIsClose(!value)}
         />

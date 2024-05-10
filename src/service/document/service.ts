@@ -2,16 +2,17 @@ import { api } from "@/feature/interceptor/interceptor";
 import {
   IDataDocument,
   IParamDocument,
+  IResponseAllDocument,
   IResponseDocument,
   IResponseDocumentCode,
   IResponseDocuments,
 } from "./entities";
 
-function get(params: IParamDocument): Promise<IResponseDocuments> {
+function get(params: IParamDocument): Promise<IResponseAllDocument> {
   return api.get("transaction-document", { params });
 }
-function getById(id: number): Promise<IResponseDocument> {
-  return api.get(`transaction-document/${id}`);
+function getByCode(code: string): Promise<IResponseDocuments> {
+  return api.get(`transaction-document/${code}`);
 }
 function generateCode(params?: IParamDocument): Promise<IResponseDocumentCode> {
   return api.get("transaction-document/generate/code", { params });
@@ -19,23 +20,23 @@ function generateCode(params?: IParamDocument): Promise<IResponseDocumentCode> {
 function post(body: IDataDocument): Promise<IResponseDocument> {
   return api.post("transaction-document", body);
 }
-function postMove(body: IDataDocument): Promise<IResponseDocuments> {
+function postMove(body: IDataDocument): Promise<IResponseAllDocument> {
   return api.post("transaction-document/move", body);
 }
-function postConversion(body: IDataDocument): Promise<IResponseDocuments> {
+function postConversion(body: IDataDocument): Promise<IResponseAllDocument> {
   return api.post("transaction-document/conversion", body);
 }
-function postMixture(body: IDataDocument): Promise<IResponseDocuments> {
+function postMixture(body: IDataDocument): Promise<IResponseAllDocument> {
   return api.post("transaction-document/mixture", body);
 }
-function patch(id: number, body: IDataDocument): Promise<IResponseDocuments> {
+function patch(id: number, body: IDataDocument): Promise<IResponseAllDocument> {
   return api.patch(`transaction-document/${id}`, body);
 }
 function lock(ids: number[], isLock: boolean): Promise<IResponseDocument> {
   return api.put("transaction-document", { ids, isLock });
 }
-function remove(id: number): Promise<IResponseDocument> {
-  return api.delete(`transaction-document/${id}`);
+function remove(code: string): Promise<IResponseDocument> {
+  return api.delete(`transaction-document/${code}`);
 }
 function removePosDocument(
   id: number,
@@ -45,7 +46,7 @@ function removePosDocument(
 }
 export const DocumentService = {
   get,
-  getById,
+  getByCode,
   generateCode,
   post,
   postMove,

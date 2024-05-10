@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { FormListFieldData } from "antd/lib";
-import { Fragment, useState } from "react";
+import { Fragment, SetStateAction, useState } from "react";
 import {
   SaveOutlined,
   CloseOutlined,
@@ -11,6 +11,8 @@ import {
 import { NewInput, NewInputNumber } from "@/components/input";
 import { MaterialType } from "@/service/material/entities";
 import { MaterialSelect } from "@/components/material-select";
+import MaterialSearch from "@/components/material-search";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
 
 const { Column } = Table;
 
@@ -116,29 +118,20 @@ const EditableTableProduct = (props: IProps) => {
           dataIndex={"materialId"}
           title="Дотоод код"
           render={(_, __, index) => (
-            <MaterialSelect
-              params={{ types: [MaterialType.Material], isSale: true }}
-              form={form}
-              rules={[{ required: true, message: "Дотоод код заавал" }]}
-              name={[index, "materialId"]}
-              listName="prices"
-              disabled={!(index === editingIndex)}
-              onClear={() => {
-                form.resetFields([
-                  ["prices", index, "name"],
-                  ["prices", index, "measurement"],
-                  ["prices", index, "countPackage"],
-                  ["prices", index, "section"],
-                ]);
-              }}
-              onSelect={(value) => {
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              isDisable={editingIndex !== index}
+              isEdit={true}
+              materialId={form.getFieldValue(["prices", index, "materialId"])}
+              onMaterial={(material) => {
                 form.setFieldsValue({
                   prices: {
                     [index]: {
-                      name: value.name,
-                      measurement: value.measurementName,
-                      countPackage: value.countPackage,
-                      section: value.sectionName,
+                      materialId: material?.id,
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      section: material?.sectionName,
                     },
                   },
                 });

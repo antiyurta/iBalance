@@ -56,7 +56,7 @@ const PayRequests: React.FC = () => {
                 }}
               >
                 <NumericFormat
-                  value={invoice.payAmount}
+                  value={invoice.incomeAmount}
                   thousandSeparator=","
                   decimalScale={2}
                   fixedDecimalScale

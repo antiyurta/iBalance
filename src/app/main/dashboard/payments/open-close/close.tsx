@@ -1,7 +1,7 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import { NewDatePicker, NewInputNumber } from "@/components/input";
 import { Button, Divider, Form, Typography } from "antd";
 import { PrinterOutlined } from "@ant-design/icons";
-import { useContext, useEffect, useRef, useState } from "react";
 import {
   ICloseDto,
   IDataPosOpenClose,
@@ -22,14 +22,19 @@ import {
   IDataPosDocument,
 } from "@/service/document/pos-document/entites";
 import { useReactToPrint } from "react-to-print";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 interface IProps {
+  closeDate?: string;
   openCloseId?: number;
   setIsClose: (value: boolean) => void;
 }
 const CloseState = (props: IProps) => {
-  const { openCloseId, setIsClose } = props;
+  const { closeDate, openCloseId, setIsClose } = props;
+  const [currentCloseDate, setCurrentCloseDate] = useState<string>(
+    dayjs(closeDate).toString()
+  );
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm<ICloseDto>();
   const [openClose, setOpenClose] = useState<IDataPosOpenClose>();
@@ -50,9 +55,9 @@ const CloseState = (props: IProps) => {
           if (response.success) {
             setOpenClose(response.response);
             form.setFieldsValue({
-              cashAmount: response.response.cashAmount,
-              nonCashAmount: response.response.nonCashAmount,
-              lendAmount: response.response.lendAmount,
+              cashAmount: Number(response.response.cashAmount),
+              nonCashAmount: Number(response.response.nonCashAmount),
+              lendAmount: Number(response.response.lendAmount),
             });
           }
         })
@@ -99,7 +104,13 @@ const CloseState = (props: IProps) => {
   const getSaleAmount = (type: PaymentType): number => {
     return invoices
       .filter((item) => item.type == type)
-      .reduce((total, item) => total + (Number(item.incomeAmount) || 0), 0);
+      .reduce(
+        (total, item) =>
+          total +
+          (Number(item.incomeAmount) || 0) -
+          (Number(item.expenseAmount) || 0),
+        0
+      );
   };
   const getStatisticSale = (): ICloseColumn[] => {
     const refundDocuments = posDocuments.filter(
@@ -338,16 +349,13 @@ const CloseState = (props: IProps) => {
       }}
     >
       <div className="open-close-close" ref={printRef}>
-        <Title
-          style={{
-            fontSize: 20,
-            fontWeight: 500,
-            textAlign: "center",
-            padding: 12,
-          }}
-        >
-          Хаалт хийх
-        </Title>
+        <p className="title">Хаалтын тайлан</p>
+        <p className="close-date">
+          Хаалтын огноо:
+          {currentCloseDate
+            ? dayjs(currentCloseDate).format("YYYY/MM/DD HH:mm")
+            : null}
+        </p>
         <div className="close-body">
           <div className="close-content">
             <CloseTable
@@ -374,9 +382,9 @@ const CloseState = (props: IProps) => {
         form={form}
         layout="vertical"
         initialValues={{
-          cashAmount: openClose?.cashAmount || 0,
-          nonCashAmount: openClose?.nonCashAmount || 0,
-          lendAmount: openClose?.lendAmount || 0,
+          cashAmount: 0,
+          nonCashAmount: 0,
+          lendAmount: 0,
         }}
       >
         <div
@@ -408,6 +416,16 @@ const CloseState = (props: IProps) => {
           style={{
             minWidth: 140,
           }}
+          showTime
+          disabledDate={(current) =>
+            current && current < dayjs().startOf("day")
+          }
+          onChange={(date) => {
+            setCurrentCloseDate(
+              dayjs(date).format("YYYY/MM/DD HH:mm").toString()
+            );
+          }}
+          defaultValue={closeDate ? dayjs(currentCloseDate) : undefined}
           disabled={openClose?.isClose}
         />
         <Button

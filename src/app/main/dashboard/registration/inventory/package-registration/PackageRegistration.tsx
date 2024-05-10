@@ -4,7 +4,7 @@ import { SignalFilled } from "@ant-design/icons";
 import { BlockContext, BlockView } from "@/feature/context/BlockContext";
 import ColumnSettings from "@/components/columnSettings";
 import Description from "@/components/description";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import Filtered from "@/components/table/filtered";
 import { ComponentType, DataIndexType, Meta } from "@/service/entities";
 import {
@@ -51,6 +51,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
 import { newPane } from "@/feature/store/slice/param.slice";
 import PageTitle from "@/components/page-title";
+import NewTreeSelect from "@/components/tree/tree-select";
 const { Title } = Typography;
 
 interface IProps {
@@ -212,7 +213,7 @@ const PackageRegistration = (props: IProps) => {
   };
   const getMaterialSection = async (params: IParamMaterialSection) => {
     await MaterialSectionService.get(params).then((response) => {
-      setMaterialSections(response.response.data);
+      setMaterialSections(response.response);
     });
   };
   const getMeasurements = async (params: IParamUnitOfMeasure) => {
@@ -464,62 +465,13 @@ const PackageRegistration = (props: IProps) => {
                 </div>
               </Space.Compact>
             </Form.Item>
-            <Form.Item label="Багцын бүлэг">
-              <Space.Compact>
-                <div className="extraButton">
-                  <Popover
-                    placement="bottom"
-                    open={isOpenPopOver}
-                    onOpenChange={(state) => setIsOpenPopOver(state)}
-                    content={
-                      <NewDirectoryTree
-                        data={materialSections}
-                        extra="HALF"
-                        isLeaf={true}
-                        onClick={(key, isLeaf) => {
-                          if (isLeaf) {
-                            setIsOpenPopOver(false);
-                            form.setFieldsValue({
-                              sectionId: key,
-                            });
-                          }
-                        }}
-                      />
-                    }
-                    trigger={"click"}
-                  >
-                    <SignalFilled rotate={-90} />
-                  </Popover>
-                </div>
-                <Form.Item
-                  style={{
-                    width: "100%",
-                  }}
-                  name="materialSectionId"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Багцын бүлэг заавал",
-                    },
-                  ]}
-                >
-                  <NewSelect
-                    allowClear
-                    showSearch
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={materialSections.map((materialSection) => ({
-                      value: materialSection.id,
-                      label: materialSection.name,
-                    }))}
-                  />
-                </Form.Item>
-              </Space.Compact>
+            <Form.Item label="Багцын бүлэг" name={"materialSectionId"}>
+              <NewTreeSelect
+                sections={materialSections}
+                onChange={(value: string) =>
+                  form.setFieldValue("materialSectionId", value)
+                }
+              />
             </Form.Item>
             <Form.Item label="Нийт тоо хэмжээ" name="countPackage">
               <NewInputNumber disabled />

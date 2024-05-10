@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { IDataConsumer } from "../consumer/entities";
 import { IDataConsumerMembership } from "../consumer/membership/entities";
 import { IDataDocument } from "../document/entities";
@@ -14,18 +15,15 @@ import { IDataReferencePaymentMethod } from "../reference/payment-method/entitie
 import { IDataWarehouse } from "../reference/warehouse/entities";
 import { IDataBookingMaterial } from "./booking-material/entities";
 /** Захиалгын төлвүүд */
-export enum BookingStatus {
-  /** Шинэ */
-  New = "NEW",
-  /** Хуваарилсан */
-  Distribute = "DISTRIBUTE",
-  /** Олгосон */
-  Confirm = "CONFIRM",
-  /** Цуцалсан */
-  Refund = "REFUND",
-}
+export type BookingStatus =
+  | "NEW"
+  | "ORDER_IGNORE"
+  | "DISTRIBUTE"
+  | "DISTRIBUTE_IGNORE"
+  | "CONFIRM"
+  | "CONFIRM_IGNORE";
 export interface IDataBooking extends IData {
-  id: number;
+  id: string;
   code: string;
   consumerId: number;
   consumer?: IDataConsumer;
@@ -41,7 +39,7 @@ export interface IDataBooking extends IData {
   consumerMembership?: IDataConsumerMembership;
   consumerDiscountAmount: number;
   discountAmount: number;
-  bookingAt: number;
+  bookingAt: string | Dayjs;
   bookingQuantity: number;
   materialQuantity: number;
   distributeQuantity: number;
@@ -54,23 +52,24 @@ export interface IDataBooking extends IData {
   confirmBy: number;
   confirmAt: string;
   document?: IDataDocument;
-  bookingMaterials?: IDataBookingMaterial[];
+  bookingMaterials: IDataBookingMaterial[];
 }
 
 export interface IFilterBooking extends IColumn {
-  code: string;
-  consumerId: number;
-  fromWarehouseId: number;
-  toWarehouseId: number;
+  id: string;
+  bookingAt: string;
+  fromWarehouseName: string;
+  toWarehouseName: string;
   totalAmount: number;
+  count: number;
+  materialQuantity: number;
+  bookingQuantity: number;
   payAmount: number;
+  consumerId: number;
   materialDiscountAmount: number;
   consumerMemebershipId: number;
   consumerDiscountAmount: number;
   discountAmount: number;
-  bookingAt: number;
-  bookingQuantity: number;
-  materialQuantity: number;
   distributeQuantity: number;
   distributeAmount: number;
   confirmQuantity: number;

@@ -98,6 +98,7 @@ const Jurnal: React.FC = () => {
       isFiltered: false,
       dataIndex: ["document", "expenseCount"],
       type: DataIndexType.NUMBER,
+      isSummary: true,
     },
     expenseQuantity: {
       label: "Борлуулалтын тоо хэмжээ",
@@ -105,6 +106,7 @@ const Jurnal: React.FC = () => {
       isFiltered: false,
       dataIndex: ["document", "expenseQuantity"],
       type: DataIndexType.NUMBER,
+      isSummary: true,
     },
     totalAmount: {
       label: "Нийт дүн",
@@ -112,6 +114,7 @@ const Jurnal: React.FC = () => {
       isFiltered: false,
       dataIndex: ["totalAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     goodsDiscountAmount: {
       label: "Бараа материалын үнийн хөнгөлөлт",
@@ -119,6 +122,7 @@ const Jurnal: React.FC = () => {
       isFiltered: false,
       dataIndex: ["goodsDiscountAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     membershipPoint: {
       label: "Харилцагчийн хөнгөлөлт",
@@ -126,6 +130,7 @@ const Jurnal: React.FC = () => {
       isFiltered: false,
       dataIndex: ["membershipPoint"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     payAmount: {
       label: "Төлөх дүн",
@@ -133,6 +138,7 @@ const Jurnal: React.FC = () => {
       isFiltered: false,
       dataIndex: ["payAmount"],
       type: DataIndexType.VALUE,
+      isSummary: true,
     },
     isEbarimt: {
       label: "Ибаримтын төлөв",
@@ -201,7 +207,7 @@ const Jurnal: React.FC = () => {
     },
   ];
   const getData = async () => {
-    const params: IParamPosDocument = { ...param, status: DocumentStatus.Paid }
+    const params: IParamPosDocument = { ...param, status: DocumentStatus.Paid };
     await PosDocumentService.get(params).then((response) => {
       if (response.success) {
         setData(response.response.data);

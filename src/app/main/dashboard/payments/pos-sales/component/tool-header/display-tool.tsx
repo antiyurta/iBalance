@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Segmented } from "antd";
 import { BarsOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { Dispatch, SetStateAction } from "react";
 
@@ -10,27 +10,14 @@ interface IProps {
 const DisplayTool: React.FC<IProps> = ({ display = "grid", setDisplay }) => {
   return (
     <>
-      <Button
-        type={display == "list" ? "primary" : "default"}
-        icon={
-          <BarsOutlined
-            style={{
-              fontSize: 20,
-            }}
-          />
-        }
-        onClick={() => setDisplay("list")}
-      />
-      <Button
-        type={display == "grid" ? "primary" : "default"}
-        icon={
-          <AppstoreOutlined
-            style={{
-              fontSize: 20,
-            }}
-          />
-        }
-        onClick={() => setDisplay("grid")}
+      <Segmented
+        size="large"
+        value={display}
+        onChange={(value) => setDisplay(value as DisplayType)}
+        options={[
+          { value: "list", icon: <BarsOutlined /> },
+          { value: "grid", icon: <AppstoreOutlined /> },
+        ]}
       />
     </>
   );

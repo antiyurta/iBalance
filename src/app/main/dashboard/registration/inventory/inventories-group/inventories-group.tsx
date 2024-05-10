@@ -1,5 +1,5 @@
 import { SignalFilled, PlusOutlined } from "@ant-design/icons";
-import NewDirectoryTree from "@/components/directoryTree";
+import NewDirectoryTree from "@/components/tree";
 import { NewInput, NewSelect, NewSwitch } from "@/components/input";
 import NewModal from "@/components/modal";
 import {
@@ -7,7 +7,6 @@ import {
   Button,
   Col,
   Form,
-  Input,
   Popover,
   Row,
   Space,
@@ -168,7 +167,7 @@ const InventoriesGroup = (props: IProps) => {
       materialType: type,
       sectionId: [sectionId],
     }).then((response) => {
-      if (response.response.data.length > 0) {
+      if (response.response.length > 0) {
         setIsHaveChild(true);
       } else {
         setIsHaveChild(false);
@@ -216,7 +215,7 @@ const InventoriesGroup = (props: IProps) => {
   // section awchirah
   const getMaterialSections = async () => {
     await MaterialSectionService.get(params).then((response) => {
-      setSections(response.response.data);
+      setSections(response.response);
     });
   };
   const getInventoriesType = async () => {
@@ -321,9 +320,7 @@ const InventoriesGroup = (props: IProps) => {
         </Col>
         <Col span={24}>
           <NewDirectoryTree
-            extra="FULL"
             data={sections}
-            isLeaf={true}
             onEdit={checkEdit}
             onDelete={onDelete}
           />
@@ -391,23 +388,7 @@ const InventoriesGroup = (props: IProps) => {
                     placement="bottom"
                     open={isOpenPopOverAdd}
                     onOpenChange={(state) => setIsOpenPopOverAdd(state)}
-                    content={
-                      <NewDirectoryTree
-                        extra="HALF"
-                        data={sections}
-                        isLeaf={true}
-                        onClick={(keys, isLeaf) => {
-                          checkSectionInMaterial(keys[0]);
-                          addForm.setFieldsValue({
-                            sectionId: keys![0],
-                            isExpand: editMode
-                              ? addForm.getFieldValue("isExpand")
-                              : !isLeaf,
-                          });
-                          setIsOpenPopOverAdd(false);
-                        }}
-                      />
-                    }
+                    content={<NewDirectoryTree data={sections} />}
                     trigger={"click"}
                   >
                     <SignalFilled rotate={-90} />

@@ -1,21 +1,55 @@
-import { useEffect, useRef, useState } from "react";
+import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import * as XLSX from "sheetjs-style";
 import { usePDF } from "react-to-pdf";
 import * as headerJSON from "./excel/RStorage1";
 import { NextPage } from "next";
-import { Tools } from "@/components/tools";
+import { Tools } from "@/app/main/dashboard/reports/component/tools";
 import { useReportContext } from "@/feature/context/ReportsContext";
-import { IDataWarehouse } from "@/service/reference/warehouse/entities";
-import { WarehouseService } from "@/service/reference/warehouse/service";
 import { ReportTitle } from "../component/report-title";
 import RStorage1Filter from "../filters/RStorage1Filter";
+import { ReportService } from "@/service/report/service";
+import { IReportMaterial } from "@/service/report/entities";
+import { useTypedSelector } from "@/feature/store/reducer";
+import { Divider } from "antd";
+const textRight: CSSProperties = { textAlign: "right" };
+interface IWarehouse {
+  warehouseName?: string;
+  sections: ISection[];
+}
+interface ISection {
+  sectionName?: string;
+  materials: IReportMaterial[];
+}
+type MaterialProps = {
+  material: IReportMaterial;
+};
+const RowMaterial: React.FC<MaterialProps> = ({ material }) => (
+  <tr>
+    <td>{material.code}</td>
+    <td>{material.name}</td>
+    <td>{material.shortName}</td>
+    <td style={textRight}>{material.beginingQty}</td>
+    <td style={textRight}>{material.purchaseQty}</td>
+    <td style={textRight}>{material.refundQty}</td>
+    <td style={textRight}>{material.warehouseIncomeQty}</td>
+    <td style={textRight}>{material.incomeQty}</td>
+    <td style={textRight}>{material.saleQty}</td>
+    <td style={textRight}>{material.operationQty}</td>
+    <td style={textRight}>{material.purchaseReturnQty}</td>
+    <td style={textRight}>{material.actQty}</td>
+    <td style={textRight}>{material.warehouseExpenseQty}</td>
+    <td style={textRight}>{material.expenseQty}</td>
+    <td style={textRight}>{material.lastQty}</td>
+  </tr>
+);
 /** Бараа материалын товчоо тайлан */
 const RStorage1: NextPage = () => {
   const tableRef = useRef(null);
-  const { form } = useReportContext();
-  const values = form.getFieldsValue();
-  const [reportAt, setReportAt] = useState<string>("");
-  const [warehouse, setWarehouse] = useState<IDataWarehouse>();
+  const { activeKey, items } = useTypedSelector((state) => state.reportPanel);
+  const currentItem = items.find((item) => item.key == activeKey);
+  const { hospital } = useTypedSelector((state) => state.user);
+  const [data, setData] = useState<IReportMaterial[]>([]);
+  const [warehouses, setWarehouses] = useState<IWarehouse[]>([]);
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
   const toExcel = () => {
     const wb = XLSX.utils.book_new();
@@ -56,120 +90,405 @@ const RStorage1: NextPage = () => {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "filename.xlsx");
   };
+  const getWarehouseMaterials = (warehouse: IWarehouse): IReportMaterial[] => {
+    const repMaterials: IReportMaterial[] = [];
+    warehouse.sections.map((item) => repMaterials.push(...item.materials));
+    return repMaterials;
+  };
   useEffect(() => {
-    if (values.warehouseId)
-      WarehouseService.getById(values.warehouseId).then((response) =>
-        setWarehouse(response.response)
+    if (currentItem && currentItem.param?.dateFilter) {
+      ReportService.reportMaterial(currentItem.param).then((response) => {
+        setData(response.response);
+      });
+    }
+  }, [currentItem?.param]);
+  useEffect(() => {
+    const groupedData: IWarehouse[] = [];
+    data.forEach((material) => {
+      let warehouse = groupedData.find(
+        (wh) => wh.warehouseName === material.warehouseName
       );
-  }, [values.warehouseId]);
+      if (!warehouse) {
+        warehouse = { warehouseName: material.warehouseName, sections: [] };
+        groupedData.push(warehouse);
+      }
+
+      let section = warehouse.sections.find(
+        (sec) => sec.sectionName === material.sectionName
+      );
+      if (!section) {
+        section = {
+          sectionName: material.sectionName,
+          materials: [],
+        };
+        warehouse.sections.push(section);
+      }
+
+      section.materials.push(material);
+      setWarehouses(groupedData);
+    });
+  }, [data]);
   return (
     <div className="report-document">
-      <Tools filter={<RStorage1Filter />} />
-      <div ref={targetRef} className="report-body">
+      <Tools
+        filter={<RStorage1Filter reportKey="item-1" />}
+        printRef={tableRef}
+      />
+      <div ref={tableRef} className="report-body">
         <ReportTitle
-          organization={"Universal med"}
+          organization={hospital?.name || ""}
           title={"Бараа материалын товчоо тайлан"}
         />
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            justifyContent: "space-between",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 8,
-              fontStyle: "italic",
-            }}
-          >
-            {warehouse?.name}
-          </p>
-        </div>
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: 14,
-            fontWeight: "bold",
-          }}
-        >
-          <p>Бараа материалын товчоо тайлан</p>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            justifyContent: "space-between",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 9,
-            }}
-          >
-            Тайлант үе: {reportAt}
-          </p>
-        </div>
-        <table ref={tableRef} className="report">
+        <table className="report">
           <thead>
             <tr>
               <th rowSpan={2}>Дотоод код</th>
               <th rowSpan={2}>Бараа материалын нэр</th>
               <th rowSpan={2}>Хэмжих нэгж</th>
               <th rowSpan={2}>Эхний үлдэгдэл</th>
-              <th colSpan={3}>Орлого</th>
+              <th colSpan={4}>Орлого</th>
               <th rowSpan={2}>Нийт орлого</th>
-              <th colSpan={5}>Зарлага</th>
+              <th colSpan={6}>Зарлага</th>
               <th rowSpan={2}>Нийт зарлага</th>
               <th rowSpan={2}>Эцсийн үлдэгдэл</th>
             </tr>
             <tr>
               <th>Бараа материалын орлого</th>
               <th>Борлуулалтын буцаалт</th>
-              <th>Дотоод хөдөлгөөн</th>
+              <th>Дотоод гүйлгээ</th>
+              <th>Тооллого</th>
               <th>Борлуулалт</th>
               <th>Үйл ажиллагаанд</th>
               <th>Худалдан авалтын буцаалт</th>
               <th>Акт, хорогдол</th>
-              <th>Дотоод хөдөлгөөн</th>
+              <th>Дотоод гүйлгээ</th>
+              <th>Тооллого</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Нярав :</td>
-              <td colSpan={14}>Бат</td>
-            </tr>
-            <tr>
-              <td>Байршил :</td>
-              <td colSpan={14}>{warehouse?.name}</td>
-            </tr>
-            <tr>
-              <td>Барааны төрөл :</td>
-              <td colSpan={14}>Бэлэн бүтээгдэхүүн- Төв агуулах</td>
-            </tr>
-            <tr>
-              <td>Бүлэг :</td>
-              <td colSpan={14}>АР-ХӨН</td>
-            </tr>
-            <tr>
-              <td>750023</td>
-              <td>Архөн HY150</td>
-              <td>Ширхэг</td>
-              <td>220</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>220</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>220</td>
-              <td>220</td>
+            {warehouses.map((warehouse, windex) => (
+              <React.Fragment key={windex}>
+                {currentItem?.param?.isWarehouse && (
+                  <tr key={windex} style={{ fontWeight: "bold" }}>
+                    <td>Байршил : </td>
+                    <td colSpan={16}>{warehouse.warehouseName}</td>
+                  </tr>
+                )}
+                {warehouse.sections.map((section, sindex) => (
+                  <React.Fragment key={sindex}>
+                    {currentItem?.param?.isSection && (
+                      <tr
+                        key={`${windex}-${sindex}`}
+                        style={{ fontWeight: "bold" }}
+                      >
+                        <td>Бүлэг :</td>
+                        <td colSpan={16}>{section.sectionName}</td>
+                      </tr>
+                    )}
+                    {section.materials.map((item, index) => (
+                      <tr key={`${windex}-${sindex}-${index}`}>
+                        <td>{item.code}</td>
+                        <td>{item.name}</td>
+                        <td>{item.shortName}</td>
+                        <td style={textRight}>{item.beginingQty}</td>
+                        <td style={textRight}>{item.purchaseQty}</td>
+                        <td style={textRight}>{item.refundQty}</td>
+                        <td style={textRight}>{item.warehouseIncomeQty}</td>
+                        <td style={textRight}>{item.cencusIncomeQty}</td>
+                        <td style={textRight}>{item.incomeQty}</td>
+                        <td style={textRight}>{item.saleQty}</td>
+                        <td style={textRight}>{item.operationQty}</td>
+                        <td style={textRight}>{item.purchaseReturnQty}</td>
+                        <td style={textRight}>{item.actQty}</td>
+                        <td style={textRight}>{item.warehouseExpenseQty}</td>
+                        <td style={textRight}>{item.cencusExpenseQty}</td>
+                        <td style={textRight}>{item.expenseQty}</td>
+                        <td style={textRight}>{item.lastQty}</td>
+                      </tr>
+                    ))}
+                    {currentItem?.param?.isSection && (
+                      <tr style={{ fontWeight: "bold" }}>
+                        <td colSpan={3}>Бүлгийн тоо хэмжээ</td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.beginingQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.purchaseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.refundQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.warehouseIncomeQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.cencusIncomeQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.incomeQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.saleQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.operationQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.purchaseReturnQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.actQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.warehouseExpenseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) =>
+                              total + Number(item.cencusExpenseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.expenseQty),
+                            0
+                          )}
+                        </td>
+                        <td style={textRight}>
+                          {section.materials.reduce(
+                            (total, item) => total + Number(item.lastQty),
+                            0
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+                {currentItem?.param?.isWarehouse && (
+                  <tr style={{ fontWeight: "bold" }}>
+                    <td colSpan={3}>Байршлын тоо хэмжээ</td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.beginingQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.purchaseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.refundQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) =>
+                          total + Number(item.warehouseIncomeQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.cencusIncomeQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.incomeQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.saleQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.operationQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.purchaseReturnQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.actQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) =>
+                          total + Number(item.warehouseExpenseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.cencusExpenseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.expenseQty),
+                        0
+                      )}
+                    </td>
+                    <td style={textRight}>
+                      {getWarehouseMaterials(warehouse).reduce(
+                        (total, item) => total + Number(item.lastQty),
+                        0
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+            <tr style={{ fontWeight: "bold" }}>
+              <td colSpan={3}>НИЙТ ТОО ХЭМЖЭЭ</td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.beginingQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.purchaseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.refundQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.warehouseIncomeQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.cencusIncomeQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.incomeQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce((total, item) => total + Number(item.saleQty), 0)}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.operationQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.purchaseReturnQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce((total, item) => total + Number(item.actQty), 0)}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.warehouseExpenseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.cencusExpenseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce(
+                  (total, item) => total + Number(item.expenseQty),
+                  0
+                )}
+              </td>
+              <td style={textRight}>
+                {data.reduce((total, item) => total + Number(item.lastQty), 0)}
+              </td>
             </tr>
           </tbody>
         </table>
+        <Divider />
+        <div
+          style={{
+            display: "grid",
+            gap: 20,
+          }}
+        >
+          <span style={textRight}>
+            Агуулах хариуцсан нярав:............../.............../
+          </span>
+          <span style={textRight}>
+            Хянасан нягтлан бодогч:.............../.............../
+          </span>
+        </div>
       </div>
     </div>
   );

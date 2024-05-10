@@ -9,6 +9,7 @@ export interface IDataDiscount extends IData {
   materialId: number; // Бараа
   material: IDataMaterial;
   endAt: string; // Хөнгөлөлт дуусах огноо
+  unitAmount: number; // нэгжийн үнэ
   isPercent: boolean; // Хөнгөлөлт хувь эсэх
   percent: number; // Хөнгөлтийн хувь
   amount: number; // Хөнгөлтийн дүн

@@ -9,6 +9,7 @@ import PosOpenCloseReducer from "./slice/pos-open-close.slice";
 import ShoppingCartReducer from "./slice/point-of-sale/shopping-cart.slice";
 import ShoppingGoodsReducer from "./slice/point-of-sale/goods.slice";
 import ShoppingTempReducer from "./slice/point-of-sale/temp.slice";
+import ReportPanelReducer from "./slice/report.slice";
 
 const rootReducer = combineReducers({
   core: coreReducer,
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   shoppingCart: ShoppingCartReducer,
   shoppingGoods: ShoppingGoodsReducer,
   shoppingTemp: ShoppingTempReducer, 
+  reportPanel: ReportPanelReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
