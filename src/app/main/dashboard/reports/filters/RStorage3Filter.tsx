@@ -27,7 +27,7 @@ const RStorage3Filter = () => {
   }, []);
   return (
     <>
-      <Form.Item label="Огноо" name="documentAt">
+      <Form.Item label="Огноо" name="filterAt">
         <NewDatePicker />
       </Form.Item>
       <NewReportSelect
