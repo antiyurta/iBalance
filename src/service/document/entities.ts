@@ -42,6 +42,8 @@ export enum MovingStatus {
   PosSaleReturn = "POS_SALE_RETURN",
   /** Захиалгын борлуулалт */
   BookingSale = "BOOKING_SALE",
+  /** Дуусах хугацаа тохируулах */
+  EndatConfig = "ENDAT_CONFIG",
 }
 export interface IDataDocument extends IData {
   id: number;
@@ -335,6 +337,7 @@ export const getDocumentColumns = (
     [MovingStatus.Pos]: [],
     [MovingStatus.PosSaleReturn]: [],
     [MovingStatus.BookingSale]: [],
+    [MovingStatus.EndatConfig]: localDocument
   };
   const keys: (keyof FilteredColumnsDocument)[] = movingStatus
     ? movingStatusMappings[movingStatus]

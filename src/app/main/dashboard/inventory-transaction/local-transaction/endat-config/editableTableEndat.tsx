@@ -1,7 +1,12 @@
 import Image from "next/image";
 import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { Column } from "@/components/table";
-import { NewDatePicker, NewInput, NewInputNumber } from "@/components/input";
+import {
+  NewDatePicker,
+  NewInput,
+  NewInputNumber,
+  NewSwitch,
+} from "@/components/input";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useState } from "react";
 import { MaterialSelect } from "@/components/material-select";
@@ -12,25 +17,33 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { MaterialType } from "@/service/material/entities";
+import MaterialSearch from "@/components/material-search";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
 
-interface IProps {
+type Props = {
   data: FormListFieldData[];
   form: FormInstance;
+  isEditing: boolean;
   add: () => void;
   remove: (index: number) => void;
-}
-export const EditableTableCencus = (props: IProps) => {
+};
+export const EditableTableEndat: React.FC<Props> = ({
+  data,
+  form,
+  isEditing,
+  add,
+  remove,
+}) => {
   const { message } = App.useApp();
-  const { data, form, add, remove } = props;
   const [isNewService, setNewService] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number>();
 
   const onSave = async () => {
     if (editingIndex !== undefined) {
-      const quantity = form.getFieldValue([
+      const censusQty = form.getFieldValue([
         "transactions",
         editingIndex,
-        "quantity",
+        "censusQty",
       ]);
       const lastQty = form.getFieldValue([
         "transactions",
@@ -45,8 +58,8 @@ export const EditableTableCencus = (props: IProps) => {
       form.setFieldsValue({
         transactions: {
           [editingIndex]: {
-            excessOrDeficiency: quantity - lastQty,
-            totalAmount: (quantity - lastQty) * unitAmount,
+            diffQty: censusQty - lastQty,
+            totalAmount: (censusQty - lastQty) * unitAmount,
           },
         },
       });
@@ -57,7 +70,7 @@ export const EditableTableCencus = (props: IProps) => {
         ["transactions", editingIndex, "materialId"],
         ["transactions", editingIndex, "name"],
         ["transactions", editingIndex, "countPackage"],
-        ["transactions", editingIndex, "quantity"],
+        ["transactions", editingIndex, "censusQty"],
       ])
       .then(() => {
         setNewService(false);
@@ -102,33 +115,38 @@ export const EditableTableCencus = (props: IProps) => {
       dataSource={data}
       footer={() => {
         return (
-          <div className="button-editable-footer" onClick={() => addService()}>
+          !isEditing && (
             <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 8,
-                placeContent: "center",
-              }}
+              className="button-editable-footer"
+              onClick={() => addService()}
             >
-              <Image
-                src={"/images/AddIconBlack.svg"}
-                alt="addiconblack"
-                width={16}
-                height={16}
-              />
-              <span
+              <div
                 style={{
-                  fontWeight: 500,
-                  fontSize: 14,
-                  lineHeight: "13px",
-                  color: "#6C757D",
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 8,
+                  placeContent: "center",
                 }}
               >
-                Нэмэх
-              </span>
+                <Image
+                  src={"/images/AddIconBlack.svg"}
+                  alt="addiconblack"
+                  width={16}
+                  height={16}
+                />
+                <span
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 14,
+                    lineHeight: "13px",
+                    color: "#6C757D",
+                  }}
+                >
+                  Нэмэх
+                </span>
+              </div>
             </div>
-          </div>
+          )
         );
       }}
     >
@@ -136,35 +154,42 @@ export const EditableTableCencus = (props: IProps) => {
         dataIndex={"materialId"}
         title="Дотоод код"
         render={(_, __, index) => (
-          <MaterialSelect
-            params={{ types: [MaterialType.Material] }}
-            form={form}
-            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          <Form.Item
             name={[index, "materialId"]}
-            disabled={!(index === editingIndex)}
-            listName={"transactions"}
-            onClear={() => {
-              form.resetFields([
-                ["transactions", index, "name"],
-                ["transactions", index, "measurement"],
-                ["transactions", index, "countPackage"],
-              ]);
-            }}
-            onSelect={(value) => {
-              form.setFieldsValue({
-                transactions: {
-                  [index]: {
-                    name: value.name,
-                    measurement: value.measurementName,
-                    countPackage: value.countPackage,
-                    unitAmount: value.unitAmount | 0,
-                    lastQty: value.lastQty,
-                    quantity: 1,
+            rules={[{ required: true, message: "Дотоод код заавал" }]}
+          >
+            <MaterialSearch
+              params={{ types: [MaterialType.Material] }}
+              isDisable={isEditing || editingIndex !== index}
+              isEdit={true}
+              warehouseId={form.getFieldValue("warehouseId")}
+              documentAt={form.getFieldValue("documentAt")}
+              materialId={form.getFieldValue([
+                "transactions",
+                index,
+                "materialId",
+              ])}
+              onMaterial={(material?: IDataViewMaterial) => {
+                form.setFieldsValue({
+                  transactions: {
+                    [index]: {
+                      materialId: material?.id,
+                      name: material?.name,
+                      measurement: material?.measurementName,
+                      countPackage: material?.countPackage,
+                      unitAmount: material?.unitAmount || 0,
+                    },
                   },
-                },
-              });
-            }}
-          />
+                });
+                if (!isEditing) {
+                  form.setFieldValue(
+                    ["transactions", index, "lastQty"],
+                    material?.lastQty
+                  );
+                }
+              }}
+            />
+          </Form.Item>
         )}
       />
       <Column
@@ -217,7 +242,7 @@ export const EditableTableCencus = (props: IProps) => {
         title="Тооллогоор"
         render={(_, __, index) => (
           <Form.Item
-            name={[index, "quantity"]}
+            name={[index, "censusQty"]}
             rules={[{ required: true, message: "Тооллогоор заавал" }]}
           >
             <NewInputNumber onFocus={() => setEditingIndex(index)} />
@@ -225,10 +250,10 @@ export const EditableTableCencus = (props: IProps) => {
         )}
       />
       <Column
-        dataIndex={"excessOrDeficiency"}
+        dataIndex={"diffQty"}
         title="Илүүдэл (дутагдал)"
         render={(_, __, index) => (
-          <Form.Item name={[index, "excessOrDeficiency"]}>
+          <Form.Item name={[index, "diffQty"]}>
             <NewInputNumber disabled />
           </Form.Item>
         )}

@@ -20,7 +20,11 @@ const Item = (props: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const onChange = (quantity: number) => {
     dispatch(
-      saveGoods({ ...data, quantity, payAmount: quantity * data.unitAmount })
+      saveGoods({
+        ...data,
+        quantity,
+        payAmount: quantity * (data.unitAmount - data.discountAmount),
+      })
     );
   };
   const manual = (value: 1 | -1) => {
