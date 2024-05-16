@@ -12,13 +12,14 @@ import { useRouter } from "next/navigation";
 import { NewCheckbox, NewInput, NewInputPassword } from "@/components/input";
 import { AppDispatch } from "@/feature/store/store";
 import { emptyTabs } from "@/feature/store/slice/tab.slice";
+import { NextPage } from "next";
 
 export interface ILoginData {
-  email: string;
+  username: string;
   password: string;
 }
 
-const Login = () => {
+const Login:NextPage = () => {
   const { notification } = App.useApp();
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -28,7 +29,7 @@ const Login = () => {
   const onFinish = async (values: ILoginData) => {
     blockContext.block();
     if (isRememberMe) {
-      localStorage.setItem("email", values.email);
+      localStorage.setItem("username", values.username);
       localStorage.setItem("password", values.password);
     }
     await authService
@@ -36,7 +37,7 @@ const Login = () => {
       .then((response) => {
         if (response?.success) {
           dispatch(CoreActions.setLoginData(response));
-          dispatch(CoreActions.setRememberMe(values.email));
+          dispatch(CoreActions.setRememberMe(values.username));
           dispatch(CoreActions.setLoggedIn(true));
           dispatch(emptyTabs());
           notification.success({
@@ -68,13 +69,13 @@ const Login = () => {
           >
             <div className="login-control">
               <Form.Item
-                label="И-мэйл"
-                name="email"
-                rules={[{ required: true, message: "И-мэйл оруулна уу." }]}
+                label="Нэвтрэх нэр"
+                name="username"
+                rules={[{ required: true, message: "Нэвтрэх нэр оруулна уу." }]}
               >
                 <NewInput
                   prefix={<UserOutlined />}
-                  placeholder="И-мэйл"
+                  placeholder="Нэвтрэх нэр"
                   autoComplete="email"
                   size="large"
                 />
