@@ -41,7 +41,7 @@ export interface Tokens {
   refreshToken: string;
 }
 export interface LoginBody {
-  email: string;
+  username: string;
   password: string;
 }
 export interface LoginResponse extends GenericResponse {
