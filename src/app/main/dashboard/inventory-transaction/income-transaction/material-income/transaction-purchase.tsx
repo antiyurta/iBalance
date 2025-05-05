@@ -24,6 +24,8 @@ export const TransactionPurchase = (props: IProps) => {
   const { selectedDocument, onSave } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
+  const documentAt = Form.useWatch("documentAt", form);
+  const warehouseId = Form.useWatch("warehouseId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
@@ -184,45 +186,44 @@ export const TransactionPurchase = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            {form.getFieldValue("documentAt") &&
-              form.getFieldValue("warehouseId") && (
-                <Form.List
-                  name="transactions"
-                  rules={[
-                    {
-                      validator: async (_, transactions) => {
-                        const arr = Array.isArray(transactions)
-                          ? transactions.map((item: IDataTransaction) => {
-                              return `${item.materialId}-${dayjs(
-                                item.transactionAt
-                              ).format("YYYY/MM/DD")}`;
-                            })
-                          : [];
-                        if (!hasUniqueValues(arr)) {
-                          return Promise.reject(
-                            new Error(
-                              "Барааны код дуусах хугацаа давхардсан байна."
-                            )
-                          );
-                        }
-                      },
+            {documentAt && warehouseId && (
+              <Form.List
+                name="transactions"
+                rules={[
+                  {
+                    validator: async (_, transactions) => {
+                      const arr = Array.isArray(transactions)
+                        ? transactions.map((item: IDataTransaction) => {
+                            return `${item.materialId}-${dayjs(
+                              item.transactionAt
+                            ).format("YYYY/MM/DD")}`;
+                          })
+                        : [];
+                      if (!hasUniqueValues(arr)) {
+                        return Promise.reject(
+                          new Error(
+                            "Барааны код дуусах хугацаа давхардсан байна."
+                          )
+                        );
+                      }
                     },
-                  ]}
-                >
-                  {(items, { add, remove }, { errors }) => (
-                    <>
-                      <EditableTablePurchase
-                        data={items}
-                        form={form}
-                        add={add}
-                        remove={remove}
-                        isEdit={isEdit}
-                      />
-                      <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                    </>
-                  )}
-                </Form.List>
-              )}
+                  },
+                ]}
+              >
+                {(items, { add, remove }, { errors }) => (
+                  <>
+                    <EditableTablePurchase
+                      data={items}
+                      form={form}
+                      add={add}
+                      remove={remove}
+                      isEdit={isEdit}
+                    />
+                    <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                  </>
+                )}
+              </Form.List>
+            )}
           </Form>
           <div
             style={{
