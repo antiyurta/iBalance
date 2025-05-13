@@ -113,6 +113,7 @@ const EditableTableProduct = (props: IProps) => {
             </div>
           );
         }}
+        pagination={false}
       >
         <Column
           dataIndex={"materialId"}

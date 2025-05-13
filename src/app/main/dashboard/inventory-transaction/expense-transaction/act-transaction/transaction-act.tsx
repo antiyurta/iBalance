@@ -20,10 +20,12 @@ import { hasUniqueValues } from "@/feature/common";
 type Props = {
   selectedDocument?: IDataDocument;
   onSave?: (state: boolean) => void;
-}
+};
 const TransactionAct: React.FC<Props> = ({ selectedDocument, onSave }) => {
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
+  const warehouseId = Form.useWatch("warehouseId", form);
+  const documentAt = Form.useWatch("documentAt", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
@@ -177,40 +179,39 @@ const TransactionAct: React.FC<Props> = ({ selectedDocument, onSave }) => {
                 background: "#DEE2E6",
               }}
             />
-            {form.getFieldValue("documentAt") &&
-              form.getFieldValue("warehouseId") && (
-                <Form.List
-                  name="transactions"
-                  rules={[
-                    {
-                      validator: async (_, transactions) => {
-                        const arr = Array.isArray(transactions)
-                          ? transactions.map(
-                              (item: IDataTransaction) => item.materialId
-                            )
-                          : [];
-                        if (!hasUniqueValues(arr)) {
-                          return Promise.reject(
-                            new Error("Барааны код давхардсан байна.")
-                          );
-                        }
-                      },
+            {documentAt && warehouseId && (
+              <Form.List
+                name="transactions"
+                rules={[
+                  {
+                    validator: async (_, transactions) => {
+                      const arr = Array.isArray(transactions)
+                        ? transactions.map(
+                            (item: IDataTransaction) => item.materialId
+                          )
+                        : [];
+                      if (!hasUniqueValues(arr)) {
+                        return Promise.reject(
+                          new Error("Барааны код давхардсан байна.")
+                        );
+                      }
                     },
-                  ]}
-                >
-                  {(items, { add, remove }, { errors }) => (
-                    <>
-                      <EditableTableAct
-                        data={items}
-                        form={form}
-                        add={add}
-                        remove={remove}
-                      />
-                      <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                    </>
-                  )}
-                </Form.List>
-              )}
+                  },
+                ]}
+              >
+                {(items, { add, remove }, { errors }) => (
+                  <>
+                    <EditableTableAct
+                      data={items}
+                      form={form}
+                      add={add}
+                      remove={remove}
+                    />
+                    <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                  </>
+                )}
+              </Form.List>
+            )}
           </Form>
           <div
             style={{

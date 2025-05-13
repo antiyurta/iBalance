@@ -967,6 +967,13 @@ const InventoriesRegistration = (props: IProps) => {
             >
               <NewSwitch />
             </Form.Item>
+            <Form.Item
+              label="Эм эсэх"
+              name="isMedicine"
+              valuePropName="checked"
+            >
+              <NewSwitch />
+            </Form.Item>
           </div>
         </Form>
       </NewModal>
