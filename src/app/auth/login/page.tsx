@@ -19,7 +19,7 @@ export interface ILoginData {
   password: string;
 }
 
-const Login:NextPage = () => {
+const Login: NextPage = () => {
   const { notification } = App.useApp();
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -76,7 +76,6 @@ const Login:NextPage = () => {
                 <NewInput
                   prefix={<UserOutlined />}
                   placeholder="Нэвтрэх нэр"
-                  autoComplete="email"
                   size="large"
                 />
               </Form.Item>
