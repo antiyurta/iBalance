@@ -41,6 +41,7 @@ import {
   Popover,
   Row,
   Space,
+  Tooltip,
   Typography,
   Upload,
 } from "antd";
@@ -203,7 +204,7 @@ const InventoriesRegistration = (props: IProps) => {
       type: DataIndexType.MULTI,
     },
     rankId: {
-      label: "Зэрэглэл",
+      label: "Эмийн хэрэглээ",
       isView: true,
       isFiltered: false,
       dataIndex: ["rank", "name"],
@@ -248,6 +249,10 @@ const InventoriesRegistration = (props: IProps) => {
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
     []
   );
+
+  useEffect(() => {
+    getMaterialRanks(IType.MATERIAL_RANK);
+  }, [isOpenMaterialRank]);
   const renderImage = async (fileIds: number[]) => {
     var blobImages: UploadFile[] = [];
     await Promise.all(
@@ -786,7 +791,7 @@ const InventoriesRegistration = (props: IProps) => {
               >
                 <NewInputNumber />
               </Form.Item>
-              <Form.Item label="Зэрэглэл">
+              <Form.Item label="Эмийн хэрэглээ">
                 <Space.Compact>
                   <Form.Item name="rankId">
                     <NewSelect
@@ -933,9 +938,14 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-              <Form.Item label="Дэлгэрэнгүй мэдээлэл" name="description">
-                <NewTextArea />
-              </Form.Item>
+              <Tooltip title="Эм үед ОУНэр бөглөх шаардлагтай">
+                <Form.Item
+                  label="Дэлгэрэнгүй мэдээлэл (ОУНэр)"
+                  name="description"
+                >
+                  <NewTextArea />
+                </Form.Item>
+              </Tooltip>
             </div>
           </div>
           <div className="switches-col">
@@ -996,7 +1006,7 @@ const InventoriesRegistration = (props: IProps) => {
         />
       </NewModal>
       <NewModal
-        title="Зэрэглэл"
+        title="Эмийн хэрэглээ"
         open={isOpenMaterialRank}
         footer={false}
         onCancel={() => setIsOpenMaterialRank(false)}
