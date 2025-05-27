@@ -177,10 +177,10 @@ const BeginningBalancePage = () => {
                       name: value.name,
                       countPackage: value.countPackage,
                       measurement: {
-                        name: value.measurementName,
+                        name: value.measurement.name,
                       },
                       section: {
-                        name: value.sectionName,
+                        name: value.section.name,
                       },
                       isExpired: value.isExpired,
                     });

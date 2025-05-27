@@ -10,11 +10,11 @@ import {
 } from "@ant-design/icons";
 import { NewInput, NewInputNumber } from "@/components/input";
 import { MaterialSelect } from "@/components/material-select";
-import { IParamViewMaterial } from "@/service/material/view-material/entities";
 import { IDataBookingMaterial } from "@/service/booking/booking-material/entities";
+import { IParamMaterial } from "@/service/material/entities";
 
 interface IProps {
-  params: IParamViewMaterial;
+  params: IParamMaterial;
   isFormAdd: boolean;
   data: FormListFieldData[];
   form: FormInstance;
@@ -177,14 +177,14 @@ const EditableTableOrder = (props: IProps) => {
                   bookingMaterials: {
                     [index]: {
                       name: value.name,
-                      measurement: value.measurementName,
+                      measurement: value.measurement.name,
                       countPackage: value.countPackage,
-                      lastQty: value.lastQty,
-                      unitAmount: value.unitAmount,
-                      unitDiscountAmount: value.discountAmount,
+                      lastQty: 0,
+                      unitAmount: 0,
+                      unitDiscountAmount: 0,
                       quantity: 1,
-                      amount: value.unitAmount,
-                      discountAmount: value.discountAmount,
+                      amount: 0,
+                      discountAmount: 0,
                     },
                   },
                 });

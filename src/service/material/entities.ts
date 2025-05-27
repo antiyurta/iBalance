@@ -44,6 +44,7 @@ export interface IDataMaterial {
   materialSectionId: number;
   section: IDataMaterialSection;
   countPackage: number;
+  isExpired: boolean;
   brandId: number;
   brand: IDataBrand;
   rankId: number;

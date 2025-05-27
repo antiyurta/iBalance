@@ -176,10 +176,10 @@ const EditableTableDiscount = (props: IProps) => {
                     discounts: {
                       [index]: {
                         name: value.name,
-                        measurement: value.measurementName,
+                        measurement: value.measurement.name,
                         countPackage: value.countPackage,
-                        section: value.sectionName,
-                        unitAmount: value.unitAmount,
+                        section: value.section.name,
+                        unitAmount: 0,
                       },
                     },
                   });

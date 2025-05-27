@@ -1,12 +1,5 @@
 import Image from "next/image";
-import {
-  App,
-  Button,
-  Form,
-  FormInstance,
-  Popconfirm,
-  Table,
-} from "antd";
+import { App, Button, Form, FormInstance, Popconfirm, Table } from "antd";
 import { FormListFieldData } from "antd/lib";
 import { Fragment, useState } from "react";
 import {
@@ -146,8 +139,8 @@ const EditableTableService = (props: IProps) => {
                   prices: {
                     [index]: {
                       name: value.name,
-                      measurement: value.measurementName,
-                      section: value.sectionName,
+                      measurement: value.measurement.name,
+                      section: value.section.name,
                     },
                   },
                 });

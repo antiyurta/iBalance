@@ -71,7 +71,7 @@ const StockOfCommoditiesPage = () => {
   };
   return (
     <div>
-      <PageTitle onClick={() => openModal(false)}/>
+      <PageTitle onClick={() => openModal(false)} />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col span={24}>
           <Tabs
@@ -131,8 +131,8 @@ const StockOfCommoditiesPage = () => {
                     form.setFieldsValue({
                       name: value.name,
                       countPackage: value.countPackage,
-                      section: { name: value.sectionName },
-                      measurement: { name: value.measurementName },
+                      section: { name: value.section.name },
+                      measurement: { name: value.measurement.name },
                     });
                   }}
                 />
