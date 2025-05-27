@@ -138,6 +138,13 @@ const InventoriesRegistration = (props: IProps) => {
   const [imageIds, setImageIds] = useState<number[]>([]);
   const [fileList, setFileList] = useState<MyUploadFile[]>([]);
   const [columns, setColumns] = useState<FilteredColumns>({
+    type: {
+      label: "Төрөл",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["type"],
+      type: DataIndexType.ENUM,
+    },
     code: {
       label: "Дотоод код",
       isView: true,
@@ -375,7 +382,6 @@ const InventoriesRegistration = (props: IProps) => {
   const onFinish = async (values: IDataMaterial) => {
     blockContext.block();
     values.fileIds = imageIds;
-    values.type = MaterialType.Material;
     if (editMode && selectedRow) {
       await MaterialService.patch(selectedRow.id, values)
         .then((response) => {
@@ -726,6 +732,18 @@ const InventoriesRegistration = (props: IProps) => {
               >
                 Үндсэн мэдээлэл
               </Title>
+              <Form.Item
+                label="Төрөл"
+                name="type"
+                rules={[{ required: true, message: "Төрөл заавал" }]}
+              >
+                <NewSelect
+                  options={[
+                    { value: "MEDICINE", label: "Эм" },
+                    { value: "MATERIAL", label: "Туслах материал" },
+                  ]}
+                />
+              </Form.Item>
               <Form.Item
                 label="Бараа материалын нэр"
                 name="name"

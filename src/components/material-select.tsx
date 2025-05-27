@@ -5,37 +5,38 @@ import { CSSProperties, useEffect, useState } from "react";
 import NewModal from "./modal";
 import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
-import { IDataMaterial, MaterialType } from "@/service/material/entities";
+import {
+  IDataMaterial,
+  IParamMaterial,
+  MaterialType,
+} from "@/service/material/entities";
 import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
 import { fieldValue } from "@/feature/common";
-import {
-  IDataViewMaterial,
-  IParamViewMaterial,
-} from "@/service/material/view-material/entities";
-import { ViewMaterialService } from "@/service/material/view-material/service";
+import { IDataViewMaterial } from "@/service/material/view-material/entities";
+import { MaterialService } from "@/service/material/service";
 
 interface IProps {
   form: FormInstance;
-  params: IParamViewMaterial;
+  params: IParamMaterial;
   rules: Rule[];
   name: string | (string | number)[];
   listName?: string;
   disabled?: boolean;
   onClear?: () => void;
-  onSelect?: (value: IDataViewMaterial) => void;
+  onSelect?: (value: IDataMaterial) => void;
 }
 
 export const MaterialSelect = (props: IProps) => {
   const { form, params, name, rules, listName, disabled, onClear, onSelect } =
     props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
-  const [viewMaterials, setViewMaterials] = useState<IDataViewMaterial[]>([]);
+  const [materials, setMaterials] = useState<IDataMaterial[]>([]);
   const [viewMaterialDictionary, setViewMaterialDictionary] =
-    useState<Map<number, IDataViewMaterial>>();
-  const getViewMaterials = async (params: IParamViewMaterial) => {
-    await ViewMaterialService.get(params).then((response) => {
+    useState<Map<number, IDataMaterial>>();
+  const getViewMaterials = async (params: IParamMaterial) => {
+    await MaterialService.get(params).then((response) => {
       if (response.success) {
-        setViewMaterials(response.response.data);
+        setMaterials(response.response.data);
       }
     });
   };
@@ -46,13 +47,13 @@ export const MaterialSelect = (props: IProps) => {
     }
   }, []);
   useEffect(() => {
-    setViewMaterialDictionary(
-      viewMaterials.reduce((dict, material) => {
+    return setViewMaterialDictionary(
+      materials.reduce((dict, material) => {
         dict.set(material.id, material);
         return dict;
-      }, new Map<number, IDataViewMaterial>())
+      }, new Map<number, IDataMaterial>())
     );
-  }, [viewMaterials]);
+  }, [materials]);
   return (
     <>
       <Space.Compact>
@@ -69,7 +70,7 @@ export const MaterialSelect = (props: IProps) => {
         <Form.Item name={name ? name : "materialId"} rules={rules}>
           <NewFilterSelect
             style={{ minWidth: 150, width: "100%" }}
-            options={viewMaterials.map((material) => ({
+            options={materials.map((material) => ({
               value: material.id,
               label: `${material.code} - ${material.name}`,
             }))}

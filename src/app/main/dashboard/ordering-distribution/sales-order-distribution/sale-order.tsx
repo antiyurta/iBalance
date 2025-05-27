@@ -181,8 +181,8 @@ const SaleOrder: React.FC<IProps> = (props: IProps) => {
             <EditableTableOrder
               params={{
                 types: [MaterialType.Material],
-                warehouseId: toWarehouseId,
-                consumerId: consumerId,
+                // warehouseId: toWarehouseId,
+                // consumerId: consumerId,
               }}
               isFormAdd={isFormAdd}
               data={items}

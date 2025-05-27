@@ -157,9 +157,9 @@ export const EditableTableRefundPurchase = (props: IProps) => {
                 transactions: {
                   [index]: {
                     name: value.name,
-                    measurement: value.measurementName,
+                    measurement: value.measurement.name,
                     countPackage: value.countPackage,
-                    lastQty: value.lastQty,
+                    lastQty: 0,
                     expenseQty: 1,
                   },
                 },

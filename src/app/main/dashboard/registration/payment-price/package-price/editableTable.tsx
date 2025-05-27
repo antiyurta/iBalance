@@ -203,9 +203,9 @@ const EditableTablePackage = (props: IProps) => {
                   prices: {
                     [index]: {
                       name: value.name,
-                      measurement: value.measurementName,
+                      measurement: value.measurement.name,
                       countPackage: value.countPackage,
-                      section: value.sectionName,
+                      section: value.section.name,
                     },
                   },
                 });

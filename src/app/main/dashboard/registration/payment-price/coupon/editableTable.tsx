@@ -148,10 +148,10 @@ const EditableTableCoupon = (props: IProps) => {
                 coupons: {
                   [index]: {
                     name: value.name,
-                    measurement: value.measurementName,
+                    measurement: value.measurement.name,
                     countPackage: value.countPackage,
-                    section: value.sectionName,
-                    unitAmount: value.unitAmount,
+                    section: value.section.name,
+                    unitAmount: 0,
                   },
                 },
               });
@@ -250,10 +250,10 @@ const EditableTableCoupon = (props: IProps) => {
         title="Хөнгөлөлт хувь эсэх"
         render={(_, __, index) => (
           <Form.Item name={[index, "isPercent"]} valuePropName="checked">
-          <Switch
-            disabled={!(index === editingIndex)}
-            onChange={(value) => setIsPercent(value)}
-          />
+            <Switch
+              disabled={!(index === editingIndex)}
+              onChange={(value) => setIsPercent(value)}
+            />
           </Form.Item>
         )}
       />
