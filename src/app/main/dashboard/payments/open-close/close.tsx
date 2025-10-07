@@ -45,7 +45,7 @@ const CloseState = (props: IProps) => {
   const lendAmount = useWatch("lendAmount", form);
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
-    contentRef: printRef,
+    content: () => printRef.current,
   });
   const getOpenClose = () => {
     if (openCloseId) {

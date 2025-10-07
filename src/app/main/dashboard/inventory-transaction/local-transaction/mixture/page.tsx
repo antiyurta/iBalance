@@ -37,7 +37,7 @@ const TransactionCensusPage = () => {
       <PageTitle />
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col span={24}>
-          <Tabs className="lineTop" items={items} destroyOnHidden={true} />
+          <Tabs className="lineTop" items={items} />
         </Col>
       </Row>
     </>

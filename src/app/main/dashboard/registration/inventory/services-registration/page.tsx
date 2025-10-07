@@ -23,6 +23,6 @@ const ServicesRegistrationPage = () => {
       children: <InventoriesGroup type={MaterialType.Service} />,
     },
   ];
-  return <Tabs className="lineTop" items={items} destroyOnHidden={true} />;
+  return <Tabs className="lineTop" items={items} />;
 };
 export default ServicesRegistrationPage;

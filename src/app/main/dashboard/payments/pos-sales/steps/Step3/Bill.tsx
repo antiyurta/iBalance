@@ -21,7 +21,7 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
   const warehouse = useTypedSelector((state) => state.warehouse);
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
-    contentRef: printRef,
+    content: () => printRef.current,
   });
   return (
     <NewModal

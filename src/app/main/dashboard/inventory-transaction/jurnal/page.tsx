@@ -35,7 +35,7 @@ const page = () => {
         <NewSearch />
       </Col>
       <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyOnHidden={true} />
+        <Tabs className="lineTop" items={items} />
       </Col>
     </Row>
   );
