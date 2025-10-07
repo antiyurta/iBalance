@@ -20,7 +20,7 @@ const StoragiesRegistrationPage = () => {
   return (
     <>
       <PageTitle onClick={() => {}} />
-      <Tabs className="lineTop" items={items} destroyOnHidden={true} />
+      <Tabs className="lineTop" items={items} />
     </>
   );
 };

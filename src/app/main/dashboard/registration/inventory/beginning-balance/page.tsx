@@ -119,7 +119,7 @@ const BeginningBalancePage = () => {
       <PageTitle onClick={() => openModal(false)} />
       <Row gutter={[12, 24]}>
         <Col span={24}>
-          <Tabs className="lineTop" items={items} destroyOnHidden={true} />
+          <Tabs className="lineTop" items={items} />
         </Col>
       </Row>
       <NewModal
