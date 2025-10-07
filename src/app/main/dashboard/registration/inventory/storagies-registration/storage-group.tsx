@@ -275,7 +275,7 @@ export const StoragiesGroup = () => {
             </Form.Item>
             <Form.Item
               label="Харъяалах бүлэг"
-              rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}
+              // rules={[{ required: true, message: "Харьяалах бүлэг заавал" }]}
               name="sectionId"
             >
               <NewTreeSelect

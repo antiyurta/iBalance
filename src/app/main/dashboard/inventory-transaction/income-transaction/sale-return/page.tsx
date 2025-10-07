@@ -33,13 +33,11 @@ const TransactionRefundPage = () => {
     <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
       <Col md={24} lg={16} xl={19}>
         <Space size={24}>
-          <Title level={3}>
-            Бараа материал /Орлогын гүйлгээ/Буцаалт
-          </Title>
+          <Title level={3}>Бараа материал /Орлогын гүйлгээ/Буцаалт</Title>
         </Space>
       </Col>
       <Col span={24}>
-        <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
+        <Tabs className="lineTop" items={items} destroyOnHidden={true} />
       </Col>
     </Row>
   );

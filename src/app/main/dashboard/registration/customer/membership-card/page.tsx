@@ -254,11 +254,7 @@ const MembershipCard = () => {
       </PageTitle>
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
         <Col span={24}>
-          <Tabs
-            className="lineTop"
-            items={items}
-            destroyInactiveTabPane={true}
-          />
+          <Tabs className="lineTop" items={items} destroyOnHidden={true} />
         </Col>
       </Row>
       <NewModal

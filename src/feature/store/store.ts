@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
-import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunkMiddleware from "redux-thunk";
 import reducers from "./reducer";
 
@@ -32,13 +31,6 @@ if (typeof window !== "undefined" && window.localStorage) {
   };
 }
 
-const encryptedTransForm = encryptTransform({
-  secretKey: `${process.env.NEXT_PUBLIC_REDUX_SECRET_KEY}`,
-  onError: function (error: any) {
-    console.log("redux encrypt error: ", error);
-  },
-});
-
 const persistConfig = {
   key: "root",
   storage: storageConfig as any, // Type assertion to `any` to bypass the type check
@@ -55,14 +47,12 @@ const persistConfig = {
     "reportPanel",
   ],
   blacklist: [],
-  transforms: [encryptedTransForm],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: [thunkMiddleware],
 });
 
 const persistor = persistStore(store);

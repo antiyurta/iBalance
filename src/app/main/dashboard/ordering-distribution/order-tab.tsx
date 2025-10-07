@@ -79,7 +79,7 @@ const OrderTab: React.FC<IProps> = ({ type, pageKey }) => {
     <Tabs
       className="lineTop"
       items={tabItems}
-      destroyInactiveTabPane={true}
+      destroyOnHidden={true}
       activeKey={activeKey}
       onChange={setActiveKey}
     />
