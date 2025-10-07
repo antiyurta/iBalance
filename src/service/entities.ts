@@ -102,6 +102,8 @@ export interface IFilters {
   updatedBy: string[];
   updatedUser: object[];
   description: string[];
+  manufactureId: string[];
+  dosageMeasurementId: number[];
 }
 export interface IColumn {
   createdAt?: string;

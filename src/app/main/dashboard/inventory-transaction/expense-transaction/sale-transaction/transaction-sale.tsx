@@ -30,6 +30,8 @@ const TransactionSale = (props: IProps) => {
   const { selectedDocument, onSave } = props;
   const blockContext: BlockView = useContext(BlockContext);
   const [form] = Form.useForm();
+  const documentAt = Form.useWatch("documentAt", form);
+  const warehouseId = Form.useWatch("warehouseId", form);
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
@@ -151,7 +153,11 @@ const TransactionSale = (props: IProps) => {
               <Form.Item label="Баримтын дугаар" name="code">
                 <NewInput disabled />
               </Form.Item>
-              <Form.Item label="Огноо" name="documentAt">
+              <Form.Item
+                label="Огноо"
+                name="documentAt"
+                rules={[{ required: true, message: "Огноо оруулна уу." }]}
+              >
                 <NewDatePicker format={"YYYY-MM-DD"} />
               </Form.Item>
               <Form.Item
@@ -219,41 +225,40 @@ const TransactionSale = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            {form.getFieldValue("documentAt") &&
-              form.getFieldValue("warehouseId") && (
-                <Form.List
-                  name="transactions"
-                  rules={[
-                    {
-                      validator: async (_, transactions) => {
-                        const arr = Array.isArray(transactions)
-                          ? transactions.map(
-                              (item: IDataTransaction) => item.materialId
-                            )
-                          : [];
-                        if (!hasUniqueValues(arr)) {
-                          return Promise.reject(
-                            new Error("Барааны код давхардсан байна.")
-                          );
-                        }
-                      },
+            {documentAt && warehouseId && (
+              <Form.List
+                name="transactions"
+                rules={[
+                  {
+                    validator: async (_, transactions) => {
+                      const arr = Array.isArray(transactions)
+                        ? transactions.map(
+                            (item: IDataTransaction) => item.materialId
+                          )
+                        : [];
+                      if (!hasUniqueValues(arr)) {
+                        return Promise.reject(
+                          new Error("Барааны код давхардсан байна.")
+                        );
+                      }
                     },
-                  ]}
-                >
-                  {(items, { add, remove }, { errors }) => (
-                    <>
-                      <EditableTableSale
-                        data={items}
-                        form={form}
-                        add={add}
-                        remove={remove}
-                        isEdit={isEdit}
-                      />
-                      <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                    </>
-                  )}
-                </Form.List>
-              )}
+                  },
+                ]}
+              >
+                {(items, { add, remove }, { errors }) => (
+                  <>
+                    <EditableTableSale
+                      data={items}
+                      form={form}
+                      add={add}
+                      remove={remove}
+                      isEdit={isEdit}
+                    />
+                    <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                  </>
+                )}
+              </Form.List>
+            )}
           </Form>
           <div
             style={{

@@ -2,8 +2,11 @@ import { GenericResponse } from "../entities";
 import { IDataResource } from "./resource/entities";
 import { IDataRole } from "./role/entities";
 export interface IEmployeePermission {
+  warehouseRole: any;
   employeeId: number;
   permissions: IDataPermission[];
+  isTreasure: boolean;
+  isCashier: boolean;
 }
 export interface IDataPermission {
   id?: number;

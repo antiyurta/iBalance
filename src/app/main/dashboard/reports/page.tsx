@@ -75,7 +75,7 @@ const Reports = () => {
             activeKey={activeKey}
             items={tabs}
             onChange={onChange}
-            destroyInactiveTabPane={true}
+            destroyOnHidden={true}
             onEdit={onEdit}
             hideAdd={true}
             type="editable-card"

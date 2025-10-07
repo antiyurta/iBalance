@@ -21,7 +21,7 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
   const warehouse = useTypedSelector((state) => state.warehouse);
   const printRef = useRef(null);
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef,
   });
   return (
     <NewModal
@@ -182,18 +182,25 @@ const Bill: React.FC<IProps> = ({ isBill, setIsBill, posDocument }) => {
         </div>
         <div className="barimt">
           <div>
-            <QRCode type="svg" bordered={false} size={100} value={posDocument.qrData} />
+            <QRCode
+              type="svg"
+              bordered={false}
+              size={100}
+              value={posDocument.qrData}
+            />
           </div>
           <div className="ebarimt-info">
             <p>Сугалааны дугаар</p>
             <p>{posDocument.lottery}</p>
             <p>EBarimt-ын дүн</p>
             <p>{posDocument.payAmount}</p>
-            
           </div>
         </div>
         <p>ТАНД БАЯРЛАЛАА</p>
-        <p>Та худалдан авсан бараагаа тооцооны хуудсын хамт авч ирээд тухайн өдөртөө буцаах боломжтой</p>
+        <p>
+          Та худалдан авсан бараагаа тооцооны хуудсын хамт авч ирээд тухайн
+          өдөртөө буцаах боломжтой
+        </p>
       </div>
     </NewModal>
   );

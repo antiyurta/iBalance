@@ -1,3 +1,4 @@
+import React from "react";
 import NewModal from "@/components/modal";
 import { IDataDocument, MovingStatus } from "@/service/document/entities";
 import { useEffect, useState } from "react";
@@ -24,7 +25,7 @@ const DocumentEdit: React.FC<Props> = ({
   setIsReload,
 }) => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const getElement = (): JSX.Element => {
+  const getElement = (): React.ReactNode => {
     switch (movingStatus) {
       case MovingStatus.ActAmortization:
         return (

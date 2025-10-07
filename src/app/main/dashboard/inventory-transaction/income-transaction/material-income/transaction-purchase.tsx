@@ -134,7 +134,11 @@ export const TransactionPurchase = (props: IProps) => {
                 </Form.Item>
               </Col>
               <Col md={12} lg={8} xl={4}>
-                <Form.Item label="Огноо" name="documentAt">
+                <Form.Item
+                  label="Огноо"
+                  name="documentAt"
+                  rules={[{ required: true, message: "Огноо сонгоно уу." }]}
+                >
                   <NewDatePicker format={"YYYY-MM-DD"} />
                 </Form.Item>
               </Col>

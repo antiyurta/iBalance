@@ -138,13 +138,6 @@ const InventoriesRegistration = (props: IProps) => {
   const [imageIds, setImageIds] = useState<number[]>([]);
   const [fileList, setFileList] = useState<MyUploadFile[]>([]);
   const [columns, setColumns] = useState<FilteredColumns>({
-    type: {
-      label: "Төрөл",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["type"],
-      type: DataIndexType.ENUM,
-    },
     code: {
       label: "Дотоод код",
       isView: true,
@@ -167,13 +160,6 @@ const InventoriesRegistration = (props: IProps) => {
       dataIndex: ["barCode"],
       type: DataIndexType.MULTI,
     },
-    serial: {
-      label: "Сериал",
-      isView: true,
-      isFiltered: false,
-      dataIndex: ["serial"],
-      type: DataIndexType.MULTI,
-    },
     unitCodeId: {
       label: "Нэгдсэн ангилалын код",
       isView: true,
@@ -188,8 +174,15 @@ const InventoriesRegistration = (props: IProps) => {
       dataIndex: ["measurement", "name"],
       type: DataIndexType.MULTI,
     },
+    dosageMeasurementId: {
+      label: "Савлагаан доторх хэмжих нэгж",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["packageMeasurement", "name"],
+      type: DataIndexType.MULTI,
+    },
     countPackage: {
-      label: "Багц доторх тоо",
+      label: "Савалгаа доторх тоо",
       isView: true,
       isFiltered: false,
       dataIndex: ["countPackage"],
@@ -210,11 +203,11 @@ const InventoriesRegistration = (props: IProps) => {
       dataIndex: ["brand", "name"],
       type: DataIndexType.MULTI,
     },
-    rankId: {
-      label: "Эмийн хэрэглээ",
+    manufactureId: {
+      label: "Үйлдвэрлэгч",
       isView: true,
       isFiltered: false,
-      dataIndex: ["rank", "name"],
+      dataIndex: ["manufacture", "name"],
       type: DataIndexType.MULTI,
     },
     isActive: {
@@ -733,18 +726,6 @@ const InventoriesRegistration = (props: IProps) => {
                 Үндсэн мэдээлэл
               </Title>
               <Form.Item
-                label="Төрөл"
-                name="type"
-                rules={[{ required: true, message: "Төрөл заавал" }]}
-              >
-                <NewSelect
-                  options={[
-                    { value: "MEDICINE", label: "Эм" },
-                    { value: "MATERIAL", label: "Туслах материал" },
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item
                 label="Бараа материалын нэр"
                 name="name"
                 rules={[
@@ -754,8 +735,33 @@ const InventoriesRegistration = (props: IProps) => {
                 <NewInput />
               </Form.Item>
               <Form.Item
+                label="Дотоод код"
+                name="code"
+                rules={[{ required: true, message: "Дотоод код заавал" }]}
+              >
+                <NewInput />
+              </Form.Item>
+              <Form.Item
+                label="Бар код"
+                name="barCode"
+                rules={[
+                  {
+                    pattern: /^-?\d*(\.\d*)?$/,
+                    message: "тоо оруулна уу",
+                  },
+                ]}
+              >
+                <NewInput />
+              </Form.Item>
+              <Form.Item
                 label="Бараа материалын бүлэг"
                 name="materialSectionId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Бараа материалын бүлэг оруулна уу.",
+                  },
+                ]}
               >
                 <NewTreeSelect
                   sections={materialSections}
@@ -802,16 +808,12 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-              <Form.Item
-                label="Багц доторх тоо"
-                name="countPackage"
-                rules={[{ required: true, message: "Багц доторх тоо заавал" }]}
-              >
-                <NewInputNumber />
-              </Form.Item>
-              <Form.Item label="Эмийн хэрэглээ">
+              <Form.Item label="Савлагаан доторх хэмжих нэгж">
                 <Space.Compact>
-                  <Form.Item name="rankId">
+                  <Form.Item
+                    name="packageMeasurementId"
+                    rules={[{ required: true, message: "Хэмжих нэгж заавал" }]}
+                  >
                     <NewSelect
                       allowClear
                       showSearch
@@ -822,9 +824,9 @@ const InventoriesRegistration = (props: IProps) => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      options={materialRanks?.map((rank) => ({
-                        label: rank.name,
-                        value: rank.id,
+                      options={measuries?.map((measure) => ({
+                        label: measure.name,
+                        value: measure.id,
                       }))}
                     />
                   </Form.Item>
@@ -833,7 +835,7 @@ const InventoriesRegistration = (props: IProps) => {
                       marginLeft: 4,
                     }}
                     className="app-button-square"
-                    onClick={() => setIsOpenMaterialRank(true)}
+                    onClick={() => setIsOpenMeasure(true)}
                   >
                     <Image
                       src={"/icons/plusGray.svg"}
@@ -844,57 +846,17 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-            </div>
-            <div className="box-1">
-              <Title
-                level={4}
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                Кодын мэдээлэл
-              </Title>
               <Form.Item
-                label="Дотоод код"
-                name="code"
-                rules={[{ required: true, message: "Дотоод код заавал" }]}
-              >
-                <NewInput />
-              </Form.Item>
-              <Form.Item
-                label="Бар код"
-                name="barCode"
+                label="Савлагаан доторх тоо"
+                name="countPackage"
                 rules={[
-                  {
-                    pattern: /^-?\d*(\.\d*)?$/,
-                    message: "тоо оруулна уу",
-                  },
+                  { required: true, message: "Савлагаан доторх тоо заавал" },
                 ]}
               >
-                <NewInput />
-              </Form.Item>
-              <Form.Item label="Сериал код" name="serial">
-                <NewInput />
-              </Form.Item>
-              <Form.Item label="Нэгдсэн ангилалын код" name="unitCodeId">
-                <NewSelect
-                  allowClear
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, label) =>
-                    (label?.label ?? "")
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={unitCodes?.map((unitCode) => ({
-                    label: unitCode.name,
-                    value: unitCode.id,
-                  }))}
-                />
+                <NewInputNumber />
               </Form.Item>
             </div>
-            <div className="box">
+            <div className="box-1">
               <Title
                 level={4}
                 style={{
@@ -920,6 +882,23 @@ const InventoriesRegistration = (props: IProps) => {
                     }}
                   />
                 </Upload>
+              </Form.Item>
+              <Form.Item label="Нэгдсэн ангилалын код" name="unitCodeId">
+                <NewSelect
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, label) =>
+                    (label?.label ?? "")
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={unitCodes?.map((unitCode) => ({
+                    label: unitCode.name,
+                    value: unitCode.id,
+                  }))}
+                />
               </Form.Item>
               <Form.Item label="Брэнд">
                 <Space.Compact>
@@ -956,52 +935,91 @@ const InventoriesRegistration = (props: IProps) => {
                   </div>
                 </Space.Compact>
               </Form.Item>
-              <Tooltip title="Эм үед ОУНэр бөглөх шаардлагтай">
-                <Form.Item
-                  label="Дэлгэрэнгүй мэдээлэл (ОУНэр)"
-                  name="description"
-                >
-                  <NewTextArea />
-                </Form.Item>
-              </Tooltip>
+              <Form.Item label="Үйлдвэрлэгч">
+                <Space.Compact>
+                  <Form.Item name="manufactureId">
+                    <NewSelect
+                      allowClear
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, label) =>
+                        (label?.label ?? "")
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      options={brands?.map((brand) => ({
+                        label: brand.name,
+                        value: brand.id,
+                      }))}
+                    />
+                  </Form.Item>
+                  <div
+                    style={{
+                      marginLeft: 4,
+                    }}
+                    className="app-button-square"
+                    onClick={() => setIsOpenModalBrand(true)}
+                  >
+                    <Image
+                      src={"/icons/plusGray.svg"}
+                      height={18}
+                      width={18}
+                      alt="plsu"
+                    />
+                  </div>
+                </Space.Compact>
+              </Form.Item>
+              <Form.Item label="Дэлгэрэнгүй мэдээлэл" name="description">
+                <NewTextArea />
+              </Form.Item>
             </div>
-          </div>
-          <div className="switches-col">
-            <Form.Item
-              label="НӨАТ суутгах эсэх"
-              name="isTax"
-              valuePropName="checked"
-            >
-              <NewSwitch />
-            </Form.Item>
-            <Form.Item
-              label="НХАТ суутгах эсэх"
-              name="isCitizenTax"
-              valuePropName="checked"
-            >
-              <NewSwitch />
-            </Form.Item>
-            <Form.Item
-              label="Идэвхтэй эсэх"
-              name="isActive"
-              valuePropName="checked"
-            >
-              <NewSwitch />
-            </Form.Item>
-            <Form.Item
-              label="Хугацаа дуусах эсэх"
-              name="isExpired"
-              valuePropName="checked"
-            >
-              <NewSwitch />
-            </Form.Item>
-            <Form.Item
-              label="Эм эсэх"
-              name="isMedicine"
-              valuePropName="checked"
-            >
-              <NewSwitch />
-            </Form.Item>
+            <div className="box">
+              <Title
+                level={4}
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                Тохиргоо
+              </Title>
+              <Form.Item
+                label="Идэвхтэй эсэх"
+                name="isActive"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+              <Form.Item
+                label="НӨАТ суутгах эсэх"
+                name="isTax"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+              <Form.Item
+                label="НХАТ суутгах эсэх"
+                name="isCitizenTax"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+
+              <Form.Item
+                label="Хугацаа дуусах эсэх"
+                name="isExpired"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+              <Form.Item
+                label="Эмнэлгийн бараа материал эсэх"
+                name="isMedicine"
+                valuePropName="checked"
+              >
+                <NewSwitch />
+              </Form.Item>
+            </div>
           </div>
         </Form>
       </NewModal>
@@ -1020,24 +1038,6 @@ const InventoriesRegistration = (props: IProps) => {
               measurementId: row.id,
             });
             setIsOpenMeasure(false);
-          }}
-        />
-      </NewModal>
-      <NewModal
-        title="Эмийн хэрэглээ"
-        open={isOpenMaterialRank}
-        footer={false}
-        onCancel={() => setIsOpenMaterialRank(false)}
-        destroyOnClose={true}
-      >
-        <Reference
-          type={IType.MATERIAL_RANK}
-          onClickModal={(id) => {
-            getMaterialRanks(IType.MATERIAL_RANK);
-            form.setFieldsValue({
-              rankId: id,
-            });
-            setIsOpenMaterialRank(false);
           }}
         />
       </NewModal>

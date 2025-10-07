@@ -10,7 +10,12 @@ const ServicesRegistrationPage = () => {
     {
       label: "Үйлчилгээний бүртгэл",
       key: "item-1",
-      children: <ServicesRegistration ComponentType="FULL" type={MaterialType.Service} />,
+      children: (
+        <ServicesRegistration
+          ComponentType="FULL"
+          type={MaterialType.Service}
+        />
+      ),
     },
     {
       label: "Бүлэг",
@@ -18,8 +23,6 @@ const ServicesRegistrationPage = () => {
       children: <InventoriesGroup type={MaterialType.Service} />,
     },
   ];
-  return (
-    <Tabs className="lineTop" items={items} destroyInactiveTabPane={true} />
-  );
+  return <Tabs className="lineTop" items={items} destroyOnHidden={true} />;
 };
 export default ServicesRegistrationPage;

@@ -7,7 +7,6 @@ import { NewTable } from "@/components/table";
 import {
   findIndexInColumnSettings,
   getParam,
-  onCloseFilterTag,
   openNofi,
 } from "@/feature/common";
 import { ComponentType, DataIndexType, Meta } from "@/service/entities";

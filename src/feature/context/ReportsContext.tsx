@@ -39,10 +39,9 @@ import { MaterialService } from "@/service/material/service";
 import { IDataBrand } from "@/service/reference/brand/entities";
 import { BrandService } from "@/service/reference/brand/service";
 import { Operator } from "@/service/entities";
-import { IParamReportMaterial } from "@/service/report/entities";
 
 interface ReportContextProps {
-  form: FormInstance<IParamReportMaterial>;
+  form: FormInstance<any>;
   formStyle: CSSProperties;
   setFormStyle: Dispatch<SetStateAction<CSSProperties>>;
   employees: IDataEmployee[];
@@ -62,7 +61,7 @@ interface IProps {
 }
 
 const ProviderReport: React.FC<IProps> = ({ children }) => {
-  const [form] = Form.useForm<IParamReportMaterial>();
+  const [form] = Form.useForm<any>();
   const [employees, setEmployees] = useState<IDataEmployee[]>([]);
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [materialSections, setMaterialSections] = useState<

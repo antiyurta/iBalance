@@ -114,7 +114,11 @@ const ListOfReceipt = () => {
   return (
     <>
       <PageTitle>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddAction(true)}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setIsAddAction(true)}
+        >
           Нэмэлт үйлдүүд
         </Button>
       </PageTitle>
@@ -125,11 +129,7 @@ const ListOfReceipt = () => {
         gutter={[12, 24]}
       >
         <Col span={24}>
-          <Tabs
-            className="lineTop"
-            items={items}
-            destroyInactiveTabPane={true}
-          />
+          <Tabs className="lineTop" items={items} destroyOnHidden={true} />
         </Col>
       </Row>
       <NewModal

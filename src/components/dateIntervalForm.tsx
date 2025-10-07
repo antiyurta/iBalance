@@ -18,7 +18,7 @@ const DateIntervalForm = (props: IProps) => {
   const { form, intervalStyle, dateStyle, itemname, label, labelForDate } =
     props;
   const [selectedValue, setSelectedValue] = useState<ISelectDateType>("that");
-  
+
   const RenderDateFormItem = () => {
     if (
       selectedValue === "that" ||
@@ -70,7 +70,7 @@ const DateIntervalForm = (props: IProps) => {
           label={labelForDate ? labelForDate : "Огноо сонгох"}
           name={[itemname, "dates"]}
         >
-          <NewMultipleDatePicker multiple />
+          <NewMultipleDatePicker />
         </Form.Item>
       );
     }

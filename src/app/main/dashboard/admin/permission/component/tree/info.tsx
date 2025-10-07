@@ -1,6 +1,6 @@
 import { IDataPermission } from "@/service/permission/entities";
 import { Checkbox } from "antd";
-import { CheckboxValueType } from "antd/es/checkbox/Group";
+// import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { CheckboxProps } from "antd/lib";
 import { useEffect, useState } from "react";
 interface IProps {
@@ -26,13 +26,12 @@ export const TreeInfo: React.FC<IProps> = ({
     permission.isEdit == true && defaultValues.push("isEdit");
     permission.isDelete == true && defaultValues.push("isDelete");
   }
-  const [checkedList, setCheckedList] =
-    useState<CheckboxValueType[]>(defaultValues);
+  const [checkedList, setCheckedList] = useState(defaultValues);
   const checkAll = options.length === checkedList.length;
   const indeterminate =
     checkedList.length > 0 && checkedList.length < options.length;
 
-  const onChange = (list: CheckboxValueType[]) => {
+  const onChange = (list: any) => {
     setCheckedList(list);
   };
   const onCheckAllChange: CheckboxProps["onChange"] = (e) => {
