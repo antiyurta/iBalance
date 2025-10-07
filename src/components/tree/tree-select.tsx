@@ -14,7 +14,11 @@ interface IProps {
   onChange: (value: string) => void;
   disabled?: boolean;
 }
-const NewTreeSelect: React.FC<IProps> = ({ sections, onChange, disabled=false }) => {
+const NewTreeSelect: React.FC<IProps> = ({
+  sections,
+  onChange,
+  disabled = false,
+}) => {
   const [value, setValue] = useState<string>();
   const [data, setData] = useState<DefaultOptionType[]>([]);
   const getTreeData = (sections: IData[]): DefaultOptionType[] => {
@@ -43,7 +47,7 @@ const NewTreeSelect: React.FC<IProps> = ({ sections, onChange, disabled=false })
       allowClear
       treeDefaultExpandAll
       onChange={setValue}
-      treeData={data}
+      treeData={data as any}
       disabled={disabled}
     />
   );

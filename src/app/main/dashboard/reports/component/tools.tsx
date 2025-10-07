@@ -40,7 +40,7 @@ export const Tools: React.FC<IProps> = ({ filter, printRef }) => {
     setIsFilter(false);
   };
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef,
   });
   const onGroupBy = (type: "WAREHOUSE" | "SECTION", value: boolean) => {
     if (currentItem && currentItem.param) {

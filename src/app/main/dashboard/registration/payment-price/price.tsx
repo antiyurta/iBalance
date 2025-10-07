@@ -1,3 +1,4 @@
+import React from "react";
 import { ComponentType } from "@/service/entities";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { Col, Input, Row, Space, Tabs, Typography } from "antd";
@@ -19,7 +20,7 @@ const { Title } = Typography;
 
 const Price = (props: IProps) => {
   const { ComponentType, name, type } = props;
-  const getDetailList = (): JSX.Element => {
+  const getDetailList = (): React.ReactNode => {
     if (type == CommandType.Discount) {
       return <DiscountList />;
     } else if (type == CommandType.Coupon) {

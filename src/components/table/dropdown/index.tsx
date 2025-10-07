@@ -16,7 +16,6 @@ import { useTypedSelector } from "@/feature/store/reducer";
 import { Dayjs } from "dayjs";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/feature/store/store";
-import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { NumericFormat } from "react-number-format";
 import { changeParam } from "@/feature/store/slice/param.slice";
 
@@ -44,7 +43,7 @@ const NewDropdown = (props: IProps) => {
   const { activeKey, items } = useTypedSelector((state) => state.pane);
   const param = getParam(items, activeKey);
   const dispatch = useDispatch<AppDispatch>();
-  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
+  const [checkedList, setCheckedList] = useState<any[]>([]);
   const updateFilter = (operator: Tool, filter: FilterValueType): IFilter[] => {
     const updatedFilters = [...newFilters];
     const existingIndex = updatedFilters.findIndex(

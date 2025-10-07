@@ -1,15 +1,20 @@
 import { NewCheckbox, NewCheckboxGroup } from "@/components/input";
-import { CheckboxValueType } from "antd/lib/checkbox/Group";
-import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 interface Option {
   label: ReactNode;
-  value: CheckboxValueType;
+  value: any;
 }
 interface IProps {
   options: Option[];
   isClear: boolean;
-  checkedList: CheckboxValueType[];
-  setCheckedList: Dispatch<SetStateAction<CheckboxValueType[]>>;
+  checkedList: any[];
+  setCheckedList: Dispatch<SetStateAction<any[]>>;
 }
 const CheckboxGroup: React.FC<IProps> = ({
   options,
@@ -20,7 +25,7 @@ const CheckboxGroup: React.FC<IProps> = ({
   const [indeterminate, setIndeterminate] = useState<boolean>(false);
   const [checkAll, setCheckAll] = useState<boolean>(false);
 
-  const handleCheckboxChange = (checkedValues: CheckboxValueType[]) => {
+  const handleCheckboxChange = (checkedValues: any[]) => {
     setCheckedList(checkedValues);
     setIndeterminate(
       !!checkedValues.length && checkedValues.length < options.length

@@ -3,6 +3,16 @@ import { useReportContext } from "@/feature/context/ReportsContext";
 import { ISelectValueType } from "@/service/entities";
 import { Col, Form, FormInstance, Row, SelectProps } from "antd";
 import React, { useEffect, useState } from "react";
+type ReportParams =
+  | "isTransaction"
+  | "isLock"
+  | "employeeIds"
+  | "warehouseSectionId"
+  | "warehouseIds"
+  | "materialSectionId"
+  | "materialIds"
+  | "warehouseId"
+  | "materalSectionId";
 interface IProps {
   sectionLabel: string;
   sectionName: string;

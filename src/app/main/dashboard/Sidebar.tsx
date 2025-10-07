@@ -9,6 +9,8 @@ import { IDataPermission } from "@/service/permission/entities";
 import Image from "next/image";
 import { IDataResource } from "@/service/permission/resource/entities";
 import { useResourceContext } from "@/feature/context/ResourceContext";
+import type { MenuProps } from "antd";
+
 interface MenuItem {
   label: React.ReactNode;
   key: React.Key;
@@ -169,7 +171,7 @@ const Sidebar = (props: IProps) => {
         onClick={(e) => menuClick(e.keyPath)}
         mode={"inline"}
         theme={"light"}
-        items={menuItems}
+        items={menuItems as any}
       />
     </div>
   );
