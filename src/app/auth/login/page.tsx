@@ -13,6 +13,7 @@ import { NewCheckbox, NewInput, NewInputPassword } from "@/components/input";
 import { AppDispatch } from "@/feature/store/store";
 import { emptyTabs } from "@/feature/store/slice/tab.slice";
 import { NextPage } from "next";
+import { emptyPane } from "@/feature/store/slice/param.slice";
 
 export interface ILoginData {
   username: string;
@@ -40,6 +41,7 @@ const Login: NextPage = () => {
           dispatch(CoreActions.setRememberMe(values.username));
           dispatch(CoreActions.setLoggedIn(true));
           dispatch(emptyTabs());
+          dispatch(emptyPane());
           notification.success({
             message: "Амжилттай нэвтэрлээ",
           });
