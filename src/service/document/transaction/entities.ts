@@ -393,7 +393,8 @@ export const getTransactionColumns = (
     [MovingStatus.Pos]: [],
     [MovingStatus.PosSaleReturn]: [],
     [MovingStatus.BookingSale]: [],
-    [MovingStatus.EndatConfig]: localTransaction
+    [MovingStatus.EndatConfig]: localTransaction,
+    [MovingStatus.BeginingBalance]: [],
   };
   if (
     (movingStatus == MovingStatus.Purchase ||

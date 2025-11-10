@@ -359,6 +359,7 @@ export const getDocumentColumns = (
     [MovingStatus.PosSaleReturn]: [],
     [MovingStatus.BookingSale]: [],
     [MovingStatus.EndatConfig]: localDocument,
+    [MovingStatus.BeginingBalance]: localDocument,
   };
   const keys: (keyof FilteredColumnsDocument)[] = movingStatus
     ? movingStatusMappings[movingStatus]
