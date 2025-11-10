@@ -812,7 +812,12 @@ const InventoriesRegistration = (props: IProps) => {
                 <Space.Compact>
                   <Form.Item
                     name="packageMeasurementId"
-                    rules={[{ required: true, message: "Хэмжих нэгж заавал" }]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Савлагаан доторх хэмжих нэгж заавал",
+                      },
+                    ]}
                   >
                     <NewSelect
                       allowClear

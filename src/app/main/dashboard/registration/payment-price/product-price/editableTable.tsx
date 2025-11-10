@@ -124,15 +124,17 @@ const EditableTableProduct = (props: IProps) => {
               isDisable={editingIndex !== index}
               isEdit={true}
               materialId={form.getFieldValue(["prices", index, "materialId"])}
-              onMaterial={(material) => {
+              onMaterial={(material: any) => {
                 form.setFieldsValue({
                   prices: {
                     [index]: {
                       materialId: material?.id,
                       name: material?.name,
-                      measurement: material?.measurementName,
+                      measurement:
+                        material?.measurementName ??
+                        material?.measurement?.name,
                       countPackage: material?.countPackage,
-                      section: material?.sectionName,
+                      section: material?.sectionName ?? material.section.name,
                     },
                   },
                 });

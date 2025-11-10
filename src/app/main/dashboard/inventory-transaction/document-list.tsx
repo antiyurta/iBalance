@@ -153,7 +153,7 @@ export const DocumentList: React.FC<Props> = ({ movingStatus }) => {
               columns={columns}
               onColumns={setColumns}
               incomeFilters={filters}
-              isEdit
+              isEdit={movingStatus ? true : false}
               isDelete={movingStatus ? true : false}
               onEdit={editDocument}
               onDelete={onDelete}
