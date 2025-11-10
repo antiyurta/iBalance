@@ -14,6 +14,7 @@ import { AppDispatch } from "@/feature/store/store";
 import { emptyTabs } from "@/feature/store/slice/tab.slice";
 import { NextPage } from "next";
 import { emptyPane } from "@/feature/store/slice/param.slice";
+import { emptyPanel } from "@/feature/store/slice/report.slice";
 
 export interface ILoginData {
   username: string;
@@ -42,6 +43,7 @@ const Login: NextPage = () => {
           dispatch(CoreActions.setLoggedIn(true));
           dispatch(emptyTabs());
           dispatch(emptyPane());
+          dispatch(emptyPanel());
           notification.success({
             message: "Амжилттай нэвтэрлээ",
           });

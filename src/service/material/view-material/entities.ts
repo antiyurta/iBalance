@@ -8,7 +8,7 @@ export interface IDataViewMaterial {
   type: MaterialType; // төрөл
   code: string; // Дотоод код
   name: string; // Бараа материалын нэр
-  barCode: string; // Баркод
+  barcode: string; // Баркод
   serial: string; // Сериал
   fileId: number; //zurag id
   unitCodeName: string; // Нэгдсэн ангиллалын кодын нэр
