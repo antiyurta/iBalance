@@ -104,6 +104,13 @@ const StoragiesRegistration = (props: IProps) => {
       dataIndex: ["isActive"],
       type: DataIndexType.BOOLEAN_STRING,
     },
+    isMain: {
+      label: "Төв агуулах",
+      isView: true,
+      isFiltered: false,
+      dataIndex: ["isMain"],
+      type: DataIndexType.BOOLEAN,
+    },
     updatedAt: {
       label: "Өөрчлөлт хийсэн огноо",
       isView: true,
@@ -479,6 +486,13 @@ const StoragiesRegistration = (props: IProps) => {
             <Form.Item
               label="Идэвхтэй эсэх"
               name="isActive"
+              valuePropName="checked"
+            >
+              <NewSwitch />
+            </Form.Item>
+            <Form.Item
+              label="Төв агуулах эсэх"
+              name="isMain"
               valuePropName="checked"
             >
               <NewSwitch />

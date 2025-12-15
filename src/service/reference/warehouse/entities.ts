@@ -32,6 +32,7 @@ export interface IFilterWarehouse extends IColumn {
   employeeName?: string[];
   address?: string[];
   isActive?: boolean[];
+  isMain?: boolean[];
 }
 
 export type FilteredColumnsWarehouse = {
