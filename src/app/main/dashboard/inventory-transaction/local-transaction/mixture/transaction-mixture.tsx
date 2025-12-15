@@ -26,6 +26,8 @@ const TransactionMixture = (props: IProps) => {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState<IDataWarehouse[]>([]);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const documentAt = Form.useWatch("documentAt", form);
+  const warehouseId = Form.useWatch("warehouseId", form);
 
   const getWarehouses = () => {
     WarehouseService.get().then((response) => {
@@ -177,94 +179,91 @@ const TransactionMixture = (props: IProps) => {
                 background: "#DEE2E6",
               }}
             />
-            {form.getFieldValue("documentAt") &&
-              form.getFieldValue("warehouseId") && (
-                <Tabs
-                  className="lineTop"
-                  items={[
-                    {
-                      label: "Орц",
-                      key: "item-1",
-                      children: (
-                        <Form.List
-                          name="ingredients"
-                          rules={[
-                            {
-                              validator: async (_, ingredients) => {
-                                const arr = Array.isArray(ingredients)
-                                  ? ingredients.map(
-                                      (item: IDataTransaction) =>
-                                        item.materialId
-                                    )
-                                  : [];
-                                if (!hasUniqueValues(arr)) {
-                                  return Promise.reject(
-                                    new Error("Барааны код давхардсан байна.")
-                                  );
-                                }
-                              },
+            {documentAt && warehouseId && (
+              <Tabs
+                className="lineTop"
+                items={[
+                  {
+                    label: "Орц",
+                    key: "item-1",
+                    children: (
+                      <Form.List
+                        name="ingredients"
+                        rules={[
+                          {
+                            validator: async (_, ingredients) => {
+                              const arr = Array.isArray(ingredients)
+                                ? ingredients.map(
+                                    (item: IDataTransaction) => item.materialId
+                                  )
+                                : [];
+                              if (!hasUniqueValues(arr)) {
+                                return Promise.reject(
+                                  new Error("Барааны код давхардсан байна.")
+                                );
+                              }
                             },
-                          ]}
-                        >
-                          {(items, { add, remove }, { errors }) => (
-                            <>
-                              <EditableTableMixture
-                                data={items}
-                                form={form}
-                                listName="ingredients"
-                                add={add}
-                                remove={remove}
-                                isEdit={isEdit}
-                              />
-                              <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                            </>
-                          )}
-                        </Form.List>
-                      ),
-                    },
-                    {
-                      label: "Гарц",
-                      key: "item-2",
-                      children: (
-                        <Form.List
-                          name="exits"
-                          rules={[
-                            {
-                              validator: async (_, exits) => {
-                                const arr = Array.isArray(exits)
-                                  ? exits.map(
-                                      (item: IDataTransaction) =>
-                                        item.materialId
-                                    )
-                                  : [];
-                                if (!hasUniqueValues(arr)) {
-                                  return Promise.reject(
-                                    new Error("Барааны код давхардсан байна.")
-                                  );
-                                }
-                              },
+                          },
+                        ]}
+                      >
+                        {(items, { add, remove }, { errors }) => (
+                          <>
+                            <EditableTableMixture
+                              data={items}
+                              form={form}
+                              listName="ingredients"
+                              add={add}
+                              remove={remove}
+                              isEdit={isEdit}
+                            />
+                            <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                          </>
+                        )}
+                      </Form.List>
+                    ),
+                  },
+                  {
+                    label: "Гарц",
+                    key: "item-2",
+                    children: (
+                      <Form.List
+                        name="exits"
+                        rules={[
+                          {
+                            validator: async (_, exits) => {
+                              const arr = Array.isArray(exits)
+                                ? exits.map(
+                                    (item: IDataTransaction) => item.materialId
+                                  )
+                                : [];
+                              if (!hasUniqueValues(arr)) {
+                                return Promise.reject(
+                                  new Error("Барааны код давхардсан байна.")
+                                );
+                              }
                             },
-                          ]}
-                        >
-                          {(items, { add, remove }, { errors }) => (
-                            <>
-                              <EditableTableMixture
-                                data={items}
-                                form={form}
-                                listName="exits"
-                                add={add}
-                                remove={remove}
-                                isEdit={isEdit}
-                              />
-                              <div style={{ color: "#ff4d4f" }}>{errors}</div>
-                            </>
-                          )}
-                        </Form.List>
-                      ),
-                    },
-                  ]}
-                />
-              )}
+                          },
+                        ]}
+                      >
+                        {(items, { add, remove }, { errors }) => (
+                          <>
+                            <EditableTableMixture
+                              data={items}
+                              form={form}
+                              listName="exits"
+                              add={add}
+                              remove={remove}
+                              isEdit={isEdit}
+                            />
+                            <div style={{ color: "#ff4d4f" }}>{errors}</div>
+                          </>
+                        )}
+                      </Form.List>
+                    ),
+                  },
+                ]}
+              />
+            )}
           </Form>
           <div
             style={{

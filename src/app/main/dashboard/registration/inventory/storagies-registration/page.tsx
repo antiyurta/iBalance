@@ -3,7 +3,6 @@
 import StoragiesRegistration from "./StoragiesRegistration";
 import { Tabs } from "antd";
 import { StoragiesGroup } from "./storage-group";
-import PageTitle from "@/components/page-title";
 const StoragiesRegistrationPage = () => {
   const items = [
     {
@@ -17,11 +16,6 @@ const StoragiesRegistrationPage = () => {
       children: <StoragiesGroup />,
     },
   ];
-  return (
-    <>
-      <PageTitle onClick={() => {}} />
-      <Tabs className="lineTop" items={items} />
-    </>
-  );
+  return <Tabs className="lineTop" items={items} />;
 };
 export default StoragiesRegistrationPage;
