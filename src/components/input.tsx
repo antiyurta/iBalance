@@ -93,18 +93,7 @@ function NewFilterSelect(props: SelectProps) {
         </div>
       )}
     >
-      <Select
-        {...props}
-        allowClear
-        showSearch
-        optionFilterProp="children"
-        filterOption={(input, option) =>
-          (option?.label ?? "")
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
-      />
+      <Select {...props} allowClear />
     </ConfigProvider>
   );
 }

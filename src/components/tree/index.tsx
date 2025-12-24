@@ -6,7 +6,6 @@ import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import NewItem from "./node-item";
 import { NewInput } from "../input";
 import { DataNode, EventDataNode } from "antd/es/tree";
-import { FieldDataNode } from "rc-tree";
 
 const { TreeNode } = Tree;
 interface IData {
@@ -72,9 +71,9 @@ const NewDirectoryTree: React.FC<IProps> = ({
   const onSelect: TreeProps["onSelect"] = (_, info) => {
     const allKeys = getChildKeys(info);
     console.log("all keys ==>", allKeys);
-    const sectionNames = getAllSections(data).filter((item) =>
-      allKeys.includes(String(item.id))
-    ).map((item) => item.name);
+    const sectionNames = getAllSections(data)
+      .filter((item) => allKeys.includes(String(item.id)))
+      .map((item) => item.name);
     onClick?.(sectionNames);
   };
   const getChildKeys = (info: {
@@ -85,17 +84,7 @@ const NewDirectoryTree: React.FC<IProps> = ({
     nativeEvent: MouseEvent;
   }): React.Key[] => {
     const childKeys: React.Key[] = [];
-    const traverse = (
-      children:
-        | FieldDataNode<
-            {
-              key: React.Key;
-              title?: React.ReactNode | ((data: DataNode) => React.ReactNode);
-            },
-            "children"
-          >[]
-        | undefined
-    ) => {
+    const traverse = (children: DataNode[] | undefined) => {
       if (!children) return;
       for (const item of children) {
         childKeys.push(item.key);
