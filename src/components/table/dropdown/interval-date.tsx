@@ -31,20 +31,26 @@ export const IntervalDate: React.FC<IProps> = ({
       {datePickers.includes(tool.operator) && (
         <NewDatePicker
           value={dates && dates[0]}
-          onChange={(date) => (date ? setDates([date]) : setDates([]))}
+          onChange={(date) =>
+            date ? setDates(Array.isArray(date) ? date : [date]) : setDates([])
+          }
         />
       )}
       {tool.operator == "BETWEEN" && (
         <NewRangePicker
           value={dates && [dates[0], dates[1]]}
-          onChange={(date: any) => setDates(date)}
+          onChange={(date: any) =>
+            setDates(Array.isArray(date) ? date : [date])
+          }
         />
       )}
       {groupPickers.includes(tool.operator) && (
         <NewDatePicker
           picker={datePickerMode(tool.operator)}
           value={dates && dates[0]}
-          onChange={(date) => (date ? setDates([date]) : setDates([]))}
+          onChange={(date) =>
+            date ? setDates(Array.isArray(date) ? date : [date]) : setDates([])
+          }
         />
       )}
       {tool.operator == "SELECTION" && (

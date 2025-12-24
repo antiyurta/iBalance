@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Form, Space } from "antd";
 import { NewFilterSelect } from "./input";
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import NewModal from "./modal";
 import { FormInstance } from "antd/lib";
 import { Rule } from "antd/es/form";
@@ -12,7 +12,6 @@ import {
 } from "@/service/material/entities";
 import InventoriesRegistration from "@/app/main/dashboard/registration/inventory/inventories-registration/inventoriesRegistration";
 import { fieldValue } from "@/feature/common";
-import { IDataViewMaterial } from "@/service/material/view-material/entities";
 import { MaterialService } from "@/service/material/service";
 
 interface IProps {
@@ -30,15 +29,22 @@ export const MaterialSelect = (props: IProps) => {
   const { form, params, name, rules, listName, disabled, onClear, onSelect } =
     props;
   const [isOpenPopOver, setIsOpenPopOver] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [materials, setMaterials] = useState<IDataMaterial[]>([]);
   const [viewMaterialDictionary, setViewMaterialDictionary] =
     useState<Map<number, IDataMaterial>>();
   const getViewMaterials = async (params: IParamMaterial) => {
-    await MaterialService.get(params).then((response) => {
-      if (response.success) {
-        setMaterials(response.response.data);
+    try {
+      setLoading(true);
+      const result = await MaterialService.get(params);
+      if (result.success) {
+        setMaterials(result.response.data);
       }
-    });
+    } catch (error) {
+      console.log("material selection error =>", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -54,6 +60,30 @@ export const MaterialSelect = (props: IProps) => {
       }, new Map<number, IDataMaterial>())
     );
   }, [materials]);
+
+  const options = useMemo(() => {
+    return materials.map((material) => ({
+      value: material.id,
+      label: `${material.code} - ${material.name}`,
+    }));
+  }, [materials]);
+
+  const handleSearch = async (value: string) => {
+    await getViewMaterials({
+      page: 1,
+      limit: 10,
+      orderParam: ["createdAt"],
+      order: "DESC",
+      filters: [
+        {
+          dataIndex: ["code"],
+          operator: "CONTAINS",
+          filter: value,
+        },
+      ],
+    });
+  };
+
   return (
     <>
       <Space.Compact>
@@ -67,14 +97,17 @@ export const MaterialSelect = (props: IProps) => {
             />
           </div>
         ) : null}
+        <pre>{JSON.stringify(options, null, 2)}</pre>
         <Form.Item name={name ? name : "materialId"} rules={rules}>
           <NewFilterSelect
             style={{ minWidth: 150, width: "100%" }}
-            options={materials.map((material) => ({
-              value: material.id,
-              label: `${material.code} - ${material.name}`,
-            }))}
+            options={options}
             onClear={onClear}
+            loading={loading}
+            showSearch={{
+              optionFilterProp: "label",
+              onSearch: handleSearch,
+            }}
             disabled={disabled}
             onSelect={(id) => {
               const material = viewMaterialDictionary?.get(id);

@@ -100,7 +100,13 @@ export const ReportDateFilter: React.FC<IProps> = ({
       ) : (
         <NewDatePicker
           value={startAt}
-          onChange={(date) => setStartAt?.(date)}
+          onChange={(date) => {
+            if (date && !Array.isArray(date)) {
+              setStartAt?.(date);
+            } else if (!date) {
+              setStartAt?.(null);
+            }
+          }}
         />
       )}
     </Space.Compact>

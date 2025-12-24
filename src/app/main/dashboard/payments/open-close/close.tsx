@@ -421,9 +421,17 @@ const CloseState = (props: IProps) => {
             current && current < dayjs().startOf("day")
           }
           onChange={(date) => {
-            setCurrentCloseDate(
-              dayjs(date).format("YYYY/MM/DD HH:mm").toString()
-            );
+            if (date == null) {
+              setCurrentCloseDate("");
+            } else if (Array.isArray(date)) {
+              setCurrentCloseDate(
+                dayjs(date[0]).format("YYYY/MM/DD HH:mm").toString()
+              );
+            } else {
+              setCurrentCloseDate(
+                dayjs(date).format("YYYY/MM/DD HH:mm").toString()
+              );
+            }
           }}
           defaultValue={closeDate ? dayjs(currentCloseDate) : undefined}
           disabled={openClose?.isClose}
