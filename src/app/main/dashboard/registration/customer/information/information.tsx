@@ -184,7 +184,7 @@ const Information = (props: IProps) => {
   const [selectedRow, setSelectedRow] = useState<IDataConsumer>();
   const [sections, setSections] = useState<IDataTreeSection[]>([]);
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataConsumer[]>(
-    []
+    [],
   );
   //functions
   // modal neeh edit uu esvel new uu ??
@@ -319,7 +319,7 @@ const Information = (props: IProps) => {
             clone.findIndex((clo) => {
               return clo.id === row.id;
             }),
-            1
+            1,
           );
         });
         setTableSelectedRows(clone);
@@ -334,14 +334,14 @@ const Information = (props: IProps) => {
         var clone = [...tableSelectedRows];
         clone.splice(
           tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
-          1
+          1,
         );
         setTableSelectedRows(clone);
       }
     },
     onChange: (
       selectedRowKeys: React.Key[],
-      selectedRows: IDataConsumer[]
+      selectedRows: IDataConsumer[],
     ) => {},
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
   };
@@ -377,7 +377,7 @@ const Information = (props: IProps) => {
   }, [param]);
   return (
     <>
-      {ComponentType === "FULL" && (
+      {(ComponentType === "FULL" || ComponentType === "MIDDLE") && (
         <PageTitle onClick={() => openModal(false)} />
       )}
       <Row style={{ paddingTop: 12 }} gutter={[12, 24]}>
@@ -396,7 +396,7 @@ const Information = (props: IProps) => {
                         filter: sectionNames,
                       },
                     ],
-                  })
+                  }),
                 );
               }}
             />

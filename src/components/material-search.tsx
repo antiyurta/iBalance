@@ -35,7 +35,7 @@ const MaterialSearch: React.FC<IProps> = ({
   documentAt = dayjs(),
 }) => {
   const blockContext: BlockView = useContext(BlockContext);
-  const [type, setType] = useState<CodeType>("BARCODE");
+  const [type, setType] = useState<CodeType>("CODE");
   const [code, setCode] = useState<string>();
   const [barcode, setBarcode] = useState<string>();
   const [name, setName] = useState<string>();
@@ -87,7 +87,7 @@ const MaterialSearch: React.FC<IProps> = ({
       });
   };
   const getType = (
-    type: CodeType
+    type: CodeType,
   ): { icon: React.ReactNode; label: string } => {
     if (type == "NAME") return { icon: <BarsOutlined />, label: "Нэр" };
     else if (type == "BARCODE")
@@ -120,7 +120,11 @@ const MaterialSearch: React.FC<IProps> = ({
           disabled={isDisable}
           onClick={() =>
             setType(
-              type === "BARCODE" ? "CODE" : type === "CODE" ? "NAME" : "BARCODE"
+              type === "BARCODE"
+                ? "CODE"
+                : type === "CODE"
+                  ? "NAME"
+                  : "BARCODE",
             )
           }
         />

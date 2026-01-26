@@ -57,7 +57,7 @@ export const MaterialSelect = (props: IProps) => {
       materials.reduce((dict, material) => {
         dict.set(material.id, material);
         return dict;
-      }, new Map<number, IDataMaterial>())
+      }, new Map<number, IDataMaterial>()),
     );
   }, [materials]);
 
@@ -104,10 +104,8 @@ export const MaterialSelect = (props: IProps) => {
             options={options}
             onClear={onClear}
             loading={loading}
-            showSearch={{
-              optionFilterProp: "label",
-              onSearch: handleSearch,
-            }}
+            optionFilterProp="label"
+            onSearch={handleSearch}
             disabled={disabled}
             onSelect={(id) => {
               const material = viewMaterialDictionary?.get(id);
