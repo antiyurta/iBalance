@@ -743,7 +743,7 @@ const InventoriesRegistration = (props: IProps) => {
               </Form.Item>
               <Form.Item
                 label="Бар код"
-                name="barCode"
+                name="barcode"
                 rules={[
                   {
                     pattern: /^-?\d*(\.\d*)?$/,
