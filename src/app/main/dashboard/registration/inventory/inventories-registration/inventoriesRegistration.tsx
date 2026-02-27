@@ -157,7 +157,7 @@ const InventoriesRegistration = (props: IProps) => {
       label: "Бар код",
       isView: true,
       isFiltered: false,
-      dataIndex: ["barCode"],
+      dataIndex: ["barcode"],
       type: DataIndexType.MULTI,
     },
     unitCodeId: {
@@ -247,7 +247,7 @@ const InventoriesRegistration = (props: IProps) => {
     },
   });
   const [tableSelectedRows, setTableSelectedRows] = useState<IDataMaterial[]>(
-    []
+    [],
   );
 
   useEffect(() => {
@@ -269,7 +269,7 @@ const InventoriesRegistration = (props: IProps) => {
             },
           },
         });
-      })
+      }),
     );
     setFileList(blobImages);
   };
@@ -366,7 +366,7 @@ const InventoriesRegistration = (props: IProps) => {
       Promise.all(
         imageIds.map(async (id) => {
           await ReferenceService.removeUploadImage(id);
-        })
+        }),
       );
       setImageIds([]);
     } catch (error) {}
@@ -431,7 +431,7 @@ const InventoriesRegistration = (props: IProps) => {
             clone.findIndex((clo) => {
               return clo.id === row.id;
             }),
-            1
+            1,
           );
         });
         setTableSelectedRows(clone);
@@ -446,14 +446,14 @@ const InventoriesRegistration = (props: IProps) => {
         var clone = [...tableSelectedRows];
         clone.splice(
           tableSelectedRows.findIndex((e) => e.id === selectedRow.id),
-          1
+          1,
         );
         setTableSelectedRows(clone);
       }
     },
     onChange: (
       selectedRowKeys: React.Key[],
-      selectedRows: IDataConsumer[]
+      selectedRows: IDataConsumer[],
     ) => {},
     selectedRowKeys: tableSelectedRows.map((e) => e.id),
   };
@@ -484,7 +484,7 @@ const InventoriesRegistration = (props: IProps) => {
           form.setFieldValue("isActive", true);
           openNofi(
             "warning",
-            `${response.response.code} кодтой бараа үлдэгдэлтэй байгаа тул идэвхигүй болгох боломжгүй байна.`
+            `${response.response.code} кодтой бараа үлдэгдэлтэй байгаа тул идэвхигүй болгох боломжгүй байна.`,
           );
         }
       });
@@ -509,7 +509,7 @@ const InventoriesRegistration = (props: IProps) => {
                         filter: sectionNames,
                       },
                     ],
-                  })
+                  }),
                 );
               }}
             />
@@ -582,7 +582,7 @@ const InventoriesRegistration = (props: IProps) => {
                                   (section: IDataMaterialSection) => ({
                                     label: section.name,
                                     value: section.id,
-                                  })
+                                  }),
                                 )}
                               />
                             </Form.Item>
